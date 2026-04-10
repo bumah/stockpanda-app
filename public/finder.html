@@ -1588,7 +1588,7 @@ let _lastPresetKey = '';
 
 function openPreset(key) {
   _activePreset = key;
-  runPreset('global');
+  runPreset(answers.region || 'global');
 }
 window.openPreset = openPreset;
 
@@ -1703,7 +1703,7 @@ function updateProgress() {
 }
 
 // ── Compact indicator helpers (for search.json stocks) ──────────
-const IC_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr3Y'];
+const IC_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
 const IC_MAP   = {g:'green', a:'amber', r:'red'};
 const MOOD_COLOR_LABELS = {'mc-blue':'Level 1','mc-green':'Level 2','mc-amber':'Level 3','mc-orange':'Level 4','mc-red':'Level 5'};
 
@@ -1804,8 +1804,8 @@ function scoreByAnswers(stock, ans) {
              : ans.return1m === 'recovery'  ? rs('return1M')
              : 1;
 
-  const q5Y  = ans.growth5y === 'strong'   ? gs('cagr3Y')
-             : ans.growth5y === 'recovery'  ? rs('cagr3Y')
+  const q5Y  = ans.growth5y === 'strong'   ? gs('cagr5Y')
+             : ans.growth5y === 'recovery'  ? rs('cagr5Y')
              : 1;
 
   const qMom = ans.momentum === 'positive' ? gs('momentum')
@@ -2117,14 +2117,14 @@ const IND_DISPLAY = [
   { key:'return1M',   short:'1M'   },
   { key:'return1Y',   short:'1Y'   },
   { key:'range52W',   short:'52W'  },
-  { key:'cagr3Y',     short:'5Y'   },
+  { key:'cagr5Y',     short:'5Y'   },
 ];
 const CARD_ACCENT = { 'mc-blue':'#60A5FA','mc-green':'#4ADE80','mc-amber':'#FBBF24','mc-orange':'#FB923C','mc-red':'#F87171' };
 const CARD_IND_LABELS = {
   volatility:'Volatility', volSpike:'Vol Spike', vsPeak:'Vs Peak',
   shortTrend:'Short Trend', longTrend:'Long Trend', maCross:'MA Cross',
   momentum:'Momentum', return1M:'1M Return', return1Y:'1Y Return',
-  range52W:'52W Range', cagr3Y:'5Y CAGR'
+  range52W:'52W Range', cagr5Y:'5Y CAGR'
 };
 
 function buildCard(item, rank) {
@@ -2185,7 +2185,11 @@ function buildCard(item, rank) {
 }
 
 // ── Render a (possibly filtered) subset ───────────────────────
+const RENDER_CAP = 200;
+let _renderedSubset = [];
+
 function renderFilteredList(subset) {
+  _renderedSubset = subset;
   const total = scoredCache.length;
   const isFiltered = subset.length !== total;
   if (!subset.length) {
@@ -2196,12 +2200,49 @@ function renderFilteredList(subset) {
       _presetMode ? `0 of ${total} stocks match` : `0 of ${total} fits match`;
     return;
   }
-  document.getElementById('results-list').innerHTML = subset.map((item, i) => buildCard(item, i + 1)).join('');
-  document.getElementById('filter-count').textContent = `${subset.length} shown`;
+  const visible = subset.slice(0, RENDER_CAP);
+  const hasMore = subset.length > RENDER_CAP;
+  let html = visible.map((item, i) => buildCard(item, i + 1)).join('');
+  if (hasMore) {
+    html += `<div class="load-more-wrap" style="text-align:center;padding:1.5rem 0;">
+      <button class="btn-next" onclick="loadMoreResults()" style="font-size:0.82rem;padding:0.55rem 1.6rem;">
+        Show more (${subset.length - RENDER_CAP} remaining)
+      </button>
+    </div>`;
+  }
+  document.getElementById('results-list').innerHTML = html;
+  document.getElementById('filter-count').textContent = hasMore
+    ? `${visible.length} of ${subset.length} shown`
+    : `${subset.length} shown`;
   document.getElementById('results-title').textContent = isFiltered
     ? (_presetMode ? `${subset.length} of ${total} stocks match` : `${subset.length} of ${total} fits match`)
     : (_presetMode ? `${total} stocks in this filter` : `${total} good & great fits`);
 }
+
+function loadMoreResults() {
+  const list = document.getElementById('results-list');
+  const currentCount = list.querySelectorAll('.result-card').length;
+  const nextBatch = _renderedSubset.slice(currentCount, currentCount + RENDER_CAP);
+  const hasMore = currentCount + nextBatch.length < _renderedSubset.length;
+  // Remove the "Show more" button
+  const loadMoreWrap = list.querySelector('.load-more-wrap');
+  if (loadMoreWrap) loadMoreWrap.remove();
+  // Append new cards
+  let html = nextBatch.map((item, i) => buildCard(item, currentCount + i + 1)).join('');
+  if (hasMore) {
+    const remaining = _renderedSubset.length - currentCount - nextBatch.length;
+    html += `<div class="load-more-wrap" style="text-align:center;padding:1.5rem 0;">
+      <button class="btn-next" onclick="loadMoreResults()" style="font-size:0.82rem;padding:0.55rem 1.6rem;">
+        Show more (${remaining} remaining)
+      </button>
+    </div>`;
+  }
+  list.insertAdjacentHTML('beforeend', html);
+  document.getElementById('filter-count').textContent = hasMore
+    ? `${currentCount + nextBatch.length} of ${_renderedSubset.length} shown`
+    : `${_renderedSubset.length} shown`;
+}
+window.loadMoreResults = loadMoreResults;
 
 // ── Fit toggle ─────────────────────────────────────────────────
 function setFitFilter(mode) {
@@ -2426,7 +2467,6 @@ function twNext() {
   const styleKeys = Array.from(twStyles);
   const basePreset = PRESETS[styleKeys[0]];
   const merged = Object.assign({}, basePreset.a);
-  merged.region = null;
   if (sectors !== 'all') merged.sector = sectors;
   else merged.sector = 'all';
   if (styleKeys.length > 1) {
@@ -2436,8 +2476,8 @@ function twNext() {
       merged[f] = vals.length > 0 ? vals[0] : 'any';
     }
   }
-  answers.region = region;
   Object.assign(answers, merged);
+  answers.region = region;
   _activePreset = styleKeys[0];
   _presetMode = true;
   _lastPresetKey = styleKeys[0];
@@ -2450,16 +2490,18 @@ function twNext() {
 window.twNext = twNext;
 
 // ── Ranking modal ──────────────────────────────────────────────
+// Must match scoreByAnswers() scores order: [qSize, q1M, q5Y, qMom, qMA, qR52, qDD, qVol, qAn, qPr]
 const INDICATOR_META = [
-  { key:'volatility',  label:'Volatility',        ansKey:'vol',       prefMap:{ low:'Low volatility', moderate:'Moderate volatility', any:'Any' } },
+  { key:'size',        label:'Company Size',       ansKey:'size',      prefMap:{ large:'Large-cap', mid:'Mid-cap', small:'Small-cap', any:'Any' } },
   { key:'return1M',    label:'1-Month Return',     ansKey:'return1m',  prefMap:{ positive:'Positive gains', recovery:'Looking for dip', any:'Any' } },
-  { key:'return1Y',    label:'1-Year Return',      ansKey:'return1y',  prefMap:{ positive:'Positive annual', recovery:'Turnaround year', any:'Any' } },
+  { key:'cagr5Y',      label:'5-Year Growth',      ansKey:'growth5y',  prefMap:{ strong:'Strong 5Y track', recovery:'Turnaround', any:'Any' } },
   { key:'momentum',    label:'Momentum',           ansKey:'momentum',  prefMap:{ positive:'Strong momentum', neutral:'Neutral OK', any:'Any' } },
-  { key:'range52W',    label:'52-Week Position',   ansKey:'range52w',  prefMap:{ highs:'Near highs', middle:'Mid-range', lows:'Near lows' } },
-  { key:'cagr3Y',      label:'5-Year Growth',      ansKey:'cagr',      prefMap:{ strong:'Strong 5Y track', recovery:'Turnaround', any:'Any' } },
-  { key:'shortTrend',  label:'Short Trend (50D)',  ansKey:'short50',   prefMap:{ above:'Must be above 50D', nice:'Nice to have', any:'Any' } },
-  { key:'longTrend',   label:'Long Trend (200D)',  ansKey:'long200',   prefMap:{ above:'Must be above 200D', nice:'Nice to have', any:'Any' } },
-  { key:'volSpike',    label:'Recent Activity',    ansKey:'activity',  prefMap:{ calm:'Calm, no spikes', active:'Active / spiky', any:'Any' } },
+  { key:'matrend',     label:'MA Trend',           ansKey:'matrend',   prefMap:{ above_both:'Above both MAs', above_50:'Above 50D', below_both:'Below both MAs', any:'Any' } },
+  { key:'range52W',    label:'52-Week Position',   ansKey:'range52w',  prefMap:{ highs:'Near highs', middle:'Mid-range', lows:'Near lows', any:'Any' } },
+  { key:'drawdown',    label:'Drawdown from Peak', ansKey:'drawdown',  prefMap:{ near_peak:'Near peak', moderate:'Moderate dip', deep:'Deep discount', any:'Any' } },
+  { key:'volatility',  label:'Volatility',         ansKey:'vol',       prefMap:{ low:'Low volatility', moderate:'Moderate volatility', any:'Any' } },
+  { key:'analyst',     label:'Analyst Rating',     ansKey:'analyst',   prefMap:{ buy:'Buy-rated', neutral:'Neutral+', any:'Any' } },
+  { key:'profit',      label:'Profitability',      ansKey:'profit',    prefMap:{ profitable:'Profitable (EPS > 0)', any:'Any' } },
 ];
 
 function openRankingModal(idx) {
@@ -2482,11 +2524,26 @@ function openRankingModal(idx) {
     const score = item.scores[mi];
     const pref  = meta.prefMap[answers[meta.ansKey]] || 'Any';
 
-    // Data column — use indicator label, fallback to color word, then dash
+    // Data column — use indicator label for indicator keys, special handling for non-indicator keys
+    let dataVal = '—';
     const indData = ind[meta.key];
-    const dataVal = indData?.label || (indData?.color
-      ? indData.color.charAt(0).toUpperCase() + indData.color.slice(1)
-      : '—');
+    if (indData) {
+      dataVal = indData.label || (indData.color ? indData.color.charAt(0).toUpperCase() + indData.color.slice(1) : '—');
+    } else if (meta.key === 'size') {
+      const mc = s._mc;
+      dataVal = mc == null ? '—' : mc >= 10e9 ? 'Large-cap' : mc >= 2e9 ? 'Mid-cap' : 'Small-cap';
+    } else if (meta.key === 'matrend') {
+      const sc = ind.shortTrend?.color, lc = ind.longTrend?.color;
+      dataVal = sc === 'green' && lc === 'green' ? 'Above both MAs' : sc === 'green' ? 'Above 50D' : sc === 'red' && lc === 'red' ? 'Below both MAs' : 'Mixed';
+    } else if (meta.key === 'drawdown') {
+      const r52 = s._r52;
+      dataVal = r52 == null ? '—' : r52 >= 80 ? 'Near peak' : r52 >= 40 ? 'Moderate dip' : 'Deep discount';
+    } else if (meta.key === 'analyst') {
+      dataVal = s._ar || '—';
+    } else if (meta.key === 'profit') {
+      const eps = s._eps;
+      dataVal = eps == null ? '—' : eps > 0 ? `EPS: ${eps.toFixed(2)}` : 'Not profitable';
+    }
 
     // Fit column — dot color + word based on score (0, 0.5, 1)
     const fitDotClass = score >= 1 ? 'rm-dot-green' : score >= 0.5 ? 'rm-dot-amber' : 'rm-dot-red';

@@ -374,14 +374,14 @@ def parse_row(row):
     if v: inds["range52W"] = v
 
     v = ind_cagr5y(perf_y5)
-    if v: inds["cagr3Y"] = v   # keep key for front-end compat
+    if v: inds["cagr5Y"] = v
 
     mood = compute_mood(inds)
 
     # Indicator color string for search.json
     ic_chars = []
     for key in IND_ORDER:
-        k = "cagr3Y" if key == "cagr5Y" else key
+        k = key
         ind = inds.get(k)
         ic_chars.append(COLOR_MAP.get(ind["color"], "a") if ind else "a")
     ic_str = "".join(ic_chars)

@@ -131,8 +131,8 @@ initNavStamp();
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const IND_SCORE_KEYS = ['volatility','volSpike','vsPeak','shortTrend','longTrend','momentum','return1M','return1Y','range52W','cagr3Y'];
-const IC_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr3Y'];
+const IND_SCORE_KEYS = ['volatility','volSpike','vsPeak','shortTrend','longTrend','momentum','return1M','return1Y','range52W','cagr5Y'];
+const IC_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
 const IC_MAP   = { g: 'green', a: 'amber', r: 'red' };
 const MC_LABEL = { 'mc-blue':'Level 1', 'mc-green':'Level 2', 'mc-amber':'Level 3', 'mc-orange':'Level 4', 'mc-red':'Level 5' };
 const PAGE_SIZE = 50;
@@ -397,7 +397,7 @@ function applyFilters() {
 const IND_LABELS = {
   volatility:'Volatility', volSpike:'Vol Spike', vsPeak:'52W Peak',
   shortTrend:'Short Trend', longTrend:'Long Trend', momentum:'Momentum',
-  return1M:'1M Return', return1Y:'1Y Return', range52W:'52W Range', cagr3Y:'3Y CAGR'
+  return1M:'1M Return', return1Y:'1Y Return', range52W:'52W Range', cagr5Y:'5Y CAGR'
 };
 const ACCENT_COLOR = {
   'mc-blue':'#60A5FA', 'mc-green':'#4ADE80',

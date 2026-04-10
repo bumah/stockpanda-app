@@ -1741,7 +1741,7 @@ function updateProgress() {
 }
 
 // ── Compact indicator helpers (for search.json stocks) ──────────
-const IC_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr3Y'];
+const IC_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
 const IC_MAP   = {g:'green', a:'amber', r:'red'};
 const MOOD_COLOR_LABELS = {'mc-blue':'Level 1','mc-green':'Level 2','mc-amber':'Level 3','mc-orange':'Level 4','mc-red':'Level 5'};
 
@@ -1843,8 +1843,8 @@ function scoreByAnswers(stock, ans) {
              : ans.return1m === 'recovery'  ? rs('return1M')
              : 1;
 
-  const q5Y  = ans.growth5y === 'strong'   ? gs('cagr3Y')
-             : ans.growth5y === 'recovery'  ? rs('cagr3Y')
+  const q5Y  = ans.growth5y === 'strong'   ? gs('cagr5Y')
+             : ans.growth5y === 'recovery'  ? rs('cagr5Y')
              : 1;
 
   const qMom = ans.momentum === 'positive' ? gs('momentum')
@@ -2156,14 +2156,14 @@ const IND_DISPLAY = [
   { key:'return1M',   short:'1M'   },
   { key:'return1Y',   short:'1Y'   },
   { key:'range52W',   short:'52W'  },
-  { key:'cagr3Y',     short:'5Y'   },
+  { key:'cagr5Y',     short:'5Y'   },
 ];
 const CARD_ACCENT = { 'mc-blue':'#60A5FA','mc-green':'#4ADE80','mc-amber':'#FBBF24','mc-orange':'#FB923C','mc-red':'#F87171' };
 const CARD_IND_LABELS = {
   volatility:'Volatility', volSpike:'Vol Spike', vsPeak:'Vs Peak',
   shortTrend:'Short Trend', longTrend:'Long Trend', maCross:'MA Cross',
   momentum:'Momentum', return1M:'1M Return', return1Y:'1Y Return',
-  range52W:'52W Range', cagr3Y:'5Y CAGR'
+  range52W:'52W Range', cagr5Y:'5Y CAGR'
 };
 
 function buildCard(item, rank) {
@@ -2495,7 +2495,7 @@ const INDICATOR_META = [
   { key:'return1Y',    label:'1-Year Return',      ansKey:'return1y',  prefMap:{ positive:'Positive annual', recovery:'Turnaround year', any:'Any' } },
   { key:'momentum',    label:'Momentum',           ansKey:'momentum',  prefMap:{ positive:'Strong momentum', neutral:'Neutral OK', any:'Any' } },
   { key:'range52W',    label:'52-Week Position',   ansKey:'range52w',  prefMap:{ highs:'Near highs', middle:'Mid-range', lows:'Near lows' } },
-  { key:'cagr3Y',      label:'5-Year Growth',      ansKey:'cagr',      prefMap:{ strong:'Strong 5Y track', recovery:'Turnaround', any:'Any' } },
+  { key:'cagr5Y',      label:'5-Year Growth',      ansKey:'cagr',      prefMap:{ strong:'Strong 5Y track', recovery:'Turnaround', any:'Any' } },
   { key:'shortTrend',  label:'Short Trend (50D)',  ansKey:'short50',   prefMap:{ above:'Must be above 50D', nice:'Nice to have', any:'Any' } },
   { key:'longTrend',   label:'Long Trend (200D)',  ansKey:'long200',   prefMap:{ above:'Must be above 200D', nice:'Nice to have', any:'Any' } },
   { key:'volSpike',    label:'Recent Activity',    ansKey:'activity',  prefMap:{ calm:'Calm, no spikes', active:'Active / spiky', any:'Any' } },

@@ -87,11 +87,11 @@ const IND_META = {
   return1M:    { label: '1M Return',          short: '1M',    desc: 'Total price return over the past 30 trading days.' },
   return1Y:    { label: '1Y Return',          short: '1Y',    desc: 'Total price return over the past 12 months.' },
   range52W:    { label: '52-Week Range',      short: '52W',   desc: 'Where the price sits within its 52-week high/low band. Near bottom = bearish.' },
-  cagr3Y:      { label: '5Y CAGR',            short: 'CAGR',  desc: 'Compound annual growth rate over 5 years. Negative CAGR = long-term value destruction.' },
+  cagr5Y:      { label: '5Y CAGR',            short: 'CAGR',  desc: 'Compound annual growth rate over 5 years. Negative CAGR = long-term value destruction.' },
 };
 
 // The 11 scoring indicators (in display order)
-const IND_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr3Y'];
+const IND_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
 
 /* ── Data cache ──────────────────────────────────────────────────────────── */
 const EXCHANGE_LABELS = {
@@ -136,29 +136,51 @@ const DataCache = {
   _store: {},
   async get(exchange) {
     if (this._store[exchange]) return this._store[exchange];
-    const res = await fetch(`data/${exchange}.json`);
-    const json = await res.json();
-    this._store[exchange] = json;
-    return json;
+    try {
+      const res = await fetch(`data/${exchange}.json`);
+      if (!res.ok) throw new Error(`${exchange}.json: ${res.status}`);
+      const json = await res.json();
+      this._store[exchange] = json;
+      return json;
+    } catch(e) {
+      console.error('DataCache.get failed:', e);
+      return { exchange, label: '', asOf: '', mood: {}, stats: { total: 0, moodCounts: {} }, stocks: [] };
+    }
   },
   async getMeta() {
     if (this._store._meta) return this._store._meta;
-    const res = await fetch('data/meta.json');
-    this._store._meta = await res.json();
+    try {
+      const res = await fetch('data/meta.json');
+      if (!res.ok) throw new Error(`meta.json: ${res.status}`);
+      this._store._meta = await res.json();
+    } catch(e) {
+      console.error('DataCache.getMeta failed:', e);
+      this._store._meta = { generatedAt: null, csvSource: '', source: '' };
+    }
     return this._store._meta;
   },
   async getIndex() {
     if (this._store._index) return this._store._index;
-    const res = await fetch('data/index.json');
-    this._store._index = await res.json();
+    try {
+      const res = await fetch('data/index.json');
+      if (!res.ok) throw new Error(`index.json: ${res.status}`);
+      this._store._index = await res.json();
+    } catch(e) {
+      console.error('DataCache.getIndex failed:', e);
+      this._store._index = {};
+    }
     return this._store._index;
   },
   async getSearchIndex() {
     if (this._store._search) return this._store._search;
     try {
       const res = await fetch('data/search.json');
+      if (!res.ok) throw new Error(`search.json: ${res.status}`);
       this._store._search = await res.json();
-    } catch(e) { this._store._search = []; }
+    } catch(e) {
+      console.error('DataCache.getSearchIndex failed:', e);
+      this._store._search = [];
+    }
     return this._store._search;
   },
   async getGlobalStock(ticker) {

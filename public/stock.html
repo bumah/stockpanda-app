@@ -267,10 +267,10 @@ const IND_META_FULL = {
   return1M:    { label:'1M Return',           desc:'Total price return over the past 30 trading days. Shows near-term performance and recent market sentiment towards this stock.' },
   return1Y:    { label:'1Y Return',           desc:'Total price return over the past 12 months. Key measure of medium-term performance and whether this stock has created or destroyed value.' },
   range52W:    { label:'52-Week Range',       desc:'Where the current price sits within its 52-week high and low. Near the bottom of the range = bearish positioning. Near the top = strength.' },
-  cagr3Y:      { label:'5Y CAGR',             desc:'Compound annual growth rate over 5 years. Cuts through short-term noise to show the true long-term compounding power of this stock.' },
+  cagr5Y:      { label:'5Y CAGR',             desc:'Compound annual growth rate over 5 years. Cuts through short-term noise to show the true long-term compounding power of this stock.' },
 };
 
-const IND_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr3Y'];
+const IND_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
 const COLORS = { green:'#4ADE80', amber:'#FBBF24', red:'#F87171' };
 
 let stockData   = null;
@@ -717,7 +717,7 @@ function formatVal(key, i) {
     case 'return1M':    return pct(r);
     case 'return1Y':    return pct(r);
     case 'range52W':    return Math.round(r) + '%';
-    case 'cagr3Y':      return pct(r);
+    case 'cagr5Y':      return pct(r);
     default:            return i.label || '—';
   }
 }
@@ -863,7 +863,7 @@ function buildShareText() {
   const priceFmt = fmtPrice(s);
   const ret1m  = ind.return1M?.label  || '—';
   const ret1y  = ind.return1Y?.label  || '—';
-  const cagr3y = ind.cagr3Y?.label    || '—';
+  const cagr5y = ind.cagr5Y?.label    || '—';
   const mood   = s.mood?.label || 'Level 3';
   const mh     = s.moodHistory || {};
   const histLine = ['1w','1m','3m','1y']
@@ -877,7 +877,7 @@ function buildShareText() {
     `Returns`,
     `• 1M: ${ret1m}`,
     `• 1Y: ${ret1y}`,
-    `• 3Y CAGR: ${cagr3y}`,
+    `• 5Y CAGR: ${cagr5y}`,
     ``,
     `Level History: ${histLine}`,
     ``,
@@ -971,7 +971,7 @@ window.openShareModal = function openShareModal() {
   [
     { label:'1M Return', val: ind.return1M?.label || '—', color: COLORS_MAP[ind.return1M?.color] || 'var(--muted)' },
     { label:'1Y Return', val: ind.return1Y?.label || '—', color: COLORS_MAP[ind.return1Y?.color] || 'var(--muted)' },
-    { label:'3Y CAGR',   val: ind.cagr3Y?.label   || '—', color: COLORS_MAP[ind.cagr3Y?.color]  || 'var(--muted)' },
+    { label:'5Y CAGR',   val: ind.cagr5Y?.label   || '—', color: COLORS_MAP[ind.cagr5Y?.color]  || 'var(--muted)' },
   ].forEach(r => {
     const cell = document.createElement('div');
     cell.className = 'sc-ret';
@@ -1028,7 +1028,7 @@ window.openShareModal = function openShareModal() {
 
   const shareUrl  = `${location.origin}${location.pathname}?ticker=${encodeURIComponent(s.ticker)}&exchange=${encodeURIComponent(EXCHANGE)}`;
   const shareText = buildShareText();
-  const xText     = `$${s.ticker} — ${s.mood?.label || 'Level 3'}. 1Y: ${ind.return1Y?.label||'—'} · 3Y CAGR: ${ind.cagr3Y?.label||'—'} via @StockPanda`;
+  const xText     = `$${s.ticker} — ${s.mood?.label || 'Level 3'}. 1Y: ${ind.return1Y?.label||'—'} · 5Y CAGR: ${ind.cagr5Y?.label||'—'} via @StockPanda`;
 
   function makeBtn(icon, label) {
     const btn = document.createElement('button');
@@ -1226,7 +1226,7 @@ window.exportPDF = function exportPDF() {
       const retItems = [
         { label:'1M Return',  val: ind.return1M?.label  || '—', color: ind.return1M?.color  },
         { label:'1Y Return',  val: ind.return1Y?.label  || '—', color: ind.return1Y?.color  },
-        { label:'3Y CAGR',    val: ind.cagr3Y?.label    || '—', color: ind.cagr3Y?.color    },
+        { label:'5Y CAGR',    val: ind.cagr5Y?.label    || '—', color: ind.cagr5Y?.color    },
         { label:'Volatility', val: ind.volatility?.label|| '—', color: ind.volatility?.color },
       ];
       const colW = CW / 4;
@@ -1304,7 +1304,7 @@ window.exportPDF = function exportPDF() {
         volatility:'Volatility', volSpike:'Unusual Activity', vsPeak:'vs ATH',
         shortTrend:'Short-Term Trend', longTrend:'Long-Term Trend', maCross:'MA Cross',
         momentum:'Momentum', return1M:'1M Return', return1Y:'1Y Return',
-        range52W:'52-Week Range', cagr3Y:'5Y CAGR',
+        range52W:'52-Week Range', cagr5Y:'5Y CAGR',
       };
       const IND_DESCS = {
         volatility:'1-year annualised price swing.',
@@ -1317,9 +1317,9 @@ window.exportPDF = function exportPDF() {
         return1M:'Total return over past 30 trading days.',
         return1Y:'Total return over past 12 months.',
         range52W:'Position within 52-week high/low band.',
-        cagr3Y:'Compound annual growth rate over 5 years.',
+        cagr5Y:'Compound annual growth rate over 5 years.',
       };
-      const IND_ORD = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr3Y'];
+      const IND_ORD = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
 
       const tableRows = IND_ORD.map(key => {
         const i = ind[key];
@@ -1389,9 +1389,9 @@ window.openIndicatorsShareModal = function openIndicatorsShareModal() {
     volatility:'Volatility', volSpike:'Unusual Activity', vsPeak:'vs ATH',
     shortTrend:'Short-Term Trend', longTrend:'Long-Term Trend', maCross:'MA Cross',
     momentum:'Momentum', return1M:'1M Return', return1Y:'1Y Return',
-    range52W:'52-Week Range', cagr3Y:'5Y CAGR',
+    range52W:'52-Week Range', cagr5Y:'5Y CAGR',
   };
-  const IND_ORD = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr3Y'];
+  const IND_ORD = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
   const sigEmoji = { green:'🟢', amber:'🟡', red:'🔴' };
   const sigLabel = { green:'OK', amber:'Caution', red:'Alert' };
 
@@ -1419,7 +1419,7 @@ window.openIndicatorsShareModal = function openIndicatorsShareModal() {
     `stockpanda.app`,
   ].join('\n');
 
-  const xText = `$${s.ticker} indicator snapshot: 1Y ${ind.return1Y?.label||'—'} · 3Y CAGR ${ind.cagr3Y?.label||'—'} · Volatility ${ind.volatility?.label||'—'} via StockPanda`;
+  const xText = `$${s.ticker} indicator snapshot: 1Y ${ind.return1Y?.label||'—'} · 5Y CAGR ${ind.cagr5Y?.label||'—'} · Volatility ${ind.volatility?.label||'—'} via StockPanda`;
 
   // ── Build overlay ────────────────────────────────────────────────────────
   const overlay = document.createElement('div');
