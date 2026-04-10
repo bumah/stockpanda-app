@@ -1848,8 +1848,30 @@ function scoreByAnswers(stock, ans) {
   return { scores, total, pct };
 }
 
+// ── Normalized stock cache (avoids re-creating objects on every style change) ──
+let _normalizedCache = null;
+let _normalizedRegionKey = null;
+let _normalizedSectorKey = null;
+
+function _regionCacheKey() {
+  const r = answers.region;
+  return Array.isArray(r) ? r.sort().join(',') : (r || 'global');
+}
+function _sectorCacheKey() {
+  const s = answers.sector;
+  return Array.isArray(s) ? s.sort().join(',') : (s || 'all');
+}
+
 async function loadAllStocks() {
   const EXCH_LABELS = { sp500:'S&P 500', ftse100:'FTSE 100', hsi:'Hang Seng', nikkei225:'Nikkei 225', nasdaq100:'NASDAQ 100', nasdaq_financial:'NASDAQ Financial', nasdaq_biotech:'NASDAQ Biotech' };
+  const regionKey = _regionCacheKey();
+  const sectorKey = _sectorCacheKey();
+
+  // Return cached stocks if region+sector haven't changed (style change only)
+  if (_normalizedCache && _normalizedRegionKey === regionKey && _normalizedSectorKey === sectorKey) {
+    return _normalizedCache;
+  }
+
   const region  = answers.region || 'global';
   const isGlobal = region === 'global' || region === 'all';
   const regions  = isGlobal ? ['global'] : (Array.isArray(region) ? region : [region]);
@@ -1869,6 +1891,9 @@ async function loadAllStocks() {
     all.push(stock);
   }
 
+  _normalizedCache = all;
+  _normalizedRegionKey = regionKey;
+  _normalizedSectorKey = sectorKey;
   return all;
 }
 
@@ -1884,10 +1909,19 @@ async function findStocks() {
       <div style="color:var(--muted);font-size:0.85rem;">Ranking all stocks by your profile…</div>
     </div>`;
 
+  // Yield to browser so the loading spinner actually paints
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
   const stocks = await loadAllStocks();
 
-  // Score every stock
-  let scored = stocks.map(s => ({ stock: s, ...scoreByAnswers(s, answers) }));
+  // Score in batches to keep the UI responsive
+  const BATCH = 2000;
+  let scored = [];
+  for (let i = 0; i < stocks.length; i += BATCH) {
+    const batch = stocks.slice(i, i + BATCH);
+    scored.push(...batch.map(s => ({ stock: s, ...scoreByAnswers(s, answers) })));
+    if (i + BATCH < stocks.length) await new Promise(r => setTimeout(r, 0));
+  }
 
   // Apply watchlist filter (Magnificent 7, etc.)
   if (answers.watchlist && answers.watchlist.length) {
@@ -2581,6 +2615,7 @@ function resetQuiz() {
   _lastPresetKey = '';
   _allScored = [];
   _fitFilter = 'great';
+  _normalizedCache = null;
   sessionStorage.removeItem('sp_answers');
   sessionStorage.removeItem('sp_preset');
   sessionStorage.removeItem('sp_presetKey');
