@@ -1887,8 +1887,20 @@ function scoreByAnswers(stock, ans) {
   return { scores, total, pct };
 }
 
-// ── Load stocks from chosen region ────────────────────────────
-async function loadAllStocks() {
+// ── Pre-tagged stock cache ────────────────────────────────────────────────────
+let _taggedCache = null;
+let _taggedRegionKey = null;
+const _PRESET_KEYS = Object.keys(PRESETS);
+
+function _regionCacheKey() {
+  const r = answers.region;
+  return Array.isArray(r) ? r.sort().join(',') : (r || 'global');
+}
+
+async function loadAndTagStocks() {
+  const regionKey = _regionCacheKey();
+  if (_taggedCache && _taggedRegionKey === regionKey) return _taggedCache;
+
   const EXCH_LABELS = { sp500:'S&P 500', ftse100:'FTSE 100', hsi:'Hang Seng', nikkei225:'Nikkei 225', nasdaq100:'NASDAQ 100', nasdaq_financial:'NASDAQ Financial', nasdaq_biotech:'NASDAQ Biotech' };
   const region  = answers.region || 'global';
   const isGlobal = region === 'global' || region === 'all';
@@ -1904,12 +1916,30 @@ async function loadAllStocks() {
   const all = [];
   for (const e of searchData) {
     if (countrySet !== null && !countrySet.has(e.co)) continue;
-    const stock = normalizeSearchEntry(e, EXCH_LABELS);
-    if (!sectorMatches(stock, answers)) continue;
-    all.push(stock);
+    all.push(normalizeSearchEntry(e, EXCH_LABELS));
   }
 
+  const BATCH = 2000;
+  for (let i = 0; i < all.length; i += BATCH) {
+    const end = Math.min(i + BATCH, all.length);
+    for (let j = i; j < end; j++) {
+      const s = all[j];
+      s._presetScores = {};
+      for (const pk of _PRESET_KEYS) {
+        s._presetScores[pk] = scoreByAnswers(s, PRESETS[pk].a);
+      }
+    }
+    if (end < all.length) await new Promise(r => setTimeout(r, 0));
+  }
+
+  _taggedCache = all;
+  _taggedRegionKey = regionKey;
   return all;
+}
+
+function loadAllStocks(stocks) {
+  if (!answers.sector || answers.sector === 'all') return stocks;
+  return stocks.filter(s => sectorMatches(s, answers));
 }
 
 // ── Run the ranking ────────────────────────────────────────────
@@ -1924,10 +1954,23 @@ async function findStocks() {
       <div style="color:var(--muted);font-size:0.85rem;">Ranking all stocks by your profile…</div>
     </div>`;
 
-  const stocks = await loadAllStocks();
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-  // Score every stock
-  let scored = stocks.map(s => ({ stock: s, ...scoreByAnswers(s, answers) }));
+  const allStocks = await loadAndTagStocks();
+  const stocks = loadAllStocks(allStocks);
+
+  let scored;
+  if (_presetMode && _lastPresetKey && PRESETS[_lastPresetKey] && allStocks[0]?._presetScores?.[_lastPresetKey]) {
+    scored = stocks.map(s => ({ stock: s, ...s._presetScores[_lastPresetKey] }));
+  } else {
+    const BATCH = 2000;
+    scored = [];
+    for (let i = 0; i < stocks.length; i += BATCH) {
+      const batch = stocks.slice(i, i + BATCH);
+      scored.push(...batch.map(s => ({ stock: s, ...scoreByAnswers(s, answers) })));
+      if (i + BATCH < stocks.length) await new Promise(r => setTimeout(r, 0));
+    }
+  }
 
   // Apply watchlist filter (Magnificent 7, etc.)
   if (answers.watchlist && answers.watchlist.length) {
@@ -2563,6 +2606,7 @@ function resetQuiz() {
   _lastPresetKey = '';
   _allScored = [];
   _fitFilter = 'great';
+  _taggedCache = null;
   sessionStorage.removeItem('sp_answers');
   sessionStorage.removeItem('sp_preset');
   sessionStorage.removeItem('sp_presetKey');
