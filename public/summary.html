@@ -387,16 +387,7 @@ function renderAll() {
 
 (async () => {
   allSearchData = await DataCache.getSearchIndex();
-
-  const stamp = document.getElementById('nav-asof-span');
-  try {
-    const meta = await fetch('data/meta.json').then(r => r.json());
-    if (stamp && meta.generatedAt) {
-      const d = new Date(meta.generatedAt);
-      stamp.textContent = d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
-    }
-  } catch {}
-
+  initNavStamp();
   populateCountryDropdown();
   renderAll();
 

@@ -648,56 +648,21 @@ function renderFinancials() {
 
   const allCards = [
     card('EPS (Basic)',       fmtEps(fin.epsReported),   mColor(fin.epsReported),    'Earnings per share based on total shares outstanding.'),
-    card('EPS (Diluted/Fwd)', fmtEps(fin.epsForward),    mColor(fin.epsForward),     'Forward earnings per share — analyst consensus for next year.'),
     card('Net Income',        fmtM(fin.netIncome),        mColor(fin.netIncome),      'Total profit after all expenses and taxes.'),
     card('Gross Profit',      fmtM(fin.grossProfit),      mColor(fin.grossProfit),    'Revenue minus cost of goods sold.'),
     card('EBITDA',            fmtM(fin.ebitda),           mColor(fin.ebitda),         'Earnings before interest, tax, depreciation & amortization — a proxy for operating cash profitability.'),
     card('Free Cash Flow',    fmtM(fin.freeCashFlow),     mColor(fin.freeCashFlow),   'Cash generated after expenses and capital investments. Key measure of financial sustainability.'),
-    card('Operating Margin',  fmtPct(fin.operatingMargin),margColor(fin.operatingMargin),'Operating profit as % of revenue.'),
-    card('Gross Margin',      fmtPct(fin.grossMargin),    margColor(fin.grossMargin), 'Gross profit as % of revenue. Reflects pricing power and production efficiency.'),
-    card('Net Margin',        fmtPct(fin.profitMargin),   margColor(fin.profitMargin),'Net profit as % of revenue after all costs.'),
     card('Debt / Equity',     deRatio,                    deColor,                    'Total debt compared to shareholder equity. Higher ratio means more leverage and financial risk.'),
-    card('Current Ratio',     fmtRatio(fin.currentRatio), fin.currentRatio != null ? (fin.currentRatio >= 1.5 ? COLORS.green : fin.currentRatio >= 1 ? COLORS.amber : COLORS.red) : null, 'Current assets vs current liabilities — short-term liquidity health.'),
     card('Dividends / Share', (fin.dividendsPerShare != null && fin.dividendsPerShare > 0) ? '$' + fin.dividendsPerShare.toFixed(4) : null, null, 'Annual cash dividend paid to shareholders per share.'),
     card('Market Cap',        fmtM(fin.marketCap),        null, 'Total market value of the company based on share price × shares outstanding.'),
-    card('Revenue',           fmtM(fin.revenue),          null, 'Total revenue generated over the fiscal year.'),
   ].join('');
 
   const sections = group('Profitability, Performance & Risk', [allCards]);
-
-  // ── Quarterly revenue bars ─────────────────────────────────────────────────
-  let qRevHtml = '';
-  const qr = fin.revenueQuarterly;
-  if (qr && qr.length) {
-    function fmtMQ(v) {
-      if (v == null) return '—';
-      const abs = Math.abs(v), sign = v < 0 ? '-' : '';
-      if (abs >= 1e9) return sign + '$' + (abs/1e9).toFixed(1) + 'B';
-      if (abs >= 1e6) return sign + '$' + (abs/1e6).toFixed(1) + 'M';
-      return sign + '$' + abs.toLocaleString();
-    }
-    const maxRev = Math.max(...qr.map(q => q.revenue || 0));
-    const bars = qr.map(q => {
-      const pct = maxRev > 0 ? Math.round((q.revenue || 0) / maxRev * 100) : 0;
-      const d   = new Date(q.date);
-      const lbl = d.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });
-      return `<div class="fin-qrev-bar-wrap">
-        <div class="fin-qrev-bar-track"><div class="fin-qrev-bar-fill" style="height:${pct}%;"></div></div>
-        <div class="fin-qrev-val">${fmtMQ(q.revenue)}</div>
-        <div class="fin-qrev-date">${lbl}</div>
-      </div>`;
-    }).join('');
-    qRevHtml = `<div class="cp-group" style="margin-top:1rem;">
-      <div class="cp-group-label">Quarterly Revenue</div>
-      <div class="fin-qrev-bars">${bars}</div>
-    </div>`;
-  }
 
   el.innerHTML = `<div class="section-label">Company Financials</div>
   <div class="cp-section" style="margin-bottom:1.25rem;">
     ${period ? `<div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-bottom:1rem;">Fiscal Year · ${period}</div>` : ''}
     ${sections}
-    ${qRevHtml}
   </div>`;
 }
 
@@ -796,25 +761,6 @@ function renderRawTable() {
         `${conv.toFixed(0)}% of net profit converts to real cash. ${conv >= 80 ? 'High quality — earnings are well backed by cash.' : conv >= 50 ? 'Moderate — some gap between reported profit and cash generated.' : 'Low quality — reported earnings significantly outpace cash generation. Watch closely.'}`);
     }
 
-    if (fin.epsForward != null && fin.epsReported != null && fin.epsReported > 0) {
-      const growth = ((fin.epsForward - fin.epsReported) / Math.abs(fin.epsReported)) * 100;
-      const color = growth > 5 ? 'green' : growth > -5 ? 'amber' : 'red';
-      const sign = growth >= 0 ? '+' : '';
-      pushRow(color, 'Earnings Direction', sign + growth.toFixed(1) + '%',
-        `Analyst consensus expects EPS to ${growth > 5 ? 'grow ' + growth.toFixed(1) + '% next year — positive trajectory.' : growth > -5 ? 'stay roughly flat (' + sign + growth.toFixed(1) + '%) — limited growth expected.' : 'decline ' + growth.toFixed(1) + '% — analysts see earnings under pressure.'}`);
-    }
-
-    const qr = fin.revenueQuarterly;
-    if (qr && qr.length >= 2) {
-      const q0 = qr[0].revenue, q1 = qr[1].revenue;
-      if (q0 != null && q1 != null && q1 !== 0) {
-        const qoq = ((q0 - q1) / Math.abs(q1)) * 100;
-        const color = qoq > 3 ? 'green' : qoq > -3 ? 'amber' : 'red';
-        const sign = qoq >= 0 ? '+' : '';
-        pushRow(color, 'Revenue Trend', sign + qoq.toFixed(1) + '% QoQ',
-          `Most recent quarter revenue ${qoq > 3 ? 'grew ' + qoq.toFixed(1) + '% vs the prior quarter — momentum is building.' : qoq > -3 ? 'was roughly flat (' + sign + qoq.toFixed(1) + '%) quarter-on-quarter.' : 'fell ' + Math.abs(qoq).toFixed(1) + '% quarter-on-quarter — near-term slowdown visible.'}`);
-      }
-    }
   }
 
   document.getElementById('ind-groups').innerHTML = ['green','amber','red'].map(key => {

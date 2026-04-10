@@ -336,7 +336,7 @@ def parse_row(row):
         prev_p = p / (1 + pct_1d / 100)
         price_change = round(p - prev_p, 4)
     else:
-        price_change = 0
+        price_change = None
 
     # debtToEquity stored × 100 for backward compatibility with renderFinancials
     dte_stored = round(dte_ratio * 100, 4) if dte_ratio is not None else None
@@ -420,17 +420,7 @@ def parse_row(row):
         "debtToEquity":    dte_stored,
         "marketCap":       _round(mktcap, 2),
         "dividendsPerShare": _round(divps, 4),
-        # Legacy fields (null — not in new CSV structure)
-        "revenue":         None,
-        "netIncome":       _round(netinc, 0),
-        "grossMargin":     None,
-        "operatingMargin": None,
-        "profitMargin":    None,
         "epsReported":     _round(epsdilut, 4),
-        "epsForward":      None,
-        "currentRatio":    None,
-        "operatingCashFlow": None,
-        "capitalExpenditure": None,
         "beta":            _round(beta5y, 4),
     }
 
@@ -442,7 +432,7 @@ def parse_row(row):
 
     ann_vol = None
     if vol_m1 is not None:
-        ann_vol = _round(vol_m1 * __import__('math').sqrt(252), 1)
+        ann_vol = _round(vol_m1 * math.sqrt(252), 1)
 
     return {
         "ticker":        row["Symbol"],
