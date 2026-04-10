@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockPanda — Quick Bites</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    .qb-wrap { max-width: 1200px; margin: 0 auto; padding: 2rem 1.2rem 4rem; }
+
+    .qb-hero {
+      text-align: center; padding: 3rem 1rem 2.5rem;
+      border-bottom: 1px solid var(--border); margin-bottom: 2rem;
+    }
+    .qb-badge {
+      display: inline-block; font-family: var(--mono); font-size: 0.65rem;
+      letter-spacing: 0.12em; color: var(--green); border: 1px solid var(--green);
+      border-radius: 20px; padding: 0.3rem 0.9rem; margin-bottom: 1rem;
+    }
+    .qb-hero h1 {
+      font-family: var(--serif); font-size: 2.8rem; font-weight: 700;
+      color: var(--parchment); font-style: italic; letter-spacing: -0.02em;
+      margin-bottom: 0.6rem;
+    }
+    .qb-hero p {
+      font-size: 0.9rem; color: var(--muted); max-width: 480px; margin: 0 auto;
+      line-height: 1.55;
+    }
+
+    .qb-controls {
+      display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .qb-tab {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      padding: 0.38rem 0.9rem; border-radius: 20px; font-size: 0.75rem;
+      cursor: pointer; font-family: var(--font); transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .qb-tab:hover { border-color: var(--muted); color: var(--text); }
+    .qb-tab.active { border-color: var(--green); color: var(--green); background: rgba(74,222,128,0.07); }
+
+    .qb-country-wrap {
+      margin-left: auto; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .qb-country-label {
+      font-family: var(--mono); font-size: 0.62rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .qb-country-select {
+      background: var(--card); border: 1px solid var(--border); color: var(--text);
+      padding: 0.35rem 0.7rem; border-radius: 8px; font-size: 0.75rem;
+      font-family: var(--font); cursor: pointer; min-width: 140px;
+    }
+
+    .qb-section-label {
+      font-family: var(--mono); font-size: 0.62rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.1em;
+      margin: 2.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+    }
+
+    .qb-style-section { margin-bottom: 2.5rem; }
+    .qb-style-header {
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;
+    }
+    .qb-style-icon { font-size: 1.1rem; }
+    .qb-style-name {
+      font-size: 1rem; font-weight: 700; color: var(--text);
+    }
+    .qb-style-sub {
+      font-size: 0.72rem; color: var(--muted); margin-left: 0.5rem;
+    }
+
+    .qb-table {
+      width: 100%; border-collapse: collapse;
+    }
+    .qb-table th {
+      font-family: var(--mono); font-size: 0.6rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .qb-table th.right { text-align: right; }
+    .qb-table td {
+      font-size: 0.78rem; padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid rgba(74,222,128,0.05);
+    }
+    .qb-table td.right { text-align: right; }
+    .qb-table th.center, .qb-table td.center { text-align: center; }
+    .qb-table tr { cursor: pointer; transition: background 0.1s; }
+    .qb-table tbody tr:hover { background: rgba(74,222,128,0.04); }
+
+    .qb-ticker {
+      font-family: var(--mono); font-weight: 700; font-size: 0.82rem; color: var(--green);
+    }
+    .qb-company {
+      color: var(--muted); font-size: 0.72rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;
+      display: inline-block; vertical-align: middle;
+    }
+    .qb-country-cell {
+      font-size: 0.65rem; color: var(--muted); opacity: 0.7;
+    }
+
+    .qb-empty {
+      color: var(--muted); font-size: 0.8rem; padding: 1rem 0; font-style: italic;
+    }
+
+    .qb-loading {
+      display: flex; align-items: center; gap: 0.5rem;
+      color: var(--muted); font-size: 0.85rem; padding: 3rem 0; justify-content: center;
+    }
+    .qb-spinner {
+      width: 16px; height: 16px; border: 2px solid var(--border);
+      border-top-color: var(--green); border-radius: 50%;
+      animation: qb-spin 0.7s linear infinite;
+    }
+    @keyframes qb-spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 720px) {
+      .qb-controls { flex-direction: column; align-items: stretch; }
+      .qb-country-wrap { margin-left: 0; }
+      .qb-style-sub { display: none; }
+      .qb-company { max-width: 120px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-sp">Stock</span><span class="nav-logo-rest">Panda</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="stocks.html">Browse</a>
+    <a class="nav-link active" href="summary.html">Quick Bites</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-search-wrap">
+      <div class="nav-search-bar">
+        <input id="nav-search-input" type="text" placeholder="Search ticker or company…" autocomplete="off" />
+        <button onclick="document.getElementById('nav-search-input').dispatchEvent(new Event('input'))">🔍</button>
+      </div>
+      <div class="nav-search-results" id="nav-search-results"></div>
+    </div>
+    <a href="mailto:contact@terencebumah.com" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;">Contact</a>
+    <div class="nav-stamp">Data: <span id="nav-asof-span">—</span></div>
+  </div>
+</nav>
+
+<div class="qb-wrap">
+  <div class="qb-hero">
+    <div class="qb-badge">QUICK BITES</div>
+    <h1>The Market at a Glance</h1>
+    <p>Top 5 stocks for every hunting style, across every region.</p>
+  </div>
+
+  <div class="qb-controls" id="controls">
+    <button class="qb-tab active" data-region="us">🇺🇸 United States</button>
+    <button class="qb-tab" data-region="uk">🇬🇧 United Kingdom</button>
+    <button class="qb-tab" data-region="europe">🇪🇺 Europe</button>
+    <button class="qb-tab" data-region="hk">🇭🇰 Hong Kong</button>
+    <button class="qb-tab" data-region="china">🇨🇳 China</button>
+    <button class="qb-tab" data-region="japan">🇯🇵 Japan</button>
+    <div class="qb-country-wrap">
+      <span class="qb-country-label">Country</span>
+      <select class="qb-country-select" id="country-select">
+        <option value="">All in region</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="content">
+    <div class="qb-loading"><div class="qb-spinner"></div>Loading market data…</div>
+  </div>
+</div>
+
+<script src="assets/js/mood.js"></script>
+<script>
+'use strict';
+
+const EUROPE_COUNTRIES = new Set(['United Kingdom','Ireland','Sweden','France','Germany','Italy','Switzerland','Poland','Norway','Spain','Russian Federation','Finland','Denmark','Netherlands','Belgium','Greece','Austria','Luxembourg','Portugal','Bulgaria','Croatia','Romania','Hungary','Iceland','Slovenia','Lithuania','Estonia','Malta','Latvia','Slovakia','Czech Republic']);
+const MIDDLEEAST_COUNTRIES = new Set(['Saudi Arabia','United Arab Emirates','Israel','Kuwait','Qatar','Bahrain','Egypt','Jordan','Nigeria','Kenya','South Africa']);
+
+const REGION_CONFIG = {
+  us:     { label: '🇺🇸 United States', countries: new Set(['United States','Canada']) },
+  uk:     { label: '🇬🇧 United Kingdom', countries: new Set(['United Kingdom','Ireland']) },
+  europe: { label: '🇪🇺 Europe', countries: EUROPE_COUNTRIES },
+  hk:     { label: '🇭🇰 Hong Kong', countries: new Set(['Hong Kong','Macau']) },
+  china:  { label: '🇨🇳 China', countries: new Set(['China']) },
+  japan:  { label: '🇯🇵 Japan', countries: new Set(['Japan']) },
+};
+
+const IC_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr3Y'];
+const IC_MAP = { g: 'green', a: 'amber', r: 'red' };
+
+function parseIc(ic) {
+  if (!ic || typeof ic !== 'string') return {};
+  const ind = {};
+  for (let i = 0; i < ic.length && i < IC_ORDER.length; i++) {
+    ind[IC_ORDER[i]] = { color: IC_MAP[ic[i]] || 'amber' };
+  }
+  return ind;
+}
+
+const gt  = (field, thresh) => e => (e[field] ?? -Infinity) > thresh;
+const lt  = (field, thresh) => e => (e[field] ?? Infinity) < thresh;
+const gte = (field, thresh) => e => (e[field] ?? -Infinity) >= thresh;
+const lte = (field, thresh) => e => (e[field] ?? Infinity) <= thresh;
+const nn  = (field)         => e => e[field] != null;
+const aboveMA = (maField)   => e => e.p != null && e[maField] != null && e.p > e[maField];
+
+const HUNTING_STYLES = [
+  {
+    key:'optimistic', icon:'🐇', label:'Optimistic',
+    sub:'Turnaround stocks starting to recover after a rough patch.',
+    filters: [ gt('m1', 0), lt('r52', 40), gt('vcm', 0) ],
+    sort: (a, b) => (b.m1 ?? 0) - (a.m1 ?? 0),
+  },
+  {
+    key:'nimble', icon:'⚡', label:'Nimble',
+    sub:'Targets early breakouts with strong participation before they become overextended.',
+    filters: [ gt('m1', 0), aboveMA('ma50'), gt('vcw', 0) ],
+    sort: (a, b) => (b.m1 ?? 0) - (a.m1 ?? 0),
+  },
+  {
+    key:'momentum', icon:'🚀', label:'Momentum',
+    sub:'Identifies stocks in sustained uptrends across multiple timeframes.',
+    filters: [ gt('m1', 0), gt('m3', 0), gt('y1', 10), aboveMA('ma50') ],
+    sort: (a, b) => (b.y1 ?? 0) - (a.y1 ?? 0),
+  },
+  {
+    key:'pack', icon:'🐺', label:'Pack',
+    sub:'Follows institutional flows and consensus sentiment backed by strong participation.',
+    filters: [ gt('r52', 85), gt('rv', 1.5), gt('av90', 500000) ],
+    sort: (a, b) => (b.rv ?? 0) - (a.rv ?? 0),
+  },
+  {
+    key:'patient', icon:'🧘', label:'Patient',
+    sub:'Screens for high-quality stocks consolidating before a potential breakout.',
+    filters: [ gt('y5', 20), aboveMA('ma200'), lt('r52', 30) ],
+    sort: (a, b) => (b.y5 ?? 0) - (a.y5 ?? 0),
+  },
+  {
+    key:'safe', icon:'🛡️', label:'Careful',
+    sub:'Targets stable, low-risk companies with strong balance sheets and low sensitivity.',
+    filters: [ nn('vol'), lt('vol', 25), gt('ni', 0), nn('dte'), lt('dte', 100), gt('div', 0) ],
+    sort: (a, b) => (a.vol ?? 999) - (b.vol ?? 999),
+  },
+  {
+    key:'trophy', icon:'🏆', label:'Trophy',
+    sub:'Focuses on proven long-term winners with strong earnings and dominant positioning.',
+    filters: [ gt('mc', 10000000000), gt('y1', 10), gt('y5', 50), gt('eps', 0) ],
+    sort: (a, b) => (b.y5 ?? 0) - (a.y5 ?? 0),
+  },
+  {
+    key:'wild_beast', icon:'🧬', label:'Wild Beast',
+    sub:'Captures high-volatility assets with extreme upside (and downside) potential.',
+    filters: [ gt('vol', 50), gt('beta', 1.5), nn('gap'), gt('gap', 3) ],
+    sort: (a, b) => (b.vol ?? 0) - (a.vol ?? 0),
+  },
+  {
+    key:'zombie', icon:'🧟', label:'Zombie',
+    sub:'Finds heavily beaten-down stocks showing early signs of revival and accumulation.',
+    filters: [ lt('m1', -5), lt('r52', 25), gt('vcm', 20) ],
+    sort: (a, b) => (b.vcm ?? 0) - (a.vcm ?? 0),
+  },
+];
+
+function fmtPct(v) {
+  if (v == null) return '<span style="color:var(--muted);">—</span>';
+  const sign = v > 0 ? '+' : '';
+  const color = v > 0 ? 'var(--green)' : v < 0 ? 'var(--red)' : 'var(--text)';
+  return `<span style="color:${color};font-weight:500;">${sign}${v.toFixed(1)}%</span>`;
+}
+
+function fmtPrice(price, currency) {
+  if (price == null) return '—';
+  const syms = { USD:'$', EUR:'€', GBP:'£', JPY:'¥', CNY:'¥', HKD:'HK$', KRW:'₩', INR:'₹', CHF:'CHF ', SEK:'kr', CAD:'CA$', AUD:'A$', SGD:'S$', TWD:'NT$', BRL:'R$', ZAR:'R', MXN:'MX$', THB:'฿', MYR:'RM', IDR:'Rp', PLN:'zł', TRY:'₺', ILS:'₪', SAR:'SAR ', AED:'AED ', QAR:'QAR ', KWD:'KWD ', BHD:'BHD ', EGP:'E£', JOD:'JOD ', NOK:'kr', DKK:'kr', CZK:'Kč', HUF:'Ft' };
+  const sym = syms[currency] || (currency ? currency + ' ' : '$');
+  return sym + price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+let allSearchData = [];
+let currentRegion = 'us';
+let currentCountry = '';
+
+function getRegionStocks() {
+  const cfg = REGION_CONFIG[currentRegion];
+  if (!cfg) return [];
+  let stocks = allSearchData.filter(e => cfg.countries.has(e.co));
+  if (currentCountry) stocks = stocks.filter(e => e.co === currentCountry);
+  return stocks;
+}
+
+function populateCountryDropdown() {
+  const cfg = REGION_CONFIG[currentRegion];
+  if (!cfg) return;
+  const stocks = allSearchData.filter(e => cfg.countries.has(e.co));
+  const counts = new Map();
+  for (const s of stocks) {
+    if (s.co) counts.set(s.co, (counts.get(s.co) || 0) + 1);
+  }
+  const sel = document.getElementById('country-select');
+  sel.innerHTML = '<option value="">All in region</option>';
+  [...counts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([co, n]) => {
+      const opt = document.createElement('option');
+      opt.value = co;
+      opt.textContent = `${co} (${n.toLocaleString()})`;
+      sel.appendChild(opt);
+    });
+  sel.value = currentCountry;
+}
+
+function renderAll() {
+  const regionStocks = getRegionStocks();
+  const contentEl = document.getElementById('content');
+
+  if (!regionStocks.length) {
+    contentEl.innerHTML = '<div class="qb-empty">No stocks found for this selection.</div>';
+    return;
+  }
+
+  let html = '';
+
+  for (const style of HUNTING_STYLES) {
+    const matches = regionStocks.filter(e => style.filters.every(fn => fn(e)));
+    matches.sort(style.sort);
+    const top5 = matches.slice(0, 5);
+
+    html += `<div class="qb-style-section">
+      <div class="qb-style-header">
+        <span class="qb-style-icon">${style.icon}</span>
+        <span class="qb-style-name">${style.label}</span>
+        <span class="qb-style-sub">${style.sub}</span>
+      </div>`;
+
+    if (!top5.length) {
+      html += '<div class="qb-empty">No matching stocks found.</div>';
+    } else {
+      html += `<table class="qb-table">
+        <thead><tr>
+          <th style="width:30px;">#</th>
+          <th>Stock</th>
+          <th>Country</th>
+          <th class="right">Price</th>
+          <th style="width:80px;">Level</th>
+          <th class="center" style="width:60px;">Red Flags</th>
+          <th class="right">1M</th>
+          <th class="right">YTD</th>
+          <th class="right">1Y</th>
+        </tr></thead><tbody>`;
+
+      top5.forEach((s, i) => {
+        const b = MOOD.band(s.m || 'Level 3');
+        const ind = parseIc(s.ic);
+        const redCount = IC_ORDER.filter(k => ind[k]?.color === 'red').length;
+        const redStyle = redCount > 0 ? 'color:var(--red);font-weight:600;' : 'color:var(--muted);';
+        html += `<tr onclick="window.location.href='stock.html?ticker=${encodeURIComponent(s.t)}&country=${encodeURIComponent(s.co || '')}'">
+          <td style="color:var(--muted);font-family:var(--mono);font-size:0.68rem;">${i+1}</td>
+          <td style="box-shadow:inset 3px 0 0 ${b.color}; padding-left:12px;">
+            <span class="qb-ticker">${s.t}</span>
+            <span class="qb-company">${s.n || ''}</span>
+          </td>
+          <td class="qb-country-cell">${s.co || ''}</td>
+          <td class="right" style="font-variant-numeric:tabular-nums;">${fmtPrice(s.p, s.c)}</td>
+          <td><span class="mood-chip ${b.cls}" style="font-size:0.65rem;" title="${MOOD_DESC[b.label] || ''}">${b.label}</span></td>
+          <td class="center" style="font-size:0.78rem;${redStyle}">${redCount}</td>
+          <td class="right">${fmtPct(s.m1)}</td>
+          <td class="right">${fmtPct(s.ytd)}</td>
+          <td class="right">${fmtPct(s.y1)}</td>
+        </tr>`;
+      });
+
+      html += '</tbody></table>';
+    }
+    html += '</div>';
+  }
+
+  contentEl.innerHTML = html;
+}
+
+(async () => {
+  allSearchData = await DataCache.getSearchIndex();
+
+  const stamp = document.getElementById('nav-asof-span');
+  try {
+    const meta = await fetch('data/meta.json').then(r => r.json());
+    if (stamp && meta.generatedAt) {
+      const d = new Date(meta.generatedAt);
+      stamp.textContent = d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+    }
+  } catch {}
+
+  populateCountryDropdown();
+  renderAll();
+
+  document.getElementById('controls').addEventListener('click', e => {
+    const tab = e.target.closest('.qb-tab');
+    if (!tab) return;
+    document.querySelectorAll('.qb-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentRegion = tab.dataset.region;
+    currentCountry = '';
+    populateCountryDropdown();
+    renderAll();
+  });
+
+  document.getElementById('country-select').addEventListener('change', e => {
+    currentCountry = e.target.value;
+    renderAll();
+  });
+})();
+</script>
+<script>
+(function() {
+  const input = document.getElementById('nav-search-input');
+  const results = document.getElementById('nav-search-results');
+  if (!input || !results) return;
+  input.addEventListener('input', async () => {
+    const q = input.value.trim();
+    if (q.length < 1) { results.style.display = 'none'; return; }
+    results.style.display = 'block';
+    results.innerHTML = '<div style="padding:0.5rem;color:var(--muted);font-size:0.8rem;">Searching…</div>';
+    try {
+      const hits = await DataCache.searchAll(q);
+      if (!hits.length) { results.innerHTML = '<div style="padding:0.5rem;color:var(--muted);font-size:0.8rem;">No results</div>'; return; }
+      results.innerHTML = hits.slice(0,8).map(h =>
+        `<a class="nav-search-item" href="stock.html?ticker=${encodeURIComponent(h.ticker)}&exchange=${h.exchange}&country=${encodeURIComponent(h.country || '')}">
+          <span class="nsi-ticker">${h.ticker}</span>
+          <span class="nsi-name">${h.company||''}</span>
+          <span class="nsi-exch">${h.exchangeLabel||''}</span>
+        </a>`).join('');
+    } catch { results.innerHTML = '<div style="padding:0.5rem;color:var(--red);font-size:0.8rem;">Search unavailable</div>'; }
+  });
+  document.addEventListener('click', e => { if (!e.target.closest('.nav-search-wrap')) results.style.display='none'; });
+})();
+</script>
+<footer style="border-top:1px solid rgba(74,222,128,0.12);padding:2rem;max-width:1400px;margin:4rem auto 0;">
+  <div style="margin-bottom:1.25rem;">
+    <p style="font-size:0.78rem;color:var(--muted);line-height:1.85;margin:0;">StockPanda is a free stock research and education app. It was built to make investing more accessible. Nothing on this site constitutes financial advice. Always do your own research before making investment decisions.</p>
+  </div>
+  <div style="border-top:1px solid rgba(74,222,128,0.08);padding-top:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+    <span style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);">© StockPanda</span>
+    <span style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);">Not financial advice</span>
+  </div>
+</footer>
+</body>
+</html>

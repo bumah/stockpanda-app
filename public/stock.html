@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockPanda — Stock Detail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    /* ── Back nav ── */
+    .back-nav{display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;}
+    .back-btn{display:inline-flex;align-items:center;gap:4px;font-size:0.78rem;color:var(--muted);text-decoration:none;transition:color 0.15s;}
+    .back-btn:hover{color:var(--brand);}
+    .back-btn-sep{color:var(--border);font-size:0.78rem;}
+
+    /* ── Hero card ── */
+    .stock-hero{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1.25rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1.5rem;}
+    .hero-left{display:flex;align-items:flex-start;gap:1rem;flex:1;min-width:0;}
+    .hero-panda{width:76px;flex-shrink:0;position:relative;}
+    .panda-click-me{display:block;text-align:center;font-size:0.55rem;color:var(--green);margin-top:2px;letter-spacing:0.02em;font-weight:600;}
+    #panda-mood-tip{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:8px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:0.65rem 0.85rem;font-size:0.78rem;color:var(--parchment);line-height:1.45;width:240px;z-index:50;box-shadow:0 4px 16px rgba(0,0,0,0.35);}
+    .hero-meta{min-width:0;}
+    .hero-ticker{font-family:var(--mono);font-size:2rem;font-weight:700;color:var(--brand);line-height:1;letter-spacing:-0.01em;}
+    .hero-company{font-size:0.82rem;color:var(--muted);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .hero-badges{display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:10px;align-items:center;}
+    .hero-right{text-align:right;flex-shrink:0;}
+    .hero-price{font-family:var(--mono);font-size:2rem;font-weight:700;color:var(--parchment);line-height:1;letter-spacing:-0.01em;}
+    .hero-change{font-size:0.8rem;margin-top:6px;font-family:var(--mono);}
+    .hero-mktcap{font-family:var(--mono);font-size:0.72rem;color:var(--muted);margin-top:5px;}
+    .hero-date{font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-top:3px;}
+    .action-bar{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:1rem;}
+    @media(max-width:580px){
+      .stock-hero{flex-direction:column;gap:1.1rem;}
+      .hero-right{text-align:left;width:100%;}
+      .hero-ticker,.hero-price{font-size:1.6rem;}
+      .hero-panda{width:60px;}
+      .action-bar{justify-content:flex-start;}
+    }
+
+    /* ── Dashboard 2-col grid ── */
+    .dash-grid{display:grid;grid-template-columns:1fr 310px;gap:1.25rem;align-items:start;}
+    .dash-sidebar{position:sticky;top:72px;}
+    @media(max-width:880px){
+      .dash-grid{grid-template-columns:1fr;}
+      .dash-sidebar{position:static;}
+    }
+
+    /* ── Section labels ── */
+    .section-label{font-size:0.65rem;font-weight:700;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem;}
+    .dot-indicator{display:inline-flex;align-items:center;justify-content:center;width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+    /* ── Company Info ── */
+    .ci-section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;margin-bottom:1.25rem;}
+    .ci-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;margin-bottom:0.6rem;}
+    @media(max-width:600px){.ci-grid{grid-template-columns:repeat(2,1fr);}}
+    .ci-cell{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0.65rem 0.7rem;}
+    .ci-cell-label{font-size:0.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.25rem;}
+    .ci-cell-value{font-size:0.8rem;font-weight:700;color:var(--parchment);line-height:1.3;}
+    .ci-cell-value.green{color:var(--green);}
+    .ci-cell-value.amber{color:var(--amber);}
+    .ci-index-wrap{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0.6rem 0.7rem;}
+    .ci-index-label{font-size:0.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.35rem;}
+    .ci-index-tags{display:flex;flex-wrap:wrap;gap:0.25rem;align-items:center;}
+    .ci-index-tag{font-size:0.6rem;background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.16);border-radius:3px;padding:2px 6px;color:var(--text);white-space:nowrap;}
+    .ci-index-tag-extra{display:none;}
+    .ci-index-tags.expanded .ci-index-tag-extra{display:revert;}
+    .ci-index-toggle{font-size:0.6rem;background:rgba(138,158,143,0.1);border:1px solid rgba(138,158,143,0.22);border-radius:3px;padding:2px 7px;color:var(--muted);cursor:pointer;white-space:nowrap;transition:background 0.15s,color 0.15s;user-select:none;line-height:1.4;}
+    .ci-index-toggle:hover{background:rgba(74,222,128,0.1);color:var(--text);border-color:rgba(74,222,128,0.25);}
+
+    /* ── Grouped stat/fin cards ── */
+    .cp-section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;}
+    .cp-group{margin-bottom:1rem;}
+    .cp-group:last-child{margin-bottom:0;}
+    .cp-group-label{font-size:0.55rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.45rem;padding-bottom:0.35rem;border-bottom:1px solid var(--border);}
+    .cp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.45rem;}
+    @media(max-width:640px){.cp-grid{grid-template-columns:repeat(2,1fr);}}
+    .stat-card,.fin-cell{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0.65rem 0.7rem;}
+    .stat-label,.fin-cell-label{font-size:0.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.25rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .stat-val,.fin-cell-value{font-family:var(--mono);font-size:0.88rem;font-weight:700;color:var(--parchment);}
+
+    /* ── Returns Bar Chart ── */
+    .rc-chart{display:flex;gap:4px;padding-bottom:2px;}
+    .rc-bcol{display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;}
+    .rc-bval{font-family:var(--mono);font-size:0.58rem;font-weight:700;height:14px;line-height:14px;text-align:center;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .rc-upper-slot{height:80px;width:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;}
+    .rc-lower-slot{height:80px;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;}
+    .rc-bar-p{width:72%;border-radius:3px 3px 0 0;flex-shrink:0;}
+    .rc-bar-n{width:72%;border-radius:0 0 3px 3px;flex-shrink:0;}
+    .rc-zeroline-bar{border-top:1px solid var(--border);width:100%;flex-shrink:0;}
+    .rc-blabel{font-size:0.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-top:4px;}
+    .rc-longterm{margin-top:0.6rem;}
+    .rc-longterm .cp-grid{grid-template-columns:repeat(5,1fr);}
+    @media(max-width:640px){.rc-longterm .cp-grid{grid-template-columns:repeat(3,1fr);}}
+
+    /* ── Collapsible Analysis groups ── */
+    .ig-groups{margin-bottom:0;}
+    .ig-group{margin-bottom:0.6rem;}
+    .ig-group-header{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.7rem;border-radius:var(--radius);margin-bottom:0.2rem;}
+    .ig-group-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+    .ig-group-label{font-size:0.65rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;}
+    .ig-group-count{font-size:0.6rem;color:var(--muted);margin-left:auto;}
+    .ig-row-wrap{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);margin-bottom:3px;background:var(--bg2);}
+    .ig-row{display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.7rem;cursor:pointer;transition:background 0.12s;}
+    .ig-row:hover{background:var(--bg3);}
+    .ig-row-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+    .ig-row-name{font-size:0.78rem;color:var(--text);flex:1;min-width:0;}
+    .ig-row-val{font-family:var(--mono);font-size:0.78rem;font-weight:700;white-space:nowrap;flex-shrink:0;}
+    .ig-plus{width:20px;height:20px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:0.7rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;line-height:1;}
+    .ig-plus:hover{border-color:var(--brand);color:var(--brand);}
+    .ig-desc{font-size:0.72rem;color:var(--muted);line-height:1.5;padding:0.45rem 0.7rem 0.55rem 2rem;display:none;border-top:1px solid var(--border);}
+    .ig-desc.open{display:block;}
+    .ig-plus.open{background:var(--brand);border-color:var(--brand);color:#0B1A10;}
+
+    /* ── Quarterly revenue bars ── */
+    .fin-qrev-bars{display:flex;gap:0.4rem;align-items:flex-end;height:72px;overflow-x:auto;padding-bottom:0.2rem;}
+    .fin-qrev-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:0.2rem;min-width:44px;flex:1;}
+    .fin-qrev-bar-track{width:100%;height:52px;display:flex;align-items:flex-end;justify-content:center;}
+    .fin-qrev-bar-fill{width:70%;background:rgba(74,222,128,0.38);border-radius:2px 2px 0 0;transition:height 0.35s;}
+    .fin-qrev-bar-fill:hover{background:rgba(74,222,128,0.58);}
+    .fin-qrev-val{font-size:0.58rem;color:var(--muted);font-family:var(--mono);white-space:nowrap;}
+    .fin-qrev-date{font-size:0.55rem;color:var(--muted);font-family:var(--mono);}
+
+    /* ── Share ── */
+    .share-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(74,222,128,0.10);border:1px solid rgba(74,222,128,0.30);border-radius:6px;padding:5px 13px;font-size:0.75rem;font-weight:700;color:var(--brand);cursor:pointer;font-family:var(--font);transition:all 0.15s;margin-top:8px;}
+    .share-btn:hover{background:rgba(74,222,128,0.18);border-color:var(--brand);}
+    .share-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;}
+    .share-modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;max-width:420px;width:100%;position:relative;}
+    .share-modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
+    .share-modal-title{font-size:0.85rem;font-weight:700;color:var(--parchment);}
+    .share-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:0;line-height:1;}
+    .share-close:hover{color:var(--parchment);}
+    .share-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;margin-bottom:1.1rem;}
+    .sc-header{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.85rem;}
+    .sc-panda{width:42px;height:42px;flex-shrink:0;}
+    .sc-ticker{font-family:var(--mono);font-size:1.2rem;font-weight:700;color:var(--brand);}
+    .sc-company{font-size:0.72rem;color:var(--muted);margin-top:1px;}
+    .sc-mood-row{display:flex;align-items:center;gap:6px;margin-top:4px;}
+    .sc-price-row{display:flex;align-items:baseline;gap:8px;margin-bottom:0.85rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);}
+    .sc-price{font-family:var(--mono);font-size:1.25rem;font-weight:700;color:var(--parchment);}
+    .sc-returns{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:0.85rem;padding-bottom:0.75rem;border-bottom:1px solid var(--border);}
+    .sc-ret{text-align:center;}
+    .sc-ret-lbl{font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:2px;}
+    .sc-ret-val{font-family:var(--mono);font-size:0.88rem;font-weight:700;}
+    .sc-hist-title{font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:0.5rem;}
+    .sc-hist-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0.4rem;}
+    .sc-hist-cell{text-align:center;}
+    .sc-hist-period{font-size:0.55rem;color:var(--muted);margin-bottom:3px;}
+    .sc-hist-img{width:26px;height:26px;margin:0 auto 2px;}
+    .sc-hist-label{font-size:0.6rem;font-weight:700;}
+    .sc-brand{text-align:right;font-size:0.58rem;color:var(--muted);margin-top:0.75rem;letter-spacing:0.05em;}
+    .share-actions{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;}
+    .share-action-btn{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:0.75rem;font-weight:600;cursor:pointer;font-family:var(--font);transition:all 0.15s;text-decoration:none;}
+    .share-action-btn:hover{border-color:var(--brand);color:var(--brand);}
+    .share-action-btn.copied{border-color:var(--green);color:var(--green);}
+    .share-native{grid-column:1/-1;}
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-sp">Stock</span><span class="nav-logo-rest">Panda</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="stocks.html">Browse</a>
+    <a class="nav-link" href="summary.html">Quick Bites</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-search-wrap">
+    <div class="nav-search-bar">
+      <input id="nav-search-input" type="text" placeholder="Search ticker or company…" autocomplete="off" />
+      <button onclick="document.getElementById('nav-search-input').dispatchEvent(new Event('input'))">🔍</button>
+    </div>
+    <div class="nav-search-results" id="nav-search-results"></div>
+  </div>
+    <a href="mailto:contact@terencebumah.com" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;">Contact</a>
+    <div class="nav-stamp">Data: <span>—</span></div>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="back-nav">
+    <a class="back-btn" href="index.html">← Results</a>
+    <span class="back-btn-sep">·</span>
+    <a class="back-btn" id="back-btn" href="stocks.html">Browse</a>
+  </div>
+
+  <!-- Hero -->
+  <div class="stock-hero" id="stock-header">
+    <div class="hero-left">
+      <div class="hero-panda panda-wrap" id="hd-panda"></div>
+      <div class="hero-meta">
+        <div class="hero-ticker" id="hd-ticker">—</div>
+        <div class="hero-company" id="hd-company">Loading…</div>
+        <div class="hero-badges" id="hd-badges"></div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hero-price" id="hd-price">—</div>
+      <div class="hero-change" id="hd-change"></div>
+      <div class="hero-mktcap" id="hd-mktcap"></div>
+      <div class="hero-date" id="hd-datestamp"></div>
+    </div>
+  </div>
+
+  <!-- Action bar -->
+  <div class="action-bar">
+    <button class="share-btn" style="margin-top:0;" id="share-btn" onclick="openShareModal()">↗ Share</button>
+    <button class="share-btn" style="margin-top:0;" id="pdf-btn" onclick="exportPDF()">⬇ PDF</button>
+  </div>
+
+  <!-- Dashboard grid -->
+  <div class="dash-grid">
+
+    <!-- Main column -->
+    <div class="dash-main">
+      <div id="company-info-section"></div>
+
+      <div class="section-label">Company Performance</div>
+      <div id="stat-grid" style="margin-bottom:1.25rem;"></div>
+
+      <div id="financials-section"></div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="dash-sidebar">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+        <div class="section-label" style="margin-bottom:0;">Company Analysis</div>
+        <button class="share-btn" style="margin-top:0;font-size:0.68rem;padding:3px 9px;" onclick="openIndicatorsShareModal()">↗ Share</button>
+      </div>
+      <div class="ig-groups" id="ind-groups"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="assets/js/mood.js"></script>
+<script>
+'use strict';
+
+// All init wrapped in load event so mood.js + Chart.js are both ready
+window.addEventListener('load', function() {
+initNavStamp();
+
+const params   = new URLSearchParams(window.location.search);
+const TICKER   = params.get('ticker');
+const EXCHANGE = params.get('exchange') || 'sp500';
+const COUNTRY  = params.get('country') || '';
+
+// Back button preserves exchange
+const _knownExchanges = ['sp500','ftse100','hsi','nikkei225','nasdaq100','nasdaq_financial','nasdaq_biotech'];
+document.getElementById('back-btn').href = _knownExchanges.includes(EXCHANGE)
+  ? `stocks.html?exchange=${EXCHANGE}` : 'index.html';
+
+const IND_META_FULL = {
+  volatility:  { label:'Volatility',         desc:'1-year annualised price swing. How much the stock moves day-to-day on average. High volatility = bigger swings = more risk.' },
+  volSpike:    { label:'Unusual Activity',    desc:'Recent price volatility vs 12-month average. Above 1.5× means something unusual is happening — could be news-driven or early warning sign.' },
+  vsPeak:      { label:'Drawdown',            desc:'How far the current price is from its all-time high. A large drawdown from peak signals sustained weakness or a major correction.' },
+  shortTrend:  { label:'Short-Term Trend',    desc:'Price vs 50-day moving average. Positive means the stock is trading above its short-term trend — generally bullish. Negative means it has broken below.' },
+  longTrend:   { label:'Long-Term Trend',     desc:'Price vs 200-day moving average. This is the key long-term health check. Positive = sustained uptrend intact. Negative = structural downtrend.' },
+  maCross:     { label:'MA Cross',            desc:'Relationship between 50D and 200D moving averages. A Golden Cross (50D above 200D) signals a bullish trend. A Death Cross signals a sustained downtrend.' },
+  momentum:    { label:'Momentum',            desc:'Price direction based on recent and long-term return trajectory. This ranges from +1 to -1. Positive value means the stock has positive momentum. Negative value means it\'s trending down.' },
+  return1M:    { label:'1M Return',           desc:'Total price return over the past 30 trading days. Shows near-term performance and recent market sentiment towards this stock.' },
+  return1Y:    { label:'1Y Return',           desc:'Total price return over the past 12 months. Key measure of medium-term performance and whether this stock has created or destroyed value.' },
+  range52W:    { label:'52-Week Range',       desc:'Where the current price sits within its 52-week high and low. Near the bottom of the range = bearish positioning. Near the top = strength.' },
+  cagr3Y:      { label:'5Y CAGR',             desc:'Compound annual growth rate over 5 years. Cuts through short-term noise to show the true long-term compounding power of this stock.' },
+};
+
+const IND_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr3Y'];
+const COLORS = { green:'#4ADE80', amber:'#FBBF24', red:'#F87171' };
+
+let stockData   = null;
+
+if (!TICKER) {
+  window.location.href = 'stocks.html';
+}
+
+async function loadStock() {
+  const found = await DataCache.getFullStock(TICKER, COUNTRY || undefined);
+  if (found) {
+    stockData = found;
+    const exchLabels = { sp500:'S&P 500', ftse100:'FTSE 100', hsi:'Hang Seng', nikkei225:'Nikkei 225', nasdaq100:'NASDAQ 100', nasdaq_financial:'NASDAQ Financial', nasdaq_biotech:'NASDAQ Biotech' };
+    stockData._exchangeLabel = exchLabels[EXCHANGE] || 'Global';
+    renderAll();
+    return;
+  }
+  window.location.href = 'stocks.html';
+}
+
+function renderAll() {
+  // Recompute mood from live indicator colours using the scoring formula
+  // (skip for global-only stubs that have no indicators)
+  const indVals = Object.keys(stockData.indicators || {});
+  if (indVals.length > 0) {
+    const cm = moodFromIndicators(stockData.indicators);
+    stockData.mood = { label: cm.label, pct: cm.riskPct, score: null,
+      colorKey: cm.colorKey, color: cm.color };
+  }
+
+  renderHeader();
+  renderCompanyInfo();
+  renderStatGrid();
+  renderFinancials();
+  renderRawTable();
+}
+
+function renderHeader() {
+  const s = stockData;
+  const b = MOOD.band(s.mood?.label || 'Level 3');
+  document.title = `StockPanda — ${s.ticker}`;
+  const pandaEl = document.getElementById('hd-panda');
+  pandaEl.innerHTML = `<img class="panda-img" src="assets/img/${b.img}" alt="${b.label}" /><span class="panda-click-me">read me</span>`;
+  pandaEl.style.cursor = 'pointer';
+  pandaEl.title = MOOD_DESC[b.label] || '';
+  pandaEl.onclick = () => {
+    let tip = document.getElementById('panda-mood-tip');
+    if (tip) { tip.remove(); return; }
+    tip = document.createElement('div');
+    tip.id = 'panda-mood-tip';
+    const desc = MOOD_DESC[b.label] || '';
+    const parts = desc.split(' — ');
+    const heading = parts[0] || b.label;
+    const body = parts.slice(1).join(' — ').replace(/\. (?=[A-Z])/g, '.<br>');
+    tip.innerHTML = `<strong style="color:${b.color}">${heading}</strong><br>${body}`;
+    pandaEl.appendChild(tip);
+    const hide = (e) => { if (!pandaEl.contains(e.target)) { tip.remove(); document.removeEventListener('click', hide); } };
+    setTimeout(() => document.addEventListener('click', hide), 10);
+  };
+  document.getElementById('hd-ticker').textContent  = s.ticker;
+  document.getElementById('hd-company').textContent = s.company || s._exchangeLabel;
+
+  // Currency symbol — use stock's own currency field if available
+  const currencyCode = s.currency || { sp500:'USD', ftse100:'GBP', hsi:'HKD', nikkei225:'JPY' }[EXCHANGE] || 'USD';
+  const currencySymbolMap = { USD:'$', GBP:'£', EUR:'€', JPY:'¥', HKD:'HK$', CNY:'¥', KRW:'₩', INR:'₹', CAD:'C$', AUD:'A$', CHF:'CHF ', TWD:'NT$', SAR:'SAR ', BRL:'R$', MXN:'MX$' };
+  const suffixCurrencies = { GBX:'p', ZAC:'c' };
+  const symbol = suffixCurrencies[currencyCode] ? '' : (currencySymbolMap[currencyCode] || (currencyCode + ' '));
+  const suffix = suffixCurrencies[currencyCode] || '';
+
+  // Price with currency symbol
+  const price = s.price;
+  const dp = ['JPY','KRW','TWD'].includes(currencyCode) ? 0 : 2;
+  const priceEl = document.getElementById('hd-price');
+  if (price != null) {
+    const formatted = price.toLocaleString(undefined, {minimumFractionDigits:dp, maximumFractionDigits:dp});
+    priceEl.textContent = `${symbol}${formatted}${suffix}`;
+  } else {
+    priceEl.textContent = '—';
+  }
+
+  // 1M return below price
+  const chgEl = document.getElementById('hd-change');
+  const ret1m = s.indicators?.return1M;
+  if (ret1m && ret1m.label) {
+    const val = parseFloat(ret1m.label);
+    const isPos = val >= 0;
+    chgEl.innerHTML = `
+      <span style="color:${isPos ? 'var(--green)' : 'var(--red)'};">
+        ${ret1m.label}
+      </span>
+      <span style="color:var(--muted);font-size:0.75rem;margin-left:4px;">1M</span>`;
+  } else {
+    chgEl.textContent = '';
+  }
+
+  // Market cap
+  const mktcapEl = document.getElementById('hd-mktcap');
+  if (mktcapEl) {
+    const mc = s.financials?.marketCap;
+    if (mc != null) {
+      const abs = Math.abs(mc), sign = mc < 0 ? '-' : '';
+      const fmt = abs >= 1e12 ? sign + '$' + (abs/1e12).toFixed(2) + 'T'
+                : abs >= 1e9  ? sign + '$' + (abs/1e9).toFixed(1)  + 'B'
+                : abs >= 1e6  ? sign + '$' + (abs/1e6).toFixed(1)  + 'M'
+                : sign + '$' + abs.toLocaleString();
+      mktcapEl.textContent = `Mkt Cap ${fmt}`;
+    }
+  }
+
+  // Exchange badge + mood chip + swing
+  const _exchColors = { sp500:'#60A5FA', ftse100:'#4ADE80', hsi:'#FBBF24', nikkei225:'#FB923C',
+    nasdaq100:'#818CF8', nasdaq_financial:'#34D399', nasdaq_biotech:'#F472B6' };
+  const _exchLabels = { sp500:'S&P 500', ftse100:'FTSE 100', hsi:'Hang Seng', nikkei225:'Nikkei 225',
+    nasdaq100:'NASDAQ 100', nasdaq_financial:'NASDAQ Financial', nasdaq_biotech:'NASDAQ Biotech' };
+  const ec  = _exchColors[EXCHANGE] || '#8A9E8F';
+  const exl = s._exchangeLabel || _exchLabels[EXCHANGE] || 'Global';
+
+  const inds = Object.values(s.indicators || {});
+  const amberCount = inds.filter(i => i.color === 'amber').length;
+  const redCount   = inds.filter(i => i.color === 'red').length;
+  const signalBadges = [
+    amberCount > 0 ? `<span style="font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(251,191,36,0.12);color:#FBBF24;">⚠ ${amberCount}</span>` : '',
+    redCount   > 0 ? `<span style="font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(248,113,113,0.12);color:#F87171;">✕ ${redCount}</span>`   : '',
+  ].join('');
+
+  document.getElementById('hd-badges').innerHTML = `
+    <span style="font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:4px;background:${ec}20;color:${ec};">${exl}</span>
+    ${MOOD.chip(s.mood?.label)}
+    ${signalBadges}`;
+}
+
+function getYahooUrl(ticker, currency, country) {
+  const YAHOO_SUFFIX = {
+    'USD|United States': '',
+    'EUR|Germany': '.DE', 'EUR|France': '.PA', 'EUR|Netherlands': '.AS',
+    'EUR|Spain': '.MC', 'EUR|Italy': '.MI', 'EUR|Belgium': '.BR',
+    'EUR|Finland': '.HE', 'EUR|Austria': '.VI', 'EUR|Portugal': '.LS',
+    'EUR|Ireland': '.IR', 'EUR|Greece': '.AT',
+    'GBP|United Kingdom': '.L',
+    'CHF|Switzerland': '.SW',
+    'SEK|Sweden': '.ST',
+    'NOK|Norway': '.OL',
+    'DKK|Denmark': '.CO',
+    'ZAR|South Africa': '.JO',
+    'BRL|Brazil': '.SA',
+    'JPY|Japan': '.T',
+    'HKD|Hong Kong': '.HK',
+    'AUD|Australia': '.AX',
+    'CAD|Canada': '.TO',
+    'INR|India': '.NS',
+    'CNY|China': '.SS',
+    'KRW|South Korea': '.KS',
+    'TWD|Taiwan': '.TW',
+    'SGD|Singapore': '.SI',
+    'MYR|Malaysia': '.KL',
+    'THB|Thailand': '.BK',
+    'IDR|Indonesia': '.JK',
+    'MXN|Mexico': '.MX',
+  };
+  if (!ticker || !currency || !country) return null;
+  const key = `${currency}|${country}`;
+  const suffix = YAHOO_SUFFIX[key];
+  if (suffix === undefined) return null;
+  return `https://finance.yahoo.com/quote/${encodeURIComponent(ticker)}${suffix}`;
+}
+
+function renderCompanyInfo() {
+  const el = document.getElementById('company-info-section');
+  const s  = stockData;
+  if (!s) { el.innerHTML = ''; return; }
+
+  function ciCell(label, value, cls) {
+    if (!value) return '';
+    return `<div class="ci-cell">
+      <div class="ci-cell-label">${label}</div>
+      <div class="ci-cell-value ${cls || ''}">${value}</div>
+    </div>`;
+  }
+
+  const RATING_CLS = {
+    'Strong buy': 'green', 'Buy': 'green',
+    'Hold': 'amber', 'Neutral': 'amber',
+    'Sell': 'red', 'Strong sell': 'red'
+  };
+  const ratingCls = RATING_CLS[s.analystRating] || '';
+
+  const yahooUrl = getYahooUrl(s.ticker, s.currency, s.country);
+  const liveQuoteVal = yahooUrl
+    ? `<a href="${yahooUrl}" target="_blank" rel="noopener" style="color:var(--brand);text-decoration:none;font-weight:700;">Yahoo Finance</a>`
+    : '<span style="color:var(--muted);">Unavailable</span>';
+
+  const infoGrid = [
+    ciCell('Sector',          s.sector   || '—', ''),
+    ciCell('Industry',        s.industry || '—', ''),
+    ciCell('Country',         s.country  || '—', ''),
+    ciCell('Analyst Rating',  s.analystRating || '—', ratingCls),
+    `<div class="ci-cell"><div class="ci-cell-label">Live Quotes</div><div class="ci-cell-value">${liveQuoteVal}</div></div>`,
+  ].join('');
+
+  // Index list tags (expandable)
+  let indexHtml = '';
+  if (s.indexList) {
+    const tags = s.indexList.split(',').map(t => t.trim()).filter(Boolean);
+    const SHOW = 5;
+    if (tags.length) {
+      const visible = tags.slice(0, SHOW).map(t => `<span class="ci-index-tag">${t}</span>`).join('');
+      const hidden  = tags.slice(SHOW).map(t => `<span class="ci-index-tag ci-index-tag-extra">${t}</span>`).join('');
+      const toggle  = tags.length > SHOW
+        ? `<button class="ci-index-toggle" id="idx-toggle" onclick="toggleIndexTags()">▸ +${tags.length - SHOW} more</button>`
+        : '';
+      indexHtml = `<div class="ci-index-wrap">
+        <div class="ci-index-label">Index Memberships</div>
+        <div class="ci-index-tags" id="idx-tags">${visible}${hidden}${toggle}</div>
+      </div>`;
+    }
+  }
+
+  el.innerHTML = `<div class="ci-section">
+    <div class="ci-header">
+      <div class="ci-title">Company Info</div>
+    </div>
+    <div class="ci-grid">${infoGrid}</div>
+    ${indexHtml}
+  </div>`;
+}
+
+function toggleIndexTags() {
+  const tags = document.getElementById('idx-tags');
+  const btn  = document.getElementById('idx-toggle');
+  if (!tags || !btn) return;
+  const expanded = tags.classList.toggle('expanded');
+  const extraCount = tags.querySelectorAll('.ci-index-tag-extra').length;
+  btn.textContent = expanded ? '▾ Show less' : `▸ +${extraCount} more`;
+}
+
+function renderStatGrid() {
+  const s   = stockData;
+
+  const ind = s.indicators || {};
+  const perf = s.performance || {};
+  const vol  = s.volatility  || {};
+
+  function fmtPct(raw, dp) {
+    if (raw == null) return null;
+    const v = typeof raw === 'number' ? raw : null;
+    if (v == null) return null;
+    return (v >= 0 ? '+' : '') + v.toFixed(dp ?? 1) + '%';
+  }
+  function perfColor(v) {
+    if (v == null) return 'var(--parchment)';
+    return v >= 0 ? COLORS.green : COLORS.red;
+  }
+  function card(label, val, color, desc) {
+    if (val == null) return '';
+    return `<div class="stat-card" title="${desc||''}">
+      <div class="stat-label">${label}</div>
+      <div class="stat-val" style="color:${color||'var(--parchment)'};">${val}</div>
+    </div>`;
+  }
+  function group(label, cells) {
+    const html = cells.join('');
+    if (!html) return '';
+    return `<div class="cp-group"><div class="cp-group-label">${label}</div><div class="cp-grid">${html}</div></div>`;
+  }
+
+  const beta = s.beta5Y;
+  const betaColor = beta == null ? null : beta > 1.5 ? COLORS.red : beta > 1 ? COLORS.amber : COLORS.green;
+
+  function returnsBarChart() {
+    const BARS = [
+      { label:'1W',  val:perf.w1,  tip:'Price return over the past week.' },
+      { label:'1M',  val:perf.m1,  tip:'Price return over the past month.' },
+      { label:'3M',  val:perf.m3,  tip:'Price return over the past 3 months.' },
+      { label:'6M',  val:perf.m6,  tip:'Price return over the past 6 months.' },
+      { label:'YTD', val:perf.ytd, tip:'Year-to-date return.' },
+      { label:'1Y',  val:perf.y1,  tip:'Price return over the past 12 months.' },
+    ].filter(b => b.val != null);
+    if (!BARS.length) return '';
+    const maxAbs = Math.max(...BARS.map(b => Math.abs(b.val)), 0.01);
+    const MAX_H = 80;
+    const colsHtml = BARS.map(b => {
+      const isPos = b.val >= 0;
+      const h = (Math.abs(b.val) / maxAbs) * MAX_H;
+      const clr = isPos ? '#4ADE80' : '#F87171';
+      const val = (isPos ? '+' : '') + b.val.toFixed(1) + '%';
+      return `<div class="rc-bcol" title="${b.tip}">
+        <div class="rc-bval" style="color:${isPos ? clr : 'transparent'}">${val}</div>
+        <div class="rc-upper-slot">
+          <div class="rc-bar-p" style="height:${isPos ? h.toFixed(1) : 0}px;background:${clr};"></div>
+        </div>
+        <div class="rc-zeroline-bar"></div>
+        <div class="rc-lower-slot">
+          <div class="rc-bar-n" style="height:${!isPos ? h.toFixed(1) : 0}px;background:${clr};"></div>
+        </div>
+        <div class="rc-bval" style="color:${!isPos ? clr : 'transparent'}">${val}</div>
+        <div class="rc-blabel">${b.label}</div>
+      </div>`;
+    }).join('');
+    const longTermCards = [
+      card('5Y',       fmtPct(perf.y5),  perfColor(perf.y5),  'Price return over the past 5 years.'),
+      card('10Y',      fmtPct(perf.y10), perfColor(perf.y10), 'Price return over the past 10 years.'),
+      card('All Time', fmtPct(perf.all), perfColor(perf.all), 'Total price return since listing.'),
+      card('Beta 5Y',  beta != null ? beta.toFixed(2) + '×' : null, betaColor, 'Sensitivity to broad market moves. Below 1× = less volatile than the market.'),
+    ].join('');
+    return `<div class="cp-group">
+      <div class="cp-group-label">Returns</div>
+      <div class="rc-chart">${colsHtml}</div>
+      ${longTermCards ? `<div class="rc-longterm"><div class="cp-grid">${longTermCards}</div></div>` : ''}
+    </div>`;
+  }
+
+  const sections = [
+
+    returnsBarChart(),
+
+    group('Volatility', [
+      card('1W Vol',   vol.w1 != null ? vol.w1.toFixed(2) + '%' : null, 'var(--parchment)', 'Average daily price swing over the past week.'),
+      card('1M Vol',   vol.m1 != null ? vol.m1.toFixed(2) + '%' : null, 'var(--parchment)', 'Average daily price swing over the past month.'),
+    ]),
+
+    group('Trend', [
+      card('50D MA',  s.ma50  != null ? s.ma50.toFixed(2)  : null, 'var(--parchment)', '50-day simple moving average price.'),
+      card('200D MA', s.ma200 != null ? s.ma200.toFixed(2) : null, 'var(--parchment)', '200-day simple moving average price.'),
+    ]),
+
+  ].join('');
+
+  document.getElementById('stat-grid').innerHTML = sections
+    ? `<div class="cp-section">${sections}</div>`
+    : '';
+}
+
+
+function renderFinancials() {
+  const el  = document.getElementById('financials-section');
+  const fin = stockData.financials;
+  if (!fin) { el.innerHTML = ''; return; }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function fmtM(v) {
+    if (v == null) return null;
+    const abs = Math.abs(v), sign = v < 0 ? '-' : '';
+    if (abs >= 1e12) return sign + '$' + (abs/1e12).toFixed(2) + 'T';
+    if (abs >= 1e9)  return sign + '$' + (abs/1e9).toFixed(1)  + 'B';
+    if (abs >= 1e6)  return sign + '$' + (abs/1e6).toFixed(1)  + 'M';
+    return sign + '$' + abs.toLocaleString();
+  }
+  function fmtEps(v)  { return v != null ? '$' + v.toFixed(2) : null; }
+  function fmtPct(v)  { return v != null ? v.toFixed(1) + '%' : null; }
+  function fmtRatio(v){ return v != null ? v.toFixed(2) + '×' : null; }
+  function mColor(v)  { return v == null ? null : v >= 0 ? COLORS.green : COLORS.red; }
+  function margColor(v){ return v == null ? null : v >= 20 ? COLORS.green : v >= 5 ? COLORS.amber : COLORS.red; }
+
+  function card(label, val, color, desc) {
+    if (val == null) return '';
+    return `<div class="fin-cell" title="${desc||''}">
+      <div class="fin-cell-label">${label}</div>
+      <div class="fin-cell-value" style="color:${color||'var(--parchment)'};">${val}</div>
+    </div>`;
+  }
+  function group(label, cells) {
+    const html = cells.join('');
+    if (!html) return '';
+    return `<div class="cp-group"><div class="cp-group-label">${label}</div><div class="cp-grid">${html}</div></div>`;
+  }
+
+  const deRatio = fin.debtToEquity != null ? fmtRatio(fin.debtToEquity / 100) : null;
+  const deColor = fin.debtToEquity != null ? (fin.debtToEquity < 100 ? COLORS.green : fin.debtToEquity < 200 ? COLORS.amber : COLORS.red) : null;
+
+  // ── Fiscal year label ─────────────────────────────────────────────────────
+  const period = fin.period ? (() => {
+    const d = new Date(fin.period);
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  })() : null;
+
+  const allCards = [
+    card('EPS (Basic)',       fmtEps(fin.epsReported),   mColor(fin.epsReported),    'Earnings per share based on total shares outstanding.'),
+    card('EPS (Diluted/Fwd)', fmtEps(fin.epsForward),    mColor(fin.epsForward),     'Forward earnings per share — analyst consensus for next year.'),
+    card('Net Income',        fmtM(fin.netIncome),        mColor(fin.netIncome),      'Total profit after all expenses and taxes.'),
+    card('Gross Profit',      fmtM(fin.grossProfit),      mColor(fin.grossProfit),    'Revenue minus cost of goods sold.'),
+    card('EBITDA',            fmtM(fin.ebitda),           mColor(fin.ebitda),         'Earnings before interest, tax, depreciation & amortization — a proxy for operating cash profitability.'),
+    card('Free Cash Flow',    fmtM(fin.freeCashFlow),     mColor(fin.freeCashFlow),   'Cash generated after expenses and capital investments. Key measure of financial sustainability.'),
+    card('Operating Margin',  fmtPct(fin.operatingMargin),margColor(fin.operatingMargin),'Operating profit as % of revenue.'),
+    card('Gross Margin',      fmtPct(fin.grossMargin),    margColor(fin.grossMargin), 'Gross profit as % of revenue. Reflects pricing power and production efficiency.'),
+    card('Net Margin',        fmtPct(fin.profitMargin),   margColor(fin.profitMargin),'Net profit as % of revenue after all costs.'),
+    card('Debt / Equity',     deRatio,                    deColor,                    'Total debt compared to shareholder equity. Higher ratio means more leverage and financial risk.'),
+    card('Current Ratio',     fmtRatio(fin.currentRatio), fin.currentRatio != null ? (fin.currentRatio >= 1.5 ? COLORS.green : fin.currentRatio >= 1 ? COLORS.amber : COLORS.red) : null, 'Current assets vs current liabilities — short-term liquidity health.'),
+    card('Dividends / Share', (fin.dividendsPerShare != null && fin.dividendsPerShare > 0) ? '$' + fin.dividendsPerShare.toFixed(4) : null, null, 'Annual cash dividend paid to shareholders per share.'),
+    card('Market Cap',        fmtM(fin.marketCap),        null, 'Total market value of the company based on share price × shares outstanding.'),
+    card('Revenue',           fmtM(fin.revenue),          null, 'Total revenue generated over the fiscal year.'),
+  ].join('');
+
+  const sections = group('Profitability, Performance & Risk', [allCards]);
+
+  // ── Quarterly revenue bars ─────────────────────────────────────────────────
+  let qRevHtml = '';
+  const qr = fin.revenueQuarterly;
+  if (qr && qr.length) {
+    function fmtMQ(v) {
+      if (v == null) return '—';
+      const abs = Math.abs(v), sign = v < 0 ? '-' : '';
+      if (abs >= 1e9) return sign + '$' + (abs/1e9).toFixed(1) + 'B';
+      if (abs >= 1e6) return sign + '$' + (abs/1e6).toFixed(1) + 'M';
+      return sign + '$' + abs.toLocaleString();
+    }
+    const maxRev = Math.max(...qr.map(q => q.revenue || 0));
+    const bars = qr.map(q => {
+      const pct = maxRev > 0 ? Math.round((q.revenue || 0) / maxRev * 100) : 0;
+      const d   = new Date(q.date);
+      const lbl = d.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });
+      return `<div class="fin-qrev-bar-wrap">
+        <div class="fin-qrev-bar-track"><div class="fin-qrev-bar-fill" style="height:${pct}%;"></div></div>
+        <div class="fin-qrev-val">${fmtMQ(q.revenue)}</div>
+        <div class="fin-qrev-date">${lbl}</div>
+      </div>`;
+    }).join('');
+    qRevHtml = `<div class="cp-group" style="margin-top:1rem;">
+      <div class="cp-group-label">Quarterly Revenue</div>
+      <div class="fin-qrev-bars">${bars}</div>
+    </div>`;
+  }
+
+  el.innerHTML = `<div class="section-label">Company Financials</div>
+  <div class="cp-section" style="margin-bottom:1.25rem;">
+    ${period ? `<div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-bottom:1rem;">Fiscal Year · ${period}</div>` : ''}
+    ${sections}
+    ${qRevHtml}
+  </div>`;
+}
+
+// Format indicator value as a pure numeric string — no text descriptions
+function formatVal(key, i) {
+  if (i == null || i.raw == null) return '—';
+  const r    = i.raw;
+  const pct  = v => (v >= 0 ? '+' : '') + v.toFixed(1) + '%';
+  switch (key) {
+    case 'volatility':  return r.toFixed(1) + '%';
+    case 'volSpike':    return r.toFixed(2) + '\u00d7';
+    case 'vsPeak':      return r.toFixed(1) + '%';
+    case 'shortTrend':  return pct(r);
+    case 'longTrend':   return pct(r);
+    case 'maCross':     return i.label || '—';
+    case 'momentum':    return i.raw != null ? (i.raw >= 0 ? '+' : '') + i.raw.toFixed(2) : '—';
+    case 'return1M':    return pct(r);
+    case 'return1Y':    return pct(r);
+    case 'range52W':    return Math.round(r) + '%';
+    case 'cagr3Y':      return pct(r);
+    default:            return i.label || '—';
+  }
+}
+
+function renderRawTable() {
+  const ind = stockData.indicators || {};
+  let _igId  = 0;
+
+  const groups = {
+    green: { label: 'Positive Signals', color: 'var(--green)', bg: 'rgba(74,222,128,0.06)', rows: [] },
+    amber: { label: 'Worrying Signals', color: 'var(--amber)', bg: 'rgba(251,191,36,0.06)',  rows: [] },
+    red:   { label: 'Critical Signals', color: 'var(--red)',   bg: 'rgba(248,113,113,0.06)', rows: [] },
+  };
+
+  function pushRow(colorKey, name, value, desc) {
+    const c   = COLORS[colorKey] || 'var(--muted)';
+    const id  = 'ig' + (++_igId);
+    (groups[colorKey] || groups.red).rows.push(`
+      <div class="ig-row-wrap">
+        <div class="ig-row" onclick="toggleIg('${id}')">
+          <div class="ig-row-dot" style="background:${c};"></div>
+          <div class="ig-row-name">${name}</div>
+          <div class="ig-row-val" style="color:${c};">${value}</div>
+          <button class="ig-plus" id="btn-${id}" tabindex="-1">+</button>
+        </div>
+        <div class="ig-desc" id="${id}">${desc}</div>
+      </div>`);
+  }
+
+  // ── Standard indicators ──
+  IND_ORDER.forEach(key => {
+    const i    = ind[key];
+    const meta = IND_META_FULL[key];
+    if (!i || !meta) return;
+    pushRow(i.color || 'red', meta.label, formatVal(key, i), meta.desc);
+  });
+
+  // ── Financial risk indicators ──
+  const fin = stockData.financials;
+  if (fin) {
+    function fmtM(v) {
+      if (v == null) return '—';
+      const abs = Math.abs(v), sign = v < 0 ? '-' : '';
+      if (abs >= 1e12) return sign + '$' + (abs/1e12).toFixed(1) + 'T';
+      if (abs >= 1e9)  return sign + '$' + (abs/1e9).toFixed(1)  + 'B';
+      if (abs >= 1e6)  return sign + '$' + (abs/1e6).toFixed(1)  + 'M';
+      return sign + '$' + abs.toLocaleString();
+    }
+
+    if (fin.debtToEquity != null) {
+      const de = fin.debtToEquity;
+      const deX = (de / 100).toFixed(2) + '×';
+      const color = de < 100 ? 'green' : de < 200 ? 'amber' : 'red';
+      pushRow(color, 'Debt Load', deX,
+        `Debt-to-equity of ${deX}. ${de < 100 ? 'Low leverage — the company is mostly equity-funded.' : de < 200 ? 'Moderate leverage — manageable but worth watching.' : 'High leverage — the business carries significant debt relative to equity.'}`);
+    }
+
+    if (fin.currentRatio != null) {
+      const cr = fin.currentRatio;
+      const color = cr >= 1.5 ? 'green' : cr >= 1.0 ? 'amber' : 'red';
+      pushRow(color, 'Short-Term Liquidity', cr.toFixed(2) + '×',
+        `Current ratio of ${cr.toFixed(2)}×. ${cr >= 1.5 ? 'Healthy — current assets comfortably cover near-term obligations.' : cr >= 1.0 ? 'Tight — just enough to cover short-term liabilities.' : 'Stressed — current liabilities exceed current assets. Short-term funding risk.'}`);
+    }
+
+    if (fin.freeCashFlow != null) {
+      const fcf = fin.freeCashFlow;
+      const color = fcf > 0 ? 'green' : 'red';
+      pushRow(color, 'Cash Generation', fmtM(fcf),
+        `Free cash flow of ${fmtM(fcf)}. ${fcf > 0 ? 'Positive — the business generates real cash after maintaining its assets.' : 'Negative — the company is burning cash. May need external financing.'}`);
+    }
+
+    if (fin.freeCashFlow != null && fin.netIncome != null && fin.netIncome > 0) {
+      const conv = (fin.freeCashFlow / fin.netIncome) * 100;
+      const color = conv >= 80 ? 'green' : conv >= 50 ? 'amber' : 'red';
+      pushRow(color, 'Earnings Quality', conv.toFixed(0) + '%',
+        `${conv.toFixed(0)}% of net profit converts to real cash. ${conv >= 80 ? 'High quality — earnings are well backed by cash.' : conv >= 50 ? 'Moderate — some gap between reported profit and cash generated.' : 'Low quality — reported earnings significantly outpace cash generation. Watch closely.'}`);
+    }
+
+    if (fin.epsForward != null && fin.epsReported != null && fin.epsReported > 0) {
+      const growth = ((fin.epsForward - fin.epsReported) / Math.abs(fin.epsReported)) * 100;
+      const color = growth > 5 ? 'green' : growth > -5 ? 'amber' : 'red';
+      const sign = growth >= 0 ? '+' : '';
+      pushRow(color, 'Earnings Direction', sign + growth.toFixed(1) + '%',
+        `Analyst consensus expects EPS to ${growth > 5 ? 'grow ' + growth.toFixed(1) + '% next year — positive trajectory.' : growth > -5 ? 'stay roughly flat (' + sign + growth.toFixed(1) + '%) — limited growth expected.' : 'decline ' + growth.toFixed(1) + '% — analysts see earnings under pressure.'}`);
+    }
+
+    const qr = fin.revenueQuarterly;
+    if (qr && qr.length >= 2) {
+      const q0 = qr[0].revenue, q1 = qr[1].revenue;
+      if (q0 != null && q1 != null && q1 !== 0) {
+        const qoq = ((q0 - q1) / Math.abs(q1)) * 100;
+        const color = qoq > 3 ? 'green' : qoq > -3 ? 'amber' : 'red';
+        const sign = qoq >= 0 ? '+' : '';
+        pushRow(color, 'Revenue Trend', sign + qoq.toFixed(1) + '% QoQ',
+          `Most recent quarter revenue ${qoq > 3 ? 'grew ' + qoq.toFixed(1) + '% vs the prior quarter — momentum is building.' : qoq > -3 ? 'was roughly flat (' + sign + qoq.toFixed(1) + '%) quarter-on-quarter.' : 'fell ' + Math.abs(qoq).toFixed(1) + '% quarter-on-quarter — near-term slowdown visible.'}`);
+      }
+    }
+  }
+
+  document.getElementById('ind-groups').innerHTML = ['green','amber','red'].map(key => {
+    const g = groups[key];
+    if (!g.rows.length) return '';
+    return `<div class="ig-group">
+      <div class="ig-group-header" style="background:${g.bg};">
+        <div class="ig-group-dot" style="background:${g.color};"></div>
+        <span class="ig-group-label" style="color:${g.color};">${g.label}</span>
+        <span class="ig-group-count">${g.rows.length} signal${g.rows.length !== 1 ? 's' : ''}</span>
+      </div>
+      ${g.rows.join('')}
+    </div>`;
+  }).join('');
+}
+
+window.toggleIg = function(id) {
+  const desc = document.getElementById(id);
+  const btn  = document.getElementById('btn-' + id);
+  if (!desc) return;
+  const open = desc.classList.toggle('open');
+  if (btn) {
+    btn.textContent = open ? '−' : '+';
+    btn.classList.toggle('open', open);
+  }
+};
+
+
+// ── Share feature ─────────────────────────────────────────────────────────────
+const currencySymbols = { sp500:'$', ftse100:'p', hsi:'HK$', nikkei225:'¥' };
+function fmtPrice(stock) {
+  if (stock.price == null) return '—';
+  const cc = stock.currency || 'USD';
+  const sfx = { GBX:'p', ZAC:'c' };
+  const pfx = { USD:'$', GBP:'£', EUR:'€', JPY:'¥', HKD:'HK$', CNY:'¥', KRW:'₩', INR:'₹', CAD:'C$', AUD:'A$', CHF:'CHF ', TWD:'NT$', SAR:'SAR ', BRL:'R$', MXN:'MX$' };
+  const dp = ['JPY','KRW','TWD'].includes(cc) ? 0 : 2;
+  const n = stock.price.toLocaleString(undefined, {minimumFractionDigits:dp, maximumFractionDigits:dp});
+  if (sfx[cc]) return n + sfx[cc];
+  return (pfx[cc] || (cc + ' ')) + n;
+}
+const exchLabelsMap   = { sp500:'S&P 500', ftse100:'FTSE 100', hsi:'Hang Seng', nikkei225:'Nikkei 225' };
+
+function buildShareText() {
+  const s   = stockData;
+  const ind = s.indicators || {};
+  const priceFmt = fmtPrice(s);
+  const ret1m  = ind.return1M?.label  || '—';
+  const ret1y  = ind.return1Y?.label  || '—';
+  const cagr3y = ind.cagr3Y?.label    || '—';
+  const mood   = s.mood?.label || 'Level 3';
+  const mh     = s.moodHistory || {};
+  const histLine = ['1w','1m','3m','1y']
+    .map(k => { const h = mh[k]; return h ? `${k.toUpperCase()}: ${h.mood?.label||'—'}` : null; })
+    .filter(Boolean).join(' · ');
+  const url = `${location.origin}${location.pathname}?ticker=${encodeURIComponent(s.ticker)}&exchange=${encodeURIComponent(EXCHANGE)}`;
+  return [
+    `$${s.ticker} — ${s.company || exchLabelsMap[EXCHANGE] || EXCHANGE}`,
+    `Level: ${mood}  |  Price: ${priceFmt}`,
+    ``,
+    `Returns`,
+    `• 1M: ${ret1m}`,
+    `• 1Y: ${ret1y}`,
+    `• 3Y CAGR: ${cagr3y}`,
+    ``,
+    `Level History: ${histLine}`,
+    ``,
+    `View on StockPanda: ${url}`,
+    `stockpanda.app`,
+  ].join('\n');
+}
+
+window.closeShareModal = function closeShareModal() {
+  const el = document.getElementById('share-overlay');
+  if (el) el.remove();
+};
+
+window.openShareModal = function openShareModal() {
+  if (!stockData) return;
+  const s   = stockData;
+  const ind = s.indicators || {};
+  const b   = MOOD.band(s.mood?.label || 'Level 3');
+  const sym = currencySymbols[EXCHANGE] || '';
+  const COLORS_MAP = { green:'#4ADE80', amber:'#FBBF24', red:'#F87171' };
+  const mh  = s.moodHistory || {};
+  const histPeriods = [
+    { key:'1w', short:'1W' },
+    { key:'1m', short:'1M' },
+    { key:'3m', short:'3M' },
+    { key:'1y', short:'1Y' },
+  ];
+
+  // ── Build overlay ──────────────────────────────────────────────────────────
+  const overlay = document.createElement('div');
+  overlay.className = 'share-overlay';
+  overlay.id = 'share-overlay';
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeShareModal(); });
+
+  const modal = document.createElement('div');
+  modal.className = 'share-modal';
+
+  // Header row
+  const modalHd = document.createElement('div');
+  modalHd.className = 'share-modal-hd';
+  const modalTitle = document.createElement('div');
+  modalTitle.className = 'share-modal-title';
+  modalTitle.textContent = 'Share Stock Summary';
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'share-close';
+  closeBtn.textContent = '✕';
+  closeBtn.addEventListener('click', closeShareModal);
+  modalHd.append(modalTitle, closeBtn);
+
+  // ── Share card preview ─────────────────────────────────────────────────────
+  const card = document.createElement('div');
+  card.className = 'share-card';
+
+  // Card header: panda + ticker + mood
+  const cardHd = document.createElement('div');
+  cardHd.className = 'sc-header';
+  const pandaDiv = document.createElement('div');
+  pandaDiv.className = 'sc-panda panda-wrap';
+  const pandaImg = document.createElement('img');
+  pandaImg.className = 'panda-img';
+  pandaImg.src = `assets/img/${b.img}`;
+  pandaImg.alt = b.label;
+  pandaDiv.appendChild(pandaImg);
+  const tickerInfo = document.createElement('div');
+  const tickerEl = document.createElement('div');
+  tickerEl.className = 'sc-ticker';
+  tickerEl.textContent = s.ticker;
+  const companyEl = document.createElement('div');
+  companyEl.className = 'sc-company';
+  companyEl.textContent = s.company || exchLabelsMap[EXCHANGE] || EXCHANGE;
+  const moodRow = document.createElement('div');
+  moodRow.className = 'sc-mood-row';
+  moodRow.innerHTML = MOOD.chip(s.mood?.label) + MOOD.swingHtml(s.swing);
+  tickerInfo.append(tickerEl, companyEl, moodRow);
+  cardHd.append(pandaDiv, tickerInfo);
+
+  // Price row
+  const priceRow = document.createElement('div');
+  priceRow.className = 'sc-price-row';
+  const priceEl = document.createElement('div');
+  priceEl.className = 'sc-price';
+  priceEl.textContent = fmtPrice(s);
+  const exchBadge = document.createElement('span');
+  exchBadge.style.cssText = 'font-size:0.65rem;color:var(--muted);';
+  exchBadge.textContent = exchLabelsMap[EXCHANGE] || EXCHANGE;
+  priceRow.append(priceEl, exchBadge);
+
+  // Returns row
+  const returns = document.createElement('div');
+  returns.className = 'sc-returns';
+  [
+    { label:'1M Return', val: ind.return1M?.label || '—', color: COLORS_MAP[ind.return1M?.color] || 'var(--muted)' },
+    { label:'1Y Return', val: ind.return1Y?.label || '—', color: COLORS_MAP[ind.return1Y?.color] || 'var(--muted)' },
+    { label:'3Y CAGR',   val: ind.cagr3Y?.label   || '—', color: COLORS_MAP[ind.cagr3Y?.color]  || 'var(--muted)' },
+  ].forEach(r => {
+    const cell = document.createElement('div');
+    cell.className = 'sc-ret';
+    const lbl = document.createElement('div');
+    lbl.className = 'sc-ret-lbl';
+    lbl.textContent = r.label;
+    const val = document.createElement('div');
+    val.className = 'sc-ret-val';
+    val.style.color = r.color;
+    val.textContent = r.val;
+    cell.append(lbl, val);
+    returns.appendChild(cell);
+  });
+
+  // Mood history row
+  const histTitle = document.createElement('div');
+  histTitle.className = 'sc-hist-title';
+  histTitle.textContent = 'Level History';
+  const histRow = document.createElement('div');
+  histRow.className = 'sc-hist-row';
+  histPeriods.forEach(p => {
+    const h  = mh[p.key];
+    const hb = h ? MOOD.band(h.mood?.label || 'Level 3') : MOOD.band('Level 3');
+    const cell = document.createElement('div');
+    cell.className = 'sc-hist-cell';
+    const period = document.createElement('div');
+    period.className = 'sc-hist-period';
+    period.textContent = p.short;
+    const img = document.createElement('div');
+    img.className = 'sc-hist-img panda-wrap';
+    const imgEl = document.createElement('img');
+    imgEl.className = 'panda-img';
+    imgEl.src = `assets/img/${hb.img}`;
+    imgEl.alt = hb.label;
+    img.appendChild(imgEl);
+    const lbl = document.createElement('div');
+    lbl.className = 'sc-hist-label';
+    lbl.style.color = hb.color;
+    lbl.textContent = h ? (h.mood?.label || '—') : '—';
+    cell.append(period, img, lbl);
+    histRow.appendChild(cell);
+  });
+
+  // Branding
+  const brand = document.createElement('div');
+  brand.className = 'sc-brand';
+  brand.textContent = 'stockpanda.app';
+
+  card.append(cardHd, priceRow, returns, histTitle, histRow, brand);
+
+  // ── Share action buttons ───────────────────────────────────────────────────
+  const actions = document.createElement('div');
+  actions.className = 'share-actions';
+
+  const shareUrl  = `${location.origin}${location.pathname}?ticker=${encodeURIComponent(s.ticker)}&exchange=${encodeURIComponent(EXCHANGE)}`;
+  const shareText = buildShareText();
+  const xText     = `$${s.ticker} — ${s.mood?.label || 'Level 3'}. 1Y: ${ind.return1Y?.label||'—'} · 3Y CAGR: ${ind.cagr3Y?.label||'—'} via @StockPanda`;
+
+  function makeBtn(icon, label) {
+    const btn = document.createElement('button');
+    btn.className = 'share-action-btn';
+    btn.textContent = `${icon} ${label}`;
+    return btn;
+  }
+
+  // Copy link
+  const copyBtn = makeBtn('🔗', 'Copy Link');
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      copyBtn.textContent = '✓ Copied!';
+      copyBtn.classList.add('copied');
+      setTimeout(() => { copyBtn.textContent = '🔗 Copy Link'; copyBtn.classList.remove('copied'); }, 2000);
+    });
+  });
+
+  // Copy summary
+  const copyTextBtn = makeBtn('📋', 'Copy Summary');
+  copyTextBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(shareText).then(() => {
+      copyTextBtn.textContent = '✓ Copied!';
+      copyTextBtn.classList.add('copied');
+      setTimeout(() => { copyTextBtn.textContent = '📋 Copy Summary'; copyTextBtn.classList.remove('copied'); }, 2000);
+    });
+  });
+
+  // Share on X
+  const xLink = document.createElement('a');
+  xLink.className = 'share-action-btn';
+  xLink.href = `https://x.com/intent/tweet?text=${encodeURIComponent(xText)}&url=${encodeURIComponent(shareUrl)}`;
+  xLink.target = '_blank';
+  xLink.rel = 'noopener noreferrer';
+  xLink.textContent = '𝕏 Share on X';
+
+  // Share on WhatsApp
+  const waLink = document.createElement('a');
+  waLink.className = 'share-action-btn';
+  waLink.href = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+  waLink.target = '_blank';
+  waLink.rel = 'noopener noreferrer';
+  waLink.textContent = '💬 WhatsApp';
+
+  actions.append(copyBtn, copyTextBtn, xLink, waLink);
+
+  // Native share (full-width, shown only if supported)
+  if (navigator.share) {
+    const nativeBtn = document.createElement('button');
+    nativeBtn.className = 'share-action-btn share-native';
+    nativeBtn.textContent = '↗ Share via…';
+    nativeBtn.addEventListener('click', () => {
+      navigator.share({ title: `${s.ticker} — StockPanda`, text: shareText, url: shareUrl })
+        .catch(() => {});
+    });
+    actions.appendChild(nativeBtn);
+  }
+
+  modal.append(modalHd, card, actions);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+};
+
+// ── PDF Export ────────────────────────────────────────────────────────────────
+window.exportPDF = function exportPDF() {
+  if (!stockData || !window.jspdf) return;
+
+  const btn = document.getElementById('pdf-btn');
+  if (btn) { btn.textContent = '⏳ Building…'; btn.disabled = true; }
+
+  setTimeout(() => {
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc  = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const s    = stockData;
+      const ind  = s.indicators || {};
+      const mh   = s.moodHistory || {};
+      const sym  = currencySymbols[EXCHANGE] || '';
+      const exchLabel = exchLabelsMap[EXCHANGE] || EXCHANGE;
+      const PAGE_W    = 210;
+      const PAGE_H    = 297;
+      const M         = 16;        // margin
+      const CW        = PAGE_W - M * 2;  // content width
+      const DARK_GREEN  = [10, 40, 20];
+      const BRAND_GREEN = [74, 222, 128];
+      const GREY_TEXT   = [100, 100, 100];
+      const LIGHT_TEXT  = [150, 150, 150];
+      const COL_COLORS  = { green:[74,222,128], amber:[251,191,36], red:[248,113,113] };
+
+      function hexRgb(hex) {
+        const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return r ? [parseInt(r[1],16), parseInt(r[2],16), parseInt(r[3],16)] : [120,120,120];
+      }
+
+      let y = 0;
+
+      /* ── Header band ── */
+      doc.setFillColor(...DARK_GREEN);
+      doc.rect(0, 0, PAGE_W, 24, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(15);
+      doc.setTextColor(...BRAND_GREEN);
+      doc.text('StockPanda', M, 11);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(180, 220, 190);
+      doc.text('Stock Analysis Report', M, 18);
+
+      const now = new Date().toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+      doc.setTextColor(180, 220, 190);
+      doc.text(`Generated: ${now}`, PAGE_W - M, 18, { align:'right' });
+
+      y = 32;
+
+      /* ── Ticker + Company ── */
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(28);
+      doc.setTextColor(20, 20, 20);
+      doc.text(s.ticker, M, y);
+
+      const tickW = doc.getTextWidth(s.ticker);
+
+      // Exchange tag
+      doc.setFillColor(230, 246, 236);
+      doc.roundedRect(M + tickW + 4, y - 7, doc.getStringUnitWidth(exchLabel) * 8 / doc.internal.scaleFactor + 6, 8, 2, 2, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7);
+      doc.setTextColor(20, 100, 40);
+      doc.text(exchLabel, M + tickW + 7, y - 1);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      doc.setTextColor(80, 80, 80);
+      doc.text(s.company || exchLabel, M, y + 7);
+
+      /* Price (right-aligned) */
+      const priceFmt = fmtPrice(s);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(22);
+      doc.setTextColor(20, 20, 20);
+      doc.text(priceFmt, PAGE_W - M, y, { align:'right' });
+
+      const ph = s.priceHistory || [];
+      const snapDate = ph.length ? ph[ph.length - 1].d : null;
+      if (snapDate) {
+        const fmt = new Date(snapDate).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7.5);
+        doc.setTextColor(...LIGHT_TEXT);
+        doc.text(`Snapshot: ${fmt}`, PAGE_W - M, y + 6, { align:'right' });
+      }
+
+      y += 16;
+      doc.setDrawColor(210, 210, 210);
+      doc.setLineWidth(0.2);
+      doc.line(M, y, PAGE_W - M, y);
+      y += 7;
+
+      /* ── Level ── */
+      const moodLabel = s.mood?.label || 'Level 3';
+      const moodBand  = MOOD.band(moodLabel);
+      const [mr, mg_, mb] = hexRgb(moodBand.color);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...GREY_TEXT);
+      doc.text('CURRENT MOOD', M, y);
+      y += 5;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.setTextColor(mr, mg_, mb);
+      doc.text(moodLabel, M, y);
+
+      if (s.mood?.pct != null) {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(...GREY_TEXT);
+        doc.text(`Risk: ${s.mood.pct.toFixed(0)}%`, M + doc.getTextWidth(moodLabel) + 5, y);
+      }
+      y += 9;
+      doc.setDrawColor(210, 210, 210);
+      doc.line(M, y, PAGE_W - M, y);
+      y += 7;
+
+      /* ── Key Returns (4-up cards) ── */
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...GREY_TEXT);
+      doc.text('KEY RETURNS', M, y);
+      y += 4;
+
+      const retItems = [
+        { label:'1M Return',  val: ind.return1M?.label  || '—', color: ind.return1M?.color  },
+        { label:'1Y Return',  val: ind.return1Y?.label  || '—', color: ind.return1Y?.color  },
+        { label:'3Y CAGR',    val: ind.cagr3Y?.label    || '—', color: ind.cagr3Y?.color    },
+        { label:'Volatility', val: ind.volatility?.label|| '—', color: ind.volatility?.color },
+      ];
+      const colW = CW / 4;
+      retItems.forEach((item, i) => {
+        const cx = M + i * colW;
+        doc.setFillColor(244, 248, 245);
+        doc.rect(cx, y, colW - 2, 17, 'F');
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(7);
+        doc.setTextColor(...GREY_TEXT);
+        doc.text(item.label, cx + 3, y + 5);
+        const [cr, cg, cb_] = COL_COLORS[item.color] || [80,80,80];
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(13);
+        doc.setTextColor(cr, cg, cb_);
+        doc.text(item.val, cx + 3, y + 14);
+      });
+      y += 22;
+
+      /* ── Level History ── */
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...GREY_TEXT);
+      doc.text('LEVEL HISTORY', M, y);
+      y += 4;
+
+      const histPds = [
+        { key:'1w', label:'1 Week Ago' },
+        { key:'1m', label:'1 Month Ago' },
+        { key:'3m', label:'3 Months Ago' },
+        { key:'1y', label:'1 Year Ago' },
+      ];
+      const hColW = CW / 4;
+      histPds.forEach((p, i) => {
+        const h  = mh[p.key];
+        const hb = h ? MOOD.band(h.mood?.label || 'Level 3') : null;
+        const cx = M + i * hColW;
+        doc.setFillColor(244, 248, 245);
+        doc.rect(cx, y, hColW - 2, 22, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(6.5);
+        doc.setTextColor(...GREY_TEXT);
+        doc.text(p.label.toUpperCase(), cx + 3, y + 5);
+        if (h && hb) {
+          const [hcr, hcg, hcb] = hexRgb(hb.color);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(10);
+          doc.setTextColor(hcr, hcg, hcb);
+          doc.text(h.mood?.label || '—', cx + 3, y + 12);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(6.5);
+          doc.setTextColor(...LIGHT_TEXT);
+          if (h.date) doc.text(h.date, cx + 3, y + 17);
+          if (h.price != null) {
+            const hp = fmtPrice({price: h.price, currency: s.currency});
+            doc.text(hp, cx + hColW - 4, y + 17, { align:'right' });
+          }
+        } else {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(8);
+          doc.setTextColor(...LIGHT_TEXT);
+          doc.text('No data', cx + 3, y + 13);
+        }
+      });
+      y += 27;
+
+      /* ── All Indicators table ── */
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(...GREY_TEXT);
+      doc.text('ALL INDICATORS', M, y);
+      y += 3;
+
+      const IND_LABELS = {
+        volatility:'Volatility', volSpike:'Unusual Activity', vsPeak:'vs ATH',
+        shortTrend:'Short-Term Trend', longTrend:'Long-Term Trend', maCross:'MA Cross',
+        momentum:'Momentum', return1M:'1M Return', return1Y:'1Y Return',
+        range52W:'52-Week Range', cagr3Y:'5Y CAGR',
+      };
+      const IND_DESCS = {
+        volatility:'1-year annualised price swing.',
+        volSpike:'Recent volatility vs 12-month average.',
+        vsPeak:'Distance from all-time high.',
+        shortTrend:'Price vs 50-day moving average.',
+        longTrend:'Price vs 200-day moving average.',
+        maCross:'Golden Cross vs Death Cross signal.',
+        momentum:'Price direction based on return trajectory. Ranges from +1 to -1.',
+        return1M:'Total return over past 30 trading days.',
+        return1Y:'Total return over past 12 months.',
+        range52W:'Position within 52-week high/low band.',
+        cagr3Y:'Compound annual growth rate over 5 years.',
+      };
+      const IND_ORD = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr3Y'];
+
+      const tableRows = IND_ORD.map(key => {
+        const i = ind[key];
+        if (!i) return null;
+        const sig = i.color === 'green' ? '● OK' : i.color === 'amber' ? '● Caution' : '● Alert';
+        return { row: [IND_LABELS[key] || key, formatVal(key, i), sig, IND_DESCS[key] || ''], color: i.color };
+      }).filter(Boolean);
+
+      doc.autoTable({
+        startY: y,
+        margin: { left: M, right: M },
+        head: [['Indicator', 'Value', 'Signal', 'Description']],
+        body: tableRows.map(r => r.row),
+        styles: { fontSize: 8, cellPadding: 2.5, overflow: 'linebreak' },
+        headStyles: { fillColor: DARK_GREEN, textColor: BRAND_GREEN, fontStyle: 'bold', fontSize: 7.5 },
+        columnStyles: {
+          0: { fontStyle: 'bold', cellWidth: 38 },
+          1: { fontStyle: 'bold', cellWidth: 24, halign: 'right' },
+          2: { cellWidth: 24 },
+          3: { fontSize: 7, textColor: GREY_TEXT },
+        },
+        didParseCell(data) {
+          if (data.section === 'body' && data.column.index === 2) {
+            const c = tableRows[data.row.index]?.color;
+            if (c === 'green') data.cell.styles.textColor = [74,222,128];
+            else if (c === 'amber') data.cell.styles.textColor = [200,150,20];
+            else if (c === 'red')   data.cell.styles.textColor = [220,80,80];
+          }
+        },
+        alternateRowStyles: { fillColor: [248, 251, 249] },
+        tableLineColor: [215, 215, 215],
+        tableLineWidth: 0.1,
+      });
+
+      /* ── Footer on every page ── */
+      const totalPages = doc.internal.getNumberOfPages();
+      for (let p = 1; p <= totalPages; p++) {
+        doc.setPage(p);
+        doc.setDrawColor(210, 210, 210);
+        doc.setLineWidth(0.2);
+        doc.line(M, PAGE_H - 12, PAGE_W - M, PAGE_H - 12);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(6.5);
+        doc.setTextColor(...LIGHT_TEXT);
+        doc.text('Not financial advice. Data is for informational purposes only. Always do your own research before investing.', M, PAGE_H - 7);
+        doc.text(`StockPanda — stockpanda.app  |  Page ${p} of ${totalPages}`, PAGE_W - M, PAGE_H - 7, { align:'right' });
+      }
+
+      doc.save(`${s.ticker}_StockPanda_Report.pdf`);
+    } catch(err) {
+      console.error('PDF export failed:', err);
+      alert('PDF export failed. Please try again.');
+    } finally {
+      if (btn) { btn.textContent = '⬇ PDF'; btn.disabled = false; }
+    }
+  }, 50);
+};
+
+// ── Indicators Share ──────────────────────────────────────────────────────────
+window.openIndicatorsShareModal = function openIndicatorsShareModal() {
+  if (!stockData) return;
+
+  const s    = stockData;
+  const ind  = s.indicators || {};
+  const COLORS_MAP = { green:'#4ADE80', amber:'#FBBF24', red:'#F87171' };
+  const IND_LABELS = {
+    volatility:'Volatility', volSpike:'Unusual Activity', vsPeak:'vs ATH',
+    shortTrend:'Short-Term Trend', longTrend:'Long-Term Trend', maCross:'MA Cross',
+    momentum:'Momentum', return1M:'1M Return', return1Y:'1Y Return',
+    range52W:'52-Week Range', cagr3Y:'5Y CAGR',
+  };
+  const IND_ORD = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr3Y'];
+  const sigEmoji = { green:'🟢', amber:'🟡', red:'🔴' };
+  const sigLabel = { green:'OK', amber:'Caution', red:'Alert' };
+
+  const shareUrl = `${location.origin}${location.pathname}?ticker=${encodeURIComponent(s.ticker)}&exchange=${encodeURIComponent(EXCHANGE)}`;
+
+  // Build plain-text version for copy/share
+  const rows = IND_ORD.map(key => {
+    const i = ind[key];
+    if (!i) return null;
+    return { name: IND_LABELS[key] || key, val: formatVal(key, i), color: i.color };
+  }).filter(Boolean);
+
+  const maxNameLen = Math.max(...rows.map(r => r.name.length));
+  const textLines = rows.map(r => {
+    const pad = ' '.repeat(maxNameLen - r.name.length + 2);
+    return `${r.name}${pad}${r.val.padStart(8)}   ${sigEmoji[r.color] || '⚪'} ${sigLabel[r.color] || '—'}`;
+  });
+  const shareText = [
+    `$${s.ticker} — All Indicators`,
+    `${'─'.repeat(maxNameLen + 20)}`,
+    ...textLines,
+    `${'─'.repeat(maxNameLen + 20)}`,
+    ``,
+    `View on StockPanda: ${shareUrl}`,
+    `stockpanda.app`,
+  ].join('\n');
+
+  const xText = `$${s.ticker} indicator snapshot: 1Y ${ind.return1Y?.label||'—'} · 3Y CAGR ${ind.cagr3Y?.label||'—'} · Volatility ${ind.volatility?.label||'—'} via StockPanda`;
+
+  // ── Build overlay ────────────────────────────────────────────────────────
+  const overlay = document.createElement('div');
+  overlay.className = 'share-overlay';
+  overlay.id = 'ind-share-overlay';
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  const modal = document.createElement('div');
+  modal.className = 'share-modal';
+
+  // Header
+  const modalHd = document.createElement('div');
+  modalHd.className = 'share-modal-hd';
+  const title = document.createElement('div');
+  title.className = 'share-modal-title';
+  title.textContent = `$${s.ticker} — All Indicators`;
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'share-close';
+  closeBtn.textContent = '✕';
+  closeBtn.addEventListener('click', () => overlay.remove());
+  modalHd.append(title, closeBtn);
+
+  // Indicators table card
+  const card = document.createElement('div');
+  card.className = 'share-card';
+  card.style.padding = '0.75rem';
+
+  const table = document.createElement('table');
+  table.style.cssText = 'width:100%;border-collapse:collapse;font-size:0.75rem;';
+
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid rgba(74,222,128,0.06)';
+
+    const tdName = document.createElement('td');
+    tdName.style.cssText = 'padding:5px 4px;font-weight:600;color:var(--text);';
+    tdName.textContent = r.name;
+
+    const tdVal = document.createElement('td');
+    tdVal.style.cssText = `padding:5px 4px;font-family:var(--mono);font-weight:700;text-align:right;color:${COLORS_MAP[r.color]||'var(--muted)'};`;
+    tdVal.textContent = r.val;
+
+    const tdSig = document.createElement('td');
+    tdSig.style.cssText = 'padding:5px 4px;text-align:right;font-size:0.68rem;white-space:nowrap;';
+    tdSig.textContent = `${sigEmoji[r.color]||'⚪'} ${sigLabel[r.color]||'—'}`;
+
+    tr.append(tdName, tdVal, tdSig);
+    table.appendChild(tr);
+  });
+
+  card.appendChild(table);
+
+  // Action buttons
+  const actions = document.createElement('div');
+  actions.className = 'share-actions';
+  actions.style.marginTop = '0.85rem';
+
+  function makeBtn(icon, label) {
+    const btn = document.createElement('button');
+    btn.className = 'share-action-btn';
+    btn.textContent = `${icon} ${label}`;
+    return btn;
+  }
+
+  const copyBtn = makeBtn('📋', 'Copy Indicators');
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(shareText).then(() => {
+      copyBtn.textContent = '✓ Copied!';
+      copyBtn.classList.add('copied');
+      setTimeout(() => { copyBtn.textContent = '📋 Copy Indicators'; copyBtn.classList.remove('copied'); }, 2000);
+    });
+  });
+
+  const copyLinkBtn = makeBtn('🔗', 'Copy Link');
+  copyLinkBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(shareUrl).then(() => {
+      copyLinkBtn.textContent = '✓ Copied!';
+      copyLinkBtn.classList.add('copied');
+      setTimeout(() => { copyLinkBtn.textContent = '🔗 Copy Link'; copyLinkBtn.classList.remove('copied'); }, 2000);
+    });
+  });
+
+  const xLink = document.createElement('a');
+  xLink.className = 'share-action-btn';
+  xLink.href = `https://x.com/intent/tweet?text=${encodeURIComponent(xText)}&url=${encodeURIComponent(shareUrl)}`;
+  xLink.target = '_blank';
+  xLink.rel = 'noopener noreferrer';
+  xLink.textContent = '𝕏 Share on X';
+
+  const waLink = document.createElement('a');
+  waLink.className = 'share-action-btn';
+  waLink.href = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+  waLink.target = '_blank';
+  waLink.rel = 'noopener noreferrer';
+  waLink.textContent = '💬 WhatsApp';
+
+  actions.append(copyBtn, copyLinkBtn, xLink, waLink);
+
+  if (navigator.share) {
+    const nativeBtn = document.createElement('button');
+    nativeBtn.className = 'share-action-btn share-native';
+    nativeBtn.textContent = '↗ Share via…';
+    nativeBtn.addEventListener('click', () => {
+      navigator.share({ title: `$${s.ticker} Indicators — StockPanda`, text: shareText, url: shareUrl }).catch(() => {});
+    });
+    actions.appendChild(nativeBtn);
+  }
+
+  modal.append(modalHd, card, actions);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+};
+
+// ── Wire up stocks.html links ─────────────────────────────────────────────────
+loadStock();
+
+}); // end window.addEventListener load
+
+// ── Nav search (all pages) ────────────────────────────────────────────────────
+(function() {
+  const input   = document.getElementById('nav-search-input');
+  const results = document.getElementById('nav-search-results');
+  if (!input || !results) return;
+  let timer;
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      const q = input.value.trim();
+      if (q.length < 1) { results.classList.remove('open'); return; }
+      const hits = await DataCache.searchAll(q);
+      if (!hits.length) {
+        results.innerHTML = '<div class="sr-empty">No results found</div>';
+      } else {
+        results.innerHTML = hits.map(s => {
+          const b = MOOD.band(s.mood?.label || 'Level 3');
+          return `<div class="sr-item" data-ticker="${s.ticker}" data-exchange="${s.exchange}" data-country="${s.country || ''}" style="cursor:pointer;">
+            <div class="sr-ticker">${s.ticker}</div>
+            <div class="sr-company">${s.company || ''}</div>
+            <div class="sr-exchange">${s.exchangeLabel}</div>
+            <div class="sr-panda panda-wrap" style="width:28px;height:28px;">
+              <img class="panda-img" src="assets/img/${b.img}" alt="${b.label}" />
+            </div>
+          </div>`;
+        }).join('');
+      }
+      results.classList.add('open');
+    }, 220);
+  });
+  results.addEventListener('click', e => {
+    const item = e.target.closest('.sr-item');
+    if (!item) return;
+    results.classList.remove('open');
+    input.value = '';
+    window.location.href = `stock.html?ticker=${encodeURIComponent(item.dataset.ticker)}&exchange=${item.dataset.exchange}&country=${encodeURIComponent(item.dataset.country || '')}`;
+  });
+  document.addEventListener('click', e => {
+    if (!input.contains(e.target) && !results.contains(e.target)) {
+      results.classList.remove('open');
+    }
+  });
+})();
+
+</script>
+<footer style="border-top:1px solid rgba(74,222,128,0.12);padding:2rem;max-width:1400px;margin:4rem auto 0;">
+  <div style="margin-bottom:1.25rem;">
+    <p style="font-size:0.78rem;color:var(--muted);line-height:1.85;margin:0;">StockPanda is a free stock research and education app. It was built to make investing more accessible. Nothing on this site constitutes financial advice. Always do your own research before making investment decisions.</p>
+  </div>
+  <div style="border-top:1px solid rgba(74,222,128,0.08);padding-top:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+    <span style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);">© StockPanda</span>
+    <span style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);">Not financial advice</span>
+  </div>
+</footer>

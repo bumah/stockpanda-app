@@ -1,0 +1,35 @@
+[build]
+  command = "python3 build_data.py"
+  publish = "public"
+
+[build.environment]
+  PYTHON_VERSION = "3.11"
+
+# JSON data files — 1hr cache, serve stale while revalidating
+[[headers]]
+  for = "/data/*.json"
+  [headers.values]
+    Cache-Control = "public, max-age=3600, stale-while-revalidate=86400"
+
+# Images — 7 day cache (panda PNGs never change)
+[[headers]]
+  for = "/assets/img/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800, immutable"
+
+# CSS/JS — 1hr cache
+[[headers]]
+  for = "/assets/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/assets/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+# HTML — 5 min cache
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=300"

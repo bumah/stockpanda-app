@@ -1,0 +1,18 @@
+# Generated data files (rebuilt on each Netlify deploy)
+public/data/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
