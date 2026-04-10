@@ -57,6 +57,148 @@ IND_ORDER = [
 
 COLOR_MAP = {"green": "g", "amber": "a", "red": "r"}
 
+# ── Hunting style presets (mirrored from finder.html) ─────────────────────────
+
+PRESETS = {
+    "optimistic":  {"sector":"all","size":"any","return1m":"positive","growth5y":"any",   "momentum":"any",     "matrend":"any",       "range52w":"lows", "drawdown":"deep",     "vol":"any",     "analyst":"any",    "profit":"any"},
+    "nimble":      {"sector":"all","size":"any","return1m":"positive","growth5y":"any",   "momentum":"positive","matrend":"above_50",  "range52w":"any",  "drawdown":"any",      "vol":"any",     "analyst":"any",    "profit":"any"},
+    "momentum":    {"sector":"all","size":"any","return1m":"positive","growth5y":"strong","momentum":"positive","matrend":"above_both","range52w":"highs","drawdown":"near_peak","vol":"any",     "analyst":"any",    "profit":"any"},
+    "pack":        {"sector":"all","size":"large","return1m":"positive","growth5y":"any", "momentum":"positive","matrend":"above_50",  "range52w":"highs","drawdown":"any",      "vol":"any",     "analyst":"buy",    "profit":"any"},
+    "patient":     {"sector":"all","size":"any","return1m":"any",     "growth5y":"strong","momentum":"any",     "matrend":"any",       "range52w":"lows", "drawdown":"moderate", "vol":"any",     "analyst":"any",    "profit":"profitable"},
+    "safe":        {"sector":"all","size":"large","return1m":"any",   "growth5y":"strong","momentum":"neutral", "matrend":"above_both","range52w":"any",  "drawdown":"any",      "vol":"low",     "analyst":"any",    "profit":"profitable"},
+    "trophy":      {"sector":"all","size":"large","return1m":"positive","growth5y":"strong","momentum":"positive","matrend":"above_both","range52w":"highs","drawdown":"near_peak","vol":"any",  "analyst":"buy",    "profit":"profitable"},
+    "wild_beast":  {"sector":"all","size":"any","return1m":"any",     "growth5y":"any",   "momentum":"any",     "matrend":"any",       "range52w":"any",  "drawdown":"any",      "vol":"moderate","analyst":"any",    "profit":"any"},
+    "zombie":      {"sector":"all","size":"any","return1m":"recovery","growth5y":"recovery","momentum":"any",   "matrend":"any",       "range52w":"lows", "drawdown":"deep",     "vol":"any",     "analyst":"any",    "profit":"any"},
+}
+
+PRESET_LABELS = {
+    "optimistic": "Optimistic", "nimble": "Nimble", "momentum": "Momentum",
+    "pack": "Pack", "patient": "Patient", "safe": "Careful",
+    "trophy": "Trophy", "wild_beast": "Wild Beast", "zombie": "Zombie",
+}
+
+BUY_SET  = {"Strong buy", "Buy"}
+NEUT_SET = {"Strong buy", "Buy", "Neutral"}
+
+def _ind_color(inds, key):
+    """Get indicator color, defaulting to 'amber' if missing."""
+    ind = inds.get(key)
+    return ind["color"] if ind else "amber"
+
+def _green_score(inds, key):
+    c = _ind_color(inds, key)
+    return 1 if c == "green" else (0.5 if c == "amber" else 0)
+
+def _amber_score(inds, key):
+    c = _ind_color(inds, key)
+    return 1 if c == "amber" else (0.5 if c == "green" else 0)
+
+def _red_score(inds, key):
+    c = _ind_color(inds, key)
+    return 1 if c == "red" else (0.5 if c == "amber" else 0)
+
+def score_preset(inds, ans, mc, r52, eps, ar):
+    """Score a stock against one preset. Returns { scores: [...], pct: int }."""
+    # 1. Size
+    if ans["size"] == "large":
+        q_size = 1 if mc is not None and mc >= 10e9 else (0.5 if mc is not None and mc >= 2e9 else 0)
+    elif ans["size"] == "mid":
+        q_size = 1 if mc is not None and 2e9 <= mc < 10e9 else (0.5 if mc is not None and mc >= 500e6 else 0)
+    elif ans["size"] == "small":
+        q_size = 1 if mc is not None and mc < 2e9 else (0.5 if mc is not None and mc < 10e9 else 0)
+    else:
+        q_size = 1
+
+    # 2. 1M Return
+    if ans["return1m"] == "positive":
+        q_1m = _green_score(inds, "return1M")
+    elif ans["return1m"] == "recovery":
+        q_1m = _red_score(inds, "return1M")
+    else:
+        q_1m = 1
+
+    # 3. 5Y Growth
+    if ans["growth5y"] == "strong":
+        q_5y = _green_score(inds, "cagr5Y")
+    elif ans["growth5y"] == "recovery":
+        q_5y = _red_score(inds, "cagr5Y")
+    else:
+        q_5y = 1
+
+    # 4. Momentum
+    if ans["momentum"] == "positive":
+        q_mom = _green_score(inds, "momentum")
+    elif ans["momentum"] == "neutral":
+        q_mom = _amber_score(inds, "momentum")
+    else:
+        q_mom = 1
+
+    # 5. MA Trend
+    s_col = _ind_color(inds, "shortTrend")
+    l_col = _ind_color(inds, "longTrend")
+    if ans["matrend"] == "above_both":
+        q_ma = 1 if s_col == "green" and l_col == "green" else (0.5 if s_col == "green" or l_col == "green" else 0)
+    elif ans["matrend"] == "above_50":
+        q_ma = 1 if s_col == "green" else (0.5 if s_col == "amber" else 0)
+    elif ans["matrend"] == "below_both":
+        q_ma = 1 if s_col == "red" and l_col == "red" else (0.5 if s_col == "red" or l_col == "red" else 0)
+    else:
+        q_ma = 1
+
+    # 6. 52W Range
+    if ans["range52w"] == "highs":
+        q_r52 = _green_score(inds, "range52W")
+    elif ans["range52w"] == "middle":
+        q_r52 = _amber_score(inds, "range52W")
+    elif ans["range52w"] == "lows":
+        q_r52 = _red_score(inds, "range52W")
+    else:
+        q_r52 = 1
+
+    # 7. Drawdown
+    if ans["drawdown"] == "near_peak":
+        q_dd = 1 if r52 is not None and r52 >= 80 else (0.5 if r52 is not None and r52 >= 50 else 0)
+    elif ans["drawdown"] == "moderate":
+        q_dd = 1 if r52 is not None and 40 <= r52 < 80 else (0.5 if r52 is not None and r52 >= 20 else 0)
+    elif ans["drawdown"] == "deep":
+        q_dd = 1 if r52 is not None and r52 < 40 else (0.5 if r52 is not None and r52 < 60 else 0)
+    else:
+        q_dd = 1
+
+    # 8. Volatility
+    if ans["vol"] == "low":
+        q_vol = _green_score(inds, "volatility")
+    elif ans["vol"] == "moderate":
+        q_vol = _amber_score(inds, "volatility")
+    else:
+        q_vol = 1
+
+    # 9. Analyst
+    if ans["analyst"] == "buy":
+        q_an = 1 if ar in BUY_SET else (0.5 if ar == "Neutral" else 0)
+    elif ans["analyst"] == "neutral":
+        q_an = 1 if ar in NEUT_SET else 0.5
+    else:
+        q_an = 1
+
+    # 10. Profit
+    if ans["profit"] == "profitable":
+        q_pr = 1 if eps is not None and eps > 0 else (0.5 if eps is None else 0)
+    else:
+        q_pr = 1
+
+    scores = [q_size, q_1m, q_5y, q_mom, q_ma, q_r52, q_dd, q_vol, q_an, q_pr]
+    total = sum(scores)
+    pct = round(total / 10 * 100)
+    return {"scores": scores, "pct": pct}
+
+def score_all_presets(inds, mc, r52, eps, ar):
+    """Score a stock against all 9 presets. Returns dict of { key: {scores, pct} }."""
+    result = {}
+    for key, ans in PRESETS.items():
+        result[key] = score_preset(inds, ans, mc, r52, eps, ar)
+    return result
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _float(val):
@@ -434,6 +576,9 @@ def parse_row(row):
     if vol_m1 is not None:
         ann_vol = _round(vol_m1 * math.sqrt(252), 1)
 
+    # Pre-compute hunting style scores for all 9 presets
+    preset_scores = score_all_presets(inds, mktcap, range52w_pct, epsbasic, row.get("Analyst Rating", ""))
+
     return {
         "ticker":        row["Symbol"],
         "company":       row.get("Description", ""),
@@ -471,6 +616,7 @@ def parse_row(row):
         "_avg_vol_90":   _round(avg_vol_90, 0),
         "_indices":      {i.strip() for i in row.get("Index", "").split(",") if i.strip()},
         "_mood_score":   mood,
+        "_preset_scores": preset_scores,
     }
 
 # ── Exchange tagging ──────────────────────────────────────────────────────────
@@ -528,6 +674,7 @@ def make_exchange_entry(s):
         "swing":         s["swing"],
         "indicators":    s["indicators"],
         "moodHistory":   {},
+        "presetScores":  s["_preset_scores"],
     }
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -628,6 +775,7 @@ def main():
             "div":   s["financials"].get("dividendsPerShare"),
             "mc":    s["financials"].get("marketCap"),
             "ar":    s.get("analystRating", ""),
+            "ps":    {k: v["pct"] for k, v in s["_preset_scores"].items()},
         }
         for s in stocks
     ]

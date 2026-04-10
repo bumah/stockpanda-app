@@ -1784,6 +1784,7 @@ function normalizeSearchEntry(e, exchLabels) {
     _dte:          e.dte,
     _fcf:          e.fcf,
     _ni:           e.ni,
+    _ps:           e.ps || {},
   };
 }
 
@@ -1887,20 +1888,8 @@ function scoreByAnswers(stock, ans) {
   return { scores, total, pct };
 }
 
-// ── Pre-tagged stock cache ────────────────────────────────────────────────────
-let _taggedCache = null;
-let _taggedRegionKey = null;
-const _PRESET_KEYS = Object.keys(PRESETS);
-
-function _regionCacheKey() {
-  const r = answers.region;
-  return Array.isArray(r) ? r.sort().join(',') : (r || 'global');
-}
-
-async function loadAndTagStocks() {
-  const regionKey = _regionCacheKey();
-  if (_taggedCache && _taggedRegionKey === regionKey) return _taggedCache;
-
+// ── Load stocks from search index (preset scores are pre-computed in JSON) ────
+async function loadAllStocks() {
   const EXCH_LABELS = { sp500:'S&P 500', ftse100:'FTSE 100', hsi:'Hang Seng', nikkei225:'Nikkei 225', nasdaq100:'NASDAQ 100', nasdaq_financial:'NASDAQ Financial', nasdaq_biotech:'NASDAQ Biotech' };
   const region  = answers.region || 'global';
   const isGlobal = region === 'global' || region === 'all';
@@ -1916,30 +1905,11 @@ async function loadAndTagStocks() {
   const all = [];
   for (const e of searchData) {
     if (countrySet !== null && !countrySet.has(e.co)) continue;
-    all.push(normalizeSearchEntry(e, EXCH_LABELS));
+    const stock = normalizeSearchEntry(e, EXCH_LABELS);
+    if (!sectorMatches(stock, answers)) continue;
+    all.push(stock);
   }
-
-  const BATCH = 2000;
-  for (let i = 0; i < all.length; i += BATCH) {
-    const end = Math.min(i + BATCH, all.length);
-    for (let j = i; j < end; j++) {
-      const s = all[j];
-      s._presetScores = {};
-      for (const pk of _PRESET_KEYS) {
-        s._presetScores[pk] = scoreByAnswers(s, PRESETS[pk].a);
-      }
-    }
-    if (end < all.length) await new Promise(r => setTimeout(r, 0));
-  }
-
-  _taggedCache = all;
-  _taggedRegionKey = regionKey;
   return all;
-}
-
-function loadAllStocks(stocks) {
-  if (!answers.sector || answers.sector === 'all') return stocks;
-  return stocks.filter(s => sectorMatches(s, answers));
 }
 
 // ── Run the ranking ────────────────────────────────────────────
@@ -1956,12 +1926,12 @@ async function findStocks() {
 
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-  const allStocks = await loadAndTagStocks();
-  const stocks = loadAllStocks(allStocks);
+  const stocks = await loadAllStocks();
 
   let scored;
-  if (_presetMode && _lastPresetKey && PRESETS[_lastPresetKey] && allStocks[0]?._presetScores?.[_lastPresetKey]) {
-    scored = stocks.map(s => ({ stock: s, ...s._presetScores[_lastPresetKey] }));
+  // Fast path: preset scores are pre-computed in the JSON data — instant lookup
+  if (_presetMode && _lastPresetKey && PRESETS[_lastPresetKey]) {
+    scored = stocks.map(s => ({ stock: s, pct: s._ps?.[_lastPresetKey] ?? 0, scores: [] }));
   } else {
     const BATCH = 2000;
     scored = [];
@@ -2606,7 +2576,7 @@ function resetQuiz() {
   _lastPresetKey = '';
   _allScored = [];
   _fitFilter = 'great';
-  _taggedCache = null;
+  // no client-side cache to clear — preset scores are pre-computed in JSON
   sessionStorage.removeItem('sp_answers');
   sessionStorage.removeItem('sp_preset');
   sessionStorage.removeItem('sp_presetKey');

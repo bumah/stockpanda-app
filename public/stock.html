@@ -233,6 +233,12 @@
         <button class="share-btn" style="margin-top:0;font-size:0.68rem;padding:3px 9px;" onclick="openIndicatorsShareModal()">↗ Share</button>
       </div>
       <div class="ig-groups" id="ind-groups"></div>
+
+      <!-- Hunting Styles breakdown -->
+      <div style="margin-top:1.5rem;">
+        <div class="section-label">Hunting Styles</div>
+        <div id="style-breakdown"></div>
+      </div>
     </div>
 
   </div>
@@ -306,6 +312,7 @@ function renderAll() {
   renderStatGrid();
   renderFinancials();
   renderRawTable();
+  renderStyleBreakdown();
 }
 
 function renderHeader() {
@@ -773,6 +780,50 @@ function renderRawTable() {
         <span class="ig-group-count">${g.rows.length} signal${g.rows.length !== 1 ? 's' : ''}</span>
       </div>
       ${g.rows.join('')}
+    </div>`;
+  }).join('');
+}
+
+// ── Hunting Styles breakdown ──────────────────────────────────────────────────
+const STYLE_META = [
+  { key:'optimistic',  icon:'🐇', name:'Optimistic',  desc:'Turnaround stocks starting to recover after a rough patch.' },
+  { key:'nimble',      icon:'⚡', name:'Nimble',      desc:'Targets early breakouts with strong participation.' },
+  { key:'momentum',    icon:'🚀', name:'Momentum',    desc:'Stocks in sustained uptrends across multiple timeframes.' },
+  { key:'pack',        icon:'🐺', name:'Pack',        desc:'Follows institutional flows and consensus sentiment.' },
+  { key:'patient',     icon:'🧘', name:'Patient',     desc:'High-quality stocks consolidating before a breakout.' },
+  { key:'safe',        icon:'🛡️', name:'Careful',     desc:'Stable, low-risk companies with strong balance sheets.' },
+  { key:'trophy',      icon:'🏆', name:'Trophy',      desc:'Proven long-term winners with strong earnings.' },
+  { key:'wild_beast',  icon:'🧬', name:'Wild Beast',  desc:'High-volatility assets with extreme upside potential.' },
+  { key:'zombie',      icon:'🧟', name:'Zombie',      desc:'Beaten-down stocks showing early signs of revival.' },
+];
+
+function renderStyleBreakdown() {
+  const ps = stockData.presetScores;
+  const el = document.getElementById('style-breakdown');
+  if (!el || !ps || !Object.keys(ps).length) {
+    if (el) el.innerHTML = '<div style="color:var(--muted);font-size:0.78rem;">No style data available.</div>';
+    return;
+  }
+
+  const sorted = [...STYLE_META].sort((a, b) => (ps[b.key]?.pct || 0) - (ps[a.key]?.pct || 0));
+
+  el.innerHTML = sorted.map(style => {
+    const data = ps[style.key];
+    const pct = data?.pct ?? 0;
+    const col = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : 'var(--red)';
+    const bgCol = pct >= 80 ? 'rgba(74,222,128,0.15)' : pct >= 50 ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)';
+    return `<div style="display:flex;align-items:center;gap:0.7rem;padding:0.6rem 0.75rem;border:1px solid var(--border);border-radius:8px;margin-bottom:0.45rem;background:var(--card);">
+      <div style="font-size:1.2rem;width:1.6rem;text-align:center;flex-shrink:0;">${style.icon}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.2rem;">
+          <span style="font-weight:700;font-size:0.85rem;color:var(--text);">${style.name}</span>
+          <span style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:${col};background:${bgCol};padding:1px 6px;border-radius:4px;">${pct}%</span>
+        </div>
+        <div style="font-size:0.7rem;color:var(--muted);line-height:1.35;">${style.desc}</div>
+        <div style="margin-top:0.35rem;height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${col};border-radius:2px;transition:width 0.3s;"></div>
+        </div>
+      </div>
     </div>`;
   }).join('');
 }
