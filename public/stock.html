@@ -248,13 +248,13 @@ initNavStamp();
 
 const params   = new URLSearchParams(window.location.search);
 const TICKER   = params.get('ticker');
-const EXCHANGE = params.get('exchange') || 'sp500';
+const EXCHANGE = params.get('exchange') || 'global';
 const COUNTRY  = params.get('country') || '';
 
 // Back button preserves exchange
 const _knownExchanges = ['sp500','ftse100','hsi','nikkei225','nasdaq100','nasdaq_financial','nasdaq_biotech'];
 document.getElementById('back-btn').href = _knownExchanges.includes(EXCHANGE)
-  ? `stocks.html?exchange=${EXCHANGE}` : 'index.html';
+  ? `stocks.html?exchange=${EXCHANGE}` : 'stocks.html';
 
 const IND_META_FULL = {
   volatility:  { label:'Volatility',         desc:'1-year annualised price swing. How much the stock moves day-to-day on average. High volatility = bigger swings = more risk.' },
@@ -865,10 +865,6 @@ function buildShareText() {
   const ret1y  = ind.return1Y?.label  || '—';
   const cagr5y = ind.cagr5Y?.label    || '—';
   const mood   = s.mood?.label || 'Level 3';
-  const mh     = s.moodHistory || {};
-  const histLine = ['1w','1m','3m','1y']
-    .map(k => { const h = mh[k]; return h ? `${k.toUpperCase()}: ${h.mood?.label||'—'}` : null; })
-    .filter(Boolean).join(' · ');
   const url = `${location.origin}${location.pathname}?ticker=${encodeURIComponent(s.ticker)}&exchange=${encodeURIComponent(EXCHANGE)}`;
   return [
     `$${s.ticker} — ${s.company || exchLabelsMap[EXCHANGE] || EXCHANGE}`,
@@ -878,8 +874,6 @@ function buildShareText() {
     `• 1M: ${ret1m}`,
     `• 1Y: ${ret1y}`,
     `• 5Y CAGR: ${cagr5y}`,
-    ``,
-    `Level History: ${histLine}`,
     ``,
     `View on StockPanda: ${url}`,
     `stockpanda.app`,
@@ -898,13 +892,7 @@ window.openShareModal = function openShareModal() {
   const b   = MOOD.band(s.mood?.label || 'Level 3');
   const sym = currencySymbols[EXCHANGE] || '';
   const COLORS_MAP = { green:'#4ADE80', amber:'#FBBF24', red:'#F87171' };
-  const mh  = s.moodHistory || {};
-  const histPeriods = [
-    { key:'1w', short:'1W' },
-    { key:'1m', short:'1M' },
-    { key:'3m', short:'3M' },
-    { key:'1y', short:'1Y' },
-  ];
+  // moodHistory removed — not populated by build pipeline
 
   // ── Build overlay ──────────────────────────────────────────────────────────
   const overlay = document.createElement('div');
@@ -986,41 +974,12 @@ window.openShareModal = function openShareModal() {
     returns.appendChild(cell);
   });
 
-  // Mood history row
-  const histTitle = document.createElement('div');
-  histTitle.className = 'sc-hist-title';
-  histTitle.textContent = 'Level History';
-  const histRow = document.createElement('div');
-  histRow.className = 'sc-hist-row';
-  histPeriods.forEach(p => {
-    const h  = mh[p.key];
-    const hb = h ? MOOD.band(h.mood?.label || 'Level 3') : MOOD.band('Level 3');
-    const cell = document.createElement('div');
-    cell.className = 'sc-hist-cell';
-    const period = document.createElement('div');
-    period.className = 'sc-hist-period';
-    period.textContent = p.short;
-    const img = document.createElement('div');
-    img.className = 'sc-hist-img panda-wrap';
-    const imgEl = document.createElement('img');
-    imgEl.className = 'panda-img';
-    imgEl.src = `assets/img/${hb.img}`;
-    imgEl.alt = hb.label;
-    img.appendChild(imgEl);
-    const lbl = document.createElement('div');
-    lbl.className = 'sc-hist-label';
-    lbl.style.color = hb.color;
-    lbl.textContent = h ? (h.mood?.label || '—') : '—';
-    cell.append(period, img, lbl);
-    histRow.appendChild(cell);
-  });
-
   // Branding
   const brand = document.createElement('div');
   brand.className = 'sc-brand';
   brand.textContent = 'stockpanda.app';
 
-  card.append(cardHd, priceRow, returns, histTitle, histRow, brand);
+  card.append(cardHd, priceRow, returns, brand);
 
   // ── Share action buttons ───────────────────────────────────────────────────
   const actions = document.createElement('div');
@@ -1044,7 +1003,7 @@ window.openShareModal = function openShareModal() {
       copyBtn.textContent = '✓ Copied!';
       copyBtn.classList.add('copied');
       setTimeout(() => { copyBtn.textContent = '🔗 Copy Link'; copyBtn.classList.remove('copied'); }, 2000);
-    });
+    }).catch(() => { copyBtn.textContent = '✗ Failed'; setTimeout(() => { copyBtn.textContent = '🔗 Copy Link'; }, 2000); });
   });
 
   // Copy summary
@@ -1054,7 +1013,7 @@ window.openShareModal = function openShareModal() {
       copyTextBtn.textContent = '✓ Copied!';
       copyTextBtn.classList.add('copied');
       setTimeout(() => { copyTextBtn.textContent = '📋 Copy Summary'; copyTextBtn.classList.remove('copied'); }, 2000);
-    });
+    }).catch(() => { copyTextBtn.textContent = '✗ Failed'; setTimeout(() => { copyTextBtn.textContent = '📋 Copy Summary'; }, 2000); });
   });
 
   // Share on X
@@ -1105,7 +1064,7 @@ window.exportPDF = function exportPDF() {
       const doc  = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const s    = stockData;
       const ind  = s.indicators || {};
-      const mh   = s.moodHistory || {};
+      // moodHistory removed — not populated by build pipeline
       const sym  = currencySymbols[EXCHANGE] || '';
       const exchLabel = exchLabelsMap[EXCHANGE] || EXCHANGE;
       const PAGE_W    = 210;
@@ -1245,53 +1204,6 @@ window.exportPDF = function exportPDF() {
         doc.text(item.val, cx + 3, y + 14);
       });
       y += 22;
-
-      /* ── Level History ── */
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(7.5);
-      doc.setTextColor(...GREY_TEXT);
-      doc.text('LEVEL HISTORY', M, y);
-      y += 4;
-
-      const histPds = [
-        { key:'1w', label:'1 Week Ago' },
-        { key:'1m', label:'1 Month Ago' },
-        { key:'3m', label:'3 Months Ago' },
-        { key:'1y', label:'1 Year Ago' },
-      ];
-      const hColW = CW / 4;
-      histPds.forEach((p, i) => {
-        const h  = mh[p.key];
-        const hb = h ? MOOD.band(h.mood?.label || 'Level 3') : null;
-        const cx = M + i * hColW;
-        doc.setFillColor(244, 248, 245);
-        doc.rect(cx, y, hColW - 2, 22, 'F');
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(6.5);
-        doc.setTextColor(...GREY_TEXT);
-        doc.text(p.label.toUpperCase(), cx + 3, y + 5);
-        if (h && hb) {
-          const [hcr, hcg, hcb] = hexRgb(hb.color);
-          doc.setFont('helvetica', 'bold');
-          doc.setFontSize(10);
-          doc.setTextColor(hcr, hcg, hcb);
-          doc.text(h.mood?.label || '—', cx + 3, y + 12);
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(6.5);
-          doc.setTextColor(...LIGHT_TEXT);
-          if (h.date) doc.text(h.date, cx + 3, y + 17);
-          if (h.price != null) {
-            const hp = fmtPrice({price: h.price, currency: s.currency});
-            doc.text(hp, cx + hColW - 4, y + 17, { align:'right' });
-          }
-        } else {
-          doc.setFont('helvetica', 'normal');
-          doc.setFontSize(8);
-          doc.setTextColor(...LIGHT_TEXT);
-          doc.text('No data', cx + 3, y + 13);
-        }
-      });
-      y += 27;
 
       /* ── All Indicators table ── */
       doc.setFont('helvetica', 'bold');
@@ -1490,7 +1402,7 @@ window.openIndicatorsShareModal = function openIndicatorsShareModal() {
       copyBtn.textContent = '✓ Copied!';
       copyBtn.classList.add('copied');
       setTimeout(() => { copyBtn.textContent = '📋 Copy Indicators'; copyBtn.classList.remove('copied'); }, 2000);
-    });
+    }).catch(() => { copyBtn.textContent = '✗ Failed'; setTimeout(() => { copyBtn.textContent = '📋 Copy Indicators'; }, 2000); });
   });
 
   const copyLinkBtn = makeBtn('🔗', 'Copy Link');
@@ -1499,7 +1411,7 @@ window.openIndicatorsShareModal = function openIndicatorsShareModal() {
       copyLinkBtn.textContent = '✓ Copied!';
       copyLinkBtn.classList.add('copied');
       setTimeout(() => { copyLinkBtn.textContent = '🔗 Copy Link'; copyLinkBtn.classList.remove('copied'); }, 2000);
-    });
+    }).catch(() => { copyLinkBtn.textContent = '✗ Failed'; setTimeout(() => { copyLinkBtn.textContent = '🔗 Copy Link'; }, 2000); });
   });
 
   const xLink = document.createElement('a');
@@ -1555,12 +1467,12 @@ loadStock();
       } else {
         results.innerHTML = hits.map(s => {
           const b = MOOD.band(s.mood?.label || 'Level 3');
-          return `<div class="sr-item" data-ticker="${s.ticker}" data-exchange="${s.exchange}" data-country="${s.country || ''}" style="cursor:pointer;">
-            <div class="sr-ticker">${s.ticker}</div>
-            <div class="sr-company">${s.company || ''}</div>
-            <div class="sr-exchange">${s.exchangeLabel}</div>
+          return `<div class="sr-item" data-ticker="${esc(s.ticker)}" data-exchange="${esc(s.exchange)}" data-country="${esc(s.country || '')}" style="cursor:pointer;">
+            <div class="sr-ticker">${esc(s.ticker)}</div>
+            <div class="sr-company">${esc(s.company || '')}</div>
+            <div class="sr-exchange">${esc(s.exchangeLabel)}</div>
             <div class="sr-panda panda-wrap" style="width:28px;height:28px;">
-              <img class="panda-img" src="assets/img/${b.img}" alt="${b.label}" />
+              <img class="panda-img" src="assets/img/${b.img}" alt="${esc(b.label)}" />
             </div>
           </div>`;
         }).join('');

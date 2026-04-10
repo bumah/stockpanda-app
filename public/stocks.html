@@ -131,7 +131,7 @@ initNavStamp();
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const IND_SCORE_KEYS = ['volatility','volSpike','vsPeak','shortTrend','longTrend','momentum','return1M','return1Y','range52W','cagr5Y'];
+const IND_SCORE_KEYS = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
 const IC_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
 const IC_MAP   = { g: 'green', a: 'amber', r: 'red' };
 const MC_LABEL = { 'mc-blue':'Level 1', 'mc-green':'Level 2', 'mc-amber':'Level 3', 'mc-orange':'Level 4', 'mc-red':'Level 5' };
@@ -258,7 +258,7 @@ function normalizeSearchEntry(e, exchKey) {
 
 async function loadMarket(key) {
   document.getElementById('stocks-tbody').innerHTML =
-    `<tr><td colspan="4" style="text-align:center;padding:3rem;color:var(--muted);">Loading…</td></tr>`;
+    `<tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--muted);">Loading…</td></tr>`;
 
   const cfg     = MARKET_CONFIG[key] || MARKET_CONFIG.us;
   const stocks  = [];
@@ -456,7 +456,7 @@ function renderTable() {
       const redCount = countDots(s, 'red');
       const redStyle = redCount > 0 ? 'color:var(--red);font-weight:600;' : 'color:var(--muted);';
 
-      return `<tr onclick="openStock('${s.ticker}','${exchParam}','${(s.country||'').replace(/'/g,"\\'")}')">
+      return `<tr onclick="openStock('${s.ticker.replace(/'/g,"\\'")}','${exchParam}','${(s.country||'').replace(/'/g,"\\'")}')">
         <td style="padding:0.7rem 10px;box-shadow:inset 3px 0 0 ${accent};">
           <div style="display:flex;align-items:baseline;gap:4px;flex-wrap:wrap;">
             <div class="tick-name">${s.ticker}</div>${exchTag}
@@ -535,12 +535,12 @@ loadMarket(currentMarket);
       } else {
         results.innerHTML = hits.map(s => {
           const b = MOOD.band(s.mood?.label || 'Level 3');
-          return `<div class="sr-item" data-ticker="${s.ticker}" data-exchange="${s.exchange}" data-country="${s.country || ''}" style="cursor:pointer;">
-            <div class="sr-ticker">${s.ticker}</div>
-            <div class="sr-company">${s.company || ''}</div>
-            <div class="sr-exchange">${s.exchangeLabel}</div>
+          return `<div class="sr-item" data-ticker="${esc(s.ticker)}" data-exchange="${esc(s.exchange)}" data-country="${esc(s.country || '')}" style="cursor:pointer;">
+            <div class="sr-ticker">${esc(s.ticker)}</div>
+            <div class="sr-company">${esc(s.company || '')}</div>
+            <div class="sr-exchange">${esc(s.exchangeLabel)}</div>
             <div class="sr-panda panda-wrap" style="width:28px;height:28px;">
-              <img class="panda-img" src="assets/img/${b.img}" alt="${b.label}" />
+              <img class="panda-img" src="assets/img/${b.img}" alt="${esc(b.label)}" />
             </div>
           </div>`;
         }).join('');
