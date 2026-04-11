@@ -7,6 +7,63 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    /* ── Browse-page bubble filters ─────────────────────────────────────────── */
+    .bubble-row { display:flex; align-items:center; gap:0.5rem; margin-bottom:0.6rem; overflow-x:auto; padding-bottom:2px; }
+    .bubble-row::-webkit-scrollbar { height:0; }
+    .bubble-label {
+      font-family:var(--mono); font-size:0.6rem; color:var(--muted);
+      text-transform:uppercase; letter-spacing:0.08em; white-space:nowrap;
+      min-width:62px; flex-shrink:0;
+    }
+    .bubble-chips { display:flex; gap:0.35rem; flex-wrap:nowrap; overflow-x:auto; padding:2px 0; }
+    .bubble-chips::-webkit-scrollbar { height:0; }
+    .bubble-chip {
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:20px; padding:0.3rem 0.75rem;
+      font-size:0.72rem; color:var(--muted); font-weight:500;
+      cursor:pointer; transition:all 0.15s; white-space:nowrap;
+      display:inline-flex; align-items:center; gap:4px;
+    }
+    .bubble-chip:hover { border-color:var(--green); color:var(--text); }
+    .bubble-chip.active { background:var(--brand-dim); border-color:var(--green); color:var(--green); }
+
+    /* ── Sub-filters ────────────────────────────────────────────────────────── */
+    .sub-filters {
+      display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;
+      margin-bottom:1rem; padding-top:0.5rem;
+      border-top:1px solid var(--border);
+    }
+    .sf-input {
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:var(--radius); padding:7px 12px;
+      color:var(--text); font-size:0.78rem; outline:none; flex:1; min-width:180px;
+      transition:border-color 0.15s; font-family:var(--font);
+    }
+    .sf-input:focus { border-color:var(--brand); }
+    .sf-input::placeholder { color:var(--muted); }
+    .sf-select {
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:var(--radius); padding:7px 10px;
+      color:var(--muted); font-size:0.78rem; outline:none; cursor:pointer;
+      font-family:var(--font);
+    }
+    .sf-count {
+      font-family:var(--mono); font-size:0.65rem; color:var(--muted);
+      margin-left:auto; white-space:nowrap;
+    }
+
+    /* ── Browse table adjustments ───────────────────────────────────────────── */
+    .tbl td.t-price {
+      font-variant-numeric:tabular-nums; font-family:var(--mono);
+      font-size:0.72rem; text-align:right; white-space:nowrap;
+    }
+    .tbl td.t-sector { font-size:0.6rem; color:var(--muted); max-width:90px; overflow:hidden; text-overflow:ellipsis; }
+    .tbl td.t-pct { font-family:var(--mono); font-size:0.65rem; font-weight:600; text-align:right; }
+    .tbl .pct-pos { color:#4ADE80; }
+    .tbl .pct-neg { color:#F87171; }
+    .tbl .pct-flat { color:var(--muted); }
+  </style>
 </head>
 <body>
 
@@ -38,45 +95,71 @@
   <div class="page-hd">
     <div class="page-eyebrow">Browse by market</div>
     <div class="page-title">Browse</div>
-    <div class="page-sub">Select a market, then filter by level, exchange or country</div>
+    <div class="page-sub">Explore 30,000+ stocks across all markets</div>
   </div>
 
-  <!-- Market pills -->
-  <div class="exch-tabs" id="market-pills">
-    <span class="exch-tab active" data-market="us">🇺🇸 United States</span>
-    <span class="exch-tab" data-market="uk">🇬🇧 United Kingdom</span>
-    <span class="exch-tab" data-market="europe">🇪🇺 Europe</span>
-    <span class="exch-tab" data-market="hk">🇭🇰 Hong Kong</span>
-    <span class="exch-tab" data-market="china">🇨🇳 China</span>
-    <span class="exch-tab" data-market="japan">🇯🇵 Japan</span>
-    <span class="exch-tab" data-market="middleeast">🌙 Middle East</span>
-    <span class="exch-tab" data-market="global">🌍 Global</span>
+  <!-- ── Bubble filter rows ──────────────────────────────────────────────── -->
+  <div id="bubble-filters">
+    <!-- Territory -->
+    <div class="bubble-row">
+      <span class="bubble-label">Territory</span>
+      <div class="bubble-chips" id="territory-chips">
+        <span class="bubble-chip active" data-territory="global">🌍 Global</span>
+        <span class="bubble-chip" data-territory="us">🇺🇸 US</span>
+        <span class="bubble-chip" data-territory="uk">🇬🇧 UK</span>
+        <span class="bubble-chip" data-territory="europe">🇪🇺 Europe</span>
+        <span class="bubble-chip" data-territory="hk">🇭🇰 HK</span>
+        <span class="bubble-chip" data-territory="china">🇨🇳 China</span>
+        <span class="bubble-chip" data-territory="japan">🇯🇵 Japan</span>
+        <span class="bubble-chip" data-territory="middleeast">🌙 Middle East</span>
+      </div>
+    </div>
+    <!-- Style -->
+    <div class="bubble-row">
+      <span class="bubble-label">Style</span>
+      <div class="bubble-chips" id="style-chips">
+        <span class="bubble-chip" data-style="optimistic">🐇 Optimistic</span>
+        <span class="bubble-chip" data-style="nimble">⚡ Nimble</span>
+        <span class="bubble-chip" data-style="momentum">🚀 Momentum</span>
+        <span class="bubble-chip" data-style="pack">🐺 Pack</span>
+        <span class="bubble-chip" data-style="patient">🧘 Patient</span>
+        <span class="bubble-chip" data-style="safe">🛡️ Careful</span>
+        <span class="bubble-chip" data-style="trophy">🏆 Trophy</span>
+        <span class="bubble-chip" data-style="wild_beast">🧬 Wild Beast</span>
+        <span class="bubble-chip" data-style="zombie">🧟 Zombie</span>
+      </div>
+    </div>
+    <!-- Level -->
+    <div class="bubble-row">
+      <span class="bubble-label">Level</span>
+      <div class="bubble-chips" id="level-chips">
+        <span class="bubble-chip" data-level="Level 1">Level 1</span>
+        <span class="bubble-chip" data-level="Level 2">Level 2</span>
+        <span class="bubble-chip" data-level="Level 3">Level 3</span>
+        <span class="bubble-chip" data-level="Level 4">Level 4</span>
+        <span class="bubble-chip" data-level="Level 5">Level 5</span>
+      </div>
+    </div>
   </div>
 
-  <!-- Controls -->
-  <div class="controls">
-    <input class="ctrl-input" id="filter-input" placeholder="Filter ticker or company…" autocomplete="off" />
-    <select class="ctrl-select" id="mood-filter">
-      <option value="">All Levels</option>
-      <option value="Level 1">Level 1</option>
-      <option value="Level 2">Level 2</option>
-      <option value="Level 3">Level 3</option>
-      <option value="Level 4">Level 4</option>
-      <option value="Level 5">Level 5</option>
+  <!-- ── Sub-filters ─────────────────────────────────────────────────────── -->
+  <div class="sub-filters">
+    <input class="sf-input" id="filter-input" placeholder="Search ticker or company…" autocomplete="off" />
+    <select class="sf-select" id="sector-filter">
+      <option value="">All Sectors</option>
+      <option value="tech">Technology</option>
+      <option value="health">Healthcare</option>
+      <option value="finance">Finance</option>
+      <option value="energy">Energy</option>
+      <option value="consumer">Consumer</option>
+      <option value="industrial">Industrial</option>
+      <option value="utilities">Utilities</option>
     </select>
-    <select class="ctrl-select" id="exchange-filter">
-      <option value="">All Exchanges</option>
-    </select>
-    <select class="ctrl-select" id="country-filter">
-      <option value="">All Countries</option>
-    </select>
-    <select class="ctrl-select" id="sort-select">
+    <select class="sf-select" id="sort-select">
       <option value="price-desc" selected>Sort: Price ↓</option>
       <option value="price-asc">Sort: Price ↑</option>
       <option value="m1-desc">Sort: 1M Change ↓</option>
       <option value="m1-asc">Sort: 1M Change ↑</option>
-      <option value="ytd-desc">Sort: YTD ↓</option>
-      <option value="ytd-asc">Sort: YTD ↑</option>
       <option value="y1-desc">Sort: 1Y Change ↓</option>
       <option value="y1-asc">Sort: 1Y Change ↑</option>
       <option value="red-desc">Sort: Most Red Flags ↓</option>
@@ -84,39 +167,44 @@
       <option value="score-asc">Sort: Best Mood First</option>
       <option value="score-desc">Sort: Worst Mood First</option>
     </select>
-    <div class="ctrl-sep"></div>
-    <div class="mood-summary" id="mood-summary"></div>
+    <div class="sf-count" id="sf-count">—</div>
   </div>
 
-  <!-- Table -->
-  <div class="table-wrap">
-    <table class="data-table" id="stocks-table">
+  <!-- ── Table ───────────────────────────────────────────────────────────── -->
+  <div class="tbl-wrap">
+    <table class="tbl" id="stocks-table">
       <thead>
         <tr id="col-headers">
-          <th style="width:220px;">Stock</th>
-          <th class="right" style="width:120px;">Price</th>
-          <th style="width:100px;">Level</th>
-          <th class="center" style="width:70px;">Red Flags</th>
-          <th class="right" style="width:90px;">1M</th>
-          <th class="right" style="width:90px;">YTD</th>
-          <th class="right" style="width:90px;">1Y</th>
+          <th>#</th>
+          <th>Stock</th>
+          <th>Country</th>
+          <th class="center"><span data-tip="Price in local currency">Price</span></th>
+          <th>Sector</th>
+          <th class="center">Level</th>
+          <th class="center"><span data-tip="Positive signals">🟢</span></th>
+          <th class="center"><span data-tip="Cautionary signals">🟡</span></th>
+          <th class="center"><span data-tip="Warning signals">🔴</span></th>
+          <th class="center"><span data-tip="1-month price change">1M</span></th>
+          <th class="center"><span data-tip="1-year price change">1Y</span></th>
+          <th class="center"><span data-tip="Optimistic — Turnaround recovery">🐇</span></th>
+          <th class="center"><span data-tip="Nimble — Early breakouts">⚡</span></th>
+          <th class="center"><span data-tip="Momentum — Sustained uptrends">🚀</span></th>
+          <th class="center"><span data-tip="Pack — Institutional flows">🐺</span></th>
+          <th class="center"><span data-tip="Patient — Consolidating">🧘</span></th>
+          <th class="center"><span data-tip="Careful — Stable, low-risk">🛡️</span></th>
+          <th class="center"><span data-tip="Trophy — Proven winners">🏆</span></th>
+          <th class="center"><span data-tip="Wild Beast — High-volatility">🧬</span></th>
+          <th class="center"><span data-tip="Zombie — Beaten-down revival">🧟</span></th>
         </tr>
       </thead>
       <tbody id="stocks-tbody">
-        <tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--muted);">Loading…</td></tr>
+        <tr><td colspan="20" style="text-align:center;padding:3rem;color:var(--muted);">Loading…</td></tr>
       </tbody>
     </table>
 
     <div class="table-footer">
       <div>
         <div class="footer-txt" id="footer-txt">—</div>
-        <div class="legend" style="margin-top:5px;">
-          <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div>Low risk</div>
-          <div class="leg-item"><div class="leg-dot" style="background:var(--amber)"></div>Caution</div>
-          <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div>Red flag</div>
-          <div class="leg-item" style="gap:5px;"><span style="color:var(--green);font-weight:700;">↑</span>Improving</div>
-          <div class="leg-item" style="gap:5px;"><span style="color:var(--red);font-weight:700;">↓</span>Deteriorating</div>
-        </div>
       </div>
       <div class="pagination" id="pagination"></div>
     </div>
@@ -124,6 +212,7 @@
 </div>
 
 <script src="assets/js/mood.js"></script>
+<script src="assets/js/finder-engine.js"></script>
 <script>
 'use strict';
 
@@ -133,306 +222,193 @@ initNavStamp();
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const IND_SCORE_KEYS = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
-const IC_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
-const IC_MAP   = { g: 'green', a: 'amber', r: 'red' };
-const MC_LABEL = { 'mc-blue':'Level 1', 'mc-green':'Level 2', 'mc-amber':'Level 3', 'mc-orange':'Level 4', 'mc-red':'Level 5' };
-const PAGE_SIZE = 50;
+const PAGE_SIZE    = 50;
+const PRESET_ORDER = ['optimistic','nimble','momentum','pack','patient','safe','trophy','wild_beast','zombie'];
 
-const EXCH_LABELS = {
-  sp500:'S&P 500', ftse100:'FTSE 100', hsi:'Hang Seng',
-  nikkei225:'Nikkei 225', nasdaq100:'NASDAQ 100',
-  nasdaq_financial:'NASDAQ Financial', nasdaq_biotech:'NASDAQ Biotech'
-};
-
-const EUROPE_COUNTRIES = new Set(['United Kingdom','Ireland','Sweden','France','Germany','Italy','Switzerland','Poland','Norway','Spain','Russian Federation','Finland','Denmark','Netherlands','Belgium','Greece','Austria','Luxembourg','Portugal','Bulgaria','Croatia','Romania','Hungary','Iceland','Slovenia','Lithuania','Estonia','Malta','Latvia','Slovakia','Czech Republic']);
-const MIDDLEEAST_COUNTRIES = new Set(['Saudi Arabia','United Arab Emirates','Israel','Kuwait','Qatar','Bahrain','Egypt','Jordan','Nigeria','Kenya','South Africa']);
-
-const MARKET_CONFIG = {
-  us:         { countries: new Set(['United States','Canada']) },
-  uk:         { countries: new Set(['United Kingdom','Ireland']) },
-  europe:     { countries: EUROPE_COUNTRIES },
-  hk:         { countries: new Set(['Hong Kong','Macau']) },
-  china:      { countries: new Set(['China','Hong Kong']) },
-  japan:      { countries: new Set(['Japan']) },
-  middleeast: { countries: MIDDLEEAST_COUNTRIES },
-  global:     { countries: null }
+const CURRENCY_SYMS = {
+  USD:'$', EUR:'€', GBP:'£', JPY:'¥', CNY:'¥', HKD:'HK$', KRW:'₩', INR:'₹',
+  CHF:'CHF ', SEK:'kr', CAD:'CA$', AUD:'A$', SGD:'S$', TWD:'NT$', BRL:'R$',
+  ZAR:'R', MXN:'MX$', THB:'฿', MYR:'RM', IDR:'Rp', PLN:'zł', TRY:'₺',
+  ILS:'₪', SAR:'SAR ', AED:'AED ', QAR:'QAR ', KWD:'KWD ', BHD:'BHD ',
+  EGP:'E£', JOD:'JOD ', NOK:'kr', DKK:'kr', CZK:'Kč', HUF:'Ft'
 };
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
-let currentMarket = 'us';
-let allStocks     = [];
-let filtered      = [];
-let currentPage   = 1;
+let allSearchData  = [];   // raw search.json entries
+let filtered       = [];   // after all filters applied
+let currentPage    = 1;
 
-// Read URL param
+let activeTerritory = 'global';
+let activeStyle     = '';   // '' = none
+let activeLevel     = '';   // '' = none
+
+// Read URL params for territory
 const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('market') && MARKET_CONFIG[urlParams.get('market')]) {
-  currentMarket = urlParams.get('market');
+if (urlParams.get('market') && REGION_CONFIG[urlParams.get('market')]) {
+  activeTerritory = urlParams.get('market');
 }
-// Legacy support: if 'exchange' param points to a known exchange, map to a market
 const legacyExchange = urlParams.get('exchange');
 if (legacyExchange) {
   const legacyMap = { sp500:'us', nasdaq100:'us', nasdaq_financial:'us', nasdaq_biotech:'us', ftse100:'uk', hsi:'hk', nikkei225:'japan' };
-  if (legacyMap[legacyExchange]) currentMarket = legacyMap[legacyExchange];
+  if (legacyMap[legacyExchange]) activeTerritory = legacyMap[legacyExchange];
 }
 
-// ── Market pill clicks ────────────────────────────────────────────────────────
+// Mark correct territory chip active on load
+document.querySelectorAll('#territory-chips .bubble-chip').forEach(c => {
+  c.classList.toggle('active', c.dataset.territory === activeTerritory);
+});
 
-document.getElementById('market-pills').addEventListener('click', e => {
-  const pill = e.target.closest('.exch-tab');
-  if (!pill) return;
-  document.querySelectorAll('#market-pills .exch-tab').forEach(t => t.classList.remove('active'));
-  pill.classList.add('active');
-  currentMarket = pill.dataset.market;
+// ── Bubble filter clicks ──────────────────────────────────────────────────────
+
+// Territory: single-select
+document.getElementById('territory-chips').addEventListener('click', e => {
+  const chip = e.target.closest('.bubble-chip');
+  if (!chip) return;
+  document.querySelectorAll('#territory-chips .bubble-chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  activeTerritory = chip.dataset.territory;
   currentPage = 1;
-  // Reset filters
-  document.getElementById('mood-filter').value = '';
-  document.getElementById('exchange-filter').value = '';
-  document.getElementById('country-filter').value = '';
-  document.getElementById('filter-input').value = '';
-  loadMarket(currentMarket);
-});
-
-// Mark correct pill active on load
-document.querySelectorAll('#market-pills .exch-tab').forEach(t => {
-  t.classList.toggle('active', t.dataset.market === currentMarket);
-});
-
-// ── Filter + sort listeners ───────────────────────────────────────────────────
-
-document.getElementById('filter-input').addEventListener('input', applyFilters);
-document.getElementById('mood-filter').addEventListener('change', applyFilters);
-document.getElementById('exchange-filter').addEventListener('change', applyFilters);
-document.getElementById('country-filter').addEventListener('change', applyFilters);
-document.getElementById('sort-select').addEventListener('change', applyFilters);
-
-// Mood summary pill filter
-document.getElementById('mood-summary').addEventListener('click', e => {
-  const pill = e.target.closest('.ms-pill');
-  if (!pill) return;
-  const sel = document.getElementById('mood-filter');
-  const val = pill.dataset.mood;
-  sel.value = (sel.value === val) ? '' : val;
-  document.querySelectorAll('.ms-pill').forEach(p => p.classList.toggle('active', p.dataset.mood === sel.value));
   applyFilters();
 });
+
+// Style: single-select toggle (click again to deselect)
+document.getElementById('style-chips').addEventListener('click', e => {
+  const chip = e.target.closest('.bubble-chip');
+  if (!chip) return;
+  const wasActive = chip.classList.contains('active');
+  document.querySelectorAll('#style-chips .bubble-chip').forEach(c => c.classList.remove('active'));
+  if (wasActive) {
+    activeStyle = '';
+  } else {
+    chip.classList.add('active');
+    activeStyle = chip.dataset.style;
+  }
+  currentPage = 1;
+  applyFilters();
+});
+
+// Level: single-select toggle
+document.getElementById('level-chips').addEventListener('click', e => {
+  const chip = e.target.closest('.bubble-chip');
+  if (!chip) return;
+  const wasActive = chip.classList.contains('active');
+  document.querySelectorAll('#level-chips .bubble-chip').forEach(c => c.classList.remove('active'));
+  if (wasActive) {
+    activeLevel = '';
+  } else {
+    chip.classList.add('active');
+    activeLevel = chip.dataset.level;
+  }
+  currentPage = 1;
+  applyFilters();
+});
+
+// ── Sub-filter listeners ──────────────────────────────────────────────────────
+
+document.getElementById('filter-input').addEventListener('input', () => { currentPage = 1; applyFilters(); });
+document.getElementById('sector-filter').addEventListener('change', () => { currentPage = 1; applyFilters(); });
+document.getElementById('sort-select').addEventListener('change', () => { currentPage = 1; applyFilters(); });
 
 // ── Data helpers ──────────────────────────────────────────────────────────────
 
-function icToIndicators(ic) {
-  const ind = {};
-  IC_ORDER.forEach((key, i) => {
-    const c = IC_MAP[ic?.[i]];
-    if (c) ind[key] = { color: c, label: c.charAt(0).toUpperCase() + c.slice(1) };
-  });
-  return ind;
-}
-
-function normalizeSearchEntry(e, exchKey) {
-  // New format: e.m = mood label ('Level 1', 'Level 2', ...), e.r = riskPct
-  // Old format: e.m = colorKey ('mc-blue'), e.s = score
-  const moodLabel = MC_LABEL[e.m] || e.m || 'Level 3';
-  const moodPct   = e.r ?? (e.s != null ? e.s / 20 : 50);
-  const band      = MOOD.band(moodLabel) || {};
-  return {
-    ticker:        e.t,
-    company:       e.n,
-    price:         e.p,
-    currency:      e.c || 'USD',
-    mood:          { label: moodLabel, pct: moodPct, colorKey: band.colorKey || e.m },
-    indicators:    icToIndicators(e.ic),
-    exchangeKey:   exchKey || e.x || 'global',
-    exchangeLabel: EXCH_LABELS[e.x] || '',
-    country:       e.co || '',
-    swing:         null,
-    m1:            e.m1,
-    ytd:           e.ytd,
-    y1:            e.y1,
-    grossProfit:   e.gp,
-    netIncome:     e.ni,
-    _fromSearch:   true
-  };
-}
-
-// ── Load market ───────────────────────────────────────────────────────────────
-
-async function loadMarket(key) {
-  document.getElementById('stocks-tbody').innerHTML =
-    `<tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--muted);">Loading…</td></tr>`;
-
-  const cfg     = MARKET_CONFIG[key] || MARKET_CONFIG.us;
-  const stocks  = [];
-
-  const searchData = await DataCache.getSearchIndex();
-  for (const e of searchData) {
-    if (cfg.countries && !cfg.countries.has(e.co)) continue;
-    stocks.push(normalizeSearchEntry(e));
+function countSignals(ic) {
+  let g = 0, a = 0, r = 0;
+  if (!ic) return { g, a, r };
+  for (let i = 0; i < ic.length; i++) {
+    if (ic[i] === 'g') g++;
+    else if (ic[i] === 'a') a++;
+    else if (ic[i] === 'r') r++;
   }
-
-  allStocks = stocks;
-
-  // Populate dynamic dropdowns
-  populateExchangeDropdown(stocks);
-  populateCountryDropdown(stocks);
-
-  // Mood summary (computed from loaded stocks)
-  const mc = {};
-  for (const s of stocks) {
-    const lbl = s.mood?.label || 'Level 3';
-    mc[lbl] = (mc[lbl] || 0) + 1;
-  }
-  renderMoodSummary(mc);
-
-  applyFilters();
+  return { g, a, r };
 }
 
-// ── Dynamic dropdowns ─────────────────────────────────────────────────────────
-
-function populateExchangeDropdown(stocks) {
-  const counts = new Map();
-  for (const s of stocks) {
-    if (s.exchangeKey && EXCH_LABELS[s.exchangeKey]) {
-      counts.set(s.exchangeKey, (counts.get(s.exchangeKey) || 0) + 1);
-    }
-  }
-  const sel = document.getElementById('exchange-filter');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">All Exchanges</option>';
-  // Sort by count descending
-  [...counts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .forEach(([key, count]) => {
-      const opt = document.createElement('option');
-      opt.value = key;
-      opt.textContent = `${EXCH_LABELS[key]} (${count})`;
-      sel.appendChild(opt);
-    });
-  if (cur && counts.has(cur)) sel.value = cur;
+function getMoodLabel(e) {
+  return MOOD_COLOR_LABELS[e.m] || e.m || 'Level 3';
 }
 
-function populateCountryDropdown(stocks) {
-  const counts = new Map();
-  for (const s of stocks) {
-    if (s.country) counts.set(s.country, (counts.get(s.country) || 0) + 1);
-  }
-  const sel = document.getElementById('country-filter');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">All Countries</option>';
-  // Sort by count descending, top 60
-  [...counts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 60)
-    .forEach(([co, count]) => {
-      const opt = document.createElement('option');
-      opt.value = co;
-      opt.textContent = `${co} (${count})`;
-      sel.appendChild(opt);
-    });
-  if (cur && counts.has(cur)) sel.value = cur;
-}
-
-// ── Mood summary ──────────────────────────────────────────────────────────────
-
-const PILL_DEFS = [
-  { label:'Level 1',   color:'var(--blue)'   },
-  { label:'Level 2',   color:'var(--green)'  },
-  { label:'Level 3',   color:'var(--amber)'  },
-  { label:'Level 4',   color:'var(--orange)' },
-  { label:'Level 5',   color:'var(--red)'    },
-];
-
-function renderMoodSummary(counts) {
-  document.getElementById('mood-summary').innerHTML = PILL_DEFS.map(p =>
-    `<div class="ms-pill" data-mood="${p.label}" title="${p.label}: ${counts[p.label] || 0} stocks">
-      <div class="ms-dot" style="background:${p.color}"></div>
-      <span style="color:${p.color}">${counts[p.label] || 0}</span>
-    </div>`
-  ).join('');
-}
-
-// ── Filters & sort ────────────────────────────────────────────────────────────
-
-function countDots(s, color) {
-  const inds = s.indicators || {};
-  return IND_SCORE_KEYS.filter(k => inds[k]?.color === color).length;
-}
-
-function applyFilters() {
-  const q        = document.getElementById('filter-input').value.toLowerCase();
-  const mood     = document.getElementById('mood-filter').value;
-  const exchange = document.getElementById('exchange-filter').value;
-  const country  = document.getElementById('country-filter').value;
-  const sort     = document.getElementById('sort-select').value;
-
-  filtered = allStocks.filter(s => {
-    if (mood     && s.mood?.label    !== mood)     return false;
-    if (exchange && s.exchangeKey    !== exchange) return false;
-    if (country  && s.country        !== country)  return false;
-    if (q && !s.ticker.toLowerCase().includes(q) && !(s.company || '').toLowerCase().includes(q)) return false;
-    return true;
-  });
-
-  filtered.sort((a, b) => {
-    if (sort === 'price-desc')  return (b.price||0) - (a.price||0);
-    if (sort === 'price-asc')   return (a.price||0) - (b.price||0);
-    if (sort === 'm1-desc')     return (b.m1??-9999) - (a.m1??-9999);
-    if (sort === 'm1-asc')      return (a.m1??9999) - (b.m1??9999);
-    if (sort === 'ytd-desc')    return (b.ytd??-9999) - (a.ytd??-9999);
-    if (sort === 'ytd-asc')     return (a.ytd??9999) - (b.ytd??9999);
-    if (sort === 'y1-desc')     return (b.y1??-9999) - (a.y1??-9999);
-    if (sort === 'y1-asc')      return (a.y1??9999) - (b.y1??9999);
-    if (sort === 'red-desc')    return countDots(b,'red') - countDots(a,'red');
-    if (sort === 'red-asc')     return countDots(a,'red') - countDots(b,'red');
-    if (sort === 'score-asc')   return (a.mood?.pct||0) - (b.mood?.pct||0);
-    if (sort === 'score-desc')  return (b.mood?.pct||0) - (a.mood?.pct||0);
-    return (b.price||0) - (a.price||0);
-  });
-
-  currentPage = 1;
-  renderTable();
-}
-
-// ── Render ────────────────────────────────────────────────────────────────────
-
-const IND_LABELS = {
-  volatility:'Volatility', volSpike:'Vol Spike', vsPeak:'52W Peak',
-  shortTrend:'Short Trend', longTrend:'Long Trend', momentum:'Momentum',
-  return1M:'1M Return', return1Y:'1Y Return', range52W:'52W Range', cagr5Y:'5Y CAGR'
-};
-const ACCENT_COLOR = {
-  'mc-blue':'#60A5FA', 'mc-green':'#4ADE80',
-  'mc-amber':'#FBBF24', 'mc-orange':'#FB923C', 'mc-red':'#F87171'
-};
-
-function fmtPct(v) {
-  if (v == null) return '<span style="color:var(--muted);">—</span>';
-  const sign = v > 0 ? '+' : '';
-  const color = v > 0 ? 'var(--green)' : v < 0 ? 'var(--red)' : 'var(--text)';
-  return `<span style="color:${color};font-weight:500;">${sign}${v.toFixed(1)}%</span>`;
-}
-
-function fmtMoney(v) {
-  if (v == null) return '<span style="color:var(--muted);">—</span>';
-  const neg = v < 0;
-  const abs = Math.abs(v);
-  let str;
-  if (abs >= 1e12)      str = (abs / 1e12).toFixed(1) + 'T';
-  else if (abs >= 1e9)  str = (abs / 1e9).toFixed(1) + 'B';
-  else if (abs >= 1e6)  str = (abs / 1e6).toFixed(1) + 'M';
-  else if (abs >= 1e3)  str = (abs / 1e3).toFixed(0) + 'K';
-  else                  str = abs.toFixed(0);
-  const color = neg ? 'var(--red)' : 'var(--green)';
-  return `<span style="color:${color};">${neg ? '-' : ''}$${str}</span>`;
+function sectorGroupMatch(rawSector, groupKey) {
+  if (!groupKey) return true;
+  const grp = SECTOR_GROUPS[groupKey];
+  return grp ? grp.has(rawSector || '') : false;
 }
 
 function fmtPrice(price, currency) {
-  if (price == null) return '—';
-  const syms = { USD:'$', EUR:'€', GBP:'£', JPY:'¥', CNY:'¥', HKD:'HK$', KRW:'₩', INR:'₹', CHF:'CHF ', SEK:'kr', CAD:'CA$', AUD:'A$', SGD:'S$', TWD:'NT$', BRL:'R$', ZAR:'R', MXN:'MX$', THB:'฿', MYR:'RM', IDR:'Rp', PLN:'zł', TRY:'₺', ILS:'₪', SAR:'SAR ', AED:'AED ', QAR:'QAR ', KWD:'KWD ', BHD:'BHD ', EGP:'E£', JOD:'JOD ', NOK:'kr', DKK:'kr', CZK:'Kč', HUF:'Ft' };
-  const sym = syms[currency] || (currency ? currency + ' ' : '$');
-  return sym + price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (price == null) return '<span class="pct-flat">—</span>';
+  const sym = CURRENCY_SYMS[currency] || (currency ? currency + ' ' : '$');
+  return esc(sym + price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 }
+
+function fmtPct(v) {
+  if (v == null) return '<span class="pct-flat">—</span>';
+  const sign = v > 0 ? '+' : '';
+  const cls = v > 0 ? 'pct-pos' : v < 0 ? 'pct-neg' : 'pct-flat';
+  return '<span class="' + cls + '">' + sign + v.toFixed(1) + '%</span>';
+}
+
+// ── Filter + sort ─────────────────────────────────────────────────────────────
+
+function applyFilters() {
+  const q       = document.getElementById('filter-input').value.toLowerCase();
+  const sector  = document.getElementById('sector-filter').value;
+  const sort    = document.getElementById('sort-select').value;
+
+  const terrCfg = REGION_CONFIG[activeTerritory] || REGION_CONFIG.global;
+  const terrSet = terrCfg.countries;
+
+  filtered = [];
+
+  for (const e of allSearchData) {
+    // Territory
+    if (terrSet && !terrSet.has(e.co)) continue;
+
+    // Level
+    const moodLabel = getMoodLabel(e);
+    if (activeLevel && moodLabel !== activeLevel) continue;
+
+    // Style filter: ps[style] >= 50
+    if (activeStyle) {
+      const ps = e.ps || {};
+      if ((ps[activeStyle] || 0) < 50) continue;
+    }
+
+    // Sector group
+    if (sector && !sectorGroupMatch(e.sec, sector)) continue;
+
+    // Text search
+    if (q && !(e.t || '').toLowerCase().includes(q) && !(e.n || '').toLowerCase().includes(q)) continue;
+
+    filtered.push(e);
+  }
+
+  // Sort
+  if (activeStyle) {
+    // When a style bubble is active, sort by that style's % desc
+    filtered.sort((a, b) => ((b.ps || {})[activeStyle] || 0) - ((a.ps || {})[activeStyle] || 0));
+  } else {
+    filtered.sort((a, b) => {
+      if (sort === 'price-desc')  return (b.p || 0) - (a.p || 0);
+      if (sort === 'price-asc')   return (a.p || 0) - (b.p || 0);
+      if (sort === 'm1-desc')     return (b.m1 ?? -9999) - (a.m1 ?? -9999);
+      if (sort === 'm1-asc')      return (a.m1 ?? 9999) - (b.m1 ?? 9999);
+      if (sort === 'y1-desc')     return (b.y1 ?? -9999) - (a.y1 ?? -9999);
+      if (sort === 'y1-asc')      return (a.y1 ?? 9999) - (b.y1 ?? 9999);
+      if (sort === 'red-desc') {
+        return countSignals(b.ic).r - countSignals(a.ic).r;
+      }
+      if (sort === 'red-asc') {
+        return countSignals(a.ic).r - countSignals(b.ic).r;
+      }
+      if (sort === 'score-asc')   return (a.r ?? 50) - (b.r ?? 50);
+      if (sort === 'score-desc')  return (b.r ?? 50) - (a.r ?? 50);
+      return (b.p || 0) - (a.p || 0);
+    });
+  }
+
+  renderTable();
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────────
 
 function renderTable() {
   const start = (currentPage - 1) * PAGE_SIZE;
@@ -440,51 +416,53 @@ function renderTable() {
   const tbody = document.getElementById('stocks-tbody');
 
   if (!page.length) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:3rem;color:var(--muted);">No stocks match your filters.</td></tr>`;
+    tbody.innerHTML = '<tr><td colspan="20" style="text-align:center;padding:3rem;color:var(--muted);">No stocks match your filters.</td></tr>';
   } else {
-    tbody.innerHTML = page.map(s => {
-      const b          = MOOD.band(s.mood?.label || 'Level 3');
-      const accent     = ACCENT_COLOR[b.cls] || '#FBBF24';
+    tbody.innerHTML = page.map((e, i) => {
+      const rank     = start + i + 1;
+      const moodLabel = getMoodLabel(e);
+      const b        = MOOD.band(moodLabel);
+      const sig      = countSignals(e.ic);
+      const flag     = COUNTRY_FLAGS[e.co] || '';
+      const ps       = e.ps || {};
 
-      const exchTag = s.exchangeLabel
-        ? `<span style="font-size:0.6rem;color:var(--muted);margin-left:4px;opacity:0.7;">${s.exchangeLabel}</span>`
-        : '';
-      const coTag   = s.country
-        ? `<span style="font-size:0.6rem;color:var(--muted);opacity:0.6;">${s.country}</span>`
-        : '';
+      const styleCells = PRESET_ORDER.map(k => {
+        const p = ps[k];
+        if (p == null) return '<td class="center">—</td>';
+        const cls = p >= 80 ? 'hi' : p >= 50 ? 'mid' : 'lo';
+        return '<td class="center"><span class="t-style-pct ' + cls + '">' + p + '</span></td>';
+      }).join('');
 
-      const exchParam = s.exchangeKey && s.exchangeKey !== 'global' ? s.exchangeKey : (s._fromSearch ? '' : currentMarket);
+      const href = 'stock.html?ticker=' + encodeURIComponent(e.t) + '&country=' + encodeURIComponent(e.co || '');
 
-      const redCount = countDots(s, 'red');
-      const redStyle = redCount > 0 ? 'color:var(--red);font-weight:600;' : 'color:var(--muted);';
-
-      return `<tr onclick="openStock('${s.ticker.replace(/'/g,"\\'")}','${exchParam}','${(s.country||'').replace(/'/g,"\\'")}')">
-        <td style="padding:0.7rem 10px;box-shadow:inset 3px 0 0 ${accent};">
-          <div style="display:flex;align-items:baseline;gap:4px;flex-wrap:wrap;">
-            <div class="tick-name">${s.ticker}</div>${exchTag}
-          </div>
-          <div class="tick-co">${s.company || '—'}</div>
-          ${coTag}
-        </td>
-        <td class="right" style="padding:0.7rem 10px;font-variant-numeric:tabular-nums;">${fmtPrice(s.price, s.currency)}</td>
-        <td style="padding:0.7rem 10px;"><span class="mood-chip ${b.cls}" style="font-size:0.7rem;" title="${MOOD_DESC[b.label] || ''}">${b.label}</span></td>
-        <td class="center" style="padding:0.7rem 10px;font-size:0.8rem;${redStyle}">${redCount}</td>
-        <td class="right" style="padding:0.7rem 10px;">${fmtPct(s.m1)}</td>
-        <td class="right" style="padding:0.7rem 10px;">${fmtPct(s.ytd)}</td>
-        <td class="right" style="padding:0.7rem 10px;">${fmtPct(s.y1)}</td>
-      </tr>`;
+      return '<tr onclick="window.location.href=\'' + href + '\'">'
+        + '<td class="t-rank' + (rank <= 3 ? ' top' : '') + '">' + rank + '</td>'
+        + '<td><span class="t-ticker">' + esc(e.t) + '</span><span class="t-company">' + esc(e.n || '') + '</span></td>'
+        + '<td class="t-country">' + flag + ' ' + esc(e.co || '') + '</td>'
+        + '<td class="t-price">' + fmtPrice(e.p, e.c) + '</td>'
+        + '<td class="t-sector">' + esc(e.sec || '') + '</td>'
+        + '<td class="center"><span class="mood-chip ' + b.cls + '">' + b.label.replace('Level ', 'L') + '</span></td>'
+        + '<td class="center">' + (sig.g > 0 ? '<span class="sig-badge-green">' + sig.g + '</span>' : '') + '</td>'
+        + '<td class="center">' + (sig.a > 0 ? '<span class="sig-badge-amber">' + sig.a + '</span>' : '') + '</td>'
+        + '<td class="center">' + (sig.r > 0 ? '<span class="sig-badge-red">' + sig.r + '</span>' : '') + '</td>'
+        + '<td class="t-pct">' + fmtPct(e.m1) + '</td>'
+        + '<td class="t-pct">' + fmtPct(e.y1) + '</td>'
+        + styleCells
+        + '</tr>';
     }).join('');
   }
 
-  // Footer
+  // Footer count
   document.getElementById('footer-txt').textContent =
-    `Showing ${filtered.length ? start + 1 : 0}–${Math.min(start + PAGE_SIZE, filtered.length)} of ${filtered.length} stocks`;
+    'Showing ' + (filtered.length ? start + 1 : 0) + '–' + Math.min(start + PAGE_SIZE, filtered.length) + ' of ' + filtered.length + ' stocks';
+
+  document.getElementById('sf-count').textContent = filtered.length.toLocaleString() + ' stocks';
 
   // Pagination
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   let pages = [];
   if (totalPages <= 7) {
-    pages = Array.from({length: totalPages}, (_, i) => i + 1);
+    pages = Array.from({ length: totalPages }, (_, i) => i + 1);
   } else {
     pages = [1, 2, 3, '...', totalPages - 1, totalPages];
     if (currentPage > 3 && currentPage < totalPages - 2) {
@@ -493,14 +471,10 @@ function renderTable() {
   }
   document.getElementById('pagination').innerHTML = pages.map(p =>
     p === '...'
-      ? `<span class="pg-btn" style="cursor:default;">…</span>`
-      : `<span class="pg-btn ${p === currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</span>`
+      ? '<span class="pg-btn" style="cursor:default;">…</span>'
+      : '<span class="pg-btn ' + (p === currentPage ? 'active' : '') + '" onclick="goPage(' + p + ')">' + p + '</span>'
   ).join('');
-
-  initTooltipDots();
 }
-
-function initTooltipDots() {}
 
 function goPage(p) {
   currentPage = p;
@@ -508,16 +482,14 @@ function goPage(p) {
   window.scrollTo(0, 0);
 }
 
-function openStock(ticker, exchParam, country) {
-  let qs = `?ticker=${encodeURIComponent(ticker)}`;
-  if (exchParam) qs += `&exchange=${exchParam}`;
-  if (country) qs += `&country=${encodeURIComponent(country)}`;
-  window.location.href = `stock.html${qs}`;
+// ── Load data ─────────────────────────────────────────────────────────────────
+
+async function loadData() {
+  allSearchData = await DataCache.getSearchIndex();
+  applyFilters();
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────────
-
-loadMarket(currentMarket);
+loadData();
 
 // ── Nav search ────────────────────────────────────────────────────────────────
 
@@ -537,14 +509,13 @@ loadMarket(currentMarket);
       } else {
         results.innerHTML = hits.map(s => {
           const b = MOOD.band(s.mood?.label || 'Level 3');
-          return `<div class="sr-item" data-ticker="${esc(s.ticker)}" data-exchange="${esc(s.exchange)}" data-country="${esc(s.country || '')}" style="cursor:pointer;">
-            <div class="sr-ticker">${esc(s.ticker)}</div>
-            <div class="sr-company">${esc(s.company || '')}</div>
-            <div class="sr-exchange">${esc(s.exchangeLabel)}</div>
-            <div class="sr-panda panda-wrap" style="width:28px;height:28px;">
-              <img class="panda-img" src="assets/img/${b.img}" alt="${esc(b.label)}" />
-            </div>
-          </div>`;
+          return '<div class="sr-item" data-ticker="' + esc(s.ticker) + '" data-exchange="' + esc(s.exchange) + '" data-country="' + esc(s.country || '') + '" style="cursor:pointer;">'
+            + '<div class="sr-ticker">' + esc(s.ticker) + '</div>'
+            + '<div class="sr-company">' + esc(s.company || '') + '</div>'
+            + '<div class="sr-exchange">' + esc(s.exchangeLabel) + '</div>'
+            + '<div class="sr-panda panda-wrap" style="width:28px;height:28px;">'
+            + '<img class="panda-img" src="assets/img/' + b.img + '" alt="' + esc(b.label) + '" />'
+            + '</div></div>';
         }).join('');
       }
       results.classList.add('open');
@@ -555,7 +526,7 @@ loadMarket(currentMarket);
     if (!item) return;
     results.classList.remove('open');
     input.value = '';
-    window.location.href = `stock.html?ticker=${encodeURIComponent(item.dataset.ticker)}&exchange=${item.dataset.exchange}&country=${encodeURIComponent(item.dataset.country || '')}`;
+    window.location.href = 'stock.html?ticker=' + encodeURIComponent(item.dataset.ticker) + '&exchange=' + item.dataset.exchange + '&country=' + encodeURIComponent(item.dataset.country || '');
   });
   document.addEventListener('click', e => {
     if (!input.contains(e.target) && !results.contains(e.target)) {
