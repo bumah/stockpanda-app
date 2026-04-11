@@ -13,13 +13,15 @@ import csv
 import json
 import math
 import os
+import re
 import sys
+import glob as _glob
 from datetime import datetime, timezone
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
 DATA_DIR  = os.path.join("public", "data")
-CSV_PATH  = os.path.join("data", "stocks.csv")
+CSV_DIR   = "data"
 
 INDEX_TO_EXCHANGE = {
     "NASDAQ 100":                        "nasdaq100",
@@ -421,12 +423,40 @@ def ind_cagr5y(perf_y5):
 # ── CSV parsing ───────────────────────────────────────────────────────────────
 
 def find_csv():
-    """Find the CSV data source."""
+    """Find the CSV data source. Supports:
+    - CLI argument: python3 build_data.py path/to/file.csv
+    - Dated files:  data/stocks-2026-04-11.csv (picks the most recent)
+    - Plain file:   data/stocks.csv (fallback)
+    """
     if len(sys.argv) > 1:
         return sys.argv[1]
-    if not os.path.exists(CSV_PATH):
-        raise FileNotFoundError(f"CSV not found at {CSV_PATH}")
-    return CSV_PATH
+    # Look for dated files first (most recent wins)
+    dated = sorted(_glob.glob(os.path.join(CSV_DIR, "stocks-*.csv")))
+    if dated:
+        return dated[-1]
+    # Fall back to plain stocks.csv
+    plain = os.path.join(CSV_DIR, "stocks.csv")
+    if os.path.exists(plain):
+        return plain
+    raise FileNotFoundError(f"No CSV files found in {CSV_DIR}/")
+
+def parse_data_date(csv_path):
+    """Extract the data date from the CSV filename.
+    stocks-2026-04-11.csv → '2026-04-11'
+    stocks-20260411.csv   → '2026-04-11'
+    stocks.csv            → today's date
+    """
+    base = os.path.basename(csv_path)
+    # Try YYYY-MM-DD
+    m = re.search(r'(\d{4}-\d{2}-\d{2})', base)
+    if m:
+        return m.group(1)
+    # Try YYYYMMDD
+    m = re.search(r'(\d{4})(\d{2})(\d{2})', base)
+    if m:
+        return f"{m.group(1)}-{m.group(2)}-{m.group(3)}"
+    # Fallback: today
+    return datetime.now().strftime("%Y-%m-%d")
 
 def parse_row(row):
     """Parse a CSV row dict into a structured stock dict."""
@@ -681,7 +711,8 @@ def make_exchange_entry(s):
 
 def main():
     csv_path = find_csv()
-    print(f"Reading CSV: {csv_path}")
+    data_date = parse_data_date(csv_path)
+    print(f"Reading CSV: {csv_path}  (data date: {data_date})")
 
     with open(csv_path, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -711,7 +742,9 @@ def main():
     # ALL stocks are grouped by first character of ticker and written to
     # chunk_{char}.json. This is the ONLY source of full stock data.
     os.makedirs(DATA_DIR, exist_ok=True)
-    as_of = datetime.now().strftime("%d %b %Y").lstrip("0")
+    # Use data date from filename for display (e.g., "11 Apr 2026")
+    dd = datetime.strptime(data_date, "%Y-%m-%d")
+    as_of = dd.strftime("%d %b %Y").lstrip("0")
 
     chunks = {}
     for s in stocks:
@@ -788,6 +821,7 @@ def main():
     # ── Write meta.json ──────────────────────────────────────────────────────
     meta = {
         "generatedAt": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "dataDate":    data_date,
         "csvSource":   os.path.basename(csv_path),
         "source": "TradingView CSV",
     }
