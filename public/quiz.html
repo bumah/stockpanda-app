@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockPanda — Custom Trap</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    /* ── Quiz Modal ──────────────────────────────────────────── */
+    .quiz-modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center; z-index: 1200;
+    }
+    .quiz-modal-box {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.8rem 1.6rem 1.4rem; width: min(640px, 94vw); max-height: 90vh;
+      overflow-y: auto; animation: fadeUp 0.2s ease; position: relative;
+    }
+    .quiz-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem; gap: 0.8rem;
+    }
+    .quiz-modal-title {
+      font-family: var(--serif); font-size: 1.1rem; font-weight: 700;
+      font-style: italic; color: var(--parchment);
+    }
+    .quiz-modal-actions { display: flex; align-items: center; gap: 0.5rem; }
+    .btn-back-results {
+      background: rgba(74,222,128,0.08); border: 1.5px solid rgba(74,222,128,0.3);
+      color: var(--green); padding: 0.35rem 0.8rem; border-radius: 6px;
+      cursor: pointer; font-size: 0.74rem; font-family: var(--font);
+    }
+    .btn-back-results:hover { background: rgba(74,222,128,0.14); border-color: var(--green); }
+    .quiz-modal-close {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      padding: 0.35rem 0.8rem; border-radius: 6px; cursor: pointer;
+      font-size: 0.76rem; font-family: var(--font);
+    }
+    .quiz-modal-close:hover { border-color: var(--muted); color: var(--text); }
+
+    /* ── Progress bar ─────────────────────────────────────────── */
+    .progress-track {
+      width: 100%; height: 4px; background: var(--border); border-radius: 4px;
+      margin-bottom: 1.5rem; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: var(--green); border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+
+    /* ── Quiz steps ───────────────────────────────────────────── */
+    .quiz-step { display: none; animation: fadeUp 0.2s ease; }
+    .quiz-step.active { display: block; }
+    .q-label {
+      font-family: var(--mono); font-size: 0.6rem; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--muted); margin-bottom: 0.4rem;
+    }
+    .q-title {
+      font-family: var(--serif); font-size: 1.25rem; font-weight: 700;
+      font-style: italic; color: var(--parchment); margin-bottom: 0.3rem;
+    }
+    .q-sub { font-size: 0.76rem; color: var(--muted); margin-bottom: 1.1rem; }
+
+    /* ── Choices ──────────────────────────────────────────────── */
+    .choices { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+    .choice {
+      display: flex; align-items: center; gap: 0.8rem;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.7rem 0.9rem; cursor: pointer; transition: all 0.15s; user-select: none;
+    }
+    .choice:hover { border-color: var(--green); background: rgba(74,222,128,0.04); }
+    .choice.selected { border-color: var(--green); background: rgba(74,222,128,0.1); }
+    .choice-icon { font-size: 1.1rem; flex-shrink: 0; line-height: 1; width: 1.4rem; text-align: center; }
+    .choice-body { flex: 1; min-width: 0; }
+    .choice-title { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 0.1rem; }
+    .choice-desc { font-size: 0.7rem; color: var(--muted); line-height: 1.45; }
+    .choice-tick {
+      width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+      border: 2px solid var(--border); transition: all 0.15s;
+    }
+    .choice.selected .choice-tick {
+      border-color: var(--green); background: var(--green);
+      box-shadow: inset 0 0 0 3px var(--bg2);
+    }
+
+    /* ── Quiz nav buttons ─────────────────────────────────────── */
+    .quiz-nav {
+      display: flex; align-items: center; gap: 0.6rem;
+      margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--border);
+    }
+    .btn-next, .btn-back {
+      padding: 0.55rem 1.4rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600;
+      font-family: var(--font); cursor: pointer; transition: opacity 0.15s;
+    }
+    .btn-next { background: var(--green); border: none; color: #000; }
+    .btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-next:hover:not(:disabled) { opacity: 0.85; }
+    .btn-back { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-back:hover { opacity: 0.85; }
+    .step-counter {
+      margin-left: auto; font-family: var(--mono); font-size: 0.65rem; color: var(--muted);
+    }
+    .select-hint {
+      display: none; font-size: 0.72rem; color: var(--amber); margin-top: 0.5rem;
+      font-style: italic;
+    }
+    .select-hint.show { display: block; }
+
+    /* ── Profile pills ──────────────────────────────────────── */
+    .profile-pills { display: none; }
+    .profile-pill {
+      font-size: 0.7rem; padding: 0.25rem 0.65rem; border-radius: 20px;
+      background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.25);
+      color: var(--green); font-family: var(--mono);
+      position: relative; cursor: default; user-select: none;
+    }
+    .profile-pill[data-tooltip]:hover::after,
+    .profile-pill.tip-open::after {
+      content: attr(data-tooltip);
+      position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+      background: #1a1f2e; border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.45rem 0.75rem; font-size: 0.7rem; color: var(--text);
+      white-space: normal; text-align: center; max-width: 220px; width: max-content;
+      z-index: 200; pointer-events: none; line-height: 1.4;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4); font-family: var(--font);
+    }
+
+    /* ── Fit toggle ──────────────────────────────────────────── */
+    .fit-toggle {
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;
+    }
+    .fit-btn {
+      padding: 0.35rem 0.8rem; border-radius: 6px; font-size: 0.74rem;
+      font-family: var(--font); cursor: pointer; border: 1px solid var(--border);
+      background: transparent; color: var(--muted); transition: all 0.15s;
+    }
+    .fit-btn.active { border-color: var(--green); background: rgba(74,222,128,0.1); color: var(--green); font-weight: 600; }
+    .fit-btn:hover:not(.active) { border-color: var(--muted); color: var(--text); }
+
+    /* ── Results header ───────────────────────────────────────── */
+    .results-hd {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 1.4rem; flex-wrap: wrap;
+    }
+    .results-title { font-size: 1.1rem; font-weight: 700; flex: 1; }
+    .btn-refine {
+      background: rgba(74,222,128,0.08); border: 1.5px solid rgba(74,222,128,0.3);
+      color: var(--green); padding: 0.45rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.78rem;
+    }
+    .btn-refine:hover { background: rgba(74,222,128,0.14); border-color: var(--green); }
+
+    /* ── Results meta ─────────────────────────────────────────── */
+    .results-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1rem; font-size: 0.75rem; color: var(--muted);
+    }
+
+    /* ── Loading ──────────────────────────────────────────────── */
+    .finder-loading { text-align: center; padding: 3rem 1rem; }
+    .finder-loading .spin {
+      display: inline-block; width: 28px; height: 28px;
+      border: 2.5px solid var(--border); border-top-color: var(--green);
+      border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 0.8rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Ranking modal ───────────────────────────────────────── */
+    .ranking-modal-overlay {
+      position: fixed; inset: 0; z-index: 900;
+      background: rgba(0,0,0,0.72); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center; padding: 1rem;
+      animation: fadeUp 0.2s ease;
+    }
+    .ranking-modal {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 14px; width: 100%; max-width: 560px;
+      max-height: 90vh; overflow-y: auto; padding: 1.8rem;
+      animation: fadeUp 0.25s ease;
+    }
+    .rm-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; }
+    .rm-info { flex: 1; }
+    .rm-name-row { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+    .rm-ticker { font-size: 1.05rem; font-weight: 700; color: var(--green); }
+    .rm-mood-labeled { display: flex; flex-direction: column; gap: 0.1rem; }
+    .rm-mood-label-text { font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-family: var(--mono); }
+    .rm-company { font-size: 0.76rem; color: var(--muted); margin-top: 0.15rem; }
+    .rm-meta { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.5rem; }
+    .rm-fit-num { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; }
+    .rm-fit-label { font-size: 0.72rem; color: var(--muted); }
+    .rm-close-btn {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      padding: 0.35rem 0.8rem; border-radius: 6px; cursor: pointer;
+      font-size: 0.76rem; font-family: var(--font); flex-shrink: 0;
+    }
+    .rm-close-btn:hover { border-color: var(--muted); color: var(--text); }
+    .rm-table { width: 100%; border-collapse: collapse; }
+    .rm-th {
+      font-size: 0.62rem; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.09em; font-family: var(--mono); padding: 0 0 0.5rem;
+      border-bottom: 1px solid var(--border); text-align: left;
+    }
+    .rm-th:nth-child(2), .rm-th:nth-child(3) { padding-left: 0.75rem; }
+    .rm-th:last-child { text-align: center; }
+    .rm-td { padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: middle; }
+    .rm-tr:last-child .rm-td { border-bottom: none; }
+    .rm-ind { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+    .rm-data { font-size: 0.74rem; color: var(--muted); padding-left: 0.75rem; white-space: nowrap; }
+    .rm-pref { font-size: 0.74rem; color: var(--muted); padding-left: 0.75rem; }
+    .rm-fit-cell { display: flex; align-items: center; justify-content: center; gap: 0.35rem; }
+    .rm-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .rm-dot-green { background: var(--green); box-shadow: 0 0 5px rgba(74,222,128,0.5); }
+    .rm-dot-amber { background: var(--amber); box-shadow: 0 0 5px rgba(251,191,36,0.5); }
+    .rm-dot-red   { background: var(--red);   box-shadow: 0 0 5px rgba(248,113,113,0.5); }
+    .rm-fit-label-text { font-size: 0.72rem; font-weight: 700; font-family: var(--mono); }
+    .rm-footer { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.6rem; justify-content: flex-end; }
+    .rm-btn-stock {
+      background: var(--green); color: #000; font-weight: 700;
+      padding: 0.6rem 1.2rem; border-radius: 8px; border: none;
+      cursor: pointer; font-size: 0.82rem; font-family: var(--font);
+      transition: opacity 0.15s;
+    }
+    .rm-btn-stock:hover { opacity: 0.85; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-sp">Stock</span><span class="nav-logo-rest">Panda</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="finder.html">Quick Trap</a>
+    <a class="nav-link active" href="quiz.html">Custom Trap</a>
+    <a class="nav-link" href="stocks.html">Browse</a>
+    <a class="nav-link" href="summary.html">Quick Bites</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-search-wrap">
+      <div class="nav-search-bar">
+        <input id="nav-search-input" type="text" placeholder="Search ticker or company..." autocomplete="off" />
+        <button onclick="document.getElementById('nav-search-input').dispatchEvent(new Event('input'))">&#x1F50D;</button>
+      </div>
+      <div class="nav-search-results" id="nav-search-results"></div>
+    </div>
+    <a href="mailto:contact@terencebumah.com" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;">Contact</a>
+    <div class="nav-stamp">Data: <span>&mdash;</span></div>
+  </div>
+</nav>
+
+<div class="main">
+  <div class="finder-wrap">
+
+    <!-- ── Results Section ─────────────────────────────────── -->
+    <div id="results-section" style="display:none;">
+      <div class="results-hd">
+        <div class="results-title" id="results-title">Matched Stocks</div>
+        <button class="btn-refine" onclick="refineQuiz()">&#x270F;&#xFE0F; Refine Answers</button>
+        <button class="btn-refine" onclick="resetQuiz()">&#x1F504; New Quiz</button>
+      </div>
+      <div id="profile-pills" class="profile-pills"></div>
+
+      <!-- Fit toggle -->
+      <div class="fit-toggle" id="fit-toggle" style="display:none;">
+        <button class="fit-btn active" id="fit-btn-great" onclick="setFitFilter('great')">&#x2265; 80% match</button>
+        <button class="fit-btn" id="fit-btn-all" onclick="setFitFilter('all')">All scored</button>
+      </div>
+
+      <!-- View toggle -->
+      <div class="view-toggle">
+        <button class="view-btn active" data-view="cards" onclick="switchView('cards')">&#x1F0CF; Cards</button>
+        <button class="view-btn" data-view="table" onclick="switchView('table')">&#x1F4CA; Table</button>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="results-filter-bar">
+        <input type="text" id="filter-text" placeholder="Filter by name or ticker..." oninput="applyFilter()" />
+        <select id="filter-mood" onchange="applyFilter()">
+          <option value="">All Levels</option>
+          <option value="Level 1">Level 1</option>
+          <option value="Level 2">Level 2</option>
+          <option value="Level 3">Level 3</option>
+          <option value="Level 4">Level 4</option>
+          <option value="Level 5">Level 5</option>
+        </select>
+        <select id="filter-territory" onchange="onTerritoryChange()">
+          <option value="">All Territories</option>
+          <option value="us">United States</option>
+          <option value="uk">United Kingdom</option>
+          <option value="europe">Europe</option>
+          <option value="japan">Japan</option>
+          <option value="hk">Hong Kong</option>
+          <option value="china">China</option>
+          <option value="middleeast">Middle East</option>
+        </select>
+        <select id="filter-country" onchange="applyFilter()">
+          <option value="">All Countries</option>
+        </select>
+        <select id="filter-sector" onchange="applyFilter()">
+          <option value="">All Sectors</option>
+        </select>
+        <span class="filter-count" id="filter-count"></span>
+      </div>
+
+      <div class="results-meta">
+        <span id="results-count"></span>
+      </div>
+      <div id="results-list"></div>
+    </div>
+
+  </div><!-- /finder-wrap -->
+</div><!-- /main -->
+
+<footer style="border-top:1px solid rgba(74,222,128,0.12);padding:2rem;max-width:1400px;margin:4rem auto 0;">
+  <div style="margin-bottom:1.25rem;">
+    <p style="font-size:0.78rem;color:var(--muted);line-height:1.85;margin:0;">StockPanda is a free stock research and education app. It was built to make investing more accessible. Nothing on this site constitutes financial advice. Always do your own research before making investment decisions.</p>
+  </div>
+  <div style="border-top:1px solid rgba(74,222,128,0.08);padding-top:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+    <span style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);">&copy; StockPanda</span>
+    <span style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);">Not financial advice</span>
+  </div>
+</footer>
+
+<!-- ── Quiz Modal ─────────────────────────────────────────────── -->
+<div id="quiz-modal-overlay" class="quiz-modal-overlay" style="display:none;">
+  <div class="quiz-modal-box" id="quiz-modal-box">
+
+    <div class="quiz-modal-header">
+      <span class="quiz-modal-title">Stock Finder &middot; 12 questions</span>
+      <div class="quiz-modal-actions">
+        <button class="btn-back-results" id="btn-back-results" onclick="backToResults()" style="display:none;">&larr; Back to Results</button>
+        <button class="quiz-modal-close" onclick="closeQuizModal()">&#x2715; Close</button>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:10%"></div>
+    </div>
+
+      <!-- Step 1: Region -->
+      <div class="quiz-step active" id="step-1">
+        <div class="q-label">Question 1 of 12 &middot; Market Region</div>
+        <div class="q-title">Which markets would you like to explore?</div>
+        <div class="q-sub">Select one or more &mdash; tap to toggle</div>
+        <div class="choices">
+          <div class="choice" data-step="1" data-val="global">
+            <div class="choice-icon">&#x1F30D;</div>
+            <div class="choice-body">
+              <div class="choice-title">Global</div>
+              <div class="choice-desc">All markets &mdash; 25,000+ stocks ranked together</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="1" data-val="us">
+            <div class="choice-icon">&#x1F1FA;&#x1F1F8;</div>
+            <div class="choice-body">
+              <div class="choice-title">United States</div>
+              <div class="choice-desc">NYSE, NASDAQ, and other US-listed stocks</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="1" data-val="uk">
+            <div class="choice-icon">&#x1F1EC;&#x1F1E7;</div>
+            <div class="choice-body">
+              <div class="choice-title">United Kingdom</div>
+              <div class="choice-desc">London Stock Exchange and UK-registered companies</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="1" data-val="europe">
+            <div class="choice-icon">&#x1F1EA;&#x1F1FA;</div>
+            <div class="choice-body">
+              <div class="choice-title">Europe</div>
+              <div class="choice-desc">Germany, France, Sweden, Switzerland, and more</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="1" data-val="hk">
+            <div class="choice-icon">&#x1F1ED;&#x1F1F0;</div>
+            <div class="choice-body">
+              <div class="choice-title">Hong Kong</div>
+              <div class="choice-desc">Hong Kong Stock Exchange &mdash; HKEX-listed companies</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="1" data-val="china">
+            <div class="choice-icon">&#x1F1E8;&#x1F1F3;</div>
+            <div class="choice-body">
+              <div class="choice-title">China</div>
+              <div class="choice-desc">Mainland Chinese and China-registered companies</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="1" data-val="japan">
+            <div class="choice-icon">&#x1F1EF;&#x1F1F5;</div>
+            <div class="choice-body">
+              <div class="choice-title">Japan</div>
+              <div class="choice-desc">Tokyo Stock Exchange and Japanese-registered companies</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="1" data-val="middleeast">
+            <div class="choice-icon">&#x1F319;</div>
+            <div class="choice-body">
+              <div class="choice-title">Middle East</div>
+              <div class="choice-desc">Saudi Arabia, UAE, Israel, Qatar, Kuwait and more</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-next" id="next-1" onclick="tryNext(1)">Next &rarr;</button>
+          <span class="step-counter">1 / 12</span>
+        </div>
+        <div class="select-hint" id="hint-1">Please select at least one market to continue</div>
+      </div>
+
+      <!-- Step 2: Sector -->
+      <div class="quiz-step" id="step-2">
+        <div class="q-label">Question 2 of 12 &middot; Sector</div>
+        <div class="q-title">Which sectors interest you?</div>
+        <div class="q-sub">Select one or more &mdash; tap to toggle</div>
+        <div class="choices">
+          <div class="choice" data-step="2" data-val="all">
+            <div class="choice-icon">&#x1F310;</div>
+            <div class="choice-body">
+              <div class="choice-title">All Sectors</div>
+              <div class="choice-desc">No sector preference &mdash; show me everything</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="2" data-val="tech">
+            <div class="choice-icon">&#x1F4BB;</div>
+            <div class="choice-body">
+              <div class="choice-title">Technology</div>
+              <div class="choice-desc">Software, hardware, semiconductors, and IT services</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="2" data-val="health">
+            <div class="choice-icon">&#x1F3E5;</div>
+            <div class="choice-body">
+              <div class="choice-title">Healthcare</div>
+              <div class="choice-desc">Biotech, pharma, medical devices, and health services</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="2" data-val="finance">
+            <div class="choice-icon">&#x1F3E6;</div>
+            <div class="choice-body">
+              <div class="choice-title">Finance</div>
+              <div class="choice-desc">Banks, insurance, asset management, and fintech</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="2" data-val="energy">
+            <div class="choice-icon">&#x26CF;&#xFE0F;</div>
+            <div class="choice-body">
+              <div class="choice-title">Energy &amp; Materials</div>
+              <div class="choice-desc">Oil, gas, mining, chemicals, and raw materials</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="2" data-val="consumer">
+            <div class="choice-icon">&#x1F6D2;</div>
+            <div class="choice-body">
+              <div class="choice-title">Consumer &amp; Retail</div>
+              <div class="choice-desc">Retail, food, beverages, apparel, and consumer goods</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="2" data-val="industrial">
+            <div class="choice-icon">&#x1F3ED;</div>
+            <div class="choice-body">
+              <div class="choice-title">Industrial</div>
+              <div class="choice-desc">Manufacturing, logistics, aerospace, and defence</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="2" data-val="utilities">
+            <div class="choice-icon">&#x26A1;</div>
+            <div class="choice-body">
+              <div class="choice-title">Utilities &amp; Communications</div>
+              <div class="choice-desc">Electric, water, telecom, and media companies</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="prevStep(2)">&larr; Back</button>
+          <button class="btn-next" id="next-2" onclick="tryNext(2)">Next &rarr;</button>
+          <span class="step-counter">2 / 12</span>
+        </div>
+        <div class="select-hint" id="hint-2">Please select at least one sector to continue</div>
+      </div>
+
+      <!-- Step 3: Size -->
+      <div class="quiz-step" id="step-3">
+        <div class="q-label">Question 3 of 12 &middot; Company Size</div>
+        <div class="q-title">What size of company are you looking for?</div>
+        <div class="q-sub">Based on market capitalisation</div>
+        <div class="choices">
+          <div class="choice" data-step="3" data-val="large">
+            <div class="choice-icon">&#x1F3DB;&#xFE0F;</div>
+            <div class="choice-body">
+              <div class="choice-title">Large-cap &mdash; established blue chips</div>
+              <div class="choice-desc">Market cap above $10 billion</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="3" data-val="mid">
+            <div class="choice-icon">&#x1F3E2;</div>
+            <div class="choice-body">
+              <div class="choice-title">Mid-cap &mdash; growth with stability</div>
+              <div class="choice-desc">Market cap between $2B and $10B</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="3" data-val="small">
+            <div class="choice-icon">&#x1F680;</div>
+            <div class="choice-body">
+              <div class="choice-title">Small-cap &mdash; higher growth potential</div>
+              <div class="choice-desc">Market cap under $2 billion</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="3" data-val="any">
+            <div class="choice-icon">&#x2796;</div>
+            <div class="choice-body">
+              <div class="choice-title">Any size &mdash; market cap doesn't matter</div>
+              <div class="choice-desc">I'll consider companies of all sizes</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="prevStep(3)">&larr; Back</button>
+          <button class="btn-next" id="next-3" onclick="tryNext(3)">Next &rarr;</button>
+          <span class="step-counter">3 / 12</span>
+        </div>
+        <div class="select-hint" id="hint-3">Please select an option above to continue</div>
+      </div>
+
+      <!-- Step 4: Recent Returns -->
+      <div class="quiz-step" id="step-4">
+        <div class="q-label">Question 4 of 12 &middot; Recent Returns</div>
+        <div class="q-title">How important is the past month's return?</div>
+        <div class="q-sub">Price change over the last 30 days</div>
+        <div class="choices">
+          <div class="choice" data-step="4" data-val="positive">
+            <div class="choice-icon">&#x1F4C8;</div>
+            <div class="choice-body">
+              <div class="choice-title">Strong gains &mdash; I want recent winners</div>
+              <div class="choice-desc">The stock should have gained ground in the past month</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="4" data-val="recovery">
+            <div class="choice-icon">&#x1F48E;</div>
+            <div class="choice-body">
+              <div class="choice-title">Recent dip &mdash; I look for recovery setups</div>
+              <div class="choice-desc">A short-term pullback can be a buying opportunity</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="4" data-val="any">
+            <div class="choice-icon">&#x2796;</div>
+            <div class="choice-body">
+              <div class="choice-title">Not important &mdash; recent return doesn't drive me</div>
+              <div class="choice-desc">I look beyond short-term price noise</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="prevStep(4)">&larr; Back</button>
+          <button class="btn-next" id="next-4" onclick="tryNext(4)">Next &rarr;</button>
+          <span class="step-counter">4 / 12</span>
+        </div>
+        <div class="select-hint" id="hint-4">Please select an option above to continue</div>
+      </div>
+
+      <!-- Step 5: 5Y Growth -->
+      <div class="quiz-step" id="step-5">
+        <div class="q-label">Question 5 of 12 &middot; 5-Year Growth</div>
+        <div class="q-title">How important is long-term compounding?</div>
+        <div class="q-sub">5-year compound annual growth rate (CAGR)</div>
+        <div class="choices">
+          <div class="choice" data-step="5" data-val="strong">
+            <div class="choice-icon">&#x1F3DB;&#xFE0F;</div>
+            <div class="choice-body">
+              <div class="choice-title">Strong 5Y growth &mdash; I want a proven track record</div>
+              <div class="choice-desc">The stock should have compounded well over 5 years</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="5" data-val="recovery">
+            <div class="choice-icon">&#x1F331;</div>
+            <div class="choice-body">
+              <div class="choice-title">Poor 5Y &mdash; I hunt for turnaround stories</div>
+              <div class="choice-desc">Stocks that struggled long-term may be re-rating</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="5" data-val="any">
+            <div class="choice-icon">&#x2796;</div>
+            <div class="choice-body">
+              <div class="choice-title">Not important &mdash; 5Y growth doesn't drive my view</div>
+              <div class="choice-desc">I don't weight historic multi-year returns heavily</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="prevStep(5)">&larr; Back</button>
+          <button class="btn-next" id="next-5" onclick="tryNext(5)">Next &rarr;</button>
+          <span class="step-counter">5 / 12</span>
+        </div>
+        <div class="select-hint" id="hint-5">Please select an option above to continue</div>
+      </div>
+
+      <!-- Step 6: Momentum -->
+      <div class="quiz-step" id="step-6">
+        <div class="q-label">Question 6 of 12 &middot; Momentum</div>
+        <div class="q-title">Do you want stocks with positive price momentum?</div>
+        <div class="q-sub">Rate of price change across multiple timeframes</div>
+        <div class="choices">
+          <div class="choice" data-step="6" data-val="positive">
+            <div class="choice-icon">&#x1F680;</div>
+            <div class="choice-body">
+              <div class="choice-title">Strong &mdash; accelerating upward momentum</div>
+              <div class="choice-desc">Price is gaining speed across timeframes</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="6" data-val="neutral">
+            <div class="choice-icon">&#x27A1;&#xFE0F;</div>
+            <div class="choice-body">
+              <div class="choice-title">Neutral &mdash; flat momentum is fine</div>
+              <div class="choice-desc">I don't need the stock to be accelerating</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="6" data-val="any">
+            <div class="choice-icon">&#x2796;</div>
+            <div class="choice-body">
+              <div class="choice-title">Any &mdash; momentum doesn't factor in my decision</div>
+              <div class="choice-desc">I won't penalise negative momentum</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="prevStep(6)">&larr; Back</button>
+          <button class="btn-next" id="next-6" onclick="tryNext(6)">Next &rarr;</button>
+          <span class="step-counter">6 / 12</span>
+        </div>
+        <div class="select-hint" id="hint-6">Please select an option above to continue</div>
+      </div>
+
+      <!-- Step 7: MA Trends -->
+      <div class="quiz-step" id="step-7">
+        <div class="q-label">Question 7 of 12 &middot; Moving Average Trends</div>
+        <div class="q-title">Where should the stock be relative to its moving averages?</div>
+        <div class="q-sub">Price vs 50-day and 200-day moving averages</div>
+        <div class="choices">
+          <div class="choice" data-step="7" data-val="above_both">
+            <div class="choice-icon">&#x1F4C8;</div>
+            <div class="choice-body">
+              <div class="choice-title">Above both &mdash; clear uptrend</div>
+              <div class="choice-desc">Trading above both the 50D and 200D moving averages</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="7" data-val="above_50">
+            <div class="choice-icon">&#x2197;&#xFE0F;</div>
+            <div class="choice-body">
+              <div class="choice-title">Above 50D &mdash; short-term strength matters</div>
+              <div class="choice-desc">At least above the short-term trend line</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="7" data-val="below_both">
+            <div class="choice-icon">&#x1F4C9;</div>
+            <div class="choice-body">
+              <div class="choice-title">Below both &mdash; I look for contrarian setups</div>
+              <div class="choice-desc">Stocks below both MAs may be oversold opportunities</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="7" data-val="any">
+            <div class="choice-icon">&#x2796;</div>
+            <div class="choice-body">
+              <div class="choice-title">Any &mdash; I don't use moving averages</div>
+              <div class="choice-desc">MA position won't affect my ranking</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="prevStep(7)">&larr; Back</button>
+          <button class="btn-next" id="next-7" onclick="tryNext(7)">Next &rarr;</button>
+          <span class="step-counter">7 / 12</span>
+        </div>
+        <div class="select-hint" id="hint-7">Please select an option above to continue</div>
+      </div>
+
+      <!-- Step 8: 52-Week Position -->
+      <div class="quiz-step" id="step-8">
+        <div class="q-label">Question 8 of 12 &middot; 52-Week Position</div>
+        <div class="q-title">Where in its annual range should the stock be?</div>
+        <div class="q-sub">Current price vs 52-week high and low</div>
+        <div class="choices">
+          <div class="choice" data-step="8" data-val="highs">
+            <div class="choice-icon">&#x1F3D4;&#xFE0F;</div>
+            <div class="choice-body">
+              <div class="choice-title">Near highs &mdash; trading close to its 52W peak</div>
+              <div class="choice-desc">Strength at the top of the range signals momentum</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="8" data-val="middle">
+            <div class="choice-icon">&#x1F3AF;</div>
+            <div class="choice-body">
+              <div class="choice-title">Mid-range &mdash; not overextended, not beaten down</div>
+              <div class="choice-desc">I prefer stocks in the middle of their annual range</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="8" data-val="lows">
+            <div class="choice-icon">&#x1F48E;</div>
+            <div class="choice-body">
+              <div class="choice-title">Near lows &mdash; potential recovery opportunity</div>
+              <div class="choice-desc">I look for stocks that have pulled back significantly</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="prevStep(8)">&larr; Back</button>
+          <button class="btn-next" id="next-8" onclick="tryNext(8)">Next &rarr;</button>
+          <span class="step-counter">8 / 12</span>
+        </div>
+        <div class="select-hint" id="hint-8">Please select an option above to continue</div>
+      </div>
+
+      <!-- Step 9: Drawdown from Peak -->
+      <div class="quiz-step" id="step-9">
+        <div class="q-label">Question 9 of 12 &middot; Drawdown from Peak</div>
+        <div class="q-title">How far from its 52-week high should the stock be?</div>
+        <div class="q-sub">Measures how much a stock has fallen from its peak</div>
+        <div class="choices">
+          <div class="choice" data-step="9" data-val="near_peak">
+            <div class="choice-icon">&#x1F3D4;&#xFE0F;</div>
+            <div class="choice-body">
+              <div class="choice-title">Near peak &mdash; less than 20% off highs</div>
+              <div class="choice-desc">I want stocks holding their gains, close to all-time strength</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="9" data-val="moderate">
+            <div class="choice-icon">&#x1F4C9;</div>
+            <div class="choice-body">
+              <div class="choice-title">Moderate pullback &mdash; 20% to 50% off highs</div>
+              <div class="choice-desc">A healthy correction can create a good entry point</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="9" data-val="deep">
+            <div class="choice-icon">&#x1F573;&#xFE0F;</div>
+            <div class="choice-body">
+              <div class="choice-title">Deep discount &mdash; more than 50% off highs</div>
+              <div class="choice-desc">I hunt for deeply beaten-down recovery candidates</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="9" data-val="any">
+            <div class="choice-icon">&#x2796;</div>
+            <div class="choice-body">
+              <div class="choice-title">Doesn't matter &mdash; drawdown doesn't affect my view</div>
+              <div class="choice-desc">I won't filter based on distance from peak</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="prevStep(9)">&larr; Back</button>
+          <button class="btn-next" id="next-9" onclick="tryNext(9)">Next &rarr;</button>
+          <span class="step-counter">9 / 12</span>
+        </div>
+        <div class="select-hint" id="hint-9">Please select an option above to continue</div>
+      </div>
+
+      <!-- Step 10: Volatility -->
+      <div class="quiz-step" id="step-10">
+        <div class="q-label">Question 10 of 12 &middot; Volatility</div>
+        <div class="q-title">What price volatility suits you?</div>
+        <div class="q-sub">Annualised price volatility</div>
+        <div class="choices">
+          <div class="choice" data-step="10" data-val="low">
+            <div class="choice-icon">&#x1F6E1;&#xFE0F;</div>
+            <div class="choice-body">
+              <div class="choice-title">Low &mdash; calm, stable prices</div>
+              <div class="choice-desc">Prefer stocks with steady, predictable price movement</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="10" data-val="moderate">
+            <div class="choice-icon">&#x2696;&#xFE0F;</div>
+            <div class="choice-body">
+              <div class="choice-title">Moderate &mdash; some movement is ideal</div>
+              <div class="choice-desc">Mid-range volatility offers opportunity without chaos</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="10" data-val="any">
+            <div class="choice-icon">&#x1F32A;&#xFE0F;</div>
+            <div class="choice-body">
+              <div class="choice-title">Any &mdash; volatility doesn't deter me</div>
+              <div class="choice-desc">High or low, it won't affect my ranking</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="prevStep(10)">&larr; Back</button>
+          <button class="btn-next" id="next-10" onclick="tryNext(10)">Next &rarr;</button>
+          <span class="step-counter">10 / 12</span>
+        </div>
+        <div class="select-hint" id="hint-10">Please select an option above to continue</div>
+      </div>
+
+      <!-- Step 11: Analyst Sentiment -->
+      <div class="quiz-step" id="step-11">
+        <div class="q-label">Question 11 of 12 &middot; Analyst Sentiment</div>
+        <div class="q-title">Do analyst ratings matter to you?</div>
+        <div class="q-sub">Based on consensus analyst recommendations</div>
+        <div class="choices">
+          <div class="choice" data-step="11" data-val="buy">
+            <div class="choice-icon">&#x1F7E2;</div>
+            <div class="choice-body">
+              <div class="choice-title">Buy-rated &mdash; analysts are bullish</div>
+              <div class="choice-desc">Prefer stocks rated Buy or Strong Buy by analysts</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="11" data-val="neutral">
+            <div class="choice-icon">&#x1F7E1;</div>
+            <div class="choice-body">
+              <div class="choice-title">Neutral or better &mdash; avoid the sells</div>
+              <div class="choice-desc">Anything from Neutral to Strong Buy is acceptable</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="11" data-val="any">
+            <div class="choice-icon">&#x2796;</div>
+            <div class="choice-body">
+              <div class="choice-title">Doesn't matter &mdash; I ignore analyst ratings</div>
+              <div class="choice-desc">Analyst consensus won't affect my ranking</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="prevStep(11)">&larr; Back</button>
+          <button class="btn-next" id="next-11" onclick="tryNext(11)">Next &rarr;</button>
+          <span class="step-counter">11 / 12</span>
+        </div>
+        <div class="select-hint" id="hint-11">Please select an option above to continue</div>
+      </div>
+
+      <!-- Step 12: Profitability -->
+      <div class="quiz-step" id="step-12">
+        <div class="q-label">Question 12 of 12 &middot; Profitability</div>
+        <div class="q-title">Should the company be profitable?</div>
+        <div class="q-sub">Based on earnings per share (EPS)</div>
+        <div class="choices">
+          <div class="choice" data-step="12" data-val="profitable">
+            <div class="choice-icon">&#x1F4B0;</div>
+            <div class="choice-body">
+              <div class="choice-title">Profitable &mdash; positive earnings only</div>
+              <div class="choice-desc">I want companies that are already making money</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+          <div class="choice" data-step="12" data-val="any">
+            <div class="choice-icon">&#x2796;</div>
+            <div class="choice-body">
+              <div class="choice-title">Doesn't matter &mdash; profitability isn't a filter</div>
+              <div class="choice-desc">I'll consider pre-profit growth companies too</div>
+            </div>
+            <div class="choice-tick"></div>
+          </div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" onclick="prevStep(12)">&larr; Back</button>
+          <button class="btn-next" id="next-12" onclick="tryNext(12)">Rank Stocks &rarr;</button>
+          <span class="step-counter">12 / 12</span>
+        </div>
+        <div class="select-hint" id="hint-12">Please select an option above to continue</div>
+      </div>
+
+  </div><!-- /quiz-modal-box -->
+</div><!-- /quiz-modal-overlay -->
+
+<!-- ── Ranking Modal ────────────────────────────────────────── -->
+<div id="ranking-modal-overlay" class="ranking-modal-overlay" style="display:none;" onclick="closeRankingModal(event)">
+  <div class="ranking-modal" id="ranking-modal">
+    <div class="rm-header">
+      <div class="rm-info">
+        <div class="rm-name-row">
+          <div class="rm-ticker" id="rm-ticker">&mdash;</div>
+          <div class="rm-mood-labeled">
+            <span class="rm-mood-label-text">Price Level</span>
+            <span id="rm-mood-chip"></span>
+          </div>
+        </div>
+        <div class="rm-company" id="rm-company">&mdash;</div>
+        <div class="rm-meta">
+          <span class="rm-fit-num" id="rm-fit-num">&mdash;</span>
+          <span class="rm-fit-label">% fit</span>
+        </div>
+      </div>
+      <button class="rm-close-btn" onclick="closeRankingModal()">&#x2715; Close</button>
+    </div>
+    <table class="rm-table">
+      <thead>
+        <tr>
+          <th class="rm-th">Indicator</th>
+          <th class="rm-th">Data</th>
+          <th class="rm-th">Your Preference</th>
+          <th class="rm-th">Fit</th>
+        </tr>
+      </thead>
+      <tbody id="rm-tbody"></tbody>
+    </table>
+    <div class="rm-footer">
+      <button class="rm-btn-stock" id="rm-btn-stock">View Full Stock &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/js/mood.js"></script>
+<script src="assets/js/finder-engine.js"></script>
+<script>
+'use strict';
+
+injectSidebarHTML();
+initTooltip();
+initNavStamp();
+
+// ── Nav search ────────────────────────────────────────────────
+initGlobalSearch('#nav-search-input', '#nav-search-results', (ticker, exchange) => {
+  window.location.href = `stock.html?ticker=${encodeURIComponent(ticker)}&exchange=${exchange}`;
+});
+
+// ── State ─────────────────────────────────────────────────────
+const answers = { region:null, sector:null, size:null, return1m:null, growth5y:null, momentum:null, matrend:null, range52w:null, drawdown:null, vol:null, analyst:null, profit:null };
+let currentStep = 1;
+const TOTAL_STEPS = 12;
+const STEP_KEYS = ['region','sector','size','return1m','growth5y','momentum','matrend','range52w','drawdown','vol','analyst','profit'];
+let _presetMode = false;
+let _lastPresetKey = '';
+let scoredCache = [];
+let _allScored = [];
+let _fitFilter = 'great';
+let _maxLevel = null;
+
+// ── Prefetch search index in background ─────────────────────
+DataCache.getSearchIndex().catch(() => {});
+
+// ── Quiz modal open / close ─────────────────────────────────
+function openQuizModal() {
+  document.getElementById('quiz-modal-overlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+window.openQuizModal = openQuizModal;
+
+function closeQuizModal() {
+  document.getElementById('quiz-modal-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+window.closeQuizModal = closeQuizModal;
+
+function backToResults() {
+  if (scoredCache.length > 0) {
+    closeQuizModal();
+  }
+}
+window.backToResults = backToResults;
+
+// ── Quiz choice selection (event delegation) ─────────────────
+document.getElementById('quiz-modal-overlay').addEventListener('click', function(e) {
+  const choice = e.target.closest('.choice');
+  if (!choice) return;
+
+  const step = parseInt(choice.dataset.step);
+  const val  = choice.dataset.val;
+  if (!step || !val) return;
+
+  const key = STEP_KEYS[step - 1];
+
+  // Multi-select for steps 1 (region) and 2 (sector)
+  if (step === 1) {
+    if (val === 'global') {
+      answers.region = 'global';
+      choice.closest('.choices').querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+      choice.classList.add('selected');
+    } else {
+      // Deselect global if another region is picked
+      const globalChoice = choice.closest('.choices').querySelector('[data-val="global"]');
+      if (globalChoice) globalChoice.classList.remove('selected');
+      if (answers.region === 'global') answers.region = null;
+
+      choice.classList.toggle('selected');
+      const selected = [...choice.closest('.choices').querySelectorAll('.choice.selected')].map(c => c.dataset.val);
+      answers.region = selected.length === 0 ? null : selected.length === 1 ? selected[0] : selected;
+    }
+  } else if (step === 2) {
+    if (val === 'all') {
+      answers.sector = 'all';
+      choice.closest('.choices').querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+      choice.classList.add('selected');
+    } else {
+      const allChoice = choice.closest('.choices').querySelector('[data-val="all"]');
+      if (allChoice) allChoice.classList.remove('selected');
+      if (answers.sector === 'all') answers.sector = null;
+
+      choice.classList.toggle('selected');
+      const selected = [...choice.closest('.choices').querySelectorAll('.choice.selected')].map(c => c.dataset.val);
+      answers.sector = selected.length === 0 ? null : selected.length === 1 ? selected[0] : selected;
+    }
+  } else {
+    // Single-select for steps 3-12
+    choice.closest('.choices').querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+    choice.classList.add('selected');
+    answers[key] = val;
+  }
+
+  // Hide hint if shown
+  const hint = document.getElementById('hint-' + step);
+  if (hint) hint.classList.remove('show');
+});
+
+// ── Quiz navigation ──────────────────────────────────────────
+function tryNext(step) {
+  const key = STEP_KEYS[step - 1];
+  if (answers[key] === null || answers[key] === undefined) {
+    const hint = document.getElementById('hint-' + step);
+    if (hint) hint.classList.add('show');
+    return;
+  }
+  nextStep(step);
+}
+window.tryNext = tryNext;
+
+function nextStep(from) {
+  if (from === TOTAL_STEPS) {
+    // Last step — run scoring
+    closeQuizModal();
+    findStocks();
+    return;
+  }
+  const el = document.getElementById('step-' + from);
+  if (el) { el.classList.remove('active'); }
+  currentStep = from + 1;
+  const next = document.getElementById('step-' + currentStep);
+  if (next) next.classList.add('active');
+  updateProgress();
+  // Scroll quiz box to top
+  document.getElementById('quiz-modal-box').scrollTop = 0;
+}
+window.nextStep = nextStep;
+
+function prevStep(from) {
+  if (from <= 1) return;
+  const el = document.getElementById('step-' + from);
+  if (el) el.classList.remove('active');
+  currentStep = from - 1;
+  const prev = document.getElementById('step-' + currentStep);
+  if (prev) prev.classList.add('active');
+  updateProgress();
+  document.getElementById('quiz-modal-box').scrollTop = 0;
+}
+window.prevStep = prevStep;
+
+function updateProgress() {
+  const pct = Math.round((currentStep / TOTAL_STEPS) * 100);
+  const fill = document.getElementById('progress-fill');
+  if (fill) fill.style.width = pct + '%';
+}
+window.updateProgress = updateProgress;
+
+// ── Find stocks (always slow path — dynamic scoring) ─────────
+async function findStocks() {
+  const rs = document.getElementById('results-section');
+  rs.style.display = 'block';
+  rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('results-list').innerHTML = `
+    <div class="finder-loading">
+      <div class="spin"></div>
+      <div style="color:var(--muted);font-size:0.85rem;">Ranking all stocks by your custom profile...</div>
+    </div>`;
+
+  // Yield to browser so the loading spinner actually paints
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+  const stocks = await loadAllStocks(answers);
+
+  // Always use slow path: score dynamically in batches since answers are custom
+  const BATCH = 2000;
+  const scored = [];
+  for (let i = 0; i < stocks.length; i += BATCH) {
+    const batch = stocks.slice(i, i + BATCH);
+    scored.push(...batch.map(s => ({ stock: s, ...scoreByAnswers(s, answers) })));
+    if (i + BATCH < stocks.length) await new Promise(r => setTimeout(r, 0));
+  }
+
+  // Sort by fit % desc, ties broken by lower mood stress
+  scored.sort((a, b) => b.pct - a.pct || (a.stock.mood?.score ?? 20) - (b.stock.mood?.score ?? 20));
+
+  // Store all scored results
+  _allScored = scored;
+  _presetMode = false;
+  _fitFilter = 'great';
+
+  // Default display: >= 80% fits
+  const goodFits = scored.filter(x => x.pct >= 80);
+  scoredCache = goodFits;
+
+  // Show fit toggle
+  const fitToggle = document.getElementById('fit-toggle');
+  if (fitToggle) fitToggle.style.display = 'flex';
+  updateFitButtons();
+
+  // Show "Back to Results" button in quiz header
+  const backBtn = document.getElementById('btn-back-results');
+  if (backBtn) backBtn.style.display = '';
+
+  // Populate filter dropdowns using engine function
+  populateFilterDropdowns(scoredCache);
+
+  renderResults(goodFits, stocks.length, scored.length);
+}
+window.findStocks = findStocks;
+
+// ── Apply filter ─────────────────────────────────────────────
+function applyFilter() {
+  applyFinderFilter(scoredCache, _presetMode, _maxLevel);
+}
+window.applyFilter = applyFilter;
+
+// ── Territory change ─────────────────────────────────────────
+function onTerritoryChange() {
+  onFinderTerritoryChange(scoredCache);
+  applyFilter();
+}
+window.onTerritoryChange = onTerritoryChange;
+
+// ── Fit filter toggle ────────────────────────────────────────
+function setFitFilter(mode) {
+  _fitFilter = mode;
+  if (mode === 'great') {
+    scoredCache = _allScored.filter(x => x.pct >= 80);
+  } else {
+    scoredCache = _allScored.slice();
+  }
+  updateFitButtons();
+  populateFilterDropdowns(scoredCache);
+  // Reset text/mood/territory filters
+  const ft = document.getElementById('filter-text'); if (ft) ft.value = '';
+  const fm = document.getElementById('filter-mood'); if (fm) fm.value = '';
+  const ftr = document.getElementById('filter-territory'); if (ftr) ftr.value = '';
+  renderFilteredList(scoredCache, scoredCache, _presetMode);
+}
+window.setFitFilter = setFitFilter;
+
+function updateFitButtons() {
+  const btnGreat = document.getElementById('fit-btn-great');
+  const btnAll   = document.getElementById('fit-btn-all');
+  if (btnGreat) btnGreat.classList.toggle('active', _fitFilter === 'great');
+  if (btnAll)   btnAll.classList.toggle('active', _fitFilter === 'all');
+}
+
+// ── Render results ──────────────────────────────────────────
+function renderResults(scored, totalScanned, totalScored) {
+  const pillLabels = {
+    region:   { global:'Global', us:'United States', uk:'United Kingdom', europe:'Europe', hk:'Hong Kong', china:'China', japan:'Japan', middleeast:'Middle East' },
+    sector:   { all:'All sectors', tech:'Technology', health:'Healthcare', finance:'Finance', energy:'Energy & Materials', consumer:'Consumer & Retail', industrial:'Industrial', utilities:'Utilities & Comms' },
+    size:     { large:'Large-cap', mid:'Mid-cap', small:'Small-cap', any:'Size: Any' },
+    return1m: { positive:'+Recent', recovery:'Dip buying', any:'Returns: Any' },
+    growth5y: { strong:'Strong 5Y', recovery:'5Y turnaround', any:'5Y growth: Any' },
+    momentum: { positive:'Strong momentum', neutral:'Neutral momentum', any:'Momentum: Any' },
+    matrend:  { above_both:'Above both MAs', above_50:'Above 50D', below_both:'Below both MAs', any:'MA trend: Any' },
+    range52w: { highs:'Near highs', middle:'Mid-range', lows:'Near lows' },
+    drawdown: { near_peak:'Near peak', moderate:'Moderate dip', deep:'Deep discount', any:'Drawdown: Any' },
+    vol:      { low:'Low vol', moderate:'Moderate vol', any:'Volatility: Any' },
+    analyst:  { buy:'Buy-rated', neutral:'Neutral+', any:'Analyst: Any' },
+    profit:   { profitable:'Profitable', any:'Profit: Any' },
+  };
+  const pillTooltips = {
+    region:   { global:'All 25,000+ stocks globally \u2014 no regional filter', us:'US-registered companies \u2014 NYSE, NASDAQ and more', uk:'UK-registered companies \u2014 London Stock Exchange', europe:'European-registered companies across all major markets', hk:'Hong Kong Stock Exchange \u2014 HKEX-listed companies', china:'Mainland China-registered companies', japan:'Japan-registered companies \u2014 Tokyo Stock Exchange', middleeast:'Middle East region \u2014 Saudi Arabia, UAE, Israel and more' },
+    sector:   { all:'No sector filter \u2014 all industries included', tech:'Technology sector \u2014 software, hardware, semiconductors', health:'Healthcare \u2014 biotech, pharma, medical devices', finance:'Finance \u2014 banks, insurance, asset management', energy:'Energy & Materials \u2014 oil, gas, mining, chemicals', consumer:'Consumer \u2014 retail, food, beverages, apparel', industrial:'Industrial \u2014 manufacturing, logistics, aerospace', utilities:'Utilities & Comms \u2014 electric, water, telecom, media' },
+    size:     { large:'Large-cap \u2014 market cap above $10 billion', mid:'Mid-cap \u2014 market cap $2B\u2013$10B', small:'Small-cap \u2014 market cap under $2 billion', any:'Company size is not filtered' },
+    return1m: { positive:'Price is up over the past month', recovery:'Price has dipped recently \u2014 looking for a recovery', any:'Recent return is not filtered' },
+    growth5y: { strong:'Consistent multi-year growth track record', recovery:'Growth improving from a lower base \u2014 a turnaround story', any:'5-year growth is not a factor' },
+    momentum: { positive:'Strong recent price momentum \u2014 trending up', neutral:'Neutral momentum \u2014 not sharply rising or falling', any:'Momentum is not a factor' },
+    matrend:  { above_both:'Above both 50D and 200D moving averages \u2014 clear uptrend', above_50:'Above the 50D moving average \u2014 short-term strength', below_both:'Below both MAs \u2014 contrarian / oversold setup', any:'Moving average position is not filtered' },
+    range52w: { highs:'Near its 52-week high \u2014 showing strength', middle:'In the middle of its annual range', lows:'Near its 52-week low \u2014 potential recovery' },
+    drawdown: { near_peak:'Less than 20% off its 52-week high', moderate:'20\u201350% off its 52-week high', deep:'More than 50% off its 52-week high', any:'Drawdown from peak is not filtered' },
+    vol:      { low:'Low price swings \u2014 steadier moves', moderate:'Moderate price swings \u2014 balanced', any:'Volatility is not filtered' },
+    analyst:  { buy:'Analysts rate Buy or Strong Buy', neutral:'Analysts rate Neutral or better', any:'Analyst ratings are not filtered' },
+    profit:   { profitable:'EPS is positive \u2014 company is profitable', any:'Profitability is not filtered' },
+  };
+
+  const pillsEl = document.getElementById('profile-pills');
+  pillsEl.innerHTML =
+    Object.entries(pillLabels).map(([k, opts]) => {
+      let label, tooltip;
+      if (k === 'region' || k === 'sector') {
+        const allVal = k === 'region' ? 'global' : 'all';
+        const v = answers[k];
+        if (!v) { label = ''; tooltip = ''; }
+        else if (v === allVal) { label = opts[allVal]; tooltip = pillTooltips[k][allVal]; }
+        else if (Array.isArray(v)) { label = v.map(x => opts[x] || x).join(' + '); tooltip = v.map(x => pillTooltips[k][x] || '').filter(Boolean).join(' \u00b7 '); }
+        else { label = opts[v] || ''; tooltip = pillTooltips[k][v] || ''; }
+      } else {
+        label = opts[answers[k]] || '';
+        tooltip = pillTooltips[k]?.[answers[k]] || '';
+      }
+      if (!label) return '';
+      return `<div class="profile-pill" data-tooltip="${esc(tooltip)}">${esc(label)}</div>`;
+    }).join('');
+  pillsEl.style.display = 'flex';
+  pillsEl.style.flexWrap = 'wrap';
+  pillsEl.style.gap = '0.4rem';
+  pillsEl.style.marginBottom = '1rem';
+
+  document.getElementById('results-title').textContent = `${scored.length} good & great fits`;
+  document.getElementById('results-count').textContent =
+    `${scored.length} of ${totalScored} scored stocks matched 80%+ \u00b7 sorted highest fit first`;
+
+  renderFilteredList(scored, scoredCache, _presetMode);
+}
+
+// ── Ranking modal ──────────────────────────────────────────
+const INDICATOR_META = [
+  { key:'size',        label:'Company Size',       ansKey:'size',      prefMap:{ large:'Large-cap', mid:'Mid-cap', small:'Small-cap', any:'Any' } },
+  { key:'return1M',    label:'1-Month Return',     ansKey:'return1m',  prefMap:{ positive:'Positive gains', recovery:'Looking for dip', any:'Any' } },
+  { key:'cagr5Y',      label:'5-Year Growth',      ansKey:'growth5y',  prefMap:{ strong:'Strong 5Y track', recovery:'Turnaround', any:'Any' } },
+  { key:'momentum',    label:'Momentum',           ansKey:'momentum',  prefMap:{ positive:'Strong momentum', neutral:'Neutral OK', any:'Any' } },
+  { key:'matrend',     label:'MA Trend',           ansKey:'matrend',   prefMap:{ above_both:'Above both MAs', above_50:'Above 50D', below_both:'Below both MAs', any:'Any' } },
+  { key:'range52W',    label:'52-Week Position',   ansKey:'range52w',  prefMap:{ highs:'Near highs', middle:'Mid-range', lows:'Near lows', any:'Any' } },
+  { key:'drawdown',    label:'Drawdown from Peak', ansKey:'drawdown',  prefMap:{ near_peak:'Near peak', moderate:'Moderate dip', deep:'Deep discount', any:'Any' } },
+  { key:'volatility',  label:'Volatility',         ansKey:'vol',       prefMap:{ low:'Low volatility', moderate:'Moderate volatility', any:'Any' } },
+  { key:'analyst',     label:'Analyst Rating',     ansKey:'analyst',   prefMap:{ buy:'Buy-rated', neutral:'Neutral+', any:'Any' } },
+  { key:'profit',      label:'Profitability',      ansKey:'profit',    prefMap:{ profitable:'Profitable (EPS > 0)', any:'Any' } },
+];
+
+function openRankingModal(idx) {
+  const item = scoredCache[idx];
+  if (!item) return;
+  const s = item.stock;
+  const fitCol = item.pct >= 80 ? 'var(--green)' : item.pct >= 50 ? 'var(--amber)' : 'var(--red)';
+
+  document.getElementById('rm-ticker').textContent   = s.ticker;
+  document.getElementById('rm-company').textContent  = s.company || s.exchangeLabel || '';
+  document.getElementById('rm-fit-num').textContent  = item.pct;
+  document.getElementById('rm-fit-num').style.color  = fitCol;
+  document.getElementById('rm-mood-chip').innerHTML  = MOOD.chip(s.mood?.label || 'Level 3');
+  document.getElementById('rm-btn-stock').onclick     = () => {
+    window.location.href = `stock.html?ticker=${encodeURIComponent(s.ticker)}&exchange=${s.exchangeKey}&country=${encodeURIComponent(s.country || '')}`;
+  };
+
+  const ind = s.indicators || {};
+  document.getElementById('rm-tbody').innerHTML = INDICATOR_META.map((meta, mi) => {
+    const score = item.scores[mi];
+    const pref  = meta.prefMap[answers[meta.ansKey]] || 'Any';
+
+    // Data column
+    let dataVal = '\u2014';
+    const indData = ind[meta.key];
+    if (indData) {
+      dataVal = indData.label || (indData.color ? indData.color.charAt(0).toUpperCase() + indData.color.slice(1) : '\u2014');
+    } else if (meta.key === 'size') {
+      const mc = s._mc;
+      dataVal = mc == null ? '\u2014' : mc >= 10e9 ? 'Large-cap' : mc >= 2e9 ? 'Mid-cap' : 'Small-cap';
+    } else if (meta.key === 'matrend') {
+      const sc = ind.shortTrend?.color, lc = ind.longTrend?.color;
+      dataVal = sc === 'green' && lc === 'green' ? 'Above both MAs' : sc === 'green' ? 'Above 50D' : sc === 'red' && lc === 'red' ? 'Below both MAs' : 'Mixed';
+    } else if (meta.key === 'drawdown') {
+      const r52 = s._r52;
+      dataVal = r52 == null ? '\u2014' : r52 >= 80 ? 'Near peak' : r52 >= 40 ? 'Moderate dip' : 'Deep discount';
+    } else if (meta.key === 'analyst') {
+      dataVal = s._ar || '\u2014';
+    } else if (meta.key === 'profit') {
+      const eps = s._eps;
+      dataVal = eps == null ? '\u2014' : eps > 0 ? `EPS: ${eps.toFixed(2)}` : 'Not profitable';
+    }
+
+    // Fit column
+    const fitDotClass = score >= 1 ? 'rm-dot-green' : score >= 0.5 ? 'rm-dot-amber' : 'rm-dot-red';
+    const fitColor    = score >= 1 ? 'var(--green)'  : score >= 0.5 ? 'var(--amber)'  : 'var(--red)';
+    const fitWord     = score >= 1 ? 'Full'           : score >= 0.5 ? 'Partial'       : 'Low';
+
+    return `<tr class="rm-tr">
+      <td class="rm-td"><span class="rm-ind">${meta.label}</span></td>
+      <td class="rm-td rm-data">${dataVal}</td>
+      <td class="rm-td rm-pref">${pref}</td>
+      <td class="rm-td">
+        <div class="rm-fit-cell">
+          <span class="rm-dot ${fitDotClass}"></span>
+          <span class="rm-fit-label-text" style="color:${fitColor}">${fitWord}</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('ranking-modal-overlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+window.openRankingModal = openRankingModal;
+
+function closeRankingModal(e) {
+  if (e && e.target !== document.getElementById('ranking-modal-overlay')) return;
+  document.getElementById('ranking-modal-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+window.closeRankingModal = closeRankingModal;
+
+// ── Reset quiz ──────────────────────────────────────────────
+function resetQuiz() {
+  _presetMode = false;
+  _lastPresetKey = '';
+  _allScored = [];
+  _fitFilter = 'great';
+  _maxLevel = null;
+  Object.keys(answers).forEach(k => answers[k] = null);
+  scoredCache = [];
+  document.getElementById('results-section').style.display = 'none';
+  const ft = document.getElementById('filter-text'); if (ft) ft.value = '';
+  const fm = document.getElementById('filter-mood'); if (fm) fm.value = '';
+  const fc = document.getElementById('filter-count'); if (fc) fc.textContent = '';
+  const fitToggle = document.getElementById('fit-toggle'); if (fitToggle) fitToggle.style.display = 'none';
+  const backBtn = document.getElementById('btn-back-results'); if (backBtn) backBtn.style.display = 'none';
+  // Reset all quiz step selections
+  document.querySelectorAll('.choice.selected').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.select-hint.show').forEach(h => h.classList.remove('show'));
+  // Reset to step 1
+  document.querySelectorAll('.quiz-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-1').classList.add('active');
+  currentStep = 1;
+  updateProgress();
+  openQuizModal();
+}
+window.resetQuiz = resetQuiz;
+
+// ── Refine quiz (go back to tweak without resetting) ─────────
+function refineQuiz() {
+  // Re-open the quiz with current answers preserved — restore selected states
+  STEP_KEYS.forEach((key, idx) => {
+    const step = idx + 1;
+    const stepEl = document.getElementById('step-' + step);
+    if (!stepEl) return;
+    const val = answers[key];
+    if (!val) return;
+    const choices = stepEl.querySelectorAll('.choice');
+    if (step === 1 || step === 2) {
+      // Multi-select steps
+      const vals = Array.isArray(val) ? val : [val];
+      choices.forEach(c => c.classList.toggle('selected', vals.includes(c.dataset.val)));
+    } else {
+      // Single-select steps
+      choices.forEach(c => c.classList.toggle('selected', c.dataset.val === val));
+    }
+  });
+  // Go to step 1 but keep all answers
+  document.querySelectorAll('.quiz-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-1').classList.add('active');
+  currentStep = 1;
+  updateProgress();
+  openQuizModal();
+}
+window.refineQuiz = refineQuiz;
+
+// ── Pill tooltip: tap-to-toggle on mobile ──────────────────
+document.addEventListener('click', e => {
+  const pill = e.target.closest('.profile-pill[data-tooltip]');
+  if (pill) {
+    const isOpen = pill.classList.contains('tip-open');
+    document.querySelectorAll('.profile-pill.tip-open').forEach(p => p.classList.remove('tip-open'));
+    if (!isOpen) pill.classList.add('tip-open');
+    e.stopPropagation();
+    return;
+  }
+  document.querySelectorAll('.profile-pill.tip-open').forEach(p => p.classList.remove('tip-open'));
+}, true);
+
+// ── On load: open quiz modal automatically ──────────────────
+openQuizModal();
+</script>
+</body>
+</html>

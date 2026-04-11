@@ -638,3 +638,96 @@ input, select { font-family: var(--font); }
   .stock-dot-grid { grid-template-columns: repeat(3,1fr); }
   .worst-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Result Cards (Option C) ────────────────────────────────────────────────── */
+.rc {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  border-left: 3px solid transparent; padding: 0.65rem 1rem; margin-bottom: 0.4rem;
+  display: inline-flex; align-items: center; gap: 0.75rem; width: 100%; max-width: 680px;
+  transition: border-color 0.15s; cursor: pointer; box-sizing: border-box;
+}
+.rc:hover { border-color: var(--muted); }
+.rc-rank { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); width: 18px; text-align: center; flex-shrink: 0; }
+.rc-rank.top { color: var(--parchment); font-weight: 700; }
+.rc-id { width: 155px; flex-shrink: 0; overflow: hidden; }
+.rc-ticker { font-size: 0.88rem; font-weight: 700; color: var(--green); }
+.rc-company { font-size: 0.68rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rc-geo { display: flex; align-items: center; gap: 4px; margin-top: 3px; flex-wrap: wrap; }
+.rc-country { font-size: 0.55rem; padding: 1px 5px; border-radius: 4px; background: rgba(74,222,128,0.06); color: rgba(74,222,128,0.6); border: 1px solid rgba(74,222,128,0.1); }
+.rc-center { flex: 1; display: flex; flex-direction: column; gap: 8px; border-left: 1px solid var(--border); padding-left: 12px; min-width: 0; }
+.rc-top { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.rc-counts { display: flex; gap: 3px; }
+.rc-styles { display: flex; gap: 3px; align-items: center; flex-wrap: wrap; }
+.rc-view { background: none; border: 1px solid var(--border); color: var(--muted); padding: 4px 12px; border-radius: 6px; font-size: 0.72rem; cursor: pointer; white-space: nowrap; flex-shrink: 0; font-family: var(--font); }
+.rc-view:hover { border-color: var(--green); color: var(--green); }
+.sc { display: inline-flex; align-items: center; gap: 2px; font-size: 0.6rem; padding: 1px 5px; border-radius: 4px; white-space: nowrap; }
+.pct-pos { color: #4ADE80; font-family: var(--mono); font-size: 0.65rem; font-weight: 600; }
+.pct-neg { color: #F87171; font-family: var(--mono); font-size: 0.65rem; font-weight: 600; }
+.sig-badge-green { background: rgba(74,222,128,0.2); color: #4ADE80; font-family: var(--mono); font-size: 0.6rem; padding: 1px 6px; border-radius: 4px; font-weight: 700; }
+.sig-badge-amber { background: rgba(251,191,36,0.2); color: #FBBF24; font-family: var(--mono); font-size: 0.6rem; padding: 1px 6px; border-radius: 4px; font-weight: 700; }
+.sig-badge-red   { background: rgba(248,113,113,0.2); color: #F87171; font-family: var(--mono); font-size: 0.6rem; padding: 1px 6px; border-radius: 4px; font-weight: 700; }
+
+@media (max-width: 640px) {
+  .rc { flex-wrap: wrap; gap: 0.5rem; padding: 0.7rem 0.8rem; max-width: 100%; }
+  .rc-id { width: 100%; }
+  .rc-center { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 8px; }
+}
+
+/* ── Result Table (Option D) ────────────────────────────────────────────────── */
+.tbl-wrap { overflow-x: auto; overflow-y: visible; border-radius: 10px; border: 1px solid var(--border); position: relative; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 0.72rem; }
+.tbl th {
+  background: rgba(255,255,255,0.03); color: var(--muted); font-weight: 600;
+  font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--border);
+  white-space: nowrap; position: sticky; top: 0; z-index: 10;
+}
+.tbl th.center { text-align: center; }
+.tbl td { padding: 7px 10px; border-bottom: 1px solid rgba(255,255,255,0.03); white-space: nowrap; vertical-align: middle; }
+.tbl tr { cursor: pointer; transition: background 0.1s; }
+.tbl tbody tr:hover { background: rgba(74,222,128,0.04); }
+.tbl .t-rank { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+.tbl .t-rank.top { color: var(--parchment); font-weight: 700; }
+.tbl .t-ticker { font-weight: 700; color: var(--green); font-size: 0.78rem; }
+.tbl .t-company { color: var(--muted); font-size: 0.62rem; display: block; max-width: 140px; overflow: hidden; text-overflow: ellipsis; }
+.tbl .t-country { font-size: 0.62rem; color: var(--muted); }
+.tbl .t-style-pct { font-family: var(--mono); font-size: 0.65rem; font-weight: 600; text-align: center; padding: 2px 6px; border-radius: 4px; }
+.tbl .t-style-pct.hi { background: rgba(74,222,128,0.12); color: #4ADE80; }
+.tbl .t-style-pct.mid { background: rgba(251,191,36,0.12); color: #FBBF24; }
+.tbl .t-style-pct.lo { background: rgba(248,113,113,0.12); color: #F87171; }
+.tbl td.center { text-align: center; }
+
+/* ── View toggle ────────────────────────────────────────────────────────────── */
+.view-toggle { display: flex; gap: 4px; margin-bottom: 1rem; }
+.view-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 5px 14px; border-radius: 6px; font-size: 0.72rem; cursor: pointer; font-family: var(--font); }
+.view-btn.active { border-color: var(--green); color: var(--green); background: rgba(74,222,128,0.08); }
+
+/* ── CSS Tooltips ───────────────────────────────────────────────────────────── */
+[data-tip] { position: relative; cursor: help; }
+[data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  background: #1a1f1b; color: var(--parchment); border: 1px solid var(--border);
+  font-size: 0.62rem; line-height: 1.4; padding: 5px 8px; border-radius: 6px;
+  white-space: nowrap; z-index: 9999; pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4); font-family: var(--font); font-weight: 400;
+}
+[data-tip]:hover::before {
+  content: ''; position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%);
+  border: 4px solid transparent; border-top-color: var(--border); z-index: 9999; pointer-events: none;
+}
+/* Table header tooltips: show BELOW */
+.tbl th [data-tip]:hover::after { bottom: auto; top: calc(100% + 6px); }
+.tbl th [data-tip]:hover::before { bottom: auto; top: calc(100% + 2px); border-top-color: transparent; border-bottom-color: var(--border); }
+
+/* ── Result page shared ─────────────────────────────────────────────────────── */
+.results-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; font-size: 0.75rem; color: var(--muted); }
+.results-filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; align-items: center; }
+.results-filter-bar input, .results-filter-bar select { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-family: var(--font); }
+.results-filter-bar input { flex: 1; min-width: 150px; }
+.filter-count { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); margin-left: auto; }
+.no-results { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 0.88rem; }
+.load-more-wrap { text-align: center; padding: 1.5rem 0; }
+.finder-loading { text-align: center; padding: 3rem 1rem; }
+.finder-loading .spin { display: inline-block; width: 28px; height: 28px; border: 2.5px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 0.8rem; }
+@keyframes spin { to { transform: rotate(360deg); } }

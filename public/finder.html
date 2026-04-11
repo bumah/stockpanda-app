@@ -3,358 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StockPanda — Risk Finder</title>
+  <title>StockPanda — Quick Trap</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
-    /* ── Quiz layout ─────────────────────────────────────────── */
-    .finder-wrap { max-width: 720px; margin: 0 auto; padding-bottom: 3rem; }
-
-    /* Progress bar */
-    .progress-track {
-      height: 3px; background: var(--border);
-      border-radius: 2px; margin-bottom: 2.2rem; overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%; background: var(--green);
-      border-radius: 2px; transition: width 0.4s ease;
-    }
-
-    /* Step container */
-    .quiz-step { display: none; animation: fadeUp 0.3s ease; }
-    .quiz-step.active { display: block; }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(10px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .q-label {
-      font-size: 0.65rem; letter-spacing: 0.1em; color: var(--muted);
-      text-transform: uppercase; margin-bottom: 0.5rem;
-      font-family: var(--mono);
-    }
-    .q-title {
-      font-size: 1.45rem; font-weight: 700; color: var(--text);
-      margin-bottom: 0.4rem; line-height: 1.3;
-    }
-    .q-sub {
-      font-size: 0.82rem; color: var(--muted); margin-bottom: 1.6rem;
-    }
-
-    /* Choice cards */
-    .choices { display: flex; flex-direction: column; gap: 0.65rem; }
-    .choice {
-      display: flex; align-items: center; gap: 1rem;
-      padding: 1rem 1.1rem; border: 1.5px solid var(--border);
-      border-radius: 10px; cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
-      background: var(--card);
-    }
-    .choice:hover { border-color: var(--muted); }
-    .choice.selected {
-      border-color: var(--green);
-      background: rgba(74,222,128,0.06);
-    }
-    .choice-icon { font-size: 1.3rem; width: 2rem; text-align: center; flex-shrink: 0; }
-    .choice[data-step]:not([data-step="1"]) .choice-icon { display: none; }
-    .choice-body { flex: 1; }
-    .choice-title { font-size: 0.92rem; font-weight: 600; color: var(--text); }
-    .choice-desc  { font-size: 0.75rem; color: var(--muted); margin-top: 0.15rem; }
-    .choice-tick  {
-      width: 18px; height: 18px; border-radius: 50%;
-      border: 1.5px solid var(--border); flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s;
-    }
-    .choice.selected .choice-tick {
-      background: var(--green); border-color: var(--green);
-    }
-    .choice.selected .choice-tick::after {
-      content: '✓'; font-size: 0.6rem; color: #000; font-weight: 700;
-    }
-
-    /* Nav buttons */
-    .quiz-nav { display: flex; gap: 0.75rem; margin-top: 1.5rem; align-items: center; }
-    .btn-back {
-      background: none; border: 1.5px solid var(--border); color: var(--muted);
-      padding: 0.6rem 1.2rem; border-radius: 8px; cursor: pointer;
-      font-size: 0.82rem; transition: border-color 0.15s;
-    }
-    .btn-back:hover { border-color: var(--muted); color: var(--text); }
-    .btn-next {
-      background: var(--green); color: #000; font-weight: 700;
-      padding: 0.65rem 1.4rem; border-radius: 8px; border: none;
-      cursor: pointer; font-size: 0.88rem; transition: opacity 0.15s;
-    }
-    .btn-next:disabled { opacity: 0.35; cursor: not-allowed; }
-    .btn-next:not(:disabled):hover { opacity: 0.85; }
-    .select-hint {
-      font-size: 0.75rem; color: var(--amber); margin-top: 0.5rem;
-      display: none; animation: fadeUp 0.2s ease;
-    }
-    .select-hint.visible { display: block; }
-    .step-counter { font-size: 0.72rem; color: var(--muted); font-family: var(--mono); margin-left: auto; }
-
-    /* Exchange row */
-    .exch-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.8rem; }
-    .exch-pill {
-      padding: 0.4rem 0.9rem; border-radius: 20px; border: 1.5px solid var(--border);
-      font-size: 0.78rem; cursor: pointer; background: var(--card); color: var(--text);
-      transition: all 0.15s; font-weight: 500;
-    }
-    .exch-pill:hover { border-color: var(--muted); }
-    .exch-pill.active { border-color: var(--green); background: rgba(74,222,128,0.08); color: var(--green); }
-
-    /* ── Results ──────────────────────────────────────────────── */
-    #results-section { display: none; }
-
-    .results-hd {
-      display: flex; align-items: center; gap: 1rem;
-      margin-bottom: 1.4rem; flex-wrap: wrap;
-    }
-    .results-title { font-size: 1.1rem; font-weight: 700; flex: 1; }
-    .btn-reset {
-      background: none; border: 1.5px solid var(--border); color: var(--muted);
-      padding: 0.45rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.78rem;
-    }
-    .btn-reset:hover { border-color: var(--muted); color: var(--text); }
-    .btn-refine {
-      background: rgba(74,222,128,0.08); border: 1.5px solid rgba(74,222,128,0.3);
-      color: var(--green); padding: 0.45rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.78rem;
-    }
-    .btn-refine:hover { background: rgba(74,222,128,0.14); border-color: var(--green); }
-
-    /* Profile summary pills (hidden — kept for JS compat) */
-    .profile-pills { display: none; }
-
-    /* ── Quick preset strip ───────────────────────────────────── */
-    .quick-presets { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.2rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
-    .quick-presets::-webkit-scrollbar { display: none; }
-    .qp-label { font-size: 0.63rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.09em; font-family: var(--mono); white-space: nowrap; flex-shrink: 0; }
-    .qp-chip { display: flex; align-items: center; gap: 0.2rem; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 0.32rem 0.55rem 0.32rem 0.65rem; cursor: pointer; font-size: 0.74rem; white-space: nowrap; transition: border-color 0.15s, background 0.15s; flex-shrink: 0; font-family: var(--font); color: var(--text); }
-    .qp-chip:hover { border-color: var(--green); }
-    .qp-chip.qp-active { border-color: var(--green); background: rgba(74,222,128,0.1); color: var(--green); font-weight: 600; }
-    .qp-info { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.75rem; padding: 0 0 0 0.18rem; line-height: 1; opacity: 0.55; font-family: var(--font); }
-    .qp-info:hover { opacity: 1; color: var(--text); }
-    .qp-popover { position: fixed; z-index: 500; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem 1rem; max-width: 240px; box-shadow: 0 8px 28px rgba(0,0,0,0.45); animation: fadeUp 0.15s ease; }
-    .qp-pop-title { font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; }
-    .qp-pop-sub { font-size: 0.71rem; color: var(--muted); margin-bottom: 0.55rem; line-height: 1.5; }
-    .qp-crit { font-size: 0.7rem; color: var(--muted); padding: 0.1rem 0; }
-    .qp-crit-none { font-size: 0.7rem; color: var(--muted); font-style: italic; }
-    .profile-pill {
-      font-size: 0.7rem; padding: 0.25rem 0.65rem; border-radius: 20px;
-      background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.25);
-      color: var(--green); font-family: var(--mono);
-      position: relative; cursor: default; user-select: none;
-    }
-    .profile-pill[data-tooltip]:hover::after,
-    .profile-pill.tip-open::after {
-      content: attr(data-tooltip);
-      position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
-      background: #1a1f2e; border: 1px solid var(--border); border-radius: 8px;
-      padding: 0.45rem 0.75rem; font-size: 0.7rem; color: var(--text);
-      white-space: normal; text-align: center; max-width: 220px; width: max-content;
-      z-index: 200; pointer-events: none; line-height: 1.4;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.4); font-family: var(--font);
-    }
-
-    /* ── Result card ─────────────────────────────────────────── */
-    .result-card {
-      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-      padding: 0.75rem 1rem; margin-bottom: 0.4rem;
-      display: flex; align-items: center; gap: 0.75rem;
-      transition: border-color 0.15s; cursor: pointer;
-      border-left: 3px solid transparent;
-    }
-    .result-card:hover { border-color: var(--muted); }
-    .result-rank {
-      font-family: var(--mono); font-size: 0.65rem; color: var(--muted);
-      width: 18px; text-align: center; flex-shrink: 0;
-    }
-    .result-rank.top { color: var(--parchment); font-weight: 700; }
-    .rc-identity { width: 170px; flex-shrink: 0; overflow: hidden; }
-    .result-ticker { font-size: 0.88rem; font-weight: 700; color: var(--green); display: block; }
-    .result-company { font-size: 0.7rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-    .result-exch {
-      font-size: 0.58rem; padding: 0.1rem 0.4rem; border-radius: 4px;
-      background: rgba(255,255,255,0.06); color: var(--muted); display: inline-block; margin-top: 3px;
-    }
-    .rc-signals { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; border-left: 1px solid var(--border); padding-left: 12px; }
-    .rc-signals-top { display: flex; align-items: center; gap: 8px; }
-    .rc-match { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; border-left: 1px solid var(--border); padding-left: 12px; min-width: 52px; }
-    .match-pct { font-family: var(--mono); font-size: 0.82rem; font-weight: 700; white-space: nowrap; }
-    .match-lbl { font-family: var(--mono); font-size: 0.5rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
-    .match-bar-wrap { width: 50px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
-    .match-bar-fill { height: 100%; border-radius: 2px; }
-
-    /* Per-question score bars */
-    .qbar-wrap    { width: 18px; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
-    .qbar-fill    { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
-    .qbar-label { font-size: 0.52rem; color: var(--muted); font-family: var(--mono); }
-
-    /* Legend strip */
-    .results-legend {
-      display: flex; gap: 1rem; margin-bottom: 0.5rem;
-      font-size: 0.63rem; color: var(--muted); font-family: var(--mono);
-      padding-left: 2.2rem;
-    }
-    .results-legend .lg-bars { display: flex; gap: 3px; margin-left: auto; margin-right: 4.5rem; }
-    .results-legend .lg-bar-item { width: 18px; text-align: center; font-size: 0.55rem; }
-
-    .no-results { text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 0.88rem; }
-
-    /* Loading */
-    .finder-loading { text-align: center; padding: 3rem 1rem; }
-    .finder-loading .spin {
-      display: inline-block; width: 28px; height: 28px;
-      border: 2.5px solid var(--border); border-top-color: var(--green);
-      border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 0.8rem;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Result count bar */
-    .results-meta {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 1rem; font-size: 0.75rem; color: var(--muted);
-    }
-
-    @media (max-width: 640px) {
-      .result-card { flex-wrap: wrap; gap: 0.5rem; padding: 0.7rem 0.8rem; }
-      .rc-identity { width: 100%; }
-      .rc-signals { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 8px; }
-      .rc-match { display: none; }
-      .q-title { font-size: 1.2rem; }
-    }
-
-    /* ── Quiz modal overlay ──────────────────────────────────── */
-    .quiz-modal-overlay {
-      position: fixed; inset: 0; z-index: 850;
-      background: rgba(0,0,0,0.78); backdrop-filter: blur(6px);
-      display: flex; align-items: center; justify-content: center;
-      padding: 1rem; animation: fadeUp 0.2s ease;
-    }
-    .quiz-modal-box {
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: 16px; width: 100%; max-width: 720px;
-      max-height: 92vh; overflow-y: auto; padding: 2rem 2rem 1.5rem;
-      position: relative; animation: fadeUp 0.25s ease;
-    }
-    .quiz-modal-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 1.4rem;
-    }
-    .quiz-modal-title {
-      font-size: 0.7rem; font-family: var(--mono); color: var(--muted);
-      text-transform: uppercase; letter-spacing: 0.1em;
-    }
-    .quiz-modal-close {
-      background: none; border: 1px solid var(--border); color: var(--muted);
-      padding: 0.3rem 0.75rem; border-radius: 6px; cursor: pointer;
-      font-size: 0.76rem; font-family: var(--font); transition: all 0.15s;
-    }
-    .quiz-modal-close:hover { border-color: var(--muted); color: var(--text); }
-    .quiz-modal-actions { display: flex; align-items: center; gap: 0.5rem; }
-    .btn-back-results {
-      background: none; border: 1px solid var(--green); color: var(--green);
-      padding: 0.3rem 0.75rem; border-radius: 6px; cursor: pointer;
-      font-size: 0.76rem; font-family: var(--font); transition: all 0.15s;
-    }
-    .btn-back-results:hover { background: var(--green); color: #000; }
-
-    /* ── Finder hero ─────────────────────────────────────────── */
-    .finder-hero {
-      text-align: center; padding: 4rem 1rem 3rem;
-      border-bottom: 1px solid var(--border); margin-bottom: 2.5rem;
-    }
-    .finder-hero-h1 {
-      font-family: var(--serif); font-size: 3.7rem; font-weight: 700;
-      color: var(--parchment); line-height: 1.05; margin-bottom: 0.6rem;
-      font-style: italic; letter-spacing: -0.02em;
-    }
-    @media (max-width: 600px) { .finder-hero-h1 { font-size: 2.5rem; } }
-    .finder-hero-h2 {
-      font-family: var(--serif); font-size: 3rem; font-weight: 700;
-      line-height: 1.1; margin-bottom: 1.2rem;
-      font-style: italic; letter-spacing: -0.02em;
-    }
-    @media (max-width: 600px) { .finder-hero-h2 { font-size: 2.1rem; } }
-    #finder-word {
-      color: var(--green); display: inline-block;
-      transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-    #finder-word.fade-out { opacity: 0; transform: translateY(-8px); }
-    #finder-word.fade-in  { opacity: 1; transform: translateY(0); }
-    .finder-hero-sub {
-      color: var(--muted); font-size: 0.95rem; line-height: 1.65;
-      margin-bottom: 0.75rem; max-width: 520px; margin-left: auto; margin-right: auto;
-    }
-    .finder-hero-stats {
-      color: var(--muted); font-size: 0.8rem; font-weight: 600;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      margin-bottom: 2rem; opacity: 0.6;
-    }
-    .finder-cta-btn {
-      display: inline-block; background: var(--green); color: #000;
-      font-weight: 700; padding: 0.75rem 1.8rem; border-radius: 8px;
-      text-decoration: none; font-size: 0.92rem; transition: opacity 0.15s;
-    }
-    .finder-cta-btn:hover { opacity: 0.85; }
-
-    /* ── Quick Filters ───────────────────────────────────────── */
-    .qf-wrap { margin-top: 1.75rem; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; width: 100%; }
-    .qf-label { font-family: var(--serif); font-size: 1.75rem; font-weight: 700; font-style: italic; color: var(--parchment); letter-spacing: -0.01em; }
-    .qf-sub { font-size: 0.82rem; color: var(--muted); line-height: 1.5; text-align: center; max-width: 520px; margin: -0.25rem auto 0.5rem; }
-    .territory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.7rem; width: 100%; }
-    @media (max-width: 700px) { .territory-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 400px) { .territory-grid { grid-template-columns: 1fr; } }
-    .territory-card {
-      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-      border-radius: 12px; padding: 1rem 0.9rem; text-align: center;
-      cursor: pointer; transition: border-color 0.15s, background 0.15s;
-      display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
-    }
-    .territory-card:hover { border-color: var(--green); background: rgba(74,222,128,0.05); }
-    .territory-flag { font-size: 2rem; line-height: 1; }
-    .territory-name { font-size: 0.85rem; font-weight: 700; color: var(--text); }
-    .territory-desc { font-size: 0.68rem; color: var(--muted); line-height: 1.45; }
-    .qf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; width: 100%; }
-    @media (max-width: 620px) { .qf-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 400px) { .qf-grid { grid-template-columns: 1fr; } }
-    .qf-card {
-      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-      border-radius: 10px; padding: 0.85rem 0.95rem;
-      text-align: left; cursor: pointer; transition: border-color 0.15s, background 0.15s;
-      display: flex; flex-direction: column; gap: 0.4rem;
-      font-family: var(--font);
-    }
-    .qf-card:hover { border-color: var(--green); background: rgba(74,222,128,0.05); }
-    .level-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.8rem; width: 100%; }
-    @media (max-width: 720px) { .level-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 480px) { .level-grid { grid-template-columns: repeat(2, 1fr); } }
-    .level-card {
-      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-      border-radius: 12px; padding: 1.1rem 0.8rem 1rem;
-      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-      text-align: center; transition: border-color 0.15s, background 0.15s;
-    }
-    .level-card:hover { border-color: var(--green); background: rgba(74,222,128,0.05); }
-    .level-card img { width: 56px; height: 56px; }
-    .level-card-name { font-family: var(--mono); font-size: 0.82rem; font-weight: 700; letter-spacing: 0.02em; }
-    .level-card-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.45; }
-    .level-card-req { font-size: 0.65rem; color: var(--muted); opacity: 0.7; margin-top: 2px; font-style: italic; }
-    .qfc-top { display: flex; align-items: center; gap: 0.45rem; }
-    .qfc-icon { font-size: 0.95rem; line-height: 1; }
-    .qfc-name { font-size: 0.82rem; font-weight: 600; color: var(--text); }
-    .qfc-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.45; }
-    .qfc-tags { display: flex; flex-wrap: wrap; gap: 0.28rem; margin-top: 0.15rem; }
-    .qfc-tag {
-      font-size: 0.62rem; color: rgba(255,255,255,0.45);
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 4px; padding: 0.12rem 0.42rem;
-      font-family: var(--mono); letter-spacing: 0.02em;
-    }
-
     /* ── Trap Wizard ──────────────────────────────────────────── */
     .tw-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
@@ -426,6 +79,12 @@
     .tw-btn-next { background: var(--green); border: none; color: #000; }
     .tw-btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
     .tw-sel-count { font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+    .qfc-top { display: flex; align-items: center; gap: 0.45rem; }
+    .qfc-icon { font-size: 0.95rem; line-height: 1; }
+    .qfc-name { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+    .qfc-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.45; }
+    .level-card-name { font-family: var(--mono); font-size: 0.82rem; font-weight: 700; letter-spacing: 0.02em; }
+    .level-card-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.45; }
 
     /* ── Region Picker ───────────────────────────────────────── */
     .region-picker-overlay {
@@ -449,61 +108,70 @@
     }
     .rp-btn:hover { border-color: var(--green); background: rgba(74,222,128,0.06); color: var(--green); }
 
-    /* ── Disclaimer section ──────────────────────────────────── */
-    .finder-disclaimer {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 1rem; margin-bottom: 2.5rem; padding-bottom: 2.5rem;
-      border-bottom: 1px solid var(--border);
-    }
-    @media (max-width: 600px) { .finder-disclaimer { grid-template-columns: 1fr; } }
-    .fd-item {
-      display: flex; gap: 0.75rem;
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 10px; padding: 1rem 1.1rem;
-    }
-    .fd-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 0.1rem; }
-    .fd-title { font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; }
-    .fd-text { font-size: 0.75rem; color: var(--muted); line-height: 1.65; }
-    .fd-link { color: var(--green); text-decoration: none; }
-    .fd-link:hover { text-decoration: underline; }
+    /* ── Quick preset strip ───────────────────────────────────── */
+    .quick-presets { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.2rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
+    .quick-presets::-webkit-scrollbar { display: none; }
+    .qp-label { font-size: 0.63rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.09em; font-family: var(--mono); white-space: nowrap; flex-shrink: 0; }
+    .qp-chip { display: flex; align-items: center; gap: 0.2rem; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 0.32rem 0.55rem 0.32rem 0.65rem; cursor: pointer; font-size: 0.74rem; white-space: nowrap; transition: border-color 0.15s, background 0.15s; flex-shrink: 0; font-family: var(--font); color: var(--text); }
+    .qp-chip:hover { border-color: var(--green); }
+    .qp-chip.qp-active { border-color: var(--green); background: rgba(74,222,128,0.1); color: var(--green); font-weight: 600; }
+    .qp-info { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.75rem; padding: 0 0 0 0.18rem; line-height: 1; opacity: 0.55; font-family: var(--font); }
+    .qp-info:hover { opacity: 1; color: var(--text); }
+    .qp-popover { position: fixed; z-index: 500; background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 0.9rem 1rem; max-width: 240px; box-shadow: 0 8px 28px rgba(0,0,0,0.45); animation: fadeUp 0.15s ease; }
+    .qp-pop-title { font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; }
+    .qp-pop-sub { font-size: 0.71rem; color: var(--muted); margin-bottom: 0.55rem; line-height: 1.5; }
+    .qp-crit { font-size: 0.7rem; color: var(--muted); padding: 0.1rem 0; }
+    .qp-crit-none { font-size: 0.7rem; color: var(--muted); font-style: italic; }
 
-    /* ── Filter bar ──────────────────────────────────────────── */
-    .results-filter-bar {
-      display: flex; gap: 0.55rem; margin-bottom: 1rem; flex-wrap: wrap;
+    /* ── Profile pills ──────────────────────────────────────── */
+    .profile-pills { display: none; }
+    .profile-pill {
+      font-size: 0.7rem; padding: 0.25rem 0.65rem; border-radius: 20px;
+      background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.25);
+      color: var(--green); font-family: var(--mono);
+      position: relative; cursor: default; user-select: none;
     }
-    .results-filter-bar input[type="text"] {
-      flex: 1; min-width: 150px;
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 8px; padding: 0.52rem 0.85rem;
-      color: var(--text); font-size: 0.8rem; font-family: var(--font);
-      outline: none; transition: border-color 0.15s;
+    .profile-pill[data-tooltip]:hover::after,
+    .profile-pill.tip-open::after {
+      content: attr(data-tooltip);
+      position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+      background: #1a1f2e; border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.45rem 0.75rem; font-size: 0.7rem; color: var(--text);
+      white-space: normal; text-align: center; max-width: 220px; width: max-content;
+      z-index: 200; pointer-events: none; line-height: 1.4;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4); font-family: var(--font);
     }
-    .results-filter-bar input[type="text"]:focus { border-color: var(--muted); }
-    .results-filter-bar select {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 8px; padding: 0.52rem 0.75rem;
-      color: var(--muted); font-size: 0.78rem; cursor: pointer;
-      outline: none; font-family: var(--font); transition: border-color 0.15s;
-    }
-    .results-filter-bar select:focus { border-color: var(--muted); }
-    .fit-toggle { display: flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; flex-shrink: 0; }
-    .fit-btn { background: none; border: none; padding: 0.52rem 0.85rem; color: var(--muted); font-size: 0.78rem; cursor: pointer; font-family: var(--font); transition: all 0.15s; white-space: nowrap; }
-    .fit-btn.active { background: var(--green); color: #000; font-weight: 600; }
-    .fit-btn:not(.active):hover { color: var(--text); }
-    .filter-count { font-size: 0.72rem; color: var(--muted); font-family: var(--mono); align-self: center; }
 
-    /* ── Result card buttons ─────────────────────────────────── */
-    .result-card { cursor: default; }
-    .result-actions { display: flex; gap: 0.35rem; flex-shrink: 0; }
-    .btn-view-stock, .btn-view-rank {
-      padding: 0.35rem 0.7rem; border-radius: 6px; font-size: 0.7rem;
-      font-weight: 600; cursor: pointer; white-space: nowrap; border: 1px solid;
-      transition: all 0.15s; background: transparent; font-family: var(--font);
+    /* ── Results header ───────────────────────────────────────── */
+    .results-hd {
+      display: flex; align-items: center; gap: 1rem;
+      margin-bottom: 1.4rem; flex-wrap: wrap;
     }
-    .btn-view-stock { border-color: var(--border); color: var(--muted); }
-    .btn-view-stock:hover { border-color: var(--muted); color: var(--text); }
-    .btn-view-rank { border-color: rgba(74,222,128,0.35); color: var(--green); background: rgba(74,222,128,0.08); }
-    .btn-view-rank:hover { background: rgba(74,222,128,0.16); }
+    .results-title { font-size: 1.1rem; font-weight: 700; flex: 1; }
+    .btn-refine {
+      background: rgba(74,222,128,0.08); border: 1.5px solid rgba(74,222,128,0.3);
+      color: var(--green); padding: 0.45rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.78rem;
+    }
+    .btn-refine:hover { background: rgba(74,222,128,0.14); border-color: var(--green); }
+
+    /* ── Results meta ─────────────────────────────────────────── */
+    .results-meta {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1rem; font-size: 0.75rem; color: var(--muted);
+    }
+
+    /* ── Loading ──────────────────────────────────────────────── */
+    .finder-loading { text-align: center; padding: 3rem 1rem; }
+    .finder-loading .spin {
+      display: inline-block; width: 28px; height: 28px;
+      border: 2.5px solid var(--border); border-top-color: var(--green);
+      border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 0.8rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
     /* ── Ranking modal ───────────────────────────────────────── */
     .ranking-modal-overlay {
@@ -572,7 +240,9 @@
     <span class="nav-logo-sp">Stock</span><span class="nav-logo-rest">Panda</span>
   </a>
   <div class="nav-links">
-    <a class="nav-link active" href="index.html">Home</a>
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link active" href="finder.html">Quick Trap</a>
+    <a class="nav-link" href="quiz.html">Custom Trap</a>
     <a class="nav-link" href="stocks.html">Browse</a>
     <a class="nav-link" href="summary.html">Quick Bites</a>
   </div>
@@ -592,180 +262,71 @@
 <div class="main">
   <div class="finder-wrap">
 
-    <!-- ── Hero ─────────────────────────────────────────────── -->
-    <div class="finder-hero">
-      <div class="hero-eyebrow">Global Stock Finder</div>
-      <h1 class="finder-hero-h1">Find Stocks Anywhere</h1>
-      <h2 class="finder-hero-h2"><span id="finder-word">Easier</span></h2>
-      <p class="finder-hero-sub">Set your trap. See your catch. Happy hunting.</p>
-      <p class="finder-hero-stats">25,000+ stocks &nbsp;·&nbsp; 100+ countries &nbsp;·&nbsp; 1 scorecard</p>
-      <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
-        <button class="finder-cta-btn" onclick="openQuizModal()">Find Stocks →</button>
-        <button class="finder-cta-btn" style="background:transparent;border:2px solid var(--green);color:var(--green);" onclick="openTrapWizard()">Quick Trap →</button>
+    <!-- ── Results Section ─────────────────────────────────── -->
+    <div id="results-section" style="display:none;">
+      <div class="results-hd">
+        <div class="results-title" id="results-title">Matched Stocks</div>
+        <button class="btn-refine" onclick="openTrapWizard()">⚡ New Trap</button>
       </div>
-      <div class="qf-wrap">
-        <div class="qf-label">Hunt by territory</div>
-        <div class="qf-sub">Where do you want to hunt? Choose your market and narrow your ground.</div>
-        <div class="territory-grid">
-          <div class="territory-card" onclick="huntByTerritory('us')">
-            <div class="territory-flag">🇺🇸</div>
-            <div class="territory-name">United States</div>
-            <div class="territory-desc">The world's largest market — home to tech giants, blue chips, and high-growth innovators.</div>
-          </div>
-          <div class="territory-card" onclick="huntByTerritory('uk')">
-            <div class="territory-flag">🇬🇧</div>
-            <div class="territory-name">United Kingdom</div>
-            <div class="territory-desc">London's financial hub — strong in banking, energy, and consumer goods.</div>
-          </div>
-          <div class="territory-card" onclick="huntByTerritory('europe')">
-            <div class="territory-flag">🇪🇺</div>
-            <div class="territory-name">Europe</div>
-            <div class="territory-desc">A diverse landscape of industrial powerhouses, luxury brands, and green energy leaders.</div>
-          </div>
-          <div class="territory-card" onclick="huntByTerritory('japan')">
-            <div class="territory-flag">🇯🇵</div>
-            <div class="territory-name">Japan</div>
-            <div class="territory-desc">Asia's most mature market — known for precision manufacturing, tech, and automotive giants.</div>
-          </div>
-          <div class="territory-card" onclick="huntByTerritory('hk')">
-            <div class="territory-flag">🇭🇰</div>
-            <div class="territory-name">Hong Kong</div>
-            <div class="territory-desc">Gateway to China — a mix of mainland giants and regional financial players.</div>
-          </div>
-          <div class="territory-card" onclick="huntByTerritory('china')">
-            <div class="territory-flag">🇨🇳</div>
-            <div class="territory-name">China</div>
-            <div class="territory-desc">The world's second-largest economy — fast-moving tech, e-commerce, and manufacturing.</div>
-          </div>
-          <div class="territory-card" onclick="huntByTerritory('middleeast')">
-            <div class="territory-flag">🌙</div>
-            <div class="territory-name">Middle East</div>
-            <div class="territory-desc">Oil-rich markets expanding into tech, tourism, and finance across the Gulf and beyond.</div>
-          </div>
-          <div class="territory-card" onclick="huntByTerritory('global')">
-            <div class="territory-flag">🌍</div>
-            <div class="territory-name">Global</div>
-            <div class="territory-desc">Hunt everywhere — no borders, no limits. Scan all 30,000+ stocks across every market.</div>
-          </div>
-        </div>
+      <div id="profile-pills" class="profile-pills"></div>
+      <div class="quick-presets" id="quick-presets"></div>
+      <div id="qp-popover" class="qp-popover" style="display:none;"></div>
+
+      <!-- View toggle -->
+      <div class="view-toggle">
+        <button class="view-btn active" data-view="cards" onclick="switchView('cards')">🃏 Cards</button>
+        <button class="view-btn" data-view="table" onclick="switchView('table')">📊 Table</button>
       </div>
 
-      <div class="qf-wrap" style="margin-top:2.5rem;">
-        <div class="qf-label">Hunt by style</div>
-        <div class="qf-sub">How do you hunt? Choose a style that matches how you find opportunities.</div>
-        <div class="qf-grid">
-          <button class="qf-card" onclick="openPreset('optimistic')">
-            <div class="qfc-top"><span class="qfc-icon">🐇</span><span class="qfc-name">Optimistic</span></div>
-            <div class="qfc-desc">Turnaround stocks starting to recover after a rough patch.</div>
-          </button>
-          <button class="qf-card" onclick="openPreset('nimble')">
-            <div class="qfc-top"><span class="qfc-icon">⚡</span><span class="qfc-name">Nimble</span></div>
-            <div class="qfc-desc">Targets early breakouts with strong participation before they become overextended.</div>
-          </button>
-          <button class="qf-card" onclick="openPreset('momentum')">
-            <div class="qfc-top"><span class="qfc-icon">🚀</span><span class="qfc-name">Momentum</span></div>
-            <div class="qfc-desc">Identifies stocks in sustained uptrends across multiple timeframes.</div>
-          </button>
-          <button class="qf-card" onclick="openPreset('pack')">
-            <div class="qfc-top"><span class="qfc-icon">🐺</span><span class="qfc-name">Pack</span></div>
-            <div class="qfc-desc">Follows institutional flows and consensus sentiment backed by strong participation.</div>
-          </button>
-          <button class="qf-card" onclick="openPreset('patient')">
-            <div class="qfc-top"><span class="qfc-icon">🧘</span><span class="qfc-name">Patient</span></div>
-            <div class="qfc-desc">Screens for high-quality stocks consolidating before a potential breakout.</div>
-          </button>
-          <button class="qf-card" onclick="openPreset('safe')">
-            <div class="qfc-top"><span class="qfc-icon">🛡️</span><span class="qfc-name">Careful</span></div>
-            <div class="qfc-desc">Targets stable, low-risk companies with strong balance sheets and low sensitivity.</div>
-          </button>
-          <button class="qf-card" onclick="openPreset('trophy')">
-            <div class="qfc-top"><span class="qfc-icon">🏆</span><span class="qfc-name">Trophy</span></div>
-            <div class="qfc-desc">Focuses on proven long-term winners with strong earnings and dominant positioning.</div>
-          </button>
-          <button class="qf-card" onclick="openPreset('wild_beast')">
-            <div class="qfc-top"><span class="qfc-icon">🧬</span><span class="qfc-name">Wild Beast</span></div>
-            <div class="qfc-desc">Captures high-volatility assets with extreme upside (and downside) potential.</div>
-          </button>
-          <button class="qf-card" onclick="openPreset('zombie')">
-            <div class="qfc-top"><span class="qfc-icon">🧟</span><span class="qfc-name">Zombie</span></div>
-            <div class="qfc-desc">Finds heavily beaten-down stocks showing early signs of revival and accumulation.</div>
-          </button>
-        </div>
+      <!-- Filter bar -->
+      <div class="results-filter-bar">
+        <input type="text" id="filter-text" placeholder="Filter by name or ticker…" oninput="applyFilter()" />
+        <select id="filter-mood" onchange="applyFilter()">
+          <option value="">All Levels</option>
+          <option value="Level 1">Level 1</option>
+          <option value="Level 2">Level 2</option>
+          <option value="Level 3">Level 3</option>
+          <option value="Level 4">Level 4</option>
+          <option value="Level 5">Level 5</option>
+        </select>
+        <select id="filter-territory" onchange="onTerritoryChange()">
+          <option value="">All Territories</option>
+          <option value="us">United States</option>
+          <option value="uk">United Kingdom</option>
+          <option value="europe">Europe</option>
+          <option value="japan">Japan</option>
+          <option value="hk">Hong Kong</option>
+          <option value="china">China</option>
+          <option value="middleeast">Middle East</option>
+        </select>
+        <select id="filter-country" onchange="applyFilter()">
+          <option value="">All Countries</option>
+        </select>
+        <select id="filter-sector" onchange="applyFilter()">
+          <option value="">All Sectors</option>
+        </select>
+        <span class="filter-count" id="filter-count"></span>
       </div>
 
-      <div class="qf-wrap" style="margin-top:2.5rem;">
-        <div class="qf-label">Hunt by level</div>
-        <div class="qf-sub">What level of risk can you handle? Choose the hunts that match your experience and skill.</div>
-        <div class="level-grid">
-          <div class="level-card" onclick="filterByLevel('Level 1')" style="cursor:pointer;">
-            <img src="assets/img/panda-vcalm.png" alt="Level 1" />
-            <div class="level-card-name" style="color:#60A5FA;">Level 1</div>
-            <div class="level-card-desc">I'm comfortable with steady, stable stocks.</div>
-          </div>
-          <div class="level-card" onclick="filterByLevel('Level 2')" style="cursor:pointer;">
-            <img src="assets/img/panda-calm.png" alt="Level 2" />
-            <div class="level-card-name" style="color:#4ADE80;">Level 2</div>
-            <div class="level-card-desc">I'm comfortable with stable stocks that have mild movement.</div>
-          </div>
-          <div class="level-card" onclick="filterByLevel('Level 3')" style="cursor:pointer;">
-            <img src="assets/img/panda-unsettled.png" alt="Level 3" />
-            <div class="level-card-name" style="color:#FBBF24;">Level 3</div>
-            <div class="level-card-desc">I can handle faster‑moving stocks that require timing.</div>
-          </div>
-          <div class="level-card" onclick="filterByLevel('Level 4')" style="cursor:pointer;">
-            <img src="assets/img/panda-stressed.png" alt="Level 4" />
-            <div class="level-card-name" style="color:#FB923C;">Level 4</div>
-            <div class="level-card-desc">I can handle higher‑risk stocks that are unpredictable.</div>
-          </div>
-          <div class="level-card" onclick="filterByLevel('Level 5')" style="cursor:pointer;">
-            <img src="assets/img/panda-danger.png" alt="Level 5" />
-            <div class="level-card-name" style="color:#F87171;">Level 5</div>
-            <div class="level-card-desc">I can handle highly volatile stocks that can turn sharply at any moment.</div>
-          </div>
-        </div>
+      <div class="results-meta">
+        <span id="results-count"></span>
       </div>
-    </div>
-
-    <!-- ── Disclaimer section ────────────────────────────────── -->
-    <div style="margin-bottom:1.25rem;">
-      <div style="font-family:var(--mono);font-size:0.58rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:0.5rem;">About</div>
-      <h2 style="font-family:var(--serif);font-size:1.75rem;font-weight:700;font-style:italic;color:var(--parchment);margin:0;letter-spacing:-0.01em;">What is StockPanda?</h2>
-    </div>
-    <div class="finder-disclaimer">
-      <div class="fd-item">
-        <span class="fd-icon">🚫</span>
-        <div>
-          <div class="fd-title">Not Financial Advice</div>
-          <div class="fd-text">StockPanda is a research and education tool. Nothing here is a buy or sell recommendation. Always do your own research before making any investment decision.</div>
-        </div>
-      </div>
-      <div class="fd-item">
-        <span class="fd-icon">📊</span>
-        <div>
-          <div class="fd-title">Coverage</div>
-          <div class="fd-text">We track stocks listed on major global indices — including the S&P 500, FTSE 100, Hang Seng, and Nikkei 225 — where reliable data is available. Not every stock in every market is included.</div>
-        </div>
-      </div>
-      <div class="fd-item">
-        <span class="fd-icon">🗄️</span>
-        <div>
-          <div class="fd-title">Data Sources</div>
-          <div class="fd-text">Stock data is sourced from Yahoo Finance and other public financial databases. Data is for informational purposes and may not reflect real-time market conditions.</div>
-        </div>
-      </div>
-      <div class="fd-item">
-        <span class="fd-icon">🆓</span>
-        <div>
-          <div class="fd-title">Free &amp; Unbiased</div>
-          <div class="fd-text">No ads. No commissions. No affiliate deals. StockPanda is independently built, so every ranking and signal you see is based purely on data — nothing else.</div>
-        </div>
-      </div>
+      <div id="results-list"></div>
     </div>
 
   </div><!-- /finder-wrap -->
 </div><!-- /main -->
 
-<!-- ── Region Picker ──────────────────────────────────────────── -->
+<footer style="border-top:1px solid rgba(74,222,128,0.12);padding:2rem;max-width:1400px;margin:4rem auto 0;">
+  <div style="margin-bottom:1.25rem;">
+    <p style="font-size:0.78rem;color:var(--muted);line-height:1.85;margin:0;">StockPanda is a free stock research and education app. It was built to make investing more accessible. Nothing on this site constitutes financial advice. Always do your own research before making investment decisions.</p>
+  </div>
+  <div style="border-top:1px solid rgba(74,222,128,0.08);padding-top:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+    <span style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);">© StockPanda</span>
+    <span style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);">Not financial advice</span>
+  </div>
+</footer>
+
 <!-- ── Trap Wizard Modal ────────────────────────────────────────── -->
 <div id="tw-overlay" class="tw-overlay" style="display:none;" onclick="if(event.target===this)closeTrapWizard()">
   <div class="tw-box">
@@ -803,6 +364,7 @@
   </div>
 </div>
 
+<!-- ── Region Picker ──────────────────────────────────────────── -->
 <div id="region-picker-overlay" class="region-picker-overlay" style="display:none;" onclick="closeRegionPicker(event)">
   <div class="region-picker-box">
     <div class="rp-header">
@@ -823,670 +385,6 @@
     </div>
   </div>
 </div>
-
-<!-- ── Quiz Modal ─────────────────────────────────────────────── -->
-<div id="quiz-modal-overlay" class="quiz-modal-overlay" style="display:none;">
-  <div class="quiz-modal-box" id="quiz-modal-box">
-
-    <div class="quiz-modal-header">
-      <span class="quiz-modal-title">Stock Finder · 12 questions</span>
-      <div class="quiz-modal-actions">
-        <button class="btn-back-results" id="btn-back-results" onclick="backToResults()" style="display:none;">← Back to Results</button>
-        <button class="quiz-modal-close" onclick="closeQuizModal()">✕ Close</button>
-      </div>
-    </div>
-
-    <!-- Progress bar -->
-    <div class="progress-track">
-      <div class="progress-fill" id="progress-fill" style="width:10%"></div>
-    </div>
-
-      <!-- Step 1: Region -->
-      <div class="quiz-step active" id="step-1">
-        <div class="q-label">Question 1 of 12 · Market Region</div>
-        <div class="q-title">Which markets would you like to explore?</div>
-        <div class="q-sub">Select one or more — tap to toggle</div>
-        <div class="choices">
-          <div class="choice" data-step="1" data-val="global">
-            <div class="choice-icon">🌍</div>
-            <div class="choice-body">
-              <div class="choice-title">Global</div>
-              <div class="choice-desc">All markets — 25,000+ stocks ranked together</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="1" data-val="us">
-            <div class="choice-icon">🇺🇸</div>
-            <div class="choice-body">
-              <div class="choice-title">United States</div>
-              <div class="choice-desc">NYSE, NASDAQ, and other US-listed stocks</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="1" data-val="uk">
-            <div class="choice-icon">🇬🇧</div>
-            <div class="choice-body">
-              <div class="choice-title">United Kingdom</div>
-              <div class="choice-desc">London Stock Exchange and UK-registered companies</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="1" data-val="europe">
-            <div class="choice-icon">🇪🇺</div>
-            <div class="choice-body">
-              <div class="choice-title">Europe</div>
-              <div class="choice-desc">Germany, France, Sweden, Switzerland, and more</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="1" data-val="hk">
-            <div class="choice-icon">🇭🇰</div>
-            <div class="choice-body">
-              <div class="choice-title">Hong Kong</div>
-              <div class="choice-desc">Hong Kong Stock Exchange — HKEX-listed companies</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="1" data-val="china">
-            <div class="choice-icon">🇨🇳</div>
-            <div class="choice-body">
-              <div class="choice-title">China</div>
-              <div class="choice-desc">Mainland Chinese and China-registered companies</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="1" data-val="japan">
-            <div class="choice-icon">🇯🇵</div>
-            <div class="choice-body">
-              <div class="choice-title">Japan</div>
-              <div class="choice-desc">Tokyo Stock Exchange and Japanese-registered companies</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="1" data-val="middleeast">
-            <div class="choice-icon">🌙</div>
-            <div class="choice-body">
-              <div class="choice-title">Middle East</div>
-              <div class="choice-desc">Saudi Arabia, UAE, Israel, Qatar, Kuwait and more</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-        </div>
-        <div class="quiz-nav">
-          <button class="btn-next" id="next-1" onclick="tryNext(1)">Next →</button>
-          <span class="step-counter">1 / 12</span>
-        </div>
-        <div class="select-hint" id="hint-1">Please select at least one market to continue</div>
-      </div>
-
-      <!-- Step 2: Sector -->
-      <div class="quiz-step" id="step-2">
-        <div class="q-label">Question 2 of 12 · Sector</div>
-        <div class="q-title">Which sectors interest you?</div>
-        <div class="q-sub">Select one or more — tap to toggle</div>
-        <div class="choices">
-          <div class="choice" data-step="2" data-val="all">
-            <div class="choice-icon">🌐</div>
-            <div class="choice-body">
-              <div class="choice-title">All Sectors</div>
-              <div class="choice-desc">No sector preference — show me everything</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="2" data-val="tech">
-            <div class="choice-icon">💻</div>
-            <div class="choice-body">
-              <div class="choice-title">Technology</div>
-              <div class="choice-desc">Software, hardware, semiconductors, and IT services</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="2" data-val="health">
-            <div class="choice-icon">🏥</div>
-            <div class="choice-body">
-              <div class="choice-title">Healthcare</div>
-              <div class="choice-desc">Biotech, pharma, medical devices, and health services</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="2" data-val="finance">
-            <div class="choice-icon">🏦</div>
-            <div class="choice-body">
-              <div class="choice-title">Finance</div>
-              <div class="choice-desc">Banks, insurance, asset management, and fintech</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="2" data-val="energy">
-            <div class="choice-icon">⛏️</div>
-            <div class="choice-body">
-              <div class="choice-title">Energy & Materials</div>
-              <div class="choice-desc">Oil, gas, mining, chemicals, and raw materials</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="2" data-val="consumer">
-            <div class="choice-icon">🛒</div>
-            <div class="choice-body">
-              <div class="choice-title">Consumer & Retail</div>
-              <div class="choice-desc">Retail, food, beverages, apparel, and consumer goods</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="2" data-val="industrial">
-            <div class="choice-icon">🏭</div>
-            <div class="choice-body">
-              <div class="choice-title">Industrial</div>
-              <div class="choice-desc">Manufacturing, logistics, aerospace, and defence</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="2" data-val="utilities">
-            <div class="choice-icon">⚡</div>
-            <div class="choice-body">
-              <div class="choice-title">Utilities & Communications</div>
-              <div class="choice-desc">Electric, water, telecom, and media companies</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-        </div>
-        <div class="quiz-nav">
-          <button class="btn-back" onclick="prevStep(2)">← Back</button>
-          <button class="btn-next" id="next-2" onclick="tryNext(2)">Next →</button>
-          <span class="step-counter">2 / 12</span>
-        </div>
-        <div class="select-hint" id="hint-2">Please select at least one sector to continue</div>
-      </div>
-
-      <!-- Step 3: Size -->
-      <div class="quiz-step" id="step-3">
-        <div class="q-label">Question 3 of 12 · Company Size</div>
-        <div class="q-title">What size of company are you looking for?</div>
-        <div class="q-sub">Based on market capitalisation</div>
-        <div class="choices">
-          <div class="choice" data-step="3" data-val="large">
-            <div class="choice-icon">🏛️</div>
-            <div class="choice-body">
-              <div class="choice-title">Large-cap — established blue chips</div>
-              <div class="choice-desc">Market cap above $10 billion</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="3" data-val="mid">
-            <div class="choice-icon">🏢</div>
-            <div class="choice-body">
-              <div class="choice-title">Mid-cap — growth with stability</div>
-              <div class="choice-desc">Market cap between $2B and $10B</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="3" data-val="small">
-            <div class="choice-icon">🚀</div>
-            <div class="choice-body">
-              <div class="choice-title">Small-cap — higher growth potential</div>
-              <div class="choice-desc">Market cap under $2 billion</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="3" data-val="any">
-            <div class="choice-icon">➖</div>
-            <div class="choice-body">
-              <div class="choice-title">Any size — market cap doesn't matter</div>
-              <div class="choice-desc">I'll consider companies of all sizes</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-        </div>
-        <div class="quiz-nav">
-          <button class="btn-back" onclick="prevStep(3)">← Back</button>
-          <button class="btn-next" id="next-3" onclick="tryNext(3)">Next →</button>
-          <span class="step-counter">3 / 12</span>
-        </div>
-        <div class="select-hint" id="hint-3">Please select an option above to continue</div>
-      </div>
-
-      <!-- Step 4: Recent Returns -->
-      <div class="quiz-step" id="step-4">
-        <div class="q-label">Question 4 of 12 · Recent Returns</div>
-        <div class="q-title">How important is the past month's return?</div>
-        <div class="q-sub">Price change over the last 30 days</div>
-        <div class="choices">
-          <div class="choice" data-step="4" data-val="positive">
-            <div class="choice-icon">📈</div>
-            <div class="choice-body">
-              <div class="choice-title">Strong gains — I want recent winners</div>
-              <div class="choice-desc">The stock should have gained ground in the past month</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="4" data-val="recovery">
-            <div class="choice-icon">💎</div>
-            <div class="choice-body">
-              <div class="choice-title">Recent dip — I look for recovery setups</div>
-              <div class="choice-desc">A short-term pullback can be a buying opportunity</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="4" data-val="any">
-            <div class="choice-icon">➖</div>
-            <div class="choice-body">
-              <div class="choice-title">Not important — recent return doesn't drive me</div>
-              <div class="choice-desc">I look beyond short-term price noise</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-        </div>
-        <div class="quiz-nav">
-          <button class="btn-back" onclick="prevStep(4)">← Back</button>
-          <button class="btn-next" id="next-4" onclick="tryNext(4)">Next →</button>
-          <span class="step-counter">4 / 12</span>
-        </div>
-        <div class="select-hint" id="hint-4">Please select an option above to continue</div>
-      </div>
-
-      <!-- Step 5: 5Y Growth -->
-      <div class="quiz-step" id="step-5">
-        <div class="q-label">Question 5 of 12 · 5-Year Growth</div>
-        <div class="q-title">How important is long-term compounding?</div>
-        <div class="q-sub">5-year compound annual growth rate (CAGR)</div>
-        <div class="choices">
-          <div class="choice" data-step="5" data-val="strong">
-            <div class="choice-icon">🏛️</div>
-            <div class="choice-body">
-              <div class="choice-title">Strong 5Y growth — I want a proven track record</div>
-              <div class="choice-desc">The stock should have compounded well over 5 years</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="5" data-val="recovery">
-            <div class="choice-icon">🌱</div>
-            <div class="choice-body">
-              <div class="choice-title">Poor 5Y — I hunt for turnaround stories</div>
-              <div class="choice-desc">Stocks that struggled long-term may be re-rating</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="5" data-val="any">
-            <div class="choice-icon">➖</div>
-            <div class="choice-body">
-              <div class="choice-title">Not important — 5Y growth doesn't drive my view</div>
-              <div class="choice-desc">I don't weight historic multi-year returns heavily</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-        </div>
-        <div class="quiz-nav">
-          <button class="btn-back" onclick="prevStep(5)">← Back</button>
-          <button class="btn-next" id="next-5" onclick="tryNext(5)">Next →</button>
-          <span class="step-counter">5 / 12</span>
-        </div>
-        <div class="select-hint" id="hint-5">Please select an option above to continue</div>
-      </div>
-
-      <!-- Step 6: Momentum -->
-      <div class="quiz-step" id="step-6">
-        <div class="q-label">Question 6 of 12 · Momentum</div>
-        <div class="q-title">Do you want stocks with positive price momentum?</div>
-        <div class="q-sub">Rate of price change across multiple timeframes</div>
-        <div class="choices">
-          <div class="choice" data-step="6" data-val="positive">
-            <div class="choice-icon">🚀</div>
-            <div class="choice-body">
-              <div class="choice-title">Strong — accelerating upward momentum</div>
-              <div class="choice-desc">Price is gaining speed across timeframes</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="6" data-val="neutral">
-            <div class="choice-icon">➡️</div>
-            <div class="choice-body">
-              <div class="choice-title">Neutral — flat momentum is fine</div>
-              <div class="choice-desc">I don't need the stock to be accelerating</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="6" data-val="any">
-            <div class="choice-icon">➖</div>
-            <div class="choice-body">
-              <div class="choice-title">Any — momentum doesn't factor in my decision</div>
-              <div class="choice-desc">I won't penalise negative momentum</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-        </div>
-        <div class="quiz-nav">
-          <button class="btn-back" onclick="prevStep(6)">← Back</button>
-          <button class="btn-next" id="next-6" onclick="tryNext(6)">Next →</button>
-          <span class="step-counter">6 / 12</span>
-        </div>
-        <div class="select-hint" id="hint-6">Please select an option above to continue</div>
-      </div>
-
-      <!-- Step 7: MA Trends -->
-      <div class="quiz-step" id="step-7">
-        <div class="q-label">Question 7 of 12 · Moving Average Trends</div>
-        <div class="q-title">Where should the stock be relative to its moving averages?</div>
-        <div class="q-sub">Price vs 50-day and 200-day moving averages</div>
-        <div class="choices">
-          <div class="choice" data-step="7" data-val="above_both">
-            <div class="choice-icon">📈</div>
-            <div class="choice-body">
-              <div class="choice-title">Above both — clear uptrend</div>
-              <div class="choice-desc">Trading above both the 50D and 200D moving averages</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="7" data-val="above_50">
-            <div class="choice-icon">↗️</div>
-            <div class="choice-body">
-              <div class="choice-title">Above 50D — short-term strength matters</div>
-              <div class="choice-desc">At least above the short-term trend line</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="7" data-val="below_both">
-            <div class="choice-icon">📉</div>
-            <div class="choice-body">
-              <div class="choice-title">Below both — I look for contrarian setups</div>
-              <div class="choice-desc">Stocks below both MAs may be oversold opportunities</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="7" data-val="any">
-            <div class="choice-icon">➖</div>
-            <div class="choice-body">
-              <div class="choice-title">Any — I don't use moving averages</div>
-              <div class="choice-desc">MA position won't affect my ranking</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-        </div>
-        <div class="quiz-nav">
-          <button class="btn-back" onclick="prevStep(7)">← Back</button>
-          <button class="btn-next" id="next-7" onclick="tryNext(7)">Next →</button>
-          <span class="step-counter">7 / 12</span>
-        </div>
-        <div class="select-hint" id="hint-7">Please select an option above to continue</div>
-      </div>
-
-      <!-- Step 8: 52-Week Position -->
-      <div class="quiz-step" id="step-8">
-        <div class="q-label">Question 8 of 12 · 52-Week Position</div>
-        <div class="q-title">Where in its annual range should the stock be?</div>
-        <div class="q-sub">Current price vs 52-week high and low</div>
-        <div class="choices">
-          <div class="choice" data-step="8" data-val="highs">
-            <div class="choice-icon">🏔️</div>
-            <div class="choice-body">
-              <div class="choice-title">Near highs — trading close to its 52W peak</div>
-              <div class="choice-desc">Strength at the top of the range signals momentum</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="8" data-val="middle">
-            <div class="choice-icon">🎯</div>
-            <div class="choice-body">
-              <div class="choice-title">Mid-range — not overextended, not beaten down</div>
-              <div class="choice-desc">I prefer stocks in the middle of their annual range</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="8" data-val="lows">
-            <div class="choice-icon">💎</div>
-            <div class="choice-body">
-              <div class="choice-title">Near lows — potential recovery opportunity</div>
-              <div class="choice-desc">I look for stocks that have pulled back significantly</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-        </div>
-        <div class="quiz-nav">
-          <button class="btn-back" onclick="prevStep(8)">← Back</button>
-          <button class="btn-next" id="next-8" onclick="tryNext(8)">Next →</button>
-          <span class="step-counter">8 / 12</span>
-        </div>
-        <div class="select-hint" id="hint-8">Please select an option above to continue</div>
-      </div>
-
-      <!-- Step 9: Drawdown from Peak -->
-      <div class="quiz-step" id="step-9">
-        <div class="q-label">Question 9 of 12 · Drawdown from Peak</div>
-        <div class="q-title">How far from its 52-week high should the stock be?</div>
-        <div class="q-sub">Measures how much a stock has fallen from its peak</div>
-        <div class="choices">
-          <div class="choice" data-step="9" data-val="near_peak">
-            <div class="choice-icon">🏔️</div>
-            <div class="choice-body">
-              <div class="choice-title">Near peak — less than 20% off highs</div>
-              <div class="choice-desc">I want stocks holding their gains, close to all-time strength</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="9" data-val="moderate">
-            <div class="choice-icon">📉</div>
-            <div class="choice-body">
-              <div class="choice-title">Moderate pullback — 20% to 50% off highs</div>
-              <div class="choice-desc">A healthy correction can create a good entry point</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="9" data-val="deep">
-            <div class="choice-icon">🕳️</div>
-            <div class="choice-body">
-              <div class="choice-title">Deep discount — more than 50% off highs</div>
-              <div class="choice-desc">I hunt for deeply beaten-down recovery candidates</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="9" data-val="any">
-            <div class="choice-icon">➖</div>
-            <div class="choice-body">
-              <div class="choice-title">Doesn't matter — drawdown doesn't affect my view</div>
-              <div class="choice-desc">I won't filter based on distance from peak</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-        </div>
-        <div class="quiz-nav">
-          <button class="btn-back" onclick="prevStep(9)">← Back</button>
-          <button class="btn-next" id="next-9" onclick="tryNext(9)">Next →</button>
-          <span class="step-counter">9 / 12</span>
-        </div>
-        <div class="select-hint" id="hint-9">Please select an option above to continue</div>
-      </div>
-
-      <!-- Step 10: Volatility -->
-      <div class="quiz-step" id="step-10">
-        <div class="q-label">Question 10 of 12 · Volatility</div>
-        <div class="q-title">What price volatility suits you?</div>
-        <div class="q-sub">Annualised price volatility</div>
-        <div class="choices">
-          <div class="choice" data-step="10" data-val="low">
-            <div class="choice-icon">🛡️</div>
-            <div class="choice-body">
-              <div class="choice-title">Low — calm, stable prices</div>
-              <div class="choice-desc">Prefer stocks with steady, predictable price movement</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="10" data-val="moderate">
-            <div class="choice-icon">⚖️</div>
-            <div class="choice-body">
-              <div class="choice-title">Moderate — some movement is ideal</div>
-              <div class="choice-desc">Mid-range volatility offers opportunity without chaos</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="10" data-val="any">
-            <div class="choice-icon">🌪️</div>
-            <div class="choice-body">
-              <div class="choice-title">Any — volatility doesn't deter me</div>
-              <div class="choice-desc">High or low, it won't affect my ranking</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-        </div>
-        <div class="quiz-nav">
-          <button class="btn-back" onclick="prevStep(10)">← Back</button>
-          <button class="btn-next" id="next-10" onclick="tryNext(10)">Next →</button>
-          <span class="step-counter">10 / 12</span>
-        </div>
-        <div class="select-hint" id="hint-10">Please select an option above to continue</div>
-      </div>
-
-      <!-- Step 11: Analyst Sentiment -->
-      <div class="quiz-step" id="step-11">
-        <div class="q-label">Question 11 of 12 · Analyst Sentiment</div>
-        <div class="q-title">Do analyst ratings matter to you?</div>
-        <div class="q-sub">Based on consensus analyst recommendations</div>
-        <div class="choices">
-          <div class="choice" data-step="11" data-val="buy">
-            <div class="choice-icon">🟢</div>
-            <div class="choice-body">
-              <div class="choice-title">Buy-rated — analysts are bullish</div>
-              <div class="choice-desc">Prefer stocks rated Buy or Strong Buy by analysts</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="11" data-val="neutral">
-            <div class="choice-icon">🟡</div>
-            <div class="choice-body">
-              <div class="choice-title">Neutral or better — avoid the sells</div>
-              <div class="choice-desc">Anything from Neutral to Strong Buy is acceptable</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="11" data-val="any">
-            <div class="choice-icon">➖</div>
-            <div class="choice-body">
-              <div class="choice-title">Doesn't matter — I ignore analyst ratings</div>
-              <div class="choice-desc">Analyst consensus won't affect my ranking</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-        </div>
-        <div class="quiz-nav">
-          <button class="btn-back" onclick="prevStep(11)">← Back</button>
-          <button class="btn-next" id="next-11" onclick="tryNext(11)">Next →</button>
-          <span class="step-counter">11 / 12</span>
-        </div>
-        <div class="select-hint" id="hint-11">Please select an option above to continue</div>
-      </div>
-
-      <!-- Step 12: Profitability -->
-      <div class="quiz-step" id="step-12">
-        <div class="q-label">Question 12 of 12 · Profitability</div>
-        <div class="q-title">Should the company be profitable?</div>
-        <div class="q-sub">Based on earnings per share (EPS)</div>
-        <div class="choices">
-          <div class="choice" data-step="12" data-val="profitable">
-            <div class="choice-icon">💰</div>
-            <div class="choice-body">
-              <div class="choice-title">Profitable — positive earnings only</div>
-              <div class="choice-desc">I want companies that are already making money</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="12" data-val="any">
-            <div class="choice-icon">➖</div>
-            <div class="choice-body">
-              <div class="choice-title">Doesn't matter — profitability isn't a filter</div>
-              <div class="choice-desc">I'll consider pre-profit growth companies too</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-        </div>
-        <div class="quiz-nav">
-          <button class="btn-back" onclick="prevStep(12)">← Back</button>
-          <button class="btn-next" id="next-12" onclick="tryNext(12)">Rank Stocks →</button>
-          <span class="step-counter">12 / 12</span>
-        </div>
-        <div class="select-hint" id="hint-12">Please select an option above to continue</div>
-      </div>
-
-  </div><!-- /quiz-modal-box -->
-</div><!-- /quiz-modal-overlay -->
-
-<!-- ── Results page ──────────────────────────────────────────── -->
-<div class="main">
-  <div class="finder-wrap">
-    <div id="results-section">
-      <div class="results-hd">
-        <div class="results-title" id="results-title">Matched Stocks</div>
-        <button class="btn-refine" onclick="openQuizModal()">🎯 Custom Trap</button>
-        <button class="btn-reset" onclick="openTrapWizard()">⚡ Quick Trap</button>
-      </div>
-      <div id="profile-pills" class="profile-pills"></div>
-      <div class="quick-presets" id="quick-presets"></div>
-      <div id="qp-popover" class="qp-popover" style="display:none;"></div>
-
-      <!-- Filter bar -->
-      <div class="results-filter-bar">
-        <input type="text" id="filter-text" placeholder="Filter by name or ticker…" oninput="applyFilter()" />
-        <div class="fit-toggle" id="fit-toggle" style="display:none;">
-          <button class="fit-btn active" id="fit-great" onclick="setFitFilter('great')">≥80% match</button>
-          <button class="fit-btn" id="fit-all" onclick="setFitFilter('all')">All Matches</button>
-        </div>
-        <select id="filter-mood" onchange="applyFilter()">
-          <option value="">All Levels</option>
-          <option value="Level 1">Level 1</option>
-          <option value="Level 2">Level 2</option>
-          <option value="Level 3">Level 3</option>
-          <option value="Level 4">Level 4</option>
-          <option value="Level 5">Level 5</option>
-        </select>
-        <select id="filter-territory" onchange="onTerritoryChange()">
-          <option value="">All Territories</option>
-          <option value="us">United States</option>
-          <option value="uk">United Kingdom</option>
-          <option value="europe">Europe</option>
-          <option value="japan">Japan</option>
-          <option value="hk">Hong Kong</option>
-          <option value="china">China</option>
-          <option value="middleeast">Middle East</option>
-        </select>
-        <select id="filter-country" onchange="applyFilter()">
-          <option value="">All Countries</option>
-        </select>
-        <select id="filter-sector" onchange="applyFilter()">
-          <option value="">All Sectors</option>
-        </select>
-        <span class="filter-count" id="filter-count"></span>
-      </div>
-
-      <div class="results-meta">
-        <span id="results-count"></span>
-        <span style="font-family:var(--mono);font-size:0.68rem;">Highest fit first</span>
-      </div>
-      <div class="results-legend" id="results-legend" style="display:none;">
-        <span>Bars →</span>
-        <div class="lg-bars">
-          <div class="lg-bar-item">Vol</div>
-          <div class="lg-bar-item">1M</div>
-          <div class="lg-bar-item">1Y</div>
-          <div class="lg-bar-item">Mom</div>
-          <div class="lg-bar-item">52W</div>
-          <div class="lg-bar-item">3Y</div>
-          <div class="lg-bar-item">50D</div>
-          <div class="lg-bar-item">200D</div>
-          <div class="lg-bar-item">Act</div>
-        </div>
-      </div>
-      <div id="results-list"></div>
-    </div>
-
-  </div><!-- /finder-wrap -->
-</div><!-- /main -->
-
-<footer style="border-top:1px solid rgba(74,222,128,0.12);padding:2rem;max-width:1400px;margin:4rem auto 0;">
-  <div style="margin-bottom:1.25rem;">
-    <p style="font-size:0.78rem;color:var(--muted);line-height:1.85;margin:0;">StockPanda is a free stock research and education app. It was built to make investing more accessible. Nothing on this site constitutes financial advice. Always do your own research before making investment decisions.</p>
-  </div>
-  <div style="border-top:1px solid rgba(74,222,128,0.08);padding-top:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
-    <span style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);">© StockPanda</span>
-    <span style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);">Not financial advice</span>
-  </div>
-</footer>
 
 <!-- ── Ranking Modal ────────────────────────────────────────── -->
 <div id="ranking-modal-overlay" class="ranking-modal-overlay" style="display:none;" onclick="closeRankingModal(event)">
@@ -1526,6 +424,7 @@
 </div>
 
 <script src="assets/js/mood.js"></script>
+<script src="assets/js/finder-engine.js"></script>
 <script>
 'use strict';
 
@@ -1533,848 +432,25 @@ injectSidebarHTML();
 initTooltip();
 initNavStamp();
 
+// ── Nav search ────────────────────────────────────────────────
+initGlobalSearch('#nav-search-input', '#nav-search-results', (ticker, exchange) => {
+  window.location.href = `stock.html?ticker=${encodeURIComponent(ticker)}&exchange=${exchange}`;
+});
+
 // ── State ─────────────────────────────────────────────────────
-let currentStep = 1;
-const TOTAL_STEPS = 12;
 const answers = { region:null, sector:null, size:null, return1m:null, growth5y:null, momentum:null, matrend:null, range52w:null, drawdown:null, vol:null, analyst:null, profit:null, watchlist:null };
-const STEP_KEYS = ['','region','sector','size','return1m','growth5y','momentum','matrend','range52w','drawdown','vol','analyst','profit'];
-
-// ── Quiz modal open / close ────────────────────────────────────
-function openQuizModal() {
-  const btn = document.getElementById('btn-back-results');
-  if (btn) btn.style.display = sessionStorage.getItem('sp_answers') ? 'inline-block' : 'none';
-  document.getElementById('quiz-modal-overlay').style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-window.openQuizModal = openQuizModal;
-
-function closeQuizModal() {
-  document.getElementById('quiz-modal-overlay').style.display = 'none';
-  document.body.style.overflow = '';
-}
-window.closeQuizModal = closeQuizModal;
-
-function backToResults() {
-  closeQuizModal();
-  const saved = sessionStorage.getItem('sp_answers');
-  if (!saved) return;
-  try {
-    const a = JSON.parse(saved);
-    Object.assign(answers, a);
-    _presetMode = sessionStorage.getItem('sp_preset') === '1';
-    _lastPresetKey = sessionStorage.getItem('sp_presetKey') || '';
-    if (_lastPresetKey) _activePreset = _lastPresetKey;
-    scoredCache = [];
-    findStocks();
-  } catch(e) { sessionStorage.removeItem('sp_answers'); }
-}
-window.backToResults = backToResults;
-
-// ── Quick Filter Presets ──────────────────────────────────────────
-const PRESETS = {
-  optimistic:   { label: 'Optimistic',   sub: 'Turnaround stocks starting to recover after a rough patch.',                          a: { sector:'all', size:'any', return1m:'positive', growth5y:'any',    momentum:'any',      matrend:'any',        range52w:'lows',  drawdown:'deep',      vol:'any',      analyst:'any',     profit:'any'        } },
-  nimble:       { label: 'Nimble',       sub: 'Targets early breakouts with strong participation before they become overextended.',   a: { sector:'all', size:'any', return1m:'positive', growth5y:'any',    momentum:'positive', matrend:'above_50',   range52w:'any',   drawdown:'any',       vol:'any',      analyst:'any',     profit:'any'        } },
-  momentum:     { label: 'Momentum',     sub: 'Identifies stocks in sustained uptrends across multiple timeframes.',                 a: { sector:'all', size:'any', return1m:'positive', growth5y:'strong', momentum:'positive', matrend:'above_both', range52w:'highs', drawdown:'near_peak', vol:'any',      analyst:'any',     profit:'any'        } },
-  pack:         { label: 'Pack',         sub: 'Follows institutional flows and consensus sentiment backed by strong participation.',  a: { sector:'all', size:'large', return1m:'positive', growth5y:'any',  momentum:'positive', matrend:'above_50',   range52w:'highs', drawdown:'any',       vol:'any',      analyst:'buy',     profit:'any'        } },
-  patient:      { label: 'Patient',      sub: 'Screens for high-quality stocks consolidating before a potential breakout.',           a: { sector:'all', size:'any', return1m:'any',      growth5y:'strong', momentum:'any',      matrend:'any',        range52w:'lows',  drawdown:'moderate',  vol:'any',      analyst:'any',     profit:'profitable' } },
-  safe:         { label: 'Careful',         sub: 'Targets stable, low-risk companies with strong balance sheets and low sensitivity.',   a: { sector:'all', size:'large', return1m:'any',    growth5y:'strong', momentum:'neutral',  matrend:'above_both', range52w:'any',   drawdown:'any',       vol:'low',      analyst:'any',     profit:'profitable' } },
-  trophy:       { label: 'Trophy',       sub: 'Focuses on proven long-term winners with strong earnings and dominant positioning.',   a: { sector:'all', size:'large', return1m:'positive', growth5y:'strong', momentum:'positive', matrend:'above_both', range52w:'highs', drawdown:'near_peak', vol:'any',  analyst:'buy',     profit:'profitable' } },
-  wild_beast:   { label: 'Wild Beast',   sub: 'Captures high-volatility assets with extreme upside (and downside) potential.',        a: { sector:'all', size:'any', return1m:'any',      growth5y:'any',    momentum:'any',      matrend:'any',        range52w:'any',   drawdown:'any',       vol:'moderate', analyst:'any',     profit:'any'        } },
-  zombie:       { label: 'Zombie',       sub: 'Finds heavily beaten-down stocks showing early signs of revival and accumulation.',    a: { sector:'all', size:'any', return1m:'recovery', growth5y:'recovery', momentum:'any',    matrend:'any',        range52w:'lows',  drawdown:'deep',      vol:'any',      analyst:'any',     profit:'any'        } },
-};
-let _activePreset = null;
 let _presetMode = false;
 let _lastPresetKey = '';
-
-function openPreset(key) {
-  _activePreset = key;
-  runPreset(answers.region || 'global');
-}
-window.openPreset = openPreset;
-
-function closeRegionPicker(e) {
-  if (e && e.target.id !== 'region-picker-overlay') return;
-  document.getElementById('region-picker-overlay').style.display = 'none';
-  document.body.style.overflow = '';
-}
-window.closeRegionPicker = closeRegionPicker;
-
-function runPreset(region) {
-  if (!_activePreset) return Promise.resolve();
-  const p = PRESETS[_activePreset];
-  Object.assign(answers, p.a, { region });
-  answers.watchlist = p.watchlist || null;
-  _presetMode = true;
-  _lastPresetKey = _activePreset;
-  _maxLevel = null;
-  scoredCache = [];
-  document.getElementById('region-picker-overlay').style.display = 'none';
-  document.body.style.overflow = '';
-  return findStocks();
-}
-window.runPreset = runPreset;
-
-// Close when clicking outside the modal box
-document.getElementById('quiz-modal-overlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('quiz-modal-overlay')) closeQuizModal();
-});
-
-// ── Choice selection — event delegation on the quiz modal ──────
-document.getElementById('quiz-modal-overlay').addEventListener('click', e => {
-  const choice = e.target.closest('.choice');
-  if (!choice) return;
-
-  const stepStr = choice.dataset.step;
-  const stepNum = parseInt(stepStr);
-
-  if (stepNum === 1 || stepNum === 2) {
-    const val = choice.dataset.val;
-    const allVal = stepNum === 1 ? 'global' : 'all';
-    const ansKey = stepNum === 1 ? 'region' : 'sector';
-    const allChoices = [...document.querySelectorAll(`.choice[data-step="${stepNum}"]`)];
-    const allChoice  = document.querySelector(`.choice[data-step="${stepNum}"][data-val="${allVal}"]`);
-
-    if (val === allVal) {
-      const nowOn = !choice.classList.contains('selected');
-      allChoices.forEach(x => x.classList.toggle('selected', nowOn));
-    } else {
-      allChoice?.classList.remove('selected');
-      choice.classList.toggle('selected');
-    }
-
-    const selected = allChoices.filter(x => x.classList.contains('selected')).map(x => x.dataset.val);
-    const hasAll   = selected.includes(allVal);
-    const picks    = selected.filter(x => x !== allVal);
-    if (hasAll) {
-      answers[ansKey] = allVal;
-    } else if (picks.length > 0) {
-      answers[ansKey] = picks;
-    } else {
-      answers[ansKey] = null;
-    }
-
-    const hint = document.getElementById(`hint-${stepNum}`);
-    if (hint) hint.classList.remove('visible');
-    return;
-  }
-
-  // Single-select for all other steps
-  document.querySelectorAll(`.choice[data-step="${stepStr}"]`).forEach(x => x.classList.remove('selected'));
-  choice.classList.add('selected');
-
-  const hint = document.getElementById(`hint-${stepStr}`);
-  if (hint) hint.classList.remove('visible');
-
-  const key = STEP_KEYS[stepNum];
-  if (key) answers[key] = choice.dataset.val;
-});
-
-// ── Navigation ────────────────────────────────────────────────
-function tryNext(step) {
-  const key = STEP_KEYS[step];
-  if (!answers[key]) {
-    const hint = document.getElementById(`hint-${step}`);
-    if (hint) { hint.classList.remove('visible'); void hint.offsetWidth; hint.classList.add('visible'); }
-    return;
-  }
-  if (step === TOTAL_STEPS) { _presetMode = false; findStocks(); return; }
-  nextStep(step);
-}
-window.tryNext = tryNext;
-
-function nextStep(from) {
-  document.getElementById(`step-${from}`).classList.remove('active');
-  currentStep = from + 1;
-  document.getElementById(`step-${currentStep}`).classList.add('active');
-  updateProgress();
-}
-window.nextStep = nextStep;
-
-function prevStep(from) {
-  document.getElementById(`step-${from}`).classList.remove('active');
-  currentStep = from - 1;
-  document.getElementById(`step-${currentStep}`).classList.add('active');
-  updateProgress();
-}
-window.prevStep = prevStep;
-
-function updateProgress() {
-  const pct = (currentStep / TOTAL_STEPS) * 100;
-  document.getElementById('progress-fill').style.width = pct + '%';
-}
-
-// ── Compact indicator helpers (for search.json stocks) ──────────
-const IC_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
-const IC_MAP   = {g:'green', a:'amber', r:'red'};
-const MOOD_COLOR_LABELS = {'mc-blue':'Level 1','mc-green':'Level 2','mc-amber':'Level 3','mc-orange':'Level 4','mc-red':'Level 5'};
-
-function getIndicatorColor(stock, key) {
-  if (stock.indicators) return stock.indicators[key]?.color;
-  const ic = stock._ic || '';
-  const idx = IC_ORDER.indexOf(key);
-  return idx >= 0 ? IC_MAP[ic[idx]] : undefined;
-}
-
-function normalizeSearchEntry(e, exchLabels) {
-  const ic = e.ic || '';
-  const indicators = {};
-  IC_ORDER.forEach((key, i) => {
-    const c = IC_MAP[ic[i]];
-    if (c) indicators[key] = { color: c, label: c.charAt(0).toUpperCase() + c.slice(1) };
-  });
-  return {
-    ticker:        e.t,
-    company:       e.n,
-    price:         e.p,
-    currency:      e.c,
-    priceChange:   0,
-    mood:          { label: MOOD_COLOR_LABELS[e.m] || e.m || 'Level 3', colorKey: e.m, score: e.s, pct: e.r ?? 50 },
-    indicators,
-    exchangeKey:   e.x || 'global',
-    exchangeLabel: (exchLabels && exchLabels[e.x]) || e.co || 'Global',
-    country:       e.co,
-    sector:        e.sec,
-    _ic:           ic,
-    _fromSearch:   true,
-    _mc:           e.mc,
-    _r52:          e.r52,
-    _eps:          e.eps,
-    _ar:           e.ar,
-    _m1:           e.m1,
-    _y5:           e.y5,
-    _ma50:         e.ma50,
-    _ma200:        e.ma200,
-    _dte:          e.dte,
-    _fcf:          e.fcf,
-    _ni:           e.ni,
-    _ps:           e.ps || {},
-  };
-}
-
-const EUROPE_COUNTRIES = new Set(['United Kingdom','Ireland','Sweden','France','Germany','Italy','Switzerland','Poland','Norway','Spain','Russian Federation','Finland','Denmark','Netherlands','Belgium','Greece','Austria','Luxembourg','Portugal','Bulgaria','Croatia','Romania','Hungary','Iceland','Slovenia','Lithuania','Estonia','Malta','Latvia','Slovakia','Czech Republic','Liechtenstein','Monaco','Serbia','Cyprus']);
-const MIDDLEEAST_COUNTRIES = new Set(['Saudi Arabia','United Arab Emirates','Israel','Kuwait','Qatar','Bahrain','Egypt','Jordan','Morocco','Tunisia','Nigeria','Kenya','South Africa']);
-const REGION_CONFIG = {
-  global:     { countries: null },
-  us:         { countries: new Set(['United States','Canada']) },
-  uk:         { countries: new Set(['United Kingdom','Ireland']) },
-  europe:     { countries: EUROPE_COUNTRIES },
-  hk:         { countries: new Set(['Hong Kong','Macau']) },
-  china:      { countries: new Set(['China','Hong Kong']) },
-  japan:      { countries: new Set(['Japan']) },
-  middleeast: { countries: MIDDLEEAST_COUNTRIES },
-};
-
-const SECTOR_GROUPS = {
-  tech:       new Set(['Electronic technology', 'Technology services']),
-  health:     new Set(['Health technology', 'Health services']),
-  finance:    new Set(['Finance']),
-  energy:     new Set(['Energy minerals', 'Non-energy minerals', 'Process industries']),
-  consumer:   new Set(['Consumer non-durables', 'Consumer durables', 'Consumer services', 'Retail trade']),
-  industrial: new Set(['Producer manufacturing', 'Industrial services', 'Distribution services', 'Transportation']),
-  utilities:  new Set(['Utilities', 'Communications']),
-};
-
-function sectorMatches(stock, ans) {
-  const sec = ans.sector;
-  if (!sec || sec === 'all') return true;
-  const groups = Array.isArray(sec) ? sec : [sec];
-  const stockSec = stock.sector || '';
-  for (const g of groups) {
-    const set = SECTOR_GROUPS[g];
-    if (set && set.has(stockSec)) return true;
-  }
-  return false;
-}
-
-function scoreByAnswers(stock, ans) {
-  const col = key => getIndicatorColor(stock, key);
-  const gs = key => col(key) === 'green' ? 1 : col(key) === 'amber' ? 0.5 : 0;
-  const ms = key => col(key) === 'amber' ? 1 : col(key) === 'green' ? 0.5 : 0;
-  const rs = key => col(key) === 'red'   ? 1 : col(key) === 'amber' ? 0.5 : 0;
-
-  const mc  = stock._mc;
-  const r52 = stock._r52;
-  const eps = stock._eps;
-  const ar  = stock._ar || '';
-
-  const qSize = ans.size === 'large' ? (mc >= 10e9 ? 1 : mc >= 2e9 ? 0.5 : 0)
-              : ans.size === 'mid'   ? (mc >= 2e9 && mc < 10e9 ? 1 : mc >= 500e6 ? 0.5 : 0)
-              : ans.size === 'small' ? (mc < 2e9 ? 1 : mc < 10e9 ? 0.5 : 0)
-              : 1;
-
-  const q1M  = ans.return1m === 'positive' ? gs('return1M')
-             : ans.return1m === 'recovery'  ? rs('return1M')
-             : 1;
-
-  const q5Y  = ans.growth5y === 'strong'   ? gs('cagr5Y')
-             : ans.growth5y === 'recovery'  ? rs('cagr5Y')
-             : 1;
-
-  const qMom = ans.momentum === 'positive' ? gs('momentum')
-             : ans.momentum === 'neutral'   ? ms('momentum')
-             : 1;
-
-  const sCol = col('shortTrend');
-  const lCol = col('longTrend');
-  const qMA  = ans.matrend === 'above_both' ? (sCol === 'green' && lCol === 'green' ? 1 : (sCol === 'green' || lCol === 'green') ? 0.5 : 0)
-             : ans.matrend === 'above_50'    ? (sCol === 'green' ? 1 : sCol === 'amber' ? 0.5 : 0)
-             : ans.matrend === 'below_both'  ? (sCol === 'red' && lCol === 'red' ? 1 : (sCol === 'red' || lCol === 'red') ? 0.5 : 0)
-             : 1;
-
-  const qR52 = ans.range52w === 'highs'  ? gs('range52W')
-             : ans.range52w === 'middle'  ? ms('range52W')
-             : ans.range52w === 'lows'    ? rs('range52W')
-             : 1;
-
-  const qDD  = ans.drawdown === 'near_peak' ? (r52 != null ? (r52 >= 80 ? 1 : r52 >= 50 ? 0.5 : 0) : 0.5)
-             : ans.drawdown === 'moderate'   ? (r52 != null ? (r52 >= 40 && r52 < 80 ? 1 : r52 >= 20 ? 0.5 : 0) : 0.5)
-             : ans.drawdown === 'deep'       ? (r52 != null ? (r52 < 40 ? 1 : r52 < 60 ? 0.5 : 0) : 0.5)
-             : 1;
-
-  const qVol = ans.vol === 'low'      ? gs('volatility')
-             : ans.vol === 'moderate' ? ms('volatility')
-             : 1;
-
-  const BUY_SET  = new Set(['Strong buy','Buy']);
-  const NEUT_SET = new Set(['Strong buy','Buy','Neutral']);
-  const qAn  = ans.analyst === 'buy'     ? (BUY_SET.has(ar) ? 1 : ar === 'Neutral' ? 0.5 : 0)
-             : ans.analyst === 'neutral'  ? (NEUT_SET.has(ar) ? 1 : 0.5)
-             : 1;
-
-  const qPr  = ans.profit === 'profitable' ? (eps != null ? (eps > 0 ? 1 : 0) : 0.5)
-             : 1;
-
-  const scores = [qSize, q1M, q5Y, qMom, qMA, qR52, qDD, qVol, qAn, qPr];
-  const total  = scores.reduce((a, b) => a + b, 0);
-  const pct    = Math.round((total / 10) * 100);
-  return { scores, total, pct };
-}
-
-// ── Load stocks from search index (preset scores are pre-computed in JSON) ────
-async function loadAllStocks() {
-  const EXCH_LABELS = { sp500:'S&P 500', ftse100:'FTSE 100', hsi:'Hang Seng', nikkei225:'Nikkei 225', nasdaq100:'NASDAQ 100', nasdaq_financial:'NASDAQ Financial', nasdaq_biotech:'NASDAQ Biotech' };
-  const region  = answers.region || 'global';
-  const isGlobal = region === 'global' || region === 'all';
-  const regions  = isGlobal ? ['global'] : (Array.isArray(region) ? region : [region]);
-
-  let countrySet = isGlobal ? null : new Set();
-  for (const r of regions) {
-    const cfg = REGION_CONFIG[r] || {};
-    if (countrySet !== null && cfg.countries) cfg.countries.forEach(c => countrySet.add(c));
-  }
-
-  const searchData = await DataCache.getSearchIndex();
-  const all = [];
-  for (const e of searchData) {
-    if (countrySet !== null && !countrySet.has(e.co)) continue;
-    const stock = normalizeSearchEntry(e, EXCH_LABELS);
-    if (!sectorMatches(stock, answers)) continue;
-    all.push(stock);
-  }
-  return all;
-}
-
-// ── Run the ranking ────────────────────────────────────────────
-async function findStocks() {
-  closeQuizModal();
-  const rs = document.getElementById('results-section');
-  rs.style.display = 'block';
-  rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  document.getElementById('results-list').innerHTML = `
-    <div class="finder-loading">
-      <div class="spin"></div>
-      <div style="color:var(--muted);font-size:0.85rem;">Ranking all stocks by your profile…</div>
-    </div>`;
-
-  // Yield to browser so the loading spinner actually paints
-  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-
-  const stocks = await loadAllStocks();
-
-  let scored;
-  // Fast path: preset scores are pre-computed in the JSON data — instant lookup
-  if (_presetMode && _lastPresetKey && PRESETS[_lastPresetKey]) {
-    scored = stocks.map(s => ({ stock: s, pct: s._ps?.[_lastPresetKey] ?? 0, scores: [] }));
-  } else {
-    // Slow path: custom quiz answers — score dynamically in batches
-    const BATCH = 2000;
-    scored = [];
-    for (let i = 0; i < stocks.length; i += BATCH) {
-      const batch = stocks.slice(i, i + BATCH);
-      scored.push(...batch.map(s => ({ stock: s, ...scoreByAnswers(s, answers) })));
-      if (i + BATCH < stocks.length) await new Promise(r => setTimeout(r, 0));
-    }
-  }
-
-  // Apply watchlist filter (Magnificent 7, etc.)
-  if (answers.watchlist && answers.watchlist.length) {
-    scored = scored.filter(x => answers.watchlist.includes(x.stock.ticker));
-    answers.watchlist = null;
-  }
-
-  // Sort by fit % desc, ties broken by lower mood stress
-  scored.sort((a, b) => b.pct - a.pct || (a.stock.mood?.score ?? 20) - (b.stock.mood?.score ?? 20));
-
-  // Store all scored results for toggle switching
-  _allScored = scored;
-  _fitFilter = 'great';
-
-  // Default display: preset = all, quiz = >=80% only
-  const goodFits = _presetMode ? scored : scored.filter(x => x.pct >= 80);
-  scoredCache = goodFits;
-
-  // Reset filters and populate country/sector dropdowns
-  const ft = document.getElementById('filter-territory'); if (ft) ft.value = '';
-  const fcSel = document.getElementById('filter-country');
-  if (fcSel) {
-    fcSel.innerHTML = '<option value="">All Countries</option>';
-    const cs = new Set(); scoredCache.forEach(item => { if (item.stock.country) cs.add(item.stock.country); });
-    [...cs].sort().forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; fcSel.appendChild(o); });
-  }
-  const fsSel = document.getElementById('filter-sector');
-  if (fsSel) {
-    fsSel.innerHTML = '<option value="">All Sectors</option>';
-    const ss = new Set(); scoredCache.forEach(item => { if (item.stock.sector) ss.add(item.stock.sector); });
-    [...ss].sort().forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; fsSel.appendChild(o); });
-  }
-
-  // Show/hide the fit toggle (quiz mode only)
-  const tog = document.getElementById('fit-toggle');
-  if (tog) {
-    tog.style.display = _presetMode ? 'none' : 'flex';
-    document.getElementById('fit-great')?.classList.toggle('active', true);
-    document.getElementById('fit-all')?.classList.toggle('active', false);
-  }
-
-  renderResults(goodFits, stocks.length, scored.length);
-}
-
-// ── Global results cache (for filter + modal) ──────────────────
+let _activePreset = null;
+let _maxLevel = null;
 let scoredCache = [];
-let _allScored  = [];
-let _fitFilter  = 'great';
-let _maxLevel   = null;  // "Level 4" means show Levels 1-4 (set by Trap Wizard)
+let _allScored = [];
+let _fitFilter = 'great';
 
-// ── Prefetch all exchange data in background on page load ───────
-(function prefetchData() {
-  DataCache.getSearchIndex().catch(() => {});
-})();
+// ── Prefetch search index in background ─────────────────────
+DataCache.getSearchIndex().catch(() => {});
 
-// ── Quick preset strip ─────────────────────────────────────────
-const SECTOR_LABELS = { tech:'Technology', health:'Healthcare', finance:'Finance', energy:'Energy & Materials', consumer:'Consumer & Retail', industrial:'Industrial', utilities:'Utilities & Comms' };
-const QP_CRIT_LABELS = {
-  sector:   { all:'All sectors', tech:'Technology', health:'Healthcare', finance:'Finance', energy:'Energy & Materials', consumer:'Consumer & Retail', industrial:'Industrial', utilities:'Utilities & Comms' },
-  size:     { large:'Large-cap', mid:'Mid-cap', small:'Small-cap' },
-  return1m: { positive:'Recent returns: positive', recovery:'Recent returns: dip buying' },
-  growth5y: { strong:'Strong 5Y growth', recovery:'5Y growth: turnaround' },
-  momentum: { positive:'Strong momentum', neutral:'Neutral momentum' },
-  matrend:  { above_both:'Above both MAs', above_50:'Above 50D MA', below_both:'Below both MAs' },
-  range52w: { highs:'Near 52-week high', middle:'Mid 52-week range', lows:'Near 52-week low' },
-  drawdown: { near_peak:'Near peak (<20% off)', moderate:'Moderate pullback (20-50%)', deep:'Deep discount (>50% off)' },
-  vol:      { low:'Low volatility', moderate:'Moderate volatility' },
-  analyst:  { buy:'Analyst: Buy-rated', neutral:'Analyst: Neutral or better' },
-  profit:   { profitable:'Profitable (EPS > 0)' },
-};
-const QP_EXCH_NAMES = { sp500:'S&P 500', ftse100:'FTSE 100', hsi:'Hang Seng', nikkei225:'Nikkei 225', nasdaq100:'NASDAQ 100', nasdaq_financial:'NASDAQ Financial', nasdaq_biotech:'NASDAQ Biotech' };
-
-function buildQuickPresets() {
-  const el = document.getElementById('quick-presets');
-  if (!el) return;
-  el.innerHTML = '';
-  const label = document.createElement('span');
-  label.className = 'qp-label';
-  label.textContent = 'Choose Style';
-  el.appendChild(label);
-  Object.entries(PRESETS).forEach(([key, p]) => {
-    const chip = document.createElement('div');
-    chip.className = 'qp-chip';
-    chip.dataset.qpKey = key;
-    chip.addEventListener('click', () => openPreset(key));
-    const name = document.createElement('span');
-    name.textContent = p.label;
-    const info = document.createElement('button');
-    info.className = 'qp-info';
-    info.textContent = 'ⓘ';
-    info.setAttribute('aria-label', `Criteria for ${p.label}`);
-    info.addEventListener('click', e => { e.stopPropagation(); showPresetInfo(key, info); });
-    chip.append(name, info);
-    el.appendChild(chip);
-  });
-}
-
-function updateActiveChip(key) {
-  document.querySelectorAll('.qp-chip').forEach(c => {
-    c.classList.toggle('qp-active', c.dataset.qpKey === key);
-  });
-}
-
-function showPresetInfo(key, btn) {
-  const p = PRESETS[key];
-  if (!p) return;
-  const pop = document.getElementById('qp-popover');
-  if (!pop) return;
-  const items = [];
-  if (p.skipRegion && p.region) items.push(`Index: ${QP_EXCH_NAMES[p.region] || p.region}`);
-  if (p.watchlist?.length) items.push(`Stocks: ${p.watchlist.slice(0, 5).join(', ')}${p.watchlist.length > 5 ? '…' : ''}`);
-  Object.entries(p.a).forEach(([k, v]) => {
-    const lbl = QP_CRIT_LABELS[k]?.[v];
-    if (lbl) items.push(lbl);
-  });
-  pop.innerHTML = `<div class="qp-pop-title">${p.label}</div><div class="qp-pop-sub">${p.sub}</div>${
-    items.length
-      ? items.map(i => `<div class="qp-crit">· ${i}</div>`).join('')
-      : '<div class="qp-crit-none">No specific filters applied</div>'
-  }`;
-  const rect = btn.getBoundingClientRect();
-  pop.style.display = 'block';
-  const w = 240;
-  pop.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - w - 8)) + 'px';
-  pop.style.top  = (rect.bottom + 8) + 'px';
-}
-window.showPresetInfo = showPresetInfo;
-
-document.addEventListener('click', e => {
-  const pop = document.getElementById('qp-popover');
-  if (pop && !e.target.closest('.qp-info') && !e.target.closest('#qp-popover')) {
-    pop.style.display = 'none';
-  }
-});
-
-buildQuickPresets();
-
-// ── Rotating word in hero ──────────────────────────────────────
-(function() {
-  const words = ['Easier', 'Faster', 'Smarter'];
-  let idx = 0;
-  const el = document.getElementById('finder-word');
-  if (!el) return;
-  setInterval(() => {
-    el.classList.add('fade-out');
-    setTimeout(() => {
-      idx = (idx + 1) % words.length;
-      el.textContent = words[idx];
-      el.classList.remove('fade-out');
-      el.classList.add('fade-in');
-      setTimeout(() => el.classList.remove('fade-in'), 350);
-    }, 320);
-  }, 2600);
-})();
-
-// ── Render results ─────────────────────────────────────────────
-function renderResults(scored, totalScanned, totalScored) {
-  const pillLabels = {
-    region:   { global:'Global', us:'United States', uk:'United Kingdom', europe:'Europe', hk:'Hong Kong', china:'China', japan:'Japan', middleeast:'Middle East' },
-    sector:   { all:'All sectors', tech:'Technology', health:'Healthcare', finance:'Finance', energy:'Energy & Materials', consumer:'Consumer & Retail', industrial:'Industrial', utilities:'Utilities & Comms' },
-    size:     { large:'Large-cap', mid:'Mid-cap', small:'Small-cap', any:'Size: Any' },
-    return1m: { positive:'+Recent', recovery:'Dip buying', any:'Returns: Any' },
-    growth5y: { strong:'Strong 5Y', recovery:'5Y turnaround', any:'5Y growth: Any' },
-    momentum: { positive:'Strong momentum', neutral:'Neutral momentum', any:'Momentum: Any' },
-    matrend:  { above_both:'Above both MAs', above_50:'Above 50D', below_both:'Below both MAs', any:'MA trend: Any' },
-    range52w: { highs:'Near highs', middle:'Mid-range', lows:'Near lows' },
-    drawdown: { near_peak:'Near peak', moderate:'Moderate dip', deep:'Deep discount', any:'Drawdown: Any' },
-    vol:      { low:'Low vol', moderate:'Moderate vol', any:'Volatility: Any' },
-    analyst:  { buy:'Buy-rated', neutral:'Neutral+', any:'Analyst: Any' },
-    profit:   { profitable:'Profitable', any:'Profit: Any' },
-  };
-  const pillTooltips = {
-    region:   { global:'All 25,000+ stocks globally — no regional filter', us:'US-registered companies — NYSE, NASDAQ and more', uk:'UK-registered companies — London Stock Exchange', europe:'European-registered companies across all major markets', hk:'Hong Kong Stock Exchange — HKEX-listed companies', china:'Mainland China-registered companies', japan:'Japan-registered companies — Tokyo Stock Exchange', middleeast:'Middle East region — Saudi Arabia, UAE, Israel and more' },
-    sector:   { all:'No sector filter — all industries included', tech:'Technology sector — software, hardware, semiconductors', health:'Healthcare — biotech, pharma, medical devices', finance:'Finance — banks, insurance, asset management', energy:'Energy & Materials — oil, gas, mining, chemicals', consumer:'Consumer — retail, food, beverages, apparel', industrial:'Industrial — manufacturing, logistics, aerospace', utilities:'Utilities & Comms — electric, water, telecom, media' },
-    size:     { large:'Large-cap — market cap above $10 billion', mid:'Mid-cap — market cap $2B–$10B', small:'Small-cap — market cap under $2 billion', any:'Company size is not filtered' },
-    return1m: { positive:'Price is up over the past month', recovery:'Price has dipped recently — looking for a recovery', any:'Recent return is not filtered' },
-    growth5y: { strong:'Consistent multi-year growth track record', recovery:'Growth improving from a lower base — a turnaround story', any:'5-year growth is not a factor' },
-    momentum: { positive:'Strong recent price momentum — trending up', neutral:'Neutral momentum — not sharply rising or falling', any:'Momentum is not a factor' },
-    matrend:  { above_both:'Above both 50D and 200D moving averages — clear uptrend', above_50:'Above the 50D moving average — short-term strength', below_both:'Below both MAs — contrarian / oversold setup', any:'Moving average position is not filtered' },
-    range52w: { highs:'Near its 52-week high — showing strength', middle:'In the middle of its annual range', lows:'Near its 52-week low — potential recovery' },
-    drawdown: { near_peak:'Less than 20% off its 52-week high', moderate:'20–50% off its 52-week high', deep:'More than 50% off its 52-week high', any:'Drawdown from peak is not filtered' },
-    vol:      { low:'Low price swings — steadier moves', moderate:'Moderate price swings — balanced', any:'Volatility is not filtered' },
-    analyst:  { buy:'Analysts rate Buy or Strong Buy', neutral:'Analysts rate Neutral or better', any:'Analyst ratings are not filtered' },
-    profit:   { profitable:'EPS is positive — company is profitable', any:'Profitability is not filtered' },
-  };
-  document.getElementById('profile-pills').innerHTML =
-    Object.entries(pillLabels).map(([k, opts]) => {
-      let label, tooltip;
-      if (k === 'region' || k === 'sector') {
-        const allVal = k === 'region' ? 'global' : 'all';
-        const v = answers[k];
-        if (!v) { label = ''; tooltip = ''; }
-        else if (v === allVal) { label = opts[allVal]; tooltip = pillTooltips[k][allVal]; }
-        else if (Array.isArray(v)) { label = v.map(x => opts[x] || x).join(' + '); tooltip = v.map(x => pillTooltips[k][x] || '').filter(Boolean).join(' · '); }
-        else { label = opts[v] || ''; tooltip = pillTooltips[k][v] || ''; }
-      } else {
-        label = opts[answers[k]] || '';
-        tooltip = pillTooltips[k]?.[answers[k]] || '';
-      }
-      if (!label) return '';
-      return `<div class="profile-pill" data-tooltip="${tooltip}">${label}</div>`;
-    }).join('');
-
-  document.getElementById('results-title').textContent =
-    _presetMode ? `${scored.length} stocks in this filter` : `${scored.length} good & great fits`;
-  document.getElementById('results-count').textContent =
-    _presetMode
-      ? `Sorted by mood score · showing all matches`
-      : `${scored.length} of ${totalScored} scored stocks matched 80%+ · sorted highest fit first`;
-  document.getElementById('results-legend').style.display = 'none';
-
-  renderFilteredList(scored);
-  updateActiveChip(_presetMode ? _lastPresetKey : '');
-  sessionStorage.setItem('sp_answers', JSON.stringify(answers));
-  sessionStorage.setItem('sp_preset', _presetMode ? '1' : '0');
-  if (_presetMode) sessionStorage.setItem('sp_presetKey', _lastPresetKey || '');
-}
-
-// ── Build a single result card HTML ───────────────────────────
-const IND_DISPLAY = [
-  { key:'volatility', short:'Vol'  },
-  { key:'volSpike',   short:'Act'  },
-  { key:'vsPeak',     short:'Peak' },
-  { key:'shortTrend', short:'50D'  },
-  { key:'longTrend',  short:'200D' },
-  { key:'maCross',    short:'MACr' },
-  { key:'momentum',   short:'Mom'  },
-  { key:'return1M',   short:'1M'   },
-  { key:'return1Y',   short:'1Y'   },
-  { key:'range52W',   short:'52W'  },
-  { key:'cagr5Y',     short:'5Y'   },
-];
-const CARD_ACCENT = { 'mc-blue':'#60A5FA','mc-green':'#4ADE80','mc-amber':'#FBBF24','mc-orange':'#FB923C','mc-red':'#F87171' };
-const STYLE_ICONS = { optimistic:'🐇', nimble:'⚡', momentum:'🚀', pack:'🐺', patient:'🧘', safe:'🛡️', trophy:'🏆', wild_beast:'🧬', zombie:'🧟' };
-const STYLE_NAMES = { optimistic:'Optimistic', nimble:'Nimble', momentum:'Momentum', pack:'Pack', patient:'Patient', safe:'Careful', trophy:'Trophy', wild_beast:'Wild Beast', zombie:'Zombie' };
-const CARD_IND_LABELS = {
-  volatility:'Volatility', volSpike:'Vol Spike', vsPeak:'Vs Peak',
-  shortTrend:'Short Trend', longTrend:'Long Trend', maCross:'MA Cross',
-  momentum:'Momentum', return1M:'1M Return', return1Y:'1Y Return',
-  range52W:'52W Range', cagr5Y:'5Y CAGR'
-};
-
-function _buildStyleChips(ps) {
-  if (!ps || !Object.keys(ps).length) return '';
-  const sorted = Object.entries(ps).sort((a, b) => b[1] - a[1]);
-  const top3 = sorted.slice(0, 3);
-  const worst = sorted[sorted.length - 1];
-  const chip = (key, pct) => {
-    const col = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : 'var(--red)';
-    return `<span style="display:inline-flex;align-items:center;gap:2px;font-size:0.62rem;padding:1px 5px;border-radius:4px;border:1px solid ${col};color:${col};white-space:nowrap;" title="${STYLE_NAMES[key] || key}: ${pct}% match">${STYLE_ICONS[key] || ''} ${pct}%</span>`;
-  };
-  return `<div style="display:flex;flex-wrap:wrap;gap:3px;align-items:center;margin-top:4px;">
-    ${top3.map(([k, p]) => chip(k, p)).join('')}
-    <span style="font-size:0.55rem;color:var(--muted);margin:0 1px;">·</span>
-    ${chip(worst[0], worst[1])}
-  </div>`;
-}
-
-function buildCard(item, rank) {
-  const s = item.stock;
-  const b = MOOD.band(s.mood?.label || 'Level 3');
-  const accent = CARD_ACCENT[b.cls] || '#FBBF24';
-  const fitCol = item.pct >= 80 ? 'var(--green)' : item.pct >= 50 ? 'var(--amber)' : 'var(--red)';
-  const globalIdx = scoredCache.indexOf(item);
-
-  let redC = 0, amberC = 0, greenC = 0;
-  const strip = IND_DISPLAY.map(({ key }) => {
-    const ind = s.indicators?.[key];
-    const color = ind?.color || 'amber';
-    const dc = MOOD.dotColor(color);
-    const val = ind?.label || '—';
-    const name = CARD_IND_LABELS[key] || key;
-    if (color === 'red') redC++;
-    else if (color === 'amber') amberC++;
-    else if (color === 'green') greenC++;
-    return `<div class="sig-block ${dc}" data-tip data-ind-key="${key}" data-ind-color="${color}" data-ind-value="${val}" title="${name}"></div>`;
-  }).join('');
-
-  if (s._dte != null) { const c = s._dte < 100 ? 'green' : s._dte < 200 ? 'amber' : 'red'; if (c==='red') redC++; else if (c==='amber') amberC++; else greenC++; }
-  if (s._fcf != null) { if (s._fcf > 0) greenC++; else redC++; }
-  if (s._fcf != null && s._ni != null && s._ni > 0) { const cv = (s._fcf / s._ni) * 100; if (cv >= 80) greenC++; else if (cv >= 50) amberC++; else redC++; }
-
-  const totalC = redC + amberC + greenC;
-
-  return `<div class="result-card" style="border-left-color:${accent};" onclick="window.location.href='stock.html?ticker=${encodeURIComponent(s.ticker)}&exchange=${s.exchangeKey}&country=${encodeURIComponent(s.country || '')}'">
-    <div class="result-rank${rank <= 3 ? ' top' : ''}">${rank}</div>
-    <div class="rc-identity">
-      <span class="result-ticker">${s.ticker}</span>
-      <span class="result-company">${s.company || '—'}</span>
-      <span class="result-exch">${s.exchangeLabel}</span>
-    </div>
-    <div class="rc-signals">
-      <div class="rc-signals-top">
-        <span class="mood-chip ${b.cls}" title="${MOOD_DESC[b.label] || ''}">${b.label}</span>
-        <div class="sig-strip">${strip}</div>
-      </div>
-      <div class="sig-pills">
-        <span class="sig-pill sig-total" style="color:var(--muted)">${totalC} signals</span>
-        ${greenC > 0 ? `<span class="sig-badge sig-badge-green">${greenC}</span>` : ''}
-        ${amberC > 0 ? `<span class="sig-badge sig-badge-amber">${amberC}</span>` : ''}
-        ${redC   > 0 ? `<span class="sig-badge sig-badge-red">${redC}</span>` : ''}
-      </div>
-    </div>
-    ${!_presetMode ? `<div class="rc-match">
-      <div class="match-lbl">match</div>
-      <div class="match-pct" style="color:${fitCol}">${item.pct}%</div>
-      <div class="match-bar-wrap"><div class="match-bar-fill" style="width:${item.pct}%;background:${fitCol}"></div></div>
-    </div>` : ''}
-    ${_buildStyleChips(s._ps)}
-    <div class="result-actions">
-      <button class="btn-view-stock" onclick="event.stopPropagation();window.location.href='stock.html?ticker=${encodeURIComponent(s.ticker)}&exchange=${s.exchangeKey}&country=${encodeURIComponent(s.country || '')}'">View →</button>
-      ${!_presetMode ? `<button class="btn-view-rank" onclick="event.stopPropagation();openRankingModal(${globalIdx})">Ranking</button>` : ''}
-    </div>
-  </div>`;
-}
-
-// ── Render a (possibly filtered) subset ───────────────────────
-const RENDER_CAP = 200;
-let _renderedSubset = [];
-
-function renderFilteredList(subset) {
-  _renderedSubset = subset;
-  const total = scoredCache.length;
-  const isFiltered = subset.length !== total;
-  if (!subset.length) {
-    document.getElementById('results-list').innerHTML =
-      `<div class="no-results">${_presetMode ? 'No stocks found for this filter.' : 'No stocks scored 80%+ for your criteria — try broadening your preferences.'}</div>`;
-    document.getElementById('filter-count').textContent = '0 shown';
-    document.getElementById('results-title').textContent =
-      _presetMode ? `0 of ${total} stocks match` : `0 of ${total} fits match`;
-    return;
-  }
-  const visible = subset.slice(0, RENDER_CAP);
-  const hasMore = subset.length > RENDER_CAP;
-  let html = visible.map((item, i) => buildCard(item, i + 1)).join('');
-  if (hasMore) {
-    html += `<div class="load-more-wrap" style="text-align:center;padding:1.5rem 0;">
-      <button class="btn-next" onclick="loadMoreResults()" style="font-size:0.82rem;padding:0.55rem 1.6rem;">
-        Show more (${subset.length - RENDER_CAP} remaining)
-      </button>
-    </div>`;
-  }
-  document.getElementById('results-list').innerHTML = html;
-  document.getElementById('filter-count').textContent = hasMore
-    ? `${visible.length} of ${subset.length} shown`
-    : `${subset.length} shown`;
-  document.getElementById('results-title').textContent = isFiltered
-    ? (_presetMode ? `${subset.length} of ${total} stocks match` : `${subset.length} of ${total} fits match`)
-    : (_presetMode ? `${total} stocks in this filter` : `${total} good & great fits`);
-}
-
-function loadMoreResults() {
-  const list = document.getElementById('results-list');
-  const currentCount = list.querySelectorAll('.result-card').length;
-  const nextBatch = _renderedSubset.slice(currentCount, currentCount + RENDER_CAP);
-  const hasMore = currentCount + nextBatch.length < _renderedSubset.length;
-  // Remove the "Show more" button
-  const loadMoreWrap = list.querySelector('.load-more-wrap');
-  if (loadMoreWrap) loadMoreWrap.remove();
-  // Append new cards
-  let html = nextBatch.map((item, i) => buildCard(item, currentCount + i + 1)).join('');
-  if (hasMore) {
-    const remaining = _renderedSubset.length - currentCount - nextBatch.length;
-    html += `<div class="load-more-wrap" style="text-align:center;padding:1.5rem 0;">
-      <button class="btn-next" onclick="loadMoreResults()" style="font-size:0.82rem;padding:0.55rem 1.6rem;">
-        Show more (${remaining} remaining)
-      </button>
-    </div>`;
-  }
-  list.insertAdjacentHTML('beforeend', html);
-  document.getElementById('filter-count').textContent = hasMore
-    ? `${currentCount + nextBatch.length} of ${_renderedSubset.length} shown`
-    : `${_renderedSubset.length} shown`;
-}
-window.loadMoreResults = loadMoreResults;
-
-// ── Fit toggle ─────────────────────────────────────────────────
-function setFitFilter(mode) {
-  _fitFilter = mode;
-  scoredCache = mode === 'great' ? _allScored.filter(x => x.pct >= 80) : _allScored;
-  document.getElementById('fit-great')?.classList.toggle('active', mode === 'great');
-  document.getElementById('fit-all')?.classList.toggle('active', mode === 'all');
-  // Update title count
-  const totalScored = _allScored.length;
-  document.getElementById('results-title').textContent =
-    mode === 'great' ? `${scoredCache.length} good & great fits` : `${scoredCache.length} stocks scored`;
-  document.getElementById('results-count').textContent =
-    mode === 'great'
-      ? `${scoredCache.length} of ${totalScored} scored stocks matched 80%+ · sorted highest fit first`
-      : `${totalScored} stocks scored across all signals · sorted highest fit first`;
-  applyFilter();
-}
-window.setFitFilter = setFitFilter;
-
-// ── Filter logic ───────────────────────────────────────────────
-function applyFilter() {
-  const txt  = (document.getElementById('filter-text')?.value || '').toLowerCase();
-  const mood = (document.getElementById('filter-mood')?.value || '').toLowerCase();
-  const territory = document.getElementById('filter-territory')?.value || '';
-  const country = document.getElementById('filter-country')?.value || '';
-  const sector = document.getElementById('filter-sector')?.value || '';
-  const terrSet = territory && REGION_CONFIG[territory]?.countries ? REGION_CONFIG[territory].countries : null;
-
-  // _maxLevel: "Level 4" → show levels 1-4 (number extracted from label)
-  const maxLvlNum = _maxLevel ? parseInt(_maxLevel.replace(/\D/g, '')) || 99 : 99;
-
-  const filtered = scoredCache.filter(item => {
-    const s = item.stock;
-    if (txt  && !s.ticker.toLowerCase().includes(txt) && !(s.company||'').toLowerCase().includes(txt)) return false;
-    if (mood && (s.mood?.label || '').toLowerCase() !== mood) return false;
-    if (_maxLevel) {
-      const stockLvl = parseInt((s.mood?.label || '').replace(/\D/g, '')) || 99;
-      if (stockLvl > maxLvlNum) return false;
-    }
-    if (terrSet && !terrSet.has(s.country)) return false;
-    if (country && s.country !== country) return false;
-    if (sector && (s.sector || '') !== sector) return false;
-    return true;
-  });
-  renderFilteredList(filtered);
-}
-window.applyFilter = applyFilter;
-
-function onTerritoryChange() {
-  const territory = document.getElementById('filter-territory')?.value || '';
-  const fc = document.getElementById('filter-country');
-  fc.innerHTML = '<option value="">All Countries</option>';
-  if (territory) {
-    const terrSet = REGION_CONFIG[territory]?.countries;
-    if (terrSet) {
-      const countriesInResults = new Set();
-      scoredCache.forEach(item => { if (terrSet.has(item.stock.country)) countriesInResults.add(item.stock.country); });
-      [...countriesInResults].sort().forEach(c => {
-        const o = document.createElement('option'); o.value = c; o.textContent = c; fc.appendChild(o);
-      });
-    }
-  } else {
-    const countriesInResults = new Set();
-    scoredCache.forEach(item => { if (item.stock.country) countriesInResults.add(item.stock.country); });
-    [...countriesInResults].sort().forEach(c => {
-      const o = document.createElement('option'); o.value = c; o.textContent = c; fc.appendChild(o);
-    });
-  }
-  applyFilter();
-}
-window.onTerritoryChange = onTerritoryChange;
-
-async function filterByLevel(level) {
-  const fm = document.getElementById('filter-mood');
-  if (fm) fm.value = level;
-  if (scoredCache.length) {
-    applyFilter();
-    document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  } else {
-    _activePreset = 'momentum';
-    await runPreset('all');
-    if (fm) fm.value = level;
-    applyFilter();
-    document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-}
-window.filterByLevel = filterByLevel;
-
-function huntByTerritory(region) {
-  _activePreset = 'momentum';
-  runPreset(region);
-}
-window.huntByTerritory = huntByTerritory;
-
-// ── Trap Wizard ─────────────────────────────────────────────────
+// ── Trap Wizard arrays ──────────────────────────────────────
 const TW_GEO = [
   { key: 'global', label: '🌍 Global' },
   { key: 'us', label: '🇺🇸 United States' },
@@ -2414,6 +490,7 @@ const TW_LEVELS = [
   { label: 'Level 5', img: 'panda-danger.png', color: '#F87171', desc: 'I can handle highly volatile stocks that can turn sharply at any moment.' },
 ];
 
+// ── Trap Wizard state ────────────────────────────────────────
 let twStep = 1;
 let twGeo = new Set();
 let twSec = new Set();
@@ -2532,7 +609,247 @@ function twNext() {
 }
 window.twNext = twNext;
 
-// ── Ranking modal ──────────────────────────────────────────────
+// ── Quick preset functions ──────────────────────────────────
+function openPreset(key) {
+  _activePreset = key;
+  runPreset(answers.region || 'global');
+}
+window.openPreset = openPreset;
+
+function closeRegionPicker(e) {
+  if (e && e.target.id !== 'region-picker-overlay') return;
+  document.getElementById('region-picker-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+window.closeRegionPicker = closeRegionPicker;
+
+function runPreset(region) {
+  if (!_activePreset) return Promise.resolve();
+  const p = PRESETS[_activePreset];
+  Object.assign(answers, p.a, { region });
+  answers.watchlist = p.watchlist || null;
+  _presetMode = true;
+  _lastPresetKey = _activePreset;
+  _maxLevel = null;
+  scoredCache = [];
+  document.getElementById('region-picker-overlay').style.display = 'none';
+  document.body.style.overflow = '';
+  return findStocks();
+}
+window.runPreset = runPreset;
+
+// ── Quick presets strip ─────────────────────────────────────
+const QP_CRIT_LABELS = {
+  sector:   { all:'All sectors', tech:'Technology', health:'Healthcare', finance:'Finance', energy:'Energy & Materials', consumer:'Consumer & Retail', industrial:'Industrial', utilities:'Utilities & Comms' },
+  size:     { large:'Large-cap', mid:'Mid-cap', small:'Small-cap' },
+  return1m: { positive:'Recent returns: positive', recovery:'Recent returns: dip buying' },
+  growth5y: { strong:'Strong 5Y growth', recovery:'5Y growth: turnaround' },
+  momentum: { positive:'Strong momentum', neutral:'Neutral momentum' },
+  matrend:  { above_both:'Above both MAs', above_50:'Above 50D MA', below_both:'Below both MAs' },
+  range52w: { highs:'Near 52-week high', middle:'Mid 52-week range', lows:'Near 52-week low' },
+  drawdown: { near_peak:'Near peak (<20% off)', moderate:'Moderate pullback (20-50%)', deep:'Deep discount (>50% off)' },
+  vol:      { low:'Low volatility', moderate:'Moderate volatility' },
+  analyst:  { buy:'Analyst: Buy-rated', neutral:'Analyst: Neutral or better' },
+  profit:   { profitable:'Profitable (EPS > 0)' },
+};
+const QP_EXCH_NAMES = { sp500:'S&P 500', ftse100:'FTSE 100', hsi:'Hang Seng', nikkei225:'Nikkei 225', nasdaq100:'NASDAQ 100', nasdaq_financial:'NASDAQ Financial', nasdaq_biotech:'NASDAQ Biotech' };
+
+function buildQuickPresets() {
+  const el = document.getElementById('quick-presets');
+  if (!el) return;
+  el.innerHTML = '';
+  const label = document.createElement('span');
+  label.className = 'qp-label';
+  label.textContent = 'Choose Style';
+  el.appendChild(label);
+  Object.entries(PRESETS).forEach(([key, p]) => {
+    const chip = document.createElement('div');
+    chip.className = 'qp-chip';
+    chip.dataset.qpKey = key;
+    chip.addEventListener('click', () => openPreset(key));
+    const name = document.createElement('span');
+    name.textContent = p.label;
+    const info = document.createElement('button');
+    info.className = 'qp-info';
+    info.textContent = 'ⓘ';
+    info.setAttribute('aria-label', `Criteria for ${p.label}`);
+    info.addEventListener('click', e => { e.stopPropagation(); showPresetInfo(key, info); });
+    chip.append(name, info);
+    el.appendChild(chip);
+  });
+}
+
+function updateActiveChip(key) {
+  document.querySelectorAll('.qp-chip').forEach(c => {
+    c.classList.toggle('qp-active', c.dataset.qpKey === key);
+  });
+}
+
+function showPresetInfo(key, btn) {
+  const p = PRESETS[key];
+  if (!p) return;
+  const pop = document.getElementById('qp-popover');
+  if (!pop) return;
+  const items = [];
+  if (p.skipRegion && p.region) items.push(`Index: ${QP_EXCH_NAMES[p.region] || p.region}`);
+  if (p.watchlist?.length) items.push(`Stocks: ${p.watchlist.slice(0, 5).join(', ')}${p.watchlist.length > 5 ? '…' : ''}`);
+  Object.entries(p.a).forEach(([k, v]) => {
+    const lbl = QP_CRIT_LABELS[k]?.[v];
+    if (lbl) items.push(lbl);
+  });
+  pop.innerHTML = `<div class="qp-pop-title">${p.label}</div><div class="qp-pop-sub">${p.sub}</div>${
+    items.length
+      ? items.map(i => `<div class="qp-crit">· ${i}</div>`).join('')
+      : '<div class="qp-crit-none">No specific filters applied</div>'
+  }`;
+  const rect = btn.getBoundingClientRect();
+  pop.style.display = 'block';
+  const w = 240;
+  pop.style.left = Math.max(8, Math.min(rect.left, window.innerWidth - w - 8)) + 'px';
+  pop.style.top  = (rect.bottom + 8) + 'px';
+}
+window.showPresetInfo = showPresetInfo;
+
+document.addEventListener('click', e => {
+  const pop = document.getElementById('qp-popover');
+  if (pop && !e.target.closest('.qp-info') && !e.target.closest('#qp-popover')) {
+    pop.style.display = 'none';
+  }
+});
+
+buildQuickPresets();
+
+// ── Find stocks ─────────────────────────────────────────────
+async function findStocks() {
+  const rs = document.getElementById('results-section');
+  rs.style.display = 'block';
+  rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('results-list').innerHTML = `
+    <div class="finder-loading">
+      <div class="spin"></div>
+      <div style="color:var(--muted);font-size:0.85rem;">Ranking all stocks by your profile…</div>
+    </div>`;
+
+  // Yield to browser so the loading spinner actually paints
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+  const stocks = await loadAllStocks(answers);
+
+  let scored;
+  // Fast path: preset scores are pre-computed in the JSON data — instant lookup
+  if (_presetMode && _lastPresetKey && PRESETS[_lastPresetKey]) {
+    scored = stocks.map(s => ({ stock: s, pct: s._ps?.[_lastPresetKey] ?? 0, scores: [] }));
+  } else {
+    // Slow path: custom quiz answers — score dynamically in batches
+    const BATCH = 2000;
+    scored = [];
+    for (let i = 0; i < stocks.length; i += BATCH) {
+      const batch = stocks.slice(i, i + BATCH);
+      scored.push(...batch.map(s => ({ stock: s, ...scoreByAnswers(s, answers) })));
+      if (i + BATCH < stocks.length) await new Promise(r => setTimeout(r, 0));
+    }
+  }
+
+  // Apply watchlist filter
+  if (answers.watchlist && answers.watchlist.length) {
+    scored = scored.filter(x => answers.watchlist.includes(x.stock.ticker));
+    answers.watchlist = null;
+  }
+
+  // Sort by fit % desc, ties broken by lower mood stress
+  scored.sort((a, b) => b.pct - a.pct || (a.stock.mood?.score ?? 20) - (b.stock.mood?.score ?? 20));
+
+  // Store all scored results
+  _allScored = scored;
+  _fitFilter = 'great';
+
+  // Default display: preset = all, quiz = >=80% only
+  const goodFits = _presetMode ? scored : scored.filter(x => x.pct >= 80);
+  scoredCache = goodFits;
+
+  // Populate filter dropdowns using engine function
+  populateFilterDropdowns(scoredCache);
+
+  renderResults(goodFits, stocks.length, scored.length);
+}
+window.findStocks = findStocks;
+
+// ── Apply filter ─────────────────────────────────────────────
+function applyFilter() {
+  applyFinderFilter(scoredCache, _presetMode, _maxLevel);
+}
+window.applyFilter = applyFilter;
+
+// ── Territory change ─────────────────────────────────────────
+function onTerritoryChange() {
+  onFinderTerritoryChange(scoredCache);
+  applyFilter();
+}
+window.onTerritoryChange = onTerritoryChange;
+
+// ── Render results ──────────────────────────────────────────
+function renderResults(scored, totalScanned, totalScored) {
+  const pillLabels = {
+    region:   { global:'Global', us:'United States', uk:'United Kingdom', europe:'Europe', hk:'Hong Kong', china:'China', japan:'Japan', middleeast:'Middle East' },
+    sector:   { all:'All sectors', tech:'Technology', health:'Healthcare', finance:'Finance', energy:'Energy & Materials', consumer:'Consumer & Retail', industrial:'Industrial', utilities:'Utilities & Comms' },
+    size:     { large:'Large-cap', mid:'Mid-cap', small:'Small-cap', any:'Size: Any' },
+    return1m: { positive:'+Recent', recovery:'Dip buying', any:'Returns: Any' },
+    growth5y: { strong:'Strong 5Y', recovery:'5Y turnaround', any:'5Y growth: Any' },
+    momentum: { positive:'Strong momentum', neutral:'Neutral momentum', any:'Momentum: Any' },
+    matrend:  { above_both:'Above both MAs', above_50:'Above 50D', below_both:'Below both MAs', any:'MA trend: Any' },
+    range52w: { highs:'Near highs', middle:'Mid-range', lows:'Near lows' },
+    drawdown: { near_peak:'Near peak', moderate:'Moderate dip', deep:'Deep discount', any:'Drawdown: Any' },
+    vol:      { low:'Low vol', moderate:'Moderate vol', any:'Volatility: Any' },
+    analyst:  { buy:'Buy-rated', neutral:'Neutral+', any:'Analyst: Any' },
+    profit:   { profitable:'Profitable', any:'Profit: Any' },
+  };
+  const pillTooltips = {
+    region:   { global:'All 25,000+ stocks globally — no regional filter', us:'US-registered companies — NYSE, NASDAQ and more', uk:'UK-registered companies — London Stock Exchange', europe:'European-registered companies across all major markets', hk:'Hong Kong Stock Exchange — HKEX-listed companies', china:'Mainland China-registered companies', japan:'Japan-registered companies — Tokyo Stock Exchange', middleeast:'Middle East region — Saudi Arabia, UAE, Israel and more' },
+    sector:   { all:'No sector filter — all industries included', tech:'Technology sector — software, hardware, semiconductors', health:'Healthcare — biotech, pharma, medical devices', finance:'Finance — banks, insurance, asset management', energy:'Energy & Materials — oil, gas, mining, chemicals', consumer:'Consumer — retail, food, beverages, apparel', industrial:'Industrial — manufacturing, logistics, aerospace', utilities:'Utilities & Comms — electric, water, telecom, media' },
+    size:     { large:'Large-cap — market cap above $10 billion', mid:'Mid-cap — market cap $2B–$10B', small:'Small-cap — market cap under $2 billion', any:'Company size is not filtered' },
+    return1m: { positive:'Price is up over the past month', recovery:'Price has dipped recently — looking for a recovery', any:'Recent return is not filtered' },
+    growth5y: { strong:'Consistent multi-year growth track record', recovery:'Growth improving from a lower base — a turnaround story', any:'5-year growth is not a factor' },
+    momentum: { positive:'Strong recent price momentum — trending up', neutral:'Neutral momentum — not sharply rising or falling', any:'Momentum is not a factor' },
+    matrend:  { above_both:'Above both 50D and 200D moving averages — clear uptrend', above_50:'Above the 50D moving average — short-term strength', below_both:'Below both MAs — contrarian / oversold setup', any:'Moving average position is not filtered' },
+    range52w: { highs:'Near its 52-week high — showing strength', middle:'In the middle of its annual range', lows:'Near its 52-week low — potential recovery' },
+    drawdown: { near_peak:'Less than 20% off its 52-week high', moderate:'20–50% off its 52-week high', deep:'More than 50% off its 52-week high', any:'Drawdown from peak is not filtered' },
+    vol:      { low:'Low price swings — steadier moves', moderate:'Moderate price swings — balanced', any:'Volatility is not filtered' },
+    analyst:  { buy:'Analysts rate Buy or Strong Buy', neutral:'Analysts rate Neutral or better', any:'Analyst ratings are not filtered' },
+    profit:   { profitable:'EPS is positive — company is profitable', any:'Profitability is not filtered' },
+  };
+  document.getElementById('profile-pills').innerHTML =
+    Object.entries(pillLabels).map(([k, opts]) => {
+      let label, tooltip;
+      if (k === 'region' || k === 'sector') {
+        const allVal = k === 'region' ? 'global' : 'all';
+        const v = answers[k];
+        if (!v) { label = ''; tooltip = ''; }
+        else if (v === allVal) { label = opts[allVal]; tooltip = pillTooltips[k][allVal]; }
+        else if (Array.isArray(v)) { label = v.map(x => opts[x] || x).join(' + '); tooltip = v.map(x => pillTooltips[k][x] || '').filter(Boolean).join(' · '); }
+        else { label = opts[v] || ''; tooltip = pillTooltips[k][v] || ''; }
+      } else {
+        label = opts[answers[k]] || '';
+        tooltip = pillTooltips[k]?.[answers[k]] || '';
+      }
+      if (!label) return '';
+      return `<div class="profile-pill" data-tooltip="${tooltip}">${label}</div>`;
+    }).join('');
+
+  document.getElementById('results-title').textContent =
+    _presetMode ? `${scored.length} stocks in this filter` : `${scored.length} good & great fits`;
+  document.getElementById('results-count').textContent =
+    _presetMode
+      ? `Sorted by mood score · showing all matches`
+      : `${scored.length} of ${totalScored} scored stocks matched 80%+ · sorted highest fit first`;
+
+  renderFilteredList(scored, scoredCache, _presetMode);
+  updateActiveChip(_presetMode ? _lastPresetKey : '');
+  sessionStorage.setItem('sp_answers', JSON.stringify(answers));
+  sessionStorage.setItem('sp_preset', _presetMode ? '1' : '0');
+  if (_presetMode) sessionStorage.setItem('sp_presetKey', _lastPresetKey || '');
+}
+
+// ── Ranking modal ──────────────────────────────────────────
 // Must match scoreByAnswers() scores order: [qSize, q1M, q5Y, qMom, qMA, qR52, qDD, qVol, qAn, qPr]
 const INDICATOR_META = [
   { key:'size',        label:'Company Size',       ansKey:'size',      prefMap:{ large:'Large-cap', mid:'Mid-cap', small:'Small-cap', any:'Any' } },
@@ -2567,7 +884,7 @@ function openRankingModal(idx) {
     const score = item.scores[mi];
     const pref  = meta.prefMap[answers[meta.ansKey]] || 'Any';
 
-    // Data column — use indicator label for indicator keys, special handling for non-indicator keys
+    // Data column
     let dataVal = '—';
     const indData = ind[meta.key];
     if (indData) {
@@ -2588,7 +905,7 @@ function openRankingModal(idx) {
       dataVal = eps == null ? '—' : eps > 0 ? `EPS: ${eps.toFixed(2)}` : 'Not profitable';
     }
 
-    // Fit column — dot color + word based on score (0, 0.5, 1)
+    // Fit column
     const fitDotClass = score >= 1 ? 'rm-dot-green' : score >= 0.5 ? 'rm-dot-amber' : 'rm-dot-red';
     const fitColor    = score >= 1 ? 'var(--green)'  : score >= 0.5 ? 'var(--amber)'  : 'var(--red)';
     const fitWord     = score >= 1 ? 'Full'           : score >= 0.5 ? 'Partial'       : 'Low';
@@ -2618,113 +935,27 @@ function closeRankingModal(e) {
 }
 window.closeRankingModal = closeRankingModal;
 
-// ── Reset ──────────────────────────────────────────────────────
+// ── Reset ──────────────────────────────────────────────────
 function resetQuiz() {
   _presetMode = false;
   _lastPresetKey = '';
   _allScored = [];
   _fitFilter = 'great';
-  // no client-side cache to clear — preset scores are pre-computed in JSON
   sessionStorage.removeItem('sp_answers');
   sessionStorage.removeItem('sp_preset');
   sessionStorage.removeItem('sp_presetKey');
   Object.keys(answers).forEach(k => answers[k] = null);
   scoredCache = [];
   updateActiveChip('');
-  currentStep = 1;
-  document.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
-  document.querySelectorAll('.select-hint').forEach(h => h.classList.remove('visible'));
-  document.querySelectorAll('.quiz-step').forEach(s => s.classList.remove('active'));
-  document.getElementById('step-1').classList.add('active');
-  document.getElementById('progress-fill').style.width = '10%';
   document.getElementById('results-section').style.display = 'none';
-  document.getElementById('results-legend').style.display = 'none';
   const ft = document.getElementById('filter-text'); if (ft) ft.value = '';
-
   const fm = document.getElementById('filter-mood'); if (fm) fm.value = '';
   const fc = document.getElementById('filter-count'); if (fc) fc.textContent = '';
-  openQuizModal();
+  openTrapWizard();
 }
-window.resetQuiz  = resetQuiz;
-window.findStocks = findStocks;
+window.resetQuiz = resetQuiz;
 
-function refineQuiz() {
-  _presetMode = false;
-  // Restore previous selections so user can tweak rather than restart
-  document.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
-
-  [1, 2].forEach(stepNum => {
-    const ansKey = stepNum === 1 ? 'region' : 'sector';
-    const val = answers[ansKey];
-    if (val) {
-      const vals = val === 'global' || val === 'all' ? [val] : Array.isArray(val) ? val : [val];
-      vals.forEach(v => {
-        const el = document.querySelector(`.choice[data-step="${stepNum}"][data-val="${v}"]`);
-        if (el) el.classList.add('selected');
-      });
-    }
-  });
-
-  for (let step = 3; step <= TOTAL_STEPS; step++) {
-    const val = answers[STEP_KEYS[step]];
-    if (val) {
-      const el = document.querySelector(`.choice[data-step="${step}"][data-val="${val}"]`);
-      if (el) el.classList.add('selected');
-    }
-  }
-
-  // Reset to step 1 without clearing answers
-  document.querySelectorAll('.quiz-step').forEach(s => s.classList.remove('active'));
-  document.getElementById('step-1').classList.add('active');
-  currentStep = 1;
-  document.getElementById('progress-fill').style.width = '10%';
-  openQuizModal();
-}
-window.refineQuiz = refineQuiz;
-
-// ── Nav search ────────────────────────────────────────────────
-(function() {
-  const input   = document.getElementById('nav-search-input');
-  const results = document.getElementById('nav-search-results');
-  if (!input || !results) return;
-  let timer;
-  input.addEventListener('input', () => {
-    clearTimeout(timer);
-    timer = setTimeout(async () => {
-      const q = input.value.trim();
-      if (q.length < 1) { results.classList.remove('open'); return; }
-      const hits = await DataCache.searchAll(q);
-      if (!hits.length) {
-        results.innerHTML = '<div class="sr-empty">No results found</div>';
-      } else {
-        results.innerHTML = hits.map(s => {
-          const b = MOOD.band(s.mood?.label || 'Level 3');
-          return `<div class="sr-item" data-ticker="${esc(s.ticker)}" data-exchange="${esc(s.exchange)}" data-country="${esc(s.country || '')}" style="cursor:pointer;">
-            <div class="sr-ticker">${esc(s.ticker)}</div>
-            <div class="sr-company">${esc(s.company || '')}</div>
-            <div class="sr-exchange">${esc(s.exchangeLabel)}</div>
-            <div class="sr-panda panda-wrap" style="width:28px;height:28px;">
-              <img class="panda-img" src="assets/img/${b.img}" alt="${esc(b.label)}" />
-            </div>
-          </div>`;
-        }).join('');
-      }
-      results.classList.add('open');
-    }, 220);
-  });
-  results.addEventListener('click', e => {
-    const item = e.target.closest('.sr-item');
-    if (!item) return;
-    results.classList.remove('open');
-    input.value = '';
-    window.location.href = `stock.html?ticker=${encodeURIComponent(item.dataset.ticker)}&exchange=${item.dataset.exchange}&country=${encodeURIComponent(item.dataset.country || '')}`;
-  });
-  document.addEventListener('click', e => {
-    if (!results.contains(e.target) && e.target !== input) results.classList.remove('open');
-  });
-})();
-
-// ── Pill tooltip: tap-to-toggle on mobile ──────────────────────
+// ── Pill tooltip: tap-to-toggle on mobile ──────────────────
 document.addEventListener('click', e => {
   const pill = e.target.closest('.profile-pill[data-tooltip]');
   if (pill) {
@@ -2737,19 +968,56 @@ document.addEventListener('click', e => {
   document.querySelectorAll('.profile-pill.tip-open').forEach(p => p.classList.remove('tip-open'));
 }, true);
 
-// ── Restore last search on back-navigation ─────────────────────
-(function restoreLastSearch() {
-  const saved = sessionStorage.getItem('sp_answers');
-  if (!saved) return;
-  try {
-    const a = JSON.parse(saved);
-    Object.assign(answers, a);
-    _presetMode = sessionStorage.getItem('sp_preset') === '1';
-    _lastPresetKey = sessionStorage.getItem('sp_presetKey') || '';
-    if (_lastPresetKey) _activePreset = _lastPresetKey;
-    findStocks();
-  } catch(e) {
-    sessionStorage.removeItem('sp_answers');
+// ── URL param reading on load ───────────────────────────────
+(function initFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const region = params.get('region');
+  const style  = params.get('style');
+  const level  = params.get('level');
+
+  if (style && PRESETS[style]) {
+    _activePreset = style;
+    const r = region || 'global';
+    const p = PRESETS[style];
+    Object.assign(answers, p.a, { region: r });
+    answers.watchlist = p.watchlist || null;
+    _presetMode = true;
+    _lastPresetKey = style;
+    _maxLevel = level || null;
+    scoredCache = [];
+    findStocks().then(() => {
+      if (_maxLevel) applyFilter();
+    });
+  } else if (region) {
+    // Region only — default to momentum style
+    _activePreset = 'momentum';
+    const p = PRESETS.momentum;
+    Object.assign(answers, p.a, { region });
+    _presetMode = true;
+    _lastPresetKey = 'momentum';
+    _maxLevel = level || null;
+    scoredCache = [];
+    findStocks().then(() => {
+      if (_maxLevel) applyFilter();
+    });
+  } else {
+    // No URL params — check sessionStorage for last search, otherwise open wizard
+    const saved = sessionStorage.getItem('sp_answers');
+    if (saved) {
+      try {
+        const a = JSON.parse(saved);
+        Object.assign(answers, a);
+        _presetMode = sessionStorage.getItem('sp_preset') === '1';
+        _lastPresetKey = sessionStorage.getItem('sp_presetKey') || '';
+        if (_lastPresetKey) _activePreset = _lastPresetKey;
+        findStocks();
+      } catch(e) {
+        sessionStorage.removeItem('sp_answers');
+        openTrapWizard();
+      }
+    } else {
+      openTrapWizard();
+    }
   }
 })();
 </script>
