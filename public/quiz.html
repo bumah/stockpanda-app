@@ -1102,43 +1102,83 @@ function showCard() {
   if (card) card.classList.add('entering');
 }
 
-// ── Build card HTML ──────────────────────────────────────────
+// ── Build card HTML (Option C: split layout) ────────────────
 function buildDiscoverCard(item) {
   const s = item.stock;
   const b = MOOD.band(s.mood?.label || 'Level 3');
   const sig = _countSignals(s);
   const flag = COUNTRY_FLAGS[s.country] || '';
   const fitCls = item.pct >= 80 ? 'hi' : item.pct >= 50 ? 'mid' : 'lo';
+  const fitCol = item.pct >= 80 ? '#4ADE80' : item.pct >= 50 ? '#FBBF24' : '#F87171';
   const href = 'stock.html?ticker=' + encodeURIComponent(s.ticker) + '&country=' + encodeURIComponent(s.country || '');
 
-  // 3M return
-  const m3 = s._m3;
-  const m3Html = m3 != null ? '<span class="' + (m3 >= 0 ? 'pct-pos' : 'pct-neg') + '">' + (m3 >= 0 ? '+' : '') + m3.toFixed(1) + '%</span>' : '';
+  // Returns helper
+  function ret(label, val) {
+    if (val == null) return '<div class="dc-ret"><span class="dc-ret-label">' + label + '</span><span class="dc-ret-val" style="color:var(--muted);">\u2014</span></div>';
+    var cls = val >= 0 ? 'pos' : 'neg';
+    var sign = val >= 0 ? '+' : '';
+    return '<div class="dc-ret"><span class="dc-ret-label">' + label + '</span><span class="dc-ret-val ' + cls + '">' + sign + val.toFixed(1) + '%</span></div>';
+  }
 
-  // Style chips (reuse from finder-engine.js)
-  const styleHtml = _buildStyleChips(s._ps);
+  // Style rows (top 3 + worst)
+  var ps = s._ps || {};
+  var sorted = Object.entries(ps).sort(function(a,b){ return b[1]-a[1]; });
+  var top3 = sorted.slice(0, 3);
+  var worst = sorted[sorted.length - 1];
+  var styleRows = top3.map(function(e) {
+    var cls = e[1] >= 80 ? 'hi' : e[1] >= 50 ? 'mid' : 'lo';
+    return '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[e[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[e[0]]||e[0]) + '</span><span class="dc-style-pct ' + cls + '">' + e[1] + '%</span></div>';
+  }).join('');
+  if (worst) {
+    var wCls = worst[1] >= 80 ? 'hi' : worst[1] >= 50 ? 'mid' : 'lo';
+    styleRows += '<div class="dc-style-sep">worst match</div>' +
+      '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[worst[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[worst[0]]||worst[0]) + '</span><span class="dc-style-pct ' + wCls + '">' + worst[1] + '%</span></div>';
+  }
 
   return '<div class="discover-card">' +
-    '<img class="dc-panda" src="assets/img/' + b.img + '" alt="' + esc(b.label) + '" />' +
-    '<div class="dc-top">' +
-      '<span class="dc-ticker">' + esc(s.ticker) + '</span>' +
-      '<span class="mood-chip ' + b.cls + '" data-tip="' + esc(MOOD_DESC[b.label] || '') + '">' + b.label + '</span>' +
-      '<span class="dc-fit ' + fitCls + '">' + item.pct + '% fit</span>' +
+    // Top: split layout
+    '<div class="dc-split">' +
+      '<div class="dc-split-left">' +
+        '<div class="dc-ticker">' + esc(s.ticker) + '</div>' +
+        '<div class="dc-company">' + esc(s.company || '\u2014') + '</div>' +
+        '<div class="dc-country-plain">' + flag + ' ' + esc(s.country || '') + '</div>' +
+      '</div>' +
+      '<div class="dc-split-right">' +
+        '<img class="dc-panda" src="assets/img/' + b.img + '" alt="' + esc(b.label) + '" />' +
+        '<span class="dc-level-label">Panda Level</span>' +
+        '<span class="mood-chip ' + b.cls + '">' + b.label + '</span>' +
+      '</div>' +
     '</div>' +
-    '<div class="dc-company">' + esc(s.company || '\u2014') + '</div>' +
-    '<div class="dc-geo">' +
-      '<span class="dc-country">' + flag + ' ' + esc(s.country || '') + '</span>' +
-      m3Html +
+    // Fit
+    '<div class="dc-fit-row">' +
+      '<div><div class="dc-fit-label">Overall Fit</div><div class="dc-fit-pct" style="color:' + fitCol + ';">' + item.pct + '%</div></div>' +
+      '<div class="dc-fit-bar"><div class="dc-fit-fill" style="width:' + item.pct + '%;background:' + fitCol + ';"></div></div>' +
     '</div>' +
-    '<div class="dc-signals">' +
-      (sig.g > 0 ? '<span class="sig-badge-green" data-tip="' + sig.g + ' positive signals">' + sig.g + '</span>' : '') +
-      (sig.a > 0 ? '<span class="sig-badge-amber" data-tip="' + sig.a + ' cautionary signals">' + sig.a + '</span>' : '') +
-      (sig.r > 0 ? '<span class="sig-badge-red" data-tip="' + sig.r + ' warning signals">' + sig.r + '</span>' : '') +
+    // Returns
+    '<div class="dc-returns">' +
+      ret('1M', s._m1) + ret('3M', s._m3) +
+      ret('YTD', s._ps ? null : null) +  // YTD not in search data yet
+      ret('1Y', s._y5 != null ? null : null) +  // placeholder
+      ret('5Y', s._y5) +
     '</div>' +
-    '<div class="dc-styles">' + styleHtml + '</div>' +
+    // Signals
+    '<div class="dc-section">' +
+      '<div class="dc-section-label">Signals</div>' +
+      '<div class="dc-sig-list">' +
+        (sig.g > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot green"></span><span class="dc-sig-count green">' + sig.g + '</span> Positive</div>' : '') +
+        (sig.a > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot amber"></span><span class="dc-sig-count amber">' + sig.a + '</span> Cautionary</div>' : '') +
+        (sig.r > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot red"></span><span class="dc-sig-count red">' + sig.r + '</span> Warning</div>' : '') +
+      '</div>' +
+    '</div>' +
+    // Styles
+    '<div class="dc-section">' +
+      '<div class="dc-section-label">Styles</div>' +
+      '<div class="dc-style-list">' + styleRows + '</div>' +
+    '</div>' +
+    // Actions
     '<div class="dc-actions">' +
-      '<a class="dc-view" href="' + href + '">View Details &rarr;</a>' +
-      '<button class="dc-scores-btn" onclick="event.stopPropagation(); toggleScores()">View Scores</button>' +
+      '<a class="dc-btn-primary" href="' + href + '">View Details &rarr;</a>' +
+      '<button class="dc-btn-secondary" onclick="event.stopPropagation(); toggleScores()">View Scores</button>' +
     '</div>' +
     '<div class="dc-scores-panel" id="dc-scores-panel" style="display:none;">' + buildScoreBreakdown(item) + '</div>' +
   '</div>';
@@ -1163,7 +1203,7 @@ function buildScoreBreakdown(item) {
     SCORE_LABELS.map((sl, i) => {
       const sc = item.scores[i];
       const col = sc >= 1 ? '#4ADE80' : sc >= 0.5 ? '#FBBF24' : '#F87171';
-      const word = sc >= 1 ? 'Full' : sc >= 0.5 ? 'Partial' : 'Low';
+      const word = sc >= 1 ? 'Good Match' : sc >= 0.5 ? 'Partial Match' : 'Low Match';
       const pref = answers[sl.ansKey] || 'any';
       return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.7rem;">' +
         '<span style="color:var(--text);">' + sl.label + '</span>' +
