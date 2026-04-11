@@ -274,6 +274,7 @@
 
       <!-- View toggle -->
       <div class="view-toggle">
+        <button class="view-btn" data-view="discover" onclick="switchToDiscover()">🔍 Discover</button>
         <button class="view-btn active" data-view="cards" onclick="switchView('cards')">🃏 Cards</button>
         <button class="view-btn" data-view="table" onclick="switchView('table')">📊 Table</button>
       </div>
@@ -312,6 +313,21 @@
         <span id="results-count"></span>
       </div>
       <div id="results-list"></div>
+
+      <!-- Discover mode (card-by-card) -->
+      <div id="discover-mode" style="display:none;">
+        <div class="discover-wrap">
+          <div class="discover-header">
+            <span class="discover-counter" id="finder-dc-counter"></span>
+            <button class="discover-refine" onclick="switchView('cards'); document.querySelectorAll('.view-toggle .view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === 'cards'));">Back to List</button>
+          </div>
+          <div class="discover-container" id="finder-dc-container"></div>
+          <div class="discover-nav">
+            <button class="dc-btn-back" id="finder-dc-back" onclick="finderPrevCard()" disabled>&larr; Back</button>
+            <button class="dc-btn-next" id="finder-dc-next" onclick="finderNextCard()">Next &rarr;</button>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div><!-- /finder-wrap -->
@@ -1020,6 +1036,124 @@ document.addEventListener('click', e => {
     }
   }
 })();
+
+// ── Discover mode (card-by-card) for Quick Trap ─────────────
+let _finderDcIdx = 0;
+
+function switchToDiscover() {
+  document.querySelectorAll('.view-toggle .view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === 'discover'));
+  document.getElementById('results-list').style.display = 'none';
+  document.getElementById('discover-mode').style.display = 'block';
+  _finderDcIdx = 0;
+  showFinderCard();
+}
+
+function showFinderCard() {
+  const container = document.getElementById('finder-dc-container');
+  const counter = document.getElementById('finder-dc-counter');
+  const backBtn = document.getElementById('finder-dc-back');
+  const nextBtn = document.getElementById('finder-dc-next');
+  const items = scoredCache;
+
+  if (!items.length) {
+    container.innerHTML = '<div class="discover-done"><h3>No matches</h3><p>Try changing filters.</p></div>';
+    counter.textContent = '0 matches';
+    backBtn.disabled = true; nextBtn.disabled = true;
+    return;
+  }
+  if (_finderDcIdx >= items.length) {
+    container.innerHTML = '<div class="discover-done"><h3>You\'ve seen all matches</h3><p>' + items.length + ' stocks total.</p></div>';
+    counter.textContent = items.length + ' of ' + items.length;
+    backBtn.disabled = _finderDcIdx <= 0; nextBtn.disabled = true;
+    return;
+  }
+
+  counter.textContent = (_finderDcIdx + 1) + ' of ' + items.length;
+  backBtn.disabled = _finderDcIdx <= 0;
+  nextBtn.disabled = false;
+
+  const item = items[_finderDcIdx];
+  container.innerHTML = buildFinderDiscoverCard(item);
+  var card = container.querySelector('.discover-card');
+  if (card) card.classList.add('entering');
+}
+
+function buildFinderDiscoverCard(item) {
+  var s = item.stock;
+  var b = MOOD.band(s.mood?.label || 'Level 3');
+  var sig = _countSignals(s);
+  var flag = COUNTRY_FLAGS[s.country] || '';
+  var fitCls = item.pct >= 80 ? 'hi' : item.pct >= 50 ? 'mid' : 'lo';
+  var fitCol = item.pct >= 80 ? '#4ADE80' : item.pct >= 50 ? '#FBBF24' : '#F87171';
+  var href = 'stock.html?ticker=' + encodeURIComponent(s.ticker) + '&country=' + encodeURIComponent(s.country || '');
+
+  function ret(label, val) {
+    if (val == null) return '<div class="dc-ret"><span class="dc-ret-label">' + label + '</span><span class="dc-ret-val" style="color:var(--muted);">\u2014</span></div>';
+    var cls = val >= 0 ? 'pos' : 'neg';
+    var sign = val >= 0 ? '+' : '';
+    return '<div class="dc-ret"><span class="dc-ret-label">' + label + '</span><span class="dc-ret-val ' + cls + '">' + sign + val.toFixed(1) + '%</span></div>';
+  }
+
+  var ps = s._ps || {};
+  var sorted = Object.entries(ps).sort(function(a,b){ return b[1]-a[1]; });
+  var top3 = sorted.slice(0, 3);
+  var worst = sorted[sorted.length - 1];
+  var styleRows = top3.map(function(e) {
+    var cls = e[1] >= 80 ? 'hi' : e[1] >= 50 ? 'mid' : 'lo';
+    return '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[e[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[e[0]]||e[0]) + '</span><span class="dc-style-pct ' + cls + '">' + e[1] + '%</span></div>';
+  }).join('');
+  if (worst) {
+    var wCls = worst[1] >= 80 ? 'hi' : worst[1] >= 50 ? 'mid' : 'lo';
+    styleRows += '<div class="dc-style-sep">worst match</div><div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[worst[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[worst[0]]||worst[0]) + '</span><span class="dc-style-pct ' + wCls + '">' + worst[1] + '%</span></div>';
+  }
+
+  return '<div class="discover-card">' +
+    '<div class="dc-split"><div class="dc-split-left">' +
+      '<div class="dc-ticker">' + esc(s.ticker) + '</div>' +
+      '<div class="dc-company">' + esc(s.company || '\u2014') + '</div>' +
+      '<div class="dc-country-plain">' + flag + ' ' + esc(s.country || '') + '</div>' +
+    '</div><div class="dc-split-right">' +
+      '<img class="dc-panda" src="assets/img/' + b.img + '" alt="' + esc(b.label) + '" />' +
+      '<span class="dc-level-label">Panda Level</span>' +
+      '<span class="mood-chip ' + b.cls + '">' + b.label + '</span>' +
+    '</div></div>' +
+    '<div class="dc-fit-row"><div><div class="dc-fit-label">Overall Fit</div><div class="dc-fit-pct" style="color:' + fitCol + ';">' + item.pct + '%</div></div>' +
+      '<div class="dc-fit-bar"><div class="dc-fit-fill" style="width:' + item.pct + '%;background:' + fitCol + ';"></div></div></div>' +
+    '<div class="dc-returns">' + ret('1M', s._m1) + ret('3M', s._m3) + ret('1Y', s._y5 != null ? null : null) + ret('5Y', s._y5) + '</div>' +
+    '<div class="dc-section"><div class="dc-section-label">Signals</div><div class="dc-sig-list">' +
+      (sig.g > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot green"></span><span class="dc-sig-count green">' + sig.g + '</span> Positive</div>' : '') +
+      (sig.a > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot amber"></span><span class="dc-sig-count amber">' + sig.a + '</span> Cautionary</div>' : '') +
+      (sig.r > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot red"></span><span class="dc-sig-count red">' + sig.r + '</span> Warning</div>' : '') +
+    '</div></div>' +
+    '<div class="dc-section"><div class="dc-section-label">Styles</div><div class="dc-style-list">' + styleRows + '</div></div>' +
+    '<div class="dc-actions"><a class="dc-btn-primary" href="' + href + '">View Details &rarr;</a></div>' +
+  '</div>';
+}
+
+function finderNextCard() {
+  if (_finderDcIdx >= scoredCache.length) return;
+  var card = document.querySelector('#finder-dc-container .discover-card');
+  if (card) { card.classList.add('slide-left'); setTimeout(function(){ _finderDcIdx++; showFinderCard(); }, 300); }
+  else { _finderDcIdx++; showFinderCard(); }
+}
+window.finderNextCard = finderNextCard;
+
+function finderPrevCard() {
+  if (_finderDcIdx <= 0) return;
+  var card = document.querySelector('#finder-dc-container .discover-card');
+  if (card) { card.classList.add('slide-right'); setTimeout(function(){ _finderDcIdx--; showFinderCard(); }, 300); }
+  else { _finderDcIdx--; showFinderCard(); }
+}
+window.finderPrevCard = finderPrevCard;
+
+// Override switchView to handle discover mode
+var _origSwitchView = switchView;
+switchView = function(view) {
+  document.getElementById('discover-mode').style.display = 'none';
+  document.getElementById('results-list').style.display = '';
+  _origSwitchView(view);
+};
+window.switchView = switchView;
 </script>
 </body>
 </html>

@@ -131,7 +131,7 @@
     </div>
     <!-- Level -->
     <div class="bubble-row">
-      <span class="bubble-label">Level</span>
+      <span class="bubble-label">Max Level</span>
       <div class="bubble-chips" id="level-chips">
         <span class="bubble-chip" data-level="Level 1">Level 1</span>
         <span class="bubble-chip" data-level="Level 2">Level 2</span>
@@ -362,9 +362,13 @@ function applyFilters() {
     // Territory
     if (terrSet && !terrSet.has(e.co)) continue;
 
-    // Level
+    // Max Level: show all levels up to and including the selected one
     const moodLabel = getMoodLabel(e);
-    if (activeLevel && moodLabel !== activeLevel) continue;
+    if (activeLevel) {
+      const maxLvlNum = parseInt(activeLevel.replace(/\D/g, '')) || 99;
+      const stockLvlNum = parseInt(moodLabel.replace(/\D/g, '')) || 99;
+      if (stockLvlNum > maxLvlNum) continue;
+    }
 
     // Style filter: ps[style] >= 50
     if (activeStyle) {
