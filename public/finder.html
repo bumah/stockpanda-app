@@ -768,7 +768,7 @@ async function findStocks() {
   const rs = document.getElementById('results-section');
   rs.style.display = 'block';
   rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  document.getElementById('results-list').innerHTML = `
+  document.getElementById('finder-dc-container').innerHTML = `
     <div class="finder-loading">
       <div class="spin"></div>
       <div style="color:var(--muted);font-size:0.85rem;">Finding your matches…</div>
