@@ -1124,7 +1124,7 @@ function buildFinderDiscoverCard(item) {
     '<div class="dc-split"><div class="dc-split-left">' +
       '<div class="dc-ticker">' + esc(s.ticker) + '</div>' +
       '<div class="dc-company">' + esc(s.company || '\u2014') + '</div>' +
-      '<div class="dc-country-plain">' + flag + ' ' + esc(s.country || '') + '</div>' +
+      '<div class="dc-country-plain">' + flag + ' ' + esc(s.country || '') + (s.sector ? ' · ' + esc(s.sector) : '') + '</div>' +
     '</div><div class="dc-split-right">' +
       '<img class="dc-panda" src="assets/img/' + b.img + '" alt="' + esc(b.label) + '" />' +
       '<span class="dc-level-label">Panda Level</span>' +
