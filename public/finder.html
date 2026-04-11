@@ -619,9 +619,16 @@ function twNext() {
   _presetMode = true;
   _lastPresetKey = styleKeys[0];
   scoredCache = [];
-  findStocks().then(() => {
-    if (twLevel) { _maxLevel = twLevel; applyFilter(); }
-  });
+
+  // Store trap criteria for 4-criteria scoring
+  _trapCriteria = {
+    region: region,
+    sectors: sectors,
+    styles: styleKeys,
+    level: twLevel
+  };
+
+  findStocks();
 }
 window.twNext = twNext;
 
@@ -648,6 +655,15 @@ function runPreset(region) {
   _lastPresetKey = _activePreset;
   _maxLevel = null;
   scoredCache = [];
+
+  // Update trap criteria for style chip clicks
+  _trapCriteria = {
+    region: _trapCriteria.region || region,
+    sectors: _trapCriteria.sectors || 'all',
+    styles: [_activePreset],
+    level: _trapCriteria.level
+  };
+
   document.getElementById('region-picker-overlay').style.display = 'none';
   document.body.style.overflow = '';
   return findStocks();
@@ -735,7 +751,61 @@ document.addEventListener('click', e => {
 
 buildQuickPresets();
 
-// ── Find stocks ─────────────────────────────────────────────
+// ── Trap criteria (stored from wizard for scoring) ──────────
+let _trapCriteria = { region: 'global', sectors: 'all', styles: [], level: null };
+
+// ── 4-criteria scoring for Quick Trap ───────────────────────
+function scoreTrapCriteria(stock, criteria) {
+  const checks = [];
+
+  // 1. Territory: does stock's country match selected region?
+  let terrMatch = true;
+  if (criteria.region && criteria.region !== 'global') {
+    const regions = Array.isArray(criteria.region) ? criteria.region : [criteria.region];
+    let countrySet = new Set();
+    for (const r of regions) {
+      const cfg = REGION_CONFIG[r];
+      if (cfg && cfg.countries) cfg.countries.forEach(c => countrySet.add(c));
+    }
+    terrMatch = countrySet.size === 0 || countrySet.has(stock.country);
+  }
+  checks.push({ label: 'Territory', match: terrMatch });
+
+  // 2. Sector: does stock's sector match selected sectors?
+  let secMatch = true;
+  if (criteria.sectors && criteria.sectors !== 'all') {
+    const groups = Array.isArray(criteria.sectors) ? criteria.sectors : [criteria.sectors];
+    secMatch = false;
+    for (const g of groups) {
+      const set = SECTOR_GROUPS[g];
+      if (set && set.has(stock.sector || '')) { secMatch = true; break; }
+    }
+  }
+  checks.push({ label: 'Sector', match: secMatch });
+
+  // 3. Style: stock scores ≥50% for at least one selected style
+  let styleMatch = true;
+  if (criteria.styles && criteria.styles.length > 0) {
+    const ps = stock._ps || {};
+    styleMatch = criteria.styles.some(k => (ps[k] || 0) >= 50);
+  }
+  checks.push({ label: 'Style', match: styleMatch });
+
+  // 4. Level: stock's mood level ≤ selected max level
+  let levelMatch = true;
+  if (criteria.level) {
+    const maxLvl = parseInt(criteria.level.replace(/\D/g, '')) || 99;
+    const stockLvl = parseInt((stock.mood?.label || '').replace(/\D/g, '')) || 99;
+    levelMatch = stockLvl <= maxLvl;
+  }
+  checks.push({ label: 'Max Level', match: levelMatch });
+
+  const matchCount = checks.filter(c => c.match).length;
+  const pct = Math.round((matchCount / 4) * 100);
+  return { checks, matchCount, pct };
+}
+
+// ── Find stocks (4-criteria approach) ───────────────────────
 async function findStocks() {
   const rs = document.getElementById('results-section');
   rs.style.display = 'block';
@@ -743,50 +813,40 @@ async function findStocks() {
   document.getElementById('results-list').innerHTML = `
     <div class="finder-loading">
       <div class="spin"></div>
-      <div style="color:var(--muted);font-size:0.85rem;">Ranking all stocks by your profile…</div>
+      <div style="color:var(--muted);font-size:0.85rem;">Finding your matches…</div>
     </div>`;
 
-  // Yield to browser so the loading spinner actually paints
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-  const stocks = await loadAllStocks(answers);
+  // Load ALL stocks (no region/sector pre-filter — we score them ourselves)
+  const origRegion = answers.region;
+  const origSector = answers.sector;
+  answers.region = 'global';
+  answers.sector = 'all';
+  const allStocks = await loadAllStocks(answers);
+  answers.region = origRegion;
+  answers.sector = origSector;
 
-  let scored;
-  // Fast path: preset scores are pre-computed in the JSON data — instant lookup
-  if (_presetMode && _lastPresetKey && PRESETS[_lastPresetKey]) {
-    scored = stocks.map(s => ({ stock: s, pct: s._ps?.[_lastPresetKey] ?? 0, scores: [] }));
-  } else {
-    // Slow path: custom quiz answers — score dynamically in batches
-    const BATCH = 2000;
-    scored = [];
-    for (let i = 0; i < stocks.length; i += BATCH) {
-      const batch = stocks.slice(i, i + BATCH);
-      scored.push(...batch.map(s => ({ stock: s, ...scoreByAnswers(s, answers) })));
-      if (i + BATCH < stocks.length) await new Promise(r => setTimeout(r, 0));
-    }
+  // Score each stock against the 4 trap criteria
+  const scored = allStocks.map(s => {
+    const result = scoreTrapCriteria(s, _trapCriteria);
+    return { stock: s, pct: result.pct, matchCount: result.matchCount, checks: result.checks, scores: [] };
+  });
+
+  // Filter: must match at least 3 of 4 criteria
+  let goodFits = scored.filter(x => x.matchCount >= 3);
+
+  // Randomize order (Fisher-Yates shuffle)
+  for (let i = goodFits.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [goodFits[i], goodFits[j]] = [goodFits[j], goodFits[i]];
   }
 
-  // Apply watchlist filter
-  if (answers.watchlist && answers.watchlist.length) {
-    scored = scored.filter(x => answers.watchlist.includes(x.stock.ticker));
-    answers.watchlist = null;
-  }
-
-  // Sort by fit % desc, ties broken by lower mood stress
-  scored.sort((a, b) => b.pct - a.pct || (a.stock.mood?.score ?? 20) - (b.stock.mood?.score ?? 20));
-
-  // Store all scored results
   _allScored = scored;
-  _fitFilter = 'great';
-
-  // Default display: preset = all, quiz = >=80% only
-  const goodFits = _presetMode ? scored : scored.filter(x => x.pct >= 80);
   scoredCache = goodFits;
 
-  // Populate filter dropdowns using engine function
   populateFilterDropdowns(scoredCache);
-
-  renderResults(goodFits, stocks.length, scored.length);
+  renderResults(goodFits, allStocks.length, scored.length);
 }
 window.findStocks = findStocks;
 
@@ -996,26 +1056,20 @@ document.addEventListener('click', e => {
     const r = region || 'global';
     const p = PRESETS[style];
     Object.assign(answers, p.a, { region: r });
-    answers.watchlist = p.watchlist || null;
     _presetMode = true;
     _lastPresetKey = style;
-    _maxLevel = level || null;
     scoredCache = [];
-    findStocks().then(() => {
-      if (_maxLevel) applyFilter();
-    });
+    _trapCriteria = { region: r, sectors: 'all', styles: [style], level: level ? 'Level ' + level : null };
+    findStocks();
   } else if (region) {
-    // Region only — default to momentum style
     _activePreset = 'momentum';
     const p = PRESETS.momentum;
     Object.assign(answers, p.a, { region });
     _presetMode = true;
     _lastPresetKey = 'momentum';
-    _maxLevel = level || null;
     scoredCache = [];
-    findStocks().then(() => {
-      if (_maxLevel) applyFilter();
-    });
+    _trapCriteria = { region: region, sectors: 'all', styles: ['momentum'], level: level ? 'Level ' + level : null };
+    findStocks();
   } else {
     // No URL params — check sessionStorage for last search, otherwise open wizard
     const saved = sessionStorage.getItem('sp_answers');
@@ -1126,9 +1180,45 @@ function buildFinderDiscoverCard(item) {
       (sig.r > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot red"></span><span class="dc-sig-count red">' + sig.r + '</span> Warning</div>' : '') +
     '</div></div>' +
     '<div class="dc-section"><div class="dc-section-label">Styles</div><div class="dc-style-list">' + styleRows + '</div></div>' +
-    '<div class="dc-actions"><a class="dc-btn-primary" href="' + href + '">View Details &rarr;</a></div>' +
+    '<div class="dc-actions">' +
+      '<a class="dc-btn-primary" href="' + href + '">View Details &rarr;</a>' +
+      '<button class="dc-btn-secondary" onclick="event.stopPropagation(); toggleFinderScores()">View Scores</button>' +
+    '</div>' +
+    '<div class="dc-scores-panel" id="finder-scores-panel" style="display:none;">' + buildTrapScoreBreakdown(item) + '</div>' +
   '</div>';
 }
+
+function buildTrapScoreBreakdown(item) {
+  if (!item.checks) return '';
+  return '<div style="margin-top:0.6rem;">' +
+    item.checks.map(function(c) {
+      var col = c.match ? '#4ADE80' : '#F87171';
+      var word = c.match ? 'Good Match' : 'Low Match';
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.72rem;">' +
+        '<span style="color:var(--text);">' + c.label + '</span>' +
+        '<div style="display:flex;align-items:center;gap:0.35rem;">' +
+          '<span style="width:7px;height:7px;border-radius:50%;background:' + col + ';display:inline-block;"></span>' +
+          '<span style="font-family:var(--mono);font-size:0.65rem;font-weight:700;color:' + col + ';">' + word + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('') +
+    '<div style="margin-top:0.5rem;font-size:0.65rem;color:var(--muted);">' + item.matchCount + ' of 4 criteria matched</div>' +
+  '</div>';
+}
+
+function toggleFinderScores() {
+  var panel = document.getElementById('finder-scores-panel');
+  if (!panel) return;
+  var btn = document.querySelector('#finder-dc-container .dc-btn-secondary');
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    if (btn) btn.textContent = 'Hide Scores';
+  } else {
+    panel.style.display = 'none';
+    if (btn) btn.textContent = 'View Scores';
+  }
+}
+window.toggleFinderScores = toggleFinderScores;
 
 function finderNextCard() {
   if (_finderDcIdx >= scoredCache.length) return;
