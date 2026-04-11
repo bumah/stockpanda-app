@@ -1606,6 +1606,7 @@ function runPreset(region) {
   answers.watchlist = p.watchlist || null;
   _presetMode = true;
   _lastPresetKey = _activePreset;
+  _maxLevel = null;
   scoredCache = [];
   document.getElementById('region-picker-overlay').style.display = 'none';
   document.body.style.overflow = '';
@@ -1952,6 +1953,7 @@ async function findStocks() {
 let scoredCache = [];
 let _allScored  = [];
 let _fitFilter  = 'great';
+let _maxLevel   = null;  // "Level 4" means show Levels 1-4 (set by Trap Wizard)
 
 // ── Prefetch all exchange data in background on page load ───────
 (function prefetchData() {
@@ -2136,12 +2138,30 @@ const IND_DISPLAY = [
   { key:'cagr5Y',     short:'5Y'   },
 ];
 const CARD_ACCENT = { 'mc-blue':'#60A5FA','mc-green':'#4ADE80','mc-amber':'#FBBF24','mc-orange':'#FB923C','mc-red':'#F87171' };
+const STYLE_ICONS = { optimistic:'🐇', nimble:'⚡', momentum:'🚀', pack:'🐺', patient:'🧘', safe:'🛡️', trophy:'🏆', wild_beast:'🧬', zombie:'🧟' };
+const STYLE_NAMES = { optimistic:'Optimistic', nimble:'Nimble', momentum:'Momentum', pack:'Pack', patient:'Patient', safe:'Careful', trophy:'Trophy', wild_beast:'Wild Beast', zombie:'Zombie' };
 const CARD_IND_LABELS = {
   volatility:'Volatility', volSpike:'Vol Spike', vsPeak:'Vs Peak',
   shortTrend:'Short Trend', longTrend:'Long Trend', maCross:'MA Cross',
   momentum:'Momentum', return1M:'1M Return', return1Y:'1Y Return',
   range52W:'52W Range', cagr5Y:'5Y CAGR'
 };
+
+function _buildStyleChips(ps) {
+  if (!ps || !Object.keys(ps).length) return '';
+  const sorted = Object.entries(ps).sort((a, b) => b[1] - a[1]);
+  const top3 = sorted.slice(0, 3);
+  const worst = sorted[sorted.length - 1];
+  const chip = (key, pct) => {
+    const col = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : 'var(--red)';
+    return `<span style="display:inline-flex;align-items:center;gap:2px;font-size:0.62rem;padding:1px 5px;border-radius:4px;border:1px solid ${col};color:${col};white-space:nowrap;" title="${STYLE_NAMES[key] || key}: ${pct}% match">${STYLE_ICONS[key] || ''} ${pct}%</span>`;
+  };
+  return `<div style="display:flex;flex-wrap:wrap;gap:3px;align-items:center;margin-top:4px;">
+    ${top3.map(([k, p]) => chip(k, p)).join('')}
+    <span style="font-size:0.55rem;color:var(--muted);margin:0 1px;">·</span>
+    ${chip(worst[0], worst[1])}
+  </div>`;
+}
 
 function buildCard(item, rank) {
   const s = item.stock;
@@ -2193,6 +2213,7 @@ function buildCard(item, rank) {
       <div class="match-pct" style="color:${fitCol}">${item.pct}%</div>
       <div class="match-bar-wrap"><div class="match-bar-fill" style="width:${item.pct}%;background:${fitCol}"></div></div>
     </div>` : ''}
+    ${_buildStyleChips(s._ps)}
     <div class="result-actions">
       <button class="btn-view-stock" onclick="event.stopPropagation();window.location.href='stock.html?ticker=${encodeURIComponent(s.ticker)}&exchange=${s.exchangeKey}&country=${encodeURIComponent(s.country || '')}'">View →</button>
       ${!_presetMode ? `<button class="btn-view-rank" onclick="event.stopPropagation();openRankingModal(${globalIdx})">Ranking</button>` : ''}
@@ -2287,10 +2308,17 @@ function applyFilter() {
   const sector = document.getElementById('filter-sector')?.value || '';
   const terrSet = territory && REGION_CONFIG[territory]?.countries ? REGION_CONFIG[territory].countries : null;
 
+  // _maxLevel: "Level 4" → show levels 1-4 (number extracted from label)
+  const maxLvlNum = _maxLevel ? parseInt(_maxLevel.replace(/\D/g, '')) || 99 : 99;
+
   const filtered = scoredCache.filter(item => {
     const s = item.stock;
     if (txt  && !s.ticker.toLowerCase().includes(txt) && !(s.company||'').toLowerCase().includes(txt)) return false;
     if (mood && (s.mood?.label || '').toLowerCase() !== mood) return false;
+    if (_maxLevel) {
+      const stockLvl = parseInt((s.mood?.label || '').replace(/\D/g, '')) || 99;
+      if (stockLvl > maxLvlNum) return false;
+    }
     if (terrSet && !terrSet.has(s.country)) return false;
     if (country && s.country !== country) return false;
     if (sector && (s.sector || '') !== sector) return false;
@@ -2499,8 +2527,7 @@ function twNext() {
   _lastPresetKey = styleKeys[0];
   scoredCache = [];
   findStocks().then(() => {
-    const fm = document.getElementById('filter-mood');
-    if (fm && twLevel) { fm.value = twLevel; applyFilter(); }
+    if (twLevel) { _maxLevel = twLevel; applyFilter(); }
   });
 }
 window.twNext = twNext;
