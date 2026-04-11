@@ -167,7 +167,7 @@
   <div class="nav-links">
     <a class="nav-link" href="index.html">Home</a>
     <a class="nav-link" href="finder.html">Quick Trap</a>
-    <a class="nav-link" href="quiz.html">Custom Trap</a>
+    <a class="nav-link" href="quiz.html">Scan Field</a>
     <a class="nav-link" href="stocks.html">Browse</a>
     <a class="nav-link" href="summary.html">Quick Bites</a>
   </div>
@@ -259,10 +259,18 @@ const TICKER   = params.get('ticker');
 const EXCHANGE = params.get('exchange') || 'global';
 const COUNTRY  = params.get('country') || '';
 
-// Back button preserves exchange
-const _knownExchanges = ['sp500','ftse100','hsi','nikkei225','nasdaq100','nasdaq_financial','nasdaq_biotech'];
-document.getElementById('back-btn').href = _knownExchanges.includes(EXCHANGE)
-  ? `stocks.html?exchange=${EXCHANGE}` : 'stocks.html';
+// Back button: if came from finder/quiz, go back to matches; otherwise to browse
+const _backBtn = document.getElementById('back-btn');
+const _referrer = document.referrer || '';
+if (_referrer.includes('quiz.html') || _referrer.includes('finder.html')) {
+  _backBtn.href = '#';
+  _backBtn.textContent = '← Back to Matches';
+  _backBtn.addEventListener('click', (e) => { e.preventDefault(); history.back(); });
+} else {
+  const _knownExchanges = ['sp500','ftse100','hsi','nikkei225','nasdaq100','nasdaq_financial','nasdaq_biotech'];
+  _backBtn.href = _knownExchanges.includes(EXCHANGE)
+    ? `stocks.html?exchange=${EXCHANGE}` : 'stocks.html';
+}
 
 const IND_META_FULL = {
   volatility:  { label:'Volatility',         desc:'1-year annualised price swing. How much the stock moves day-to-day on average. High volatility = bigger swings = more risk.' },

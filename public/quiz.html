@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StockPanda — Custom Trap</title>
+  <title>StockPanda — Scan Field</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="assets/css/styles.css" />
@@ -204,6 +204,7 @@
       display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1rem;
     }
 
+    .dc-actions { display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap; }
     .dc-view {
       display: inline-block; background: var(--green); color: #000;
       font-weight: 700; padding: 0.6rem 1.2rem; border-radius: 8px;
@@ -211,6 +212,14 @@
       transition: opacity 0.15s;
     }
     .dc-view:hover { opacity: 0.85; }
+    .dc-scores-btn {
+      display: inline-block; background: none; border: 1.5px solid var(--border);
+      color: var(--muted); padding: 0.55rem 1rem; border-radius: 8px;
+      font-size: 0.78rem; font-family: var(--font); cursor: pointer;
+      transition: all 0.15s;
+    }
+    .dc-scores-btn:hover { border-color: var(--green); color: var(--green); }
+    .dc-scores-panel { padding: 0.5rem 0.3rem; margin-top: 0.5rem; border-top: 1px solid var(--border); }
 
     /* ── Nav buttons ───────────────────────────────────────────── */
     .discover-nav {
@@ -252,7 +261,7 @@
   <div class="nav-links">
     <a class="nav-link" href="index.html">Home</a>
     <a class="nav-link" href="finder.html">Quick Trap</a>
-    <a class="nav-link active" href="quiz.html">Custom Trap</a>
+    <a class="nav-link active" href="quiz.html">Scan Field</a>
     <a class="nav-link" href="stocks.html">Browse</a>
     <a class="nav-link" href="summary.html">Quick Bites</a>
   </div>
@@ -271,6 +280,14 @@
 
 <div class="main">
   <div class="finder-wrap">
+
+    <!-- ── Intro Screen ────────────────────────────────────────── -->
+    <div id="scan-intro" class="finder-hero" style="padding-bottom:2.5rem;">
+      <div class="hero-eyebrow">Scan Field</div>
+      <h1 class="finder-hero-h1" style="font-size:2.6rem;">Define what matters to you.<br/>See how stocks measure up.</h1>
+      <p class="finder-hero-sub">Answer 12 quick questions about your style, risk appetite, and goals. We'll scan 30,000+ stocks and show you the best matches — one at a time.</p>
+      <button class="finder-cta-btn" onclick="document.getElementById('scan-intro').style.display='none'; openQuizModal();">Start Scanning &rarr;</button>
+    </div>
 
     <!-- ── Discovery Section ──────────────────────────────────── -->
     <div id="discover-section" style="display:none;">
@@ -1119,9 +1136,59 @@ function buildDiscoverCard(item) {
       (sig.r > 0 ? '<span class="sig-badge-red" data-tip="' + sig.r + ' warning signals">' + sig.r + '</span>' : '') +
     '</div>' +
     '<div class="dc-styles">' + styleHtml + '</div>' +
-    '<a class="dc-view" href="' + href + '">View Details &rarr;</a>' +
+    '<div class="dc-actions">' +
+      '<a class="dc-view" href="' + href + '">View Details &rarr;</a>' +
+      '<button class="dc-scores-btn" onclick="event.stopPropagation(); toggleScores()">View Scores</button>' +
+    '</div>' +
+    '<div class="dc-scores-panel" id="dc-scores-panel" style="display:none;">' + buildScoreBreakdown(item) + '</div>' +
   '</div>';
 }
+
+const SCORE_LABELS = [
+  { key:'size',     label:'Company Size',      ansKey:'size' },
+  { key:'return1m', label:'1-Month Return',    ansKey:'return1m' },
+  { key:'growth5y', label:'5-Year Growth',     ansKey:'growth5y' },
+  { key:'momentum', label:'Momentum',          ansKey:'momentum' },
+  { key:'matrend',  label:'MA Trend',          ansKey:'matrend' },
+  { key:'range52w', label:'52-Week Position',  ansKey:'range52w' },
+  { key:'drawdown', label:'Drawdown',          ansKey:'drawdown' },
+  { key:'vol',      label:'Volatility',        ansKey:'vol' },
+  { key:'analyst',  label:'Analyst Rating',    ansKey:'analyst' },
+  { key:'profit',   label:'Profitability',     ansKey:'profit' },
+];
+
+function buildScoreBreakdown(item) {
+  if (!item.scores || !item.scores.length) return '<div style="font-size:0.72rem;color:var(--muted);padding:0.5rem 0;">Score breakdown not available for preset matches.</div>';
+  return '<div style="margin-top:0.6rem;">' +
+    SCORE_LABELS.map((sl, i) => {
+      const sc = item.scores[i];
+      const col = sc >= 1 ? '#4ADE80' : sc >= 0.5 ? '#FBBF24' : '#F87171';
+      const word = sc >= 1 ? 'Full' : sc >= 0.5 ? 'Partial' : 'Low';
+      const pref = answers[sl.ansKey] || 'any';
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.7rem;">' +
+        '<span style="color:var(--text);">' + sl.label + '</span>' +
+        '<div style="display:flex;align-items:center;gap:6px;">' +
+          '<span style="color:var(--muted);font-size:0.62rem;">' + esc(pref) + '</span>' +
+          '<span style="color:' + col + ';font-weight:700;font-family:var(--mono);font-size:0.65rem;min-width:40px;text-align:right;">' + word + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('') +
+  '</div>';
+}
+
+function toggleScores() {
+  const panel = document.getElementById('dc-scores-panel');
+  if (!panel) return;
+  const btn = document.querySelector('.dc-scores-btn');
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    if (btn) btn.textContent = 'Hide Scores';
+  } else {
+    panel.style.display = 'none';
+    if (btn) btn.textContent = 'View Scores';
+  }
+}
+window.toggleScores = toggleScores;
 
 // ── Card navigation ──────────────────────────────────────────
 function nextCard() {
@@ -1190,8 +1257,8 @@ function refineQuiz() {
 }
 window.refineQuiz = refineQuiz;
 
-// ── On load: open quiz modal automatically ──────────────────
-openQuizModal();
+// ── On load: show intro screen (quiz opens when user clicks Start) ──
+// Intro screen is visible by default; quiz modal opens on button click
 </script>
 </body>
 </html>

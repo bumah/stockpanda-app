@@ -17,7 +17,7 @@
   <div class="nav-links">
     <a class="nav-link active" href="index.html">Home</a>
     <a class="nav-link" href="finder.html">Quick Trap</a>
-    <a class="nav-link" href="quiz.html">Custom Trap</a>
+    <a class="nav-link" href="quiz.html">Scan Field</a>
     <a class="nav-link" href="stocks.html">Browse</a>
     <a class="nav-link" href="summary.html">Quick Bites</a>
   </div>
@@ -39,19 +39,19 @@
 
     <!-- ── Hero ─────────────────────────────────────────────── -->
     <div class="finder-hero">
-      <div class="hero-eyebrow">Hunt Different.</div>
+      <div class="hero-eyebrow">The simpler way to hunt stocks</div>
       <h1 class="finder-hero-h1">Hunt stocks by your <span id="finder-word">taste.</span></h1>
       <p class="finder-hero-sub">Set your trap. See your catch. Happy hunting.</p>
       <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
         <a class="finder-cta-btn" href="finder.html" style="background:transparent;border:2px solid var(--green);color:var(--green);text-decoration:none;">Quick Trap &rarr;</a>
-        <a class="finder-cta-btn" href="quiz.html" style="text-decoration:none;">Custom Trap &rarr;</a>
+        <a class="finder-cta-btn" href="quiz.html" style="text-decoration:none;">Scan Field &rarr;</a>
       </div>
     </div>
 
     <!-- ── Why StockPanda pillars ──────────────────────────── -->
     <div class="finder-pillars">
       <div style="font-family:var(--mono);font-size:0.58rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:0.4rem;">Why become a StockPanda</div>
-      <h2 class="pillars-headline">Explore the stock market with speed and control.</h2>
+      <h2 class="pillars-headline">See opportunities and spot dangers more easily.</h2>
       <div class="pillars-grid">
         <div class="pillar-card">
           <div class="pillar-icon">🌍</div>
@@ -81,42 +81,42 @@
       <div class="qf-label">Hunt by territory</div>
       <div class="qf-sub">Where do you want to hunt? Choose your market and start finding stocks.</div>
       <div class="territory-grid">
-        <a class="territory-card" href="finder.html?region=us">
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','us')">
           <div class="territory-flag">🇺🇸</div>
           <div class="territory-name">United States</div>
           <div class="territory-desc">The world's largest market — home to tech giants, blue chips, and high-growth innovators.</div>
         </a>
-        <a class="territory-card" href="finder.html?region=uk">
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','uk')">
           <div class="territory-flag">🇬🇧</div>
           <div class="territory-name">United Kingdom</div>
           <div class="territory-desc">London's financial hub — strong in banking, energy, and consumer goods.</div>
         </a>
-        <a class="territory-card" href="finder.html?region=europe">
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','europe')">
           <div class="territory-flag">🇪🇺</div>
           <div class="territory-name">Europe</div>
           <div class="territory-desc">A diverse landscape of industrial powerhouses, luxury brands, and green energy leaders.</div>
         </a>
-        <a class="territory-card" href="finder.html?region=japan">
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','japan')">
           <div class="territory-flag">🇯🇵</div>
           <div class="territory-name">Japan</div>
           <div class="territory-desc">Asia's most mature market — known for precision manufacturing, tech, and automotive giants.</div>
         </a>
-        <a class="territory-card" href="finder.html?region=hk">
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','hk')">
           <div class="territory-flag">🇭🇰</div>
           <div class="territory-name">Hong Kong</div>
           <div class="territory-desc">Gateway to China — a mix of mainland giants and regional financial players.</div>
         </a>
-        <a class="territory-card" href="finder.html?region=china">
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','china')">
           <div class="territory-flag">🇨🇳</div>
           <div class="territory-name">China</div>
           <div class="territory-desc">The world's second-largest economy — fast-moving tech, e-commerce, and manufacturing.</div>
         </a>
-        <a class="territory-card" href="finder.html?region=middleeast">
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','middleeast')">
           <div class="territory-flag">🌙</div>
           <div class="territory-name">Middle East</div>
           <div class="territory-desc">Oil-rich markets expanding into tech, tourism, and finance across the Gulf and beyond.</div>
         </a>
-        <a class="territory-card" href="finder.html?region=global">
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','global')">
           <div class="territory-flag">🌍</div>
           <div class="territory-name">Global</div>
           <div class="territory-desc">Hunt everywhere — no borders, no limits. Scan all 30,000+ stocks across every market.</div>
@@ -129,39 +129,39 @@
       <div class="qf-label">Hunt by style</div>
       <div class="qf-sub">How do you hunt? Choose a style that matches how you find opportunities.</div>
       <div class="qf-grid">
-        <a class="qf-card" href="finder.html?style=optimistic">
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','optimistic')">
           <div class="qfc-top"><span class="qfc-icon">🐇</span><span class="qfc-name">Optimistic</span></div>
           <div class="qfc-desc">Turnaround stocks starting to recover after a rough patch.</div>
         </a>
-        <a class="qf-card" href="finder.html?style=nimble">
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','nimble')">
           <div class="qfc-top"><span class="qfc-icon">⚡</span><span class="qfc-name">Nimble</span></div>
           <div class="qfc-desc">Targets early breakouts with strong participation.</div>
         </a>
-        <a class="qf-card" href="finder.html?style=momentum">
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','momentum')">
           <div class="qfc-top"><span class="qfc-icon">🚀</span><span class="qfc-name">Momentum</span></div>
           <div class="qfc-desc">Stocks in sustained uptrends across multiple timeframes.</div>
         </a>
-        <a class="qf-card" href="finder.html?style=pack">
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','pack')">
           <div class="qfc-top"><span class="qfc-icon">🐺</span><span class="qfc-name">Pack</span></div>
           <div class="qfc-desc">Follows institutional flows and consensus sentiment.</div>
         </a>
-        <a class="qf-card" href="finder.html?style=patient">
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','patient')">
           <div class="qfc-top"><span class="qfc-icon">🧘</span><span class="qfc-name">Patient</span></div>
           <div class="qfc-desc">High-quality stocks consolidating before a breakout.</div>
         </a>
-        <a class="qf-card" href="finder.html?style=safe">
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','safe')">
           <div class="qfc-top"><span class="qfc-icon">🛡️</span><span class="qfc-name">Careful</span></div>
           <div class="qfc-desc">Stable, low-risk companies with strong balance sheets.</div>
         </a>
-        <a class="qf-card" href="finder.html?style=trophy">
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','trophy')">
           <div class="qfc-top"><span class="qfc-icon">🏆</span><span class="qfc-name">Trophy</span></div>
           <div class="qfc-desc">Proven long-term winners with strong earnings.</div>
         </a>
-        <a class="qf-card" href="finder.html?style=wild_beast">
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','wild_beast')">
           <div class="qfc-top"><span class="qfc-icon">🧬</span><span class="qfc-name">Wild Beast</span></div>
           <div class="qfc-desc">High-volatility assets with extreme upside potential.</div>
         </a>
-        <a class="qf-card" href="finder.html?style=zombie">
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','zombie')">
           <div class="qfc-top"><span class="qfc-icon">🧟</span><span class="qfc-name">Zombie</span></div>
           <div class="qfc-desc">Beaten-down stocks showing early signs of revival.</div>
         </a>
@@ -173,27 +173,27 @@
       <div class="qf-label">Hunt by level</div>
       <div class="qf-sub">What level of risk can you handle? Choose the level that matches your experience.</div>
       <div class="level-grid">
-        <a class="level-card" href="finder.html?style=momentum&level=1" style="text-decoration:none;">
+        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','1')" style="text-decoration:none;">
           <img src="assets/img/panda-vcalm.png" alt="Level 1" />
           <div class="level-card-name" style="color:#60A5FA;">Level 1</div>
           <div class="level-card-desc">Steady, stable stocks.</div>
         </a>
-        <a class="level-card" href="finder.html?style=momentum&level=2" style="text-decoration:none;">
+        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','2')" style="text-decoration:none;">
           <img src="assets/img/panda-calm.png" alt="Level 2" />
           <div class="level-card-name" style="color:#4ADE80;">Level 2</div>
           <div class="level-card-desc">Stable with mild movement.</div>
         </a>
-        <a class="level-card" href="finder.html?style=momentum&level=3" style="text-decoration:none;">
+        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','3')" style="text-decoration:none;">
           <img src="assets/img/panda-unsettled.png" alt="Level 3" />
           <div class="level-card-name" style="color:#FBBF24;">Level 3</div>
           <div class="level-card-desc">Faster-moving, requires timing.</div>
         </a>
-        <a class="level-card" href="finder.html?style=momentum&level=4" style="text-decoration:none;">
+        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','4')" style="text-decoration:none;">
           <img src="assets/img/panda-stressed.png" alt="Level 4" />
           <div class="level-card-name" style="color:#FB923C;">Level 4</div>
           <div class="level-card-desc">Higher-risk, unpredictable.</div>
         </a>
-        <a class="level-card" href="finder.html?style=momentum&level=5" style="text-decoration:none;">
+        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','5')" style="text-decoration:none;">
           <img src="assets/img/panda-danger.png" alt="Level 5" />
           <div class="level-card-name" style="color:#F87171;">Level 5</div>
           <div class="level-card-desc">Highly volatile, extreme caution.</div>
@@ -201,6 +201,23 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ── Route Choice Modal ──────────────────────────────────── -->
+<div id="route-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(5px); z-index:1200; display:none; align-items:center; justify-content:center;">
+  <div style="background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:2rem; width:min(380px,92vw); text-align:center;">
+    <div style="font-family:var(--serif); font-size:1.2rem; font-weight:700; font-style:italic; color:var(--parchment); margin-bottom:0.4rem;">How do you want to explore?</div>
+    <div style="font-size:0.78rem; color:var(--muted); margin-bottom:1.5rem; line-height:1.5;">Choose your experience for this selection.</div>
+    <div style="display:flex; flex-direction:column; gap:0.6rem;">
+      <button id="route-quick" onclick="goRoute('quick')" style="width:100%; background:var(--green); color:#000; font-weight:700; padding:0.75rem; border-radius:10px; border:none; font-size:0.88rem; cursor:pointer; font-family:var(--font);">
+        ⚡ Quick Trap — Browse results
+      </button>
+      <button id="route-scan" onclick="goRoute('scan')" style="width:100%; background:rgba(255,255,255,0.05); border:1.5px solid var(--border); color:var(--text); font-weight:600; padding:0.75rem; border-radius:10px; font-size:0.88rem; cursor:pointer; font-family:var(--font);">
+        🔍 Scan Field — One stock at a time
+      </button>
+      <button onclick="closeRouteModal()" style="background:none; border:none; color:var(--muted); font-size:0.75rem; cursor:pointer; margin-top:0.3rem; font-family:var(--font);">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -212,6 +229,28 @@ initNavStamp();
 initGlobalSearch('#nav-search-input', '#nav-search-results', (ticker) => {
   window.location.href = `stock.html?ticker=${encodeURIComponent(ticker)}`;
 });
+
+// ── Route choice modal ────────────────────────────────────────
+let _pendingRoute = {};
+function chooseRoute(type, value) {
+  _pendingRoute = { type, value };
+  document.getElementById('route-modal').style.display = 'flex';
+}
+function closeRouteModal() {
+  document.getElementById('route-modal').style.display = 'none';
+}
+function goRoute(dest) {
+  closeRouteModal();
+  const { type, value } = _pendingRoute;
+  if (dest === 'quick') {
+    if (type === 'region') window.location.href = `finder.html?region=${value}`;
+    else if (type === 'style') window.location.href = `finder.html?style=${value}`;
+    else if (type === 'level') window.location.href = `finder.html?style=momentum&level=${value}`;
+  } else {
+    // Scan Field — go to quiz.html (the quiz always starts from scratch)
+    window.location.href = 'quiz.html';
+  }
+}
 
 // Rotating word in hero
 (function() {
