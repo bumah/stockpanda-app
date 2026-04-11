@@ -824,3 +824,70 @@ input, select { font-family: var(--font); }
 .level-card img { width: 56px; height: 56px; }
 .level-card-name { font-family: var(--mono); font-size: 0.82rem; font-weight: 700; letter-spacing: 0.02em; }
 .level-card-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.45; }
+
+/* ── Discover Card (quiz.html one-at-a-time view) ─────────────────────────── */
+.discover-wrap { max-width: 400px; margin: 0 auto; padding-bottom: 3rem; }
+.discover-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.2rem; flex-wrap: wrap; gap: 0.5rem;
+}
+.discover-counter { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+.discover-refine {
+  background: rgba(74,222,128,0.08); border: 1.5px solid rgba(74,222,128,0.3);
+  color: var(--green); padding: 0.4rem 0.9rem; border-radius: 8px; cursor: pointer;
+  font-size: 0.75rem; font-family: var(--font);
+}
+.discover-refine:hover { background: rgba(74,222,128,0.14); border-color: var(--green); }
+
+.discover-container { position: relative; min-height: 420px; }
+
+.discover-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 1.5rem; text-align: center;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+.discover-card.slide-left  { transform: translateX(-120%); opacity: 0; }
+.discover-card.slide-right { transform: translateX(120%); opacity: 0; }
+.discover-card.entering { animation: cardEnter 0.3s ease forwards; }
+@keyframes cardEnter {
+  from { transform: translateX(60px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+.dc-panda { width: 80px; height: 80px; margin: 0 auto 0.8rem; }
+.dc-top { display: flex; align-items: center; justify-content: center; gap: 0.6rem; margin-bottom: 0.3rem; flex-wrap: wrap; }
+.dc-ticker { font-size: 1.4rem; font-weight: 700; color: var(--green); }
+.dc-fit { font-family: var(--mono); font-size: 0.85rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; }
+.dc-fit.hi { background: rgba(74,222,128,0.15); color: #4ADE80; }
+.dc-fit.mid { background: rgba(251,191,36,0.15); color: #FBBF24; }
+.dc-fit.lo { background: rgba(248,113,113,0.15); color: #F87171; }
+.dc-company { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.6rem; }
+.dc-geo { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.dc-country { font-size: 0.72rem; padding: 2px 8px; border-radius: 5px; background: rgba(74,222,128,0.06); color: rgba(74,222,128,0.7); border: 1px solid rgba(74,222,128,0.12); }
+.dc-signals { display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-bottom: 0.6rem; flex-wrap: wrap; }
+.dc-styles { display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap; margin-bottom: 1rem; }
+.dc-view {
+  display: inline-block; background: none; border: 1px solid var(--green); color: var(--green);
+  padding: 0.5rem 1.4rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; font-family: var(--font); transition: all 0.15s; text-decoration: none;
+}
+.dc-view:hover { background: var(--green); color: #000; }
+
+.discover-nav {
+  display: flex; justify-content: center; gap: 1rem; margin-top: 1.2rem;
+}
+.discover-nav button {
+  padding: 0.6rem 1.8rem; border-radius: 8px; font-size: 0.88rem; font-weight: 600;
+  font-family: var(--font); cursor: pointer; transition: opacity 0.15s;
+}
+.discover-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+.dc-btn-back { background: transparent; border: 1.5px solid var(--border); color: var(--muted); }
+.dc-btn-back:hover:not(:disabled) { border-color: var(--muted); color: var(--text); }
+.dc-btn-next { background: var(--green); border: none; color: #000; }
+.dc-btn-next:hover:not(:disabled) { opacity: 0.85; }
+
+.discover-done {
+  text-align: center; padding: 3rem 1rem; color: var(--muted);
+}
+.discover-done h3 { font-size: 1.1rem; color: var(--parchment); margin-bottom: 0.5rem; }
+.discover-done p { font-size: 0.82rem; line-height: 1.6; }
