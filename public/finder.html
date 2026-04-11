@@ -262,70 +262,28 @@
 <div class="main">
   <div class="finder-wrap">
 
-    <!-- ── Results Section ─────────────────────────────────── -->
+    <!-- ── Results Section (discover-only) ─────────────────── -->
     <div id="results-section" style="display:none;">
-      <div class="results-hd">
-        <div class="results-title" id="results-title">Matched Stocks</div>
-        <button class="btn-refine" onclick="openTrapWizard()">⚡ New Trap</button>
-      </div>
-      <div id="profile-pills" class="profile-pills"></div>
-      <div class="quick-presets" id="quick-presets"></div>
-      <div id="qp-popover" class="qp-popover" style="display:none;"></div>
-
-      <!-- View toggle -->
-      <div class="view-toggle">
-        <button class="view-btn" data-view="discover" onclick="switchToDiscover()">🔍 Discover</button>
-        <button class="view-btn active" data-view="cards" onclick="switchView('cards')">🃏 Cards</button>
-        <button class="view-btn" data-view="table" onclick="switchView('table')">📊 Table</button>
-      </div>
-
-      <!-- Filter bar -->
-      <div class="results-filter-bar">
-        <input type="text" id="filter-text" placeholder="Filter by name or ticker…" oninput="applyFilter()" />
-        <select id="filter-mood" onchange="applyFilter()">
-          <option value="">All Levels</option>
-          <option value="Level 1">Level 1</option>
-          <option value="Level 2">Level 2</option>
-          <option value="Level 3">Level 3</option>
-          <option value="Level 4">Level 4</option>
-          <option value="Level 5">Level 5</option>
-        </select>
-        <select id="filter-territory" onchange="onTerritoryChange()">
-          <option value="">All Territories</option>
-          <option value="us">United States</option>
-          <option value="uk">United Kingdom</option>
-          <option value="europe">Europe</option>
-          <option value="japan">Japan</option>
-          <option value="hk">Hong Kong</option>
-          <option value="china">China</option>
-          <option value="middleeast">Middle East</option>
-        </select>
-        <select id="filter-country" onchange="applyFilter()">
-          <option value="">All Countries</option>
-        </select>
-        <select id="filter-sector" onchange="applyFilter()">
-          <option value="">All Sectors</option>
-        </select>
-        <span class="filter-count" id="filter-count"></span>
-      </div>
-
-      <div class="results-meta">
-        <span id="results-count"></span>
-      </div>
-      <div id="results-list"></div>
-
-      <!-- Discover mode (card-by-card) -->
-      <div id="discover-mode" style="display:none;">
-        <div class="discover-wrap">
-          <div class="discover-header">
-            <span class="discover-counter" id="finder-dc-counter"></span>
-            <button class="discover-refine" onclick="switchView('cards'); document.querySelectorAll('.view-toggle .view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === 'cards'));">Back to List</button>
+      <div class="discover-wrap">
+        <div class="discover-header">
+          <span class="discover-counter" id="finder-dc-counter"></span>
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+            <button class="discover-refine" onclick="openTrapWizard()">⚡ New Trap</button>
+            <button class="discover-refine" onclick="window.location.href='stocks.html'">All Stocks</button>
+            <button class="discover-refine" onclick="showTrapSummary()">View Trap</button>
           </div>
-          <div class="discover-container" id="finder-dc-container"></div>
-          <div class="discover-nav">
-            <button class="dc-btn-back" id="finder-dc-back" onclick="finderPrevCard()" disabled>&larr; Back</button>
-            <button class="dc-btn-next" id="finder-dc-next" onclick="finderNextCard()">Next &rarr;</button>
-          </div>
+        </div>
+
+        <!-- Trap summary (hidden by default, toggled by View Trap) -->
+        <div id="trap-summary" style="display:none; margin-bottom:1rem; padding:0.8rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:10px; font-size:0.72rem;">
+          <div style="font-family:var(--mono);font-size:0.5rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.5rem;">Your Trap Settings</div>
+          <div id="trap-summary-content"></div>
+        </div>
+
+        <div class="discover-container" id="finder-dc-container"></div>
+        <div class="discover-nav">
+          <button class="dc-btn-back" id="finder-dc-back" onclick="finderPrevCard()" disabled>&larr; Back</button>
+          <button class="dc-btn-next" id="finder-dc-next" onclick="finderNextCard()">Next &rarr;</button>
         </div>
       </div>
     </div>
@@ -468,14 +426,14 @@ DataCache.getSearchIndex().catch(() => {});
 
 // ── Trap Wizard arrays ──────────────────────────────────────
 const TW_GEO = [
-  { key: 'global', label: '🌍 Global' },
   { key: 'us', label: '🇺🇸 United States' },
   { key: 'uk', label: '🇬🇧 United Kingdom' },
-  { key: 'europe', label: '🇪🇺 Europe' },
+  { key: 'germany', label: '🇩🇪 Germany' },
+  { key: 'france', label: '🇫🇷 France' },
+  { key: 'japan', label: '🇯🇵 Japan' },
   { key: 'hk', label: '🇭🇰 Hong Kong' },
   { key: 'china', label: '🇨🇳 China' },
-  { key: 'japan', label: '🇯🇵 Japan' },
-  { key: 'middleeast', label: '🌙 Middle East' },
+  { key: 'india', label: '🇮🇳 India' },
 ];
 const TW_SEC = [
   { key: 'all', label: 'All Sectors' },
@@ -749,7 +707,7 @@ document.addEventListener('click', e => {
   }
 });
 
-buildQuickPresets();
+// Quick presets strip removed — discover-only mode
 
 // ── Trap criteria (stored from wizard for scoring) ──────────
 let _trapCriteria = { region: 'global', sectors: 'all', styles: [], level: null };
@@ -845,8 +803,9 @@ async function findStocks() {
   _allScored = scored;
   scoredCache = goodFits;
 
-  populateFilterDropdowns(scoredCache);
-  renderResults(goodFits, allStocks.length, scored.length);
+  // Go straight to discover mode
+  _finderDcIdx = 0;
+  showFinderCard();
 }
 window.findStocks = findStocks;
 
@@ -1219,6 +1178,34 @@ function toggleFinderScores() {
   }
 }
 window.toggleFinderScores = toggleFinderScores;
+
+function showTrapSummary() {
+  const panel = document.getElementById('trap-summary');
+  const content = document.getElementById('trap-summary-content');
+  if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
+
+  const c = _trapCriteria;
+  const regionLabels = { global:'🌍 Global', us:'🇺🇸 United States', uk:'🇬🇧 United Kingdom', europe:'🇪🇺 Europe', hk:'🇭🇰 Hong Kong', china:'🇨🇳 China', japan:'🇯🇵 Japan', middleeast:'🌙 Middle East', india:'🇮🇳 India', germany:'🇩🇪 Germany', france:'🇫🇷 France' };
+  const sectorLabels = { all:'All Sectors', tech:'Technology', health:'Healthcare', finance:'Finance', energy:'Energy', consumer:'Consumer', industrial:'Industrial', utilities:'Utilities' };
+
+  var rows = [];
+  // Territory
+  var reg = c.region;
+  if (Array.isArray(reg)) rows.push('<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:var(--muted);">Territory</span><span style="color:var(--text);">' + reg.map(function(r){ return regionLabels[r]||r; }).join(', ') + '</span></div>');
+  else rows.push('<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:var(--muted);">Territory</span><span style="color:var(--text);">' + (regionLabels[reg]||reg||'Global') + '</span></div>');
+  // Sector
+  var sec = c.sectors;
+  if (Array.isArray(sec)) rows.push('<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:var(--muted);">Sector</span><span style="color:var(--text);">' + sec.map(function(s){ return sectorLabels[s]||s; }).join(', ') + '</span></div>');
+  else rows.push('<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:var(--muted);">Sector</span><span style="color:var(--text);">' + (sectorLabels[sec]||sec||'All') + '</span></div>');
+  // Style
+  if (c.styles && c.styles.length) rows.push('<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:var(--muted);">Style</span><span style="color:var(--text);">' + c.styles.map(function(k){ return (STYLE_ICONS[k]||'') + ' ' + (STYLE_NAMES[k]||k); }).join(', ') + '</span></div>');
+  // Level
+  if (c.level) rows.push('<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:var(--muted);">Max Level</span><span style="color:var(--text);">' + c.level + '</span></div>');
+
+  content.innerHTML = rows.join('');
+  panel.style.display = 'block';
+}
+window.showTrapSummary = showTrapSummary;
 
 function finderNextCard() {
   if (_finderDcIdx >= scoredCache.length) return;

@@ -37,6 +37,9 @@ const REGION_CONFIG = {
   hk:         { countries: new Set(['Hong Kong','Macau']) },
   china:      { countries: new Set(['China','Hong Kong']) },
   japan:      { countries: new Set(['Japan']) },
+  germany:    { countries: new Set(['Germany']) },
+  france:     { countries: new Set(['France']) },
+  india:      { countries: new Set(['India']) },
   middleeast: { countries: MIDDLEEAST_COUNTRIES },
 };
 
