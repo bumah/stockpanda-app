@@ -222,6 +222,9 @@
     <div class="dash-main">
       <div id="company-info-section"></div>
 
+      <!-- Field Notes -->
+      <div id="field-notes" style="margin-bottom:1.5rem;"></div>
+
       <div class="section-label">Company Performance</div>
       <div id="stat-grid" style="margin-bottom:1.25rem;"></div>
 
@@ -319,6 +322,7 @@ function renderAll() {
 
   renderHeader();
   renderCompanyInfo();
+  renderFieldNotes();
   renderStatGrid();
   renderFinancials();
   renderRawTable();
@@ -521,6 +525,125 @@ function toggleIndexTags() {
   const expanded = tags.classList.toggle('expanded');
   const extraCount = tags.querySelectorAll('.ci-index-tag-extra').length;
   btn.textContent = expanded ? '▾ Show less' : `▸ +${extraCount} more`;
+}
+
+// ── Field Notes (auto-generated observations) ───────────────────────────────
+function renderFieldNotes() {
+  const s = stockData;
+  const ind = s.indicators || {};
+  const el = document.getElementById('field-notes');
+  if (!el || !Object.keys(ind).length) return;
+
+  const notes = [];
+
+  // 1. Recent Performance
+  const r1m = ind.return1M;
+  const r1y = ind.return1Y;
+  const r52 = ind.range52W;
+  if (r1m) {
+    const dir = r1m.color === 'green' ? 'gained' : r1m.color === 'red' ? 'dropped' : 'moved';
+    let perf = `${s.ticker} has ${dir} ${r1m.label} in the past month`;
+    if (r1y) perf += ` and ${r1y.color === 'green' ? 'is up' : r1y.color === 'red' ? 'is down' : 'has returned'} ${r1y.label} over the past year`;
+    perf += '.';
+    if (r52) {
+      const pos = r52.raw;
+      if (pos >= 80) perf += ' It\'s currently trading near its yearly high.';
+      else if (pos <= 20) perf += ' It\'s currently near its yearly low.';
+    }
+    notes.push({ icon: '📈', title: 'Recent Performance', text: perf });
+  }
+
+  // 2. Trend
+  const st = ind.shortTrend;
+  const lt = ind.longTrend;
+  const mac = ind.maCross;
+  if (st && lt) {
+    let trend = '';
+    if (st.color === 'green' && lt.color === 'green') {
+      trend = 'The price is above both its short-term and long-term averages — a sign of sustained upward momentum.';
+    } else if (st.color === 'green' && lt.color !== 'green') {
+      trend = 'The price is above its short-term average but below the long-term one — showing recent improvement but the longer trend is still uncertain.';
+    } else if (st.color === 'red' && lt.color === 'red') {
+      trend = 'The price is below both its short-term and long-term averages — in a clear downtrend.';
+    } else {
+      trend = 'The short-term and long-term trends are giving mixed signals.';
+    }
+    if (mac) {
+      if (mac.label === 'Golden Cross') trend += ' The short-term average is above the long-term average (Golden Cross), which is typically a positive sign.';
+      else if (mac.label === 'Death Cross') trend += ' The short-term average is below the long-term average (Death Cross), which is typically a warning sign.';
+    }
+    notes.push({ icon: '📊', title: 'Trend', text: trend });
+  }
+
+  // 3. Volatility & Watch Out
+  const vol = ind.volatility;
+  const spike = ind.volSpike;
+  // Count signals
+  let redCount = 0, amberCount = 0, greenCount = 0;
+  Object.values(ind).forEach(i => {
+    if (i.color === 'red') redCount++;
+    else if (i.color === 'amber') amberCount++;
+    else if (i.color === 'green') greenCount++;
+  });
+  const total = redCount + amberCount + greenCount;
+
+  if (redCount > 0 || (vol && vol.color !== 'green')) {
+    let watch = '';
+    if (vol && vol.raw) {
+      if (vol.raw > 35) watch += 'Volatility is high at ' + vol.raw.toFixed(0) + '%. This stock can swing significantly day to day. ';
+      else if (vol.raw > 20) watch += 'Volatility is moderate at ' + vol.raw.toFixed(0) + '%. ';
+      else watch += 'Volatility is low at ' + vol.raw.toFixed(0) + '% — relatively stable price movement. ';
+    }
+    if (redCount > 0) {
+      watch += 'The stock has ' + redCount + ' warning signal' + (redCount > 1 ? 's' : '') + ' out of ' + total + ' total — worth reviewing before acting.';
+    } else if (amberCount > 2) {
+      watch += 'There are ' + amberCount + ' cautionary signals to keep an eye on.';
+    }
+    if (watch.trim()) notes.push({ icon: '⚠️', title: 'Watch Out', text: watch.trim() });
+  }
+
+  // 4. Style Fit
+  const ps = s.presetScores;
+  if (ps && Object.keys(ps).length) {
+    const sorted = Object.entries(ps).sort((a, b) => (b[1].pct || 0) - (a[1].pct || 0));
+    const best = sorted.slice(0, 3);
+    const worst = sorted[sorted.length - 1];
+    const NAMES = { optimistic:'Optimistic', nimble:'Nimble', momentum:'Momentum', pack:'Pack', patient:'Patient', safe:'Careful', trophy:'Trophy', wild_beast:'Wild Beast', zombie:'Zombie' };
+    let styleTxt = 'This stock is a strong match for ';
+    styleTxt += best.map(([k, v]) => NAMES[k] + ' (' + v.pct + '%)').join(', ') + '.';
+    if (worst && worst[1].pct < 60) {
+      styleTxt += ' It\'s a weak match for ' + NAMES[worst[0]] + ' (' + worst[1].pct + '%).';
+    }
+    notes.push({ icon: '🎯', title: 'Style Fit', text: styleTxt });
+  }
+
+  // 5. Panda Level
+  const mood = s.mood;
+  if (mood && mood.label) {
+    const LEVEL_DESC = {
+      'Level 1': 'This stock is stable and steady — smooth sailing with no signs of immediate danger.',
+      'Level 2': 'This stock is stable with mild movement — stay aware, but no need to worry.',
+      'Level 3': 'This stock is unsettled and can shift quickly — watch closely and stay disciplined.',
+      'Level 4': 'This stock is unpredictable and risk is rising — move with caution.',
+      'Level 5': 'This stock is highly volatile and can turn sharply — proceed with extreme care.'
+    };
+    notes.push({ icon: '🐼', title: 'Panda Level', text: mood.label + ' — ' + (LEVEL_DESC[mood.label] || '') });
+  }
+
+  if (!notes.length) return;
+
+  el.innerHTML = '<div class="section-label">Field Notes</div>' +
+    '<div style="display:flex;flex-direction:column;gap:0.75rem;">' +
+    notes.map(n =>
+      '<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:0.85rem 1rem;">' +
+        '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.35rem;">' +
+          '<span style="font-size:1rem;">' + n.icon + '</span>' +
+          '<span style="font-size:0.78rem;font-weight:700;color:var(--text);">' + n.title + '</span>' +
+        '</div>' +
+        '<div style="font-size:0.75rem;color:var(--muted);line-height:1.65;">' + n.text + '</div>' +
+      '</div>'
+    ).join('') +
+    '</div>';
 }
 
 function renderStatGrid() {
