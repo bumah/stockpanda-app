@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StockPanda — Quick Trap</title>
+  <title>StockPanda — Scan</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="assets/css/styles.css" />
@@ -241,10 +241,10 @@
   </a>
   <div class="nav-links">
     <a class="nav-link" href="index.html">Home</a>
-    <a class="nav-link active" href="finder.html">Quick Trap</a>
-    <a class="nav-link" href="quiz.html">Pro Trap</a>
-    <a class="nav-link" href="stocks.html">Browse</a>
-    <a class="nav-link" href="summary.html">Quick Bites</a>
+    <a class="nav-link active" href="finder.html">Scan</a>
+    <a class="nav-link" href="quiz.html">Trap</a>
+    <a class="nav-link" href="stocks.html">Explore</a>
+    <a class="nav-link" href="summary.html">Peek</a>
   </div>
   <div class="nav-right">
     <div class="nav-search-wrap">
@@ -712,7 +712,7 @@ document.addEventListener('click', e => {
 // ── Trap criteria (stored from wizard for scoring) ──────────
 let _trapCriteria = { region: 'global', sectors: 'all', styles: [], level: null };
 
-// ── 4-criteria scoring for Quick Trap ───────────────────────
+// ── 4-criteria scoring for Scan ───────────────────────
 function scoreTrapCriteria(stock, criteria) {
   const checks = [];
 
@@ -1050,7 +1050,7 @@ document.addEventListener('click', e => {
   }
 })();
 
-// ── Discover mode (card-by-card) for Quick Trap ─────────────
+// ── Discover mode (card-by-card) for Scan ─────────────
 let _finderDcIdx = 0;
 
 function switchToDiscover() {

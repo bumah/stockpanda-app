@@ -16,10 +16,10 @@
   </a>
   <div class="nav-links">
     <a class="nav-link active" href="index.html">Home</a>
-    <a class="nav-link" href="finder.html">Quick Trap</a>
-    <a class="nav-link" href="quiz.html">Pro Trap</a>
-    <a class="nav-link" href="stocks.html">Browse</a>
-    <a class="nav-link" href="summary.html">Quick Bites</a>
+    <a class="nav-link" href="finder.html">Scan</a>
+    <a class="nav-link" href="quiz.html">Trap</a>
+    <a class="nav-link" href="stocks.html">Explore</a>
+    <a class="nav-link" href="summary.html">Peek</a>
   </div>
   <div class="nav-right">
     <div class="nav-search-wrap">
@@ -50,17 +50,17 @@
       <div class="pillars-grid" style="grid-template-columns: repeat(3, 1fr);">
         <a class="pillar-card" href="finder.html" style="text-decoration:none;color:inherit;cursor:pointer;">
           <div class="pillar-icon">⚡</div>
-          <div class="pillar-title">Quick Trap</div>
+          <div class="pillar-title">Scan</div>
           <div class="pillar-desc">Pick a territory, style, and level. We'll find matching stocks instantly.</div>
         </a>
         <a class="pillar-card" href="quiz.html" style="text-decoration:none;color:inherit;cursor:pointer;">
           <div class="pillar-icon">🎯</div>
-          <div class="pillar-title">Pro Trap</div>
+          <div class="pillar-title">Trap</div>
           <div class="pillar-desc">Answer 12 questions about your preferences. We'll score every stock against your criteria.</div>
         </a>
         <a class="pillar-card" href="stocks.html" style="text-decoration:none;color:inherit;cursor:pointer;">
           <div class="pillar-icon">📊</div>
-          <div class="pillar-title">Browse Fields</div>
+          <div class="pillar-title">Explore</div>
           <div class="pillar-desc">Explore the full universe of 30,000+ stocks with filters, sorting, and style scores.</div>
         </a>
       </div>
@@ -229,10 +229,10 @@
     <div style="font-size:0.78rem; color:var(--muted); margin-bottom:1.5rem; line-height:1.5;">Choose your experience for this selection.</div>
     <div style="display:flex; flex-direction:column; gap:0.6rem;">
       <button id="route-quick" onclick="goRoute('quick')" style="width:100%; background:var(--green); color:#000; font-weight:700; padding:0.75rem; border-radius:10px; border:none; font-size:0.88rem; cursor:pointer; font-family:var(--font);">
-        ⚡ Quick Trap — Browse results
+        ⚡ Scan — Browse results
       </button>
       <button id="route-scan" onclick="goRoute('scan')" style="width:100%; background:rgba(255,255,255,0.05); border:1.5px solid var(--border); color:var(--text); font-weight:600; padding:0.75rem; border-radius:10px; font-size:0.88rem; cursor:pointer; font-family:var(--font);">
-        🔍 Pro Trap — One stock at a time
+        🔍 Trap — One stock at a time
       </button>
       <button onclick="closeRouteModal()" style="background:none; border:none; color:var(--muted); font-size:0.75rem; cursor:pointer; margin-top:0.3rem; font-family:var(--font);">Cancel</button>
     </div>
@@ -265,7 +265,7 @@ function goRoute(dest) {
     else if (type === 'style') window.location.href = `finder.html?style=${value}`;
     else if (type === 'level') window.location.href = `finder.html?style=momentum&level=${value}`;
   } else {
-    // Pro Trap — go to quiz.html (the quiz always starts from scratch)
+    // Trap — go to quiz.html (the quiz always starts from scratch)
     window.location.href = 'quiz.html';
   }
 }
