@@ -137,7 +137,7 @@ input, select { font-family: var(--font); }
     font-weight: 500; padding: 0.2rem 0.4rem; transition: color 0.15s;
     -webkit-tap-highlight-color: transparent;
   }
-  .nav-bottom a .nb-icon { font-size: 1.15rem; line-height: 1; }
+  .nav-bottom a .nb-icon { width: 20px; height: 20px; stroke-width: 1.8; }
   .nav-bottom a.active { color: var(--brand); }
   .nav-links { display: none !important; }
   body { padding-bottom: 64px; }
@@ -938,15 +938,16 @@ input, select { font-family: var(--font); }
 .dc-score-word { font-family: var(--mono); font-size: 0.65rem; font-weight: 700; }
 
 .discover-nav {
-  display: flex; justify-content: center; gap: 1rem; margin-top: 1.2rem;
+  display: flex; justify-content: center; align-items: center; gap: 1.5rem; margin-top: 1.2rem;
 }
 .discover-nav button {
-  padding: 0.6rem 1.8rem; border-radius: 8px; font-size: 0.88rem; font-weight: 600;
-  font-family: var(--font); cursor: pointer; transition: opacity 0.15s;
+  width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.15s; padding: 0; font-size: 0;
 }
-.discover-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
-.dc-btn-back { background: transparent; border: 1.5px solid var(--border); color: var(--muted); }
-.dc-btn-back:hover:not(:disabled) { border-color: var(--muted); color: var(--text); }
+.discover-nav button svg { width: 22px; height: 22px; stroke-width: 2; }
+.discover-nav button:disabled { opacity: 0.25; cursor: not-allowed; }
+.dc-btn-back { background: rgba(255,255,255,0.06); border: 1.5px solid var(--border); color: var(--muted); }
+.dc-btn-back:hover:not(:disabled) { border-color: var(--muted); color: var(--text); background: rgba(255,255,255,0.1); }
 .dc-btn-next { background: var(--green); border: none; color: #000; }
 .dc-btn-next:hover:not(:disabled) { opacity: 0.85; }
 

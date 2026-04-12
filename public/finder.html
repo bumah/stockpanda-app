@@ -248,16 +248,16 @@
   </div>
   <div class="nav-right">
     <a href="https://tally.so/r/waqMdX" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;color:var(--green);font-weight:600;">Get Pro</a>
-    <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;">Contact</a>
+    <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;" title="Contact"><i data-lucide="mail" style="width:18px;height:18px;"></i></a>
     <div class="nav-stamp">Data: <span>—</span></div>
   </div>
 </nav>
 <nav class="nav-bottom">
-  <a href="index.html"><span class="nb-icon">🏠</span>Home</a>
-  <a href="finder.html" class="active"><span class="nb-icon">🔎</span>Scan</a>
-  <a href="quiz.html"><span class="nb-icon">🪤</span>Trap</a>
-  <a href="stocks.html"><span class="nb-icon">📊</span>Explore</a>
-  <a href="summary.html"><span class="nb-icon">👀</span>Peek</a>
+  <a href="index.html"><i data-lucide="house" class="nb-icon"></i>Home</a>
+  <a href="finder.html" class="active"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
+  <a href="quiz.html"><i data-lucide="crosshair" class="nb-icon"></i>Trap</a>
+  <a href="stocks.html"><i data-lucide="bar-chart-3" class="nb-icon"></i>Explore</a>
+  <a href="summary.html"><i data-lucide="eye" class="nb-icon"></i>Peek</a>
 </nav>
 
 <div class="main">
@@ -290,8 +290,8 @@
 
         <div class="discover-container" id="finder-dc-container"></div>
         <div class="discover-nav">
-          <button class="dc-btn-back" id="finder-dc-back" onclick="finderPrevCard()" disabled>&larr; Back</button>
-          <button class="dc-btn-next" id="finder-dc-next" onclick="finderNextCard()">Next &rarr;</button>
+          <button class="dc-btn-back" id="finder-dc-back" onclick="finderPrevCard()" disabled title="Back"><i data-lucide="arrow-left"></i></button>
+          <button class="dc-btn-next" id="finder-dc-next" onclick="finderNextCard()" title="Next"><i data-lucide="arrow-right"></i></button>
         </div>
       </div>
     </div>
@@ -1104,6 +1104,7 @@ function showFinderCard() {
 
   const item = items[_finderDcIdx];
   container.innerHTML = buildFinderDiscoverCard(item);
+  if (typeof lucide !== 'undefined') lucide.createIcons();
   var card = container.querySelector('.discover-card');
   if (card) card.classList.add('entering');
 }
@@ -1157,8 +1158,8 @@ function buildFinderDiscoverCard(item) {
     '</div></div>' +
     '<div class="dc-section"><div class="dc-section-label">Styles</div><div class="dc-style-list">' + styleRows + '</div></div>' +
     '<div class="dc-actions">' +
-      '<a class="dc-btn-primary" href="' + href + '">View Details &rarr;</a>' +
-      '<button class="dc-btn-secondary" onclick="event.stopPropagation(); toggleFinderScores()">View Scores</button>' +
+      '<a class="dc-btn-primary" href="' + href + '"><i data-lucide="external-link" style="width:15px;height:15px;display:inline-block;vertical-align:-2px;margin-right:4px;"></i>View Details</a>' +
+      '<button class="dc-btn-secondary" onclick="event.stopPropagation(); toggleFinderScores()"><i data-lucide="list" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;margin-right:4px;"></i>View Scores</button>' +
     '</div>' +
     '<div class="dc-scores-panel" id="finder-scores-panel" style="display:none;">' + buildTrapScoreBreakdown(item) + '</div>' +
   '</div>';
@@ -1249,5 +1250,7 @@ switchView = function(view) {
 };
 window.switchView = switchView;
 </script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
 </body>
 </html>
