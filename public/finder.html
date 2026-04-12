@@ -734,24 +734,11 @@ document.addEventListener('click', e => {
 // ── Trap criteria (stored from wizard for scoring) ──────────
 let _trapCriteria = { region: 'global', sectors: 'all', styles: [], level: null };
 
-// ── 4-criteria scoring for Scan ───────────────────────
+// ── 3-criteria scoring for Scan (territory is pre-filtered via loadAllStocks) ──
 function scoreTrapCriteria(stock, criteria) {
   const checks = [];
 
-  // 1. Territory: does stock's country match selected region?
-  let terrMatch = true;
-  if (criteria.region && criteria.region !== 'global') {
-    const regions = Array.isArray(criteria.region) ? criteria.region : [criteria.region];
-    let countrySet = new Set();
-    for (const r of regions) {
-      const cfg = REGION_CONFIG[r];
-      if (cfg && cfg.countries) cfg.countries.forEach(c => countrySet.add(c));
-    }
-    terrMatch = countrySet.size === 0 || countrySet.has(stock.country);
-  }
-  checks.push({ label: 'Territory', match: terrMatch });
-
-  // 2. Sector: does stock's sector match selected sectors?
+  // 1. Sector: does stock's sector match selected sectors?
   let secMatch = true;
   if (criteria.sectors && criteria.sectors !== 'all') {
     const groups = Array.isArray(criteria.sectors) ? criteria.sectors : [criteria.sectors];
@@ -763,7 +750,7 @@ function scoreTrapCriteria(stock, criteria) {
   }
   checks.push({ label: 'Sector', match: secMatch });
 
-  // 3. Style: stock scores ≥50% for at least one selected style
+  // 2. Style: stock scores ≥50% for at least one selected style
   let styleMatch = true;
   if (criteria.styles && criteria.styles.length > 0) {
     const ps = stock._ps || {};
@@ -771,7 +758,7 @@ function scoreTrapCriteria(stock, criteria) {
   }
   checks.push({ label: 'Style', match: styleMatch });
 
-  // 4. Level: stock's mood level ≤ selected max level
+  // 3. Level: stock's mood level ≤ selected max level
   let levelMatch = true;
   if (criteria.level) {
     const maxLvl = parseInt(criteria.level.replace(/\D/g, '')) || 99;
@@ -781,7 +768,7 @@ function scoreTrapCriteria(stock, criteria) {
   checks.push({ label: 'Max Level', match: levelMatch });
 
   const matchCount = checks.filter(c => c.match).length;
-  const pct = Math.round((matchCount / 4) * 100);
+  const pct = Math.round((matchCount / 3) * 100);
   return { checks, matchCount, pct };
 }
 
@@ -798,13 +785,10 @@ async function findStocks() {
 
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-  // Load ALL stocks (no region/sector pre-filter — we score them ourselves)
-  const origRegion = answers.region;
+  // Load stocks filtered to the selected territory
   const origSector = answers.sector;
-  answers.region = 'global';
   answers.sector = 'all';
   const allStocks = await loadAllStocks(answers);
-  answers.region = origRegion;
   answers.sector = origSector;
 
   // Score each stock against the 4 trap criteria
@@ -813,8 +797,8 @@ async function findStocks() {
     return { stock: s, pct: result.pct, matchCount: result.matchCount, checks: result.checks, scores: [] };
   });
 
-  // Filter: must match at least 3 of 4 criteria
-  let goodFits = scored.filter(x => x.matchCount >= 3);
+  // Filter: must match at least 2 of 3 criteria
+  let goodFits = scored.filter(x => x.matchCount >= 2);
 
   // Randomize order (Fisher-Yates shuffle)
   for (let i = goodFits.length - 1; i > 0; i--) {
