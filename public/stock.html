@@ -408,7 +408,7 @@ function renderHeader() {
   const _exchLabels = { sp500:'S&P 500', ftse100:'FTSE 100', hsi:'Hang Seng', nikkei225:'Nikkei 225',
     nasdaq100:'NASDAQ 100', nasdaq_financial:'NASDAQ Financial', nasdaq_biotech:'NASDAQ Biotech' };
   const ec  = _exchColors[EXCHANGE] || '#8A9E8F';
-  const exl = s._exchangeLabel || _exchLabels[EXCHANGE] || 'Global';
+  const exl = s.country || s._exchangeLabel || _exchLabels[EXCHANGE] || 'Global';
 
   const inds = Object.values(s.indicators || {});
   const amberCount = inds.filter(i => i.color === 'amber').length;
