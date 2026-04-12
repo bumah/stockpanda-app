@@ -1050,8 +1050,12 @@ function buildDiscoverCard(item) {
   const b = MOOD.band(s.mood?.label || 'Level 3');
   const sig = _countSignals(s);
   const flag = COUNTRY_FLAGS[s.country] || '';
-  const fitCls = item.pct >= 80 ? 'hi' : item.pct >= 50 ? 'mid' : 'lo';
-  const fitCol = item.pct >= 80 ? '#4ADE80' : item.pct >= 50 ? '#FBBF24' : '#F87171';
+  var matchWord, matchCol;
+  if (item.pct >= 90) { matchWord = 'Very Strong'; matchCol = '#4ADE80'; }
+  else if (item.pct >= 75) { matchWord = 'Strong'; matchCol = '#4ADE80'; }
+  else if (item.pct >= 60) { matchWord = 'Fair'; matchCol = '#FBBF24'; }
+  else if (item.pct >= 45) { matchWord = 'Poor'; matchCol = '#F87171'; }
+  else { matchWord = 'Very Poor'; matchCol = '#F87171'; }
   const href = 'stock.html?ticker=' + encodeURIComponent(s.ticker) + '&country=' + encodeURIComponent(s.country || '');
 
   // Returns helper
@@ -1062,19 +1066,27 @@ function buildDiscoverCard(item) {
     return '<div class="dc-ret"><span class="dc-ret-label">' + label + '</span><span class="dc-ret-val ' + cls + '">' + sign + val.toFixed(1) + '%</span></div>';
   }
 
+  function hearts(pct) {
+    var n = pct >= 90 ? 5 : pct >= 70 ? 4 : pct >= 50 ? 3 : pct >= 30 ? 2 : 1;
+    var col = n >= 4 ? '#4ADE80' : n >= 3 ? '#FBBF24' : '#F87171';
+    var h = '';
+    for (var i = 0; i < 5; i++) {
+      h += '<span style="font-size:0.65rem;color:' + (i < n ? col : 'rgba(255,255,255,0.12)') + ';">' + (i < n ? '\u2665' : '\u2661') + '</span>';
+    }
+    return '<span class="dc-style-hearts">' + h + '</span>';
+  }
+
   // Style rows (top 3 + worst)
   var ps = s._ps || {};
   var sorted = Object.entries(ps).sort(function(a,b){ return b[1]-a[1]; });
   var top3 = sorted.slice(0, 3);
   var worst = sorted[sorted.length - 1];
   var styleRows = top3.map(function(e) {
-    var cls = e[1] >= 80 ? 'hi' : e[1] >= 50 ? 'mid' : 'lo';
-    return '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[e[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[e[0]]||e[0]) + '</span><span class="dc-style-pct ' + cls + '">' + e[1] + '%</span></div>';
+    return '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[e[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[e[0]]||e[0]) + '</span>' + hearts(e[1]) + '</div>';
   }).join('');
   if (worst) {
-    var wCls = worst[1] >= 80 ? 'hi' : worst[1] >= 50 ? 'mid' : 'lo';
     styleRows += '<div class="dc-style-sep">worst match</div>' +
-      '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[worst[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[worst[0]]||worst[0]) + '</span><span class="dc-style-pct ' + wCls + '">' + worst[1] + '%</span></div>';
+      '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[worst[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[worst[0]]||worst[0]) + '</span>' + hearts(worst[1]) + '</div>';
   }
 
   return '<div class="discover-card">' +
@@ -1092,9 +1104,9 @@ function buildDiscoverCard(item) {
       '</div>' +
     '</div>' +
     // Fit
-    '<div class="dc-fit-row">' +
-      '<div><div class="dc-fit-label">Overall Fit</div><div class="dc-fit-pct" style="color:' + fitCol + ';">' + item.pct + '%</div></div>' +
-      '<div class="dc-fit-bar"><div class="dc-fit-fill" style="width:' + item.pct + '%;background:' + fitCol + ';"></div></div>' +
+    '<div class="dc-match-row">' +
+      '<div><div class="dc-match-label">Match</div><div class="dc-match-word" style="color:' + matchCol + ';">' + matchWord + '</div></div>' +
+      '<div class="dc-match-bar"><div class="dc-match-fill" style="width:' + item.pct + '%;background:' + matchCol + ';"></div></div>' +
     '</div>' +
     // Returns
     '<div class="dc-returns">' +
@@ -1154,7 +1166,7 @@ function buildScoreBreakdown(item) {
     activeCriteria.map((key, i) => {
       const sc = item.scores[i] ?? 0;
       const col = sc >= 1 ? '#4ADE80' : sc >= 0.5 ? '#FBBF24' : '#F87171';
-      const word = sc >= 1 ? 'Good Match' : sc >= 0.5 ? 'Partial Match' : 'Low Match';
+      const word = sc >= 1 ? 'Match' : sc >= 0.5 ? 'Borderline' : 'Out of range';
       return '<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.72rem;">' +
         '<span style="color:var(--text);">' + (SCORE_LABELS[key] || key) + '</span>' +
         '<div style="display:flex;align-items:center;gap:0.35rem;">' +

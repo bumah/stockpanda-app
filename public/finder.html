@@ -1124,8 +1124,12 @@ function buildFinderDiscoverCard(item) {
   var b = MOOD.band(s.mood?.label || 'Level 3');
   var sig = _countSignals(s);
   var flag = COUNTRY_FLAGS[s.country] || '';
-  var fitCls = item.pct >= 80 ? 'hi' : item.pct >= 50 ? 'mid' : 'lo';
-  var fitCol = item.pct >= 80 ? '#4ADE80' : item.pct >= 50 ? '#FBBF24' : '#F87171';
+  var matchWord, matchCol;
+  if (item.pct >= 90) { matchWord = 'Very Strong'; matchCol = '#4ADE80'; }
+  else if (item.pct >= 75) { matchWord = 'Strong'; matchCol = '#4ADE80'; }
+  else if (item.pct >= 60) { matchWord = 'Fair'; matchCol = '#FBBF24'; }
+  else if (item.pct >= 45) { matchWord = 'Poor'; matchCol = '#F87171'; }
+  else { matchWord = 'Very Poor'; matchCol = '#F87171'; }
   var href = 'stock.html?ticker=' + encodeURIComponent(s.ticker) + '&country=' + encodeURIComponent(s.country || '');
 
   function ret(label, val) {
@@ -1135,17 +1139,25 @@ function buildFinderDiscoverCard(item) {
     return '<div class="dc-ret"><span class="dc-ret-label">' + label + '</span><span class="dc-ret-val ' + cls + '">' + sign + val.toFixed(1) + '%</span></div>';
   }
 
+  function hearts(pct) {
+    var n = pct >= 90 ? 5 : pct >= 70 ? 4 : pct >= 50 ? 3 : pct >= 30 ? 2 : 1;
+    var col = n >= 4 ? '#4ADE80' : n >= 3 ? '#FBBF24' : '#F87171';
+    var h = '';
+    for (var i = 0; i < 5; i++) {
+      h += '<span style="font-size:0.65rem;color:' + (i < n ? col : 'rgba(255,255,255,0.12)') + ';">' + (i < n ? '\u2665' : '\u2661') + '</span>';
+    }
+    return '<span class="dc-style-hearts">' + h + '</span>';
+  }
+
   var ps = s._ps || {};
   var sorted = Object.entries(ps).sort(function(a,b){ return b[1]-a[1]; });
   var top3 = sorted.slice(0, 3);
   var worst = sorted[sorted.length - 1];
   var styleRows = top3.map(function(e) {
-    var cls = e[1] >= 80 ? 'hi' : e[1] >= 50 ? 'mid' : 'lo';
-    return '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[e[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[e[0]]||e[0]) + '</span><span class="dc-style-pct ' + cls + '">' + e[1] + '%</span></div>';
+    return '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[e[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[e[0]]||e[0]) + '</span>' + hearts(e[1]) + '</div>';
   }).join('');
   if (worst) {
-    var wCls = worst[1] >= 80 ? 'hi' : worst[1] >= 50 ? 'mid' : 'lo';
-    styleRows += '<div class="dc-style-sep">worst match</div><div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[worst[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[worst[0]]||worst[0]) + '</span><span class="dc-style-pct ' + wCls + '">' + worst[1] + '%</span></div>';
+    styleRows += '<div class="dc-style-sep">worst match</div><div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[worst[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[worst[0]]||worst[0]) + '</span>' + hearts(worst[1]) + '</div>';
   }
 
   return '<div class="discover-card">' +
@@ -1158,8 +1170,8 @@ function buildFinderDiscoverCard(item) {
       '<span class="dc-level-label">Panda Level</span>' +
       '<span class="mood-chip ' + b.cls + '">' + b.label + '</span>' +
     '</div></div>' +
-    '<div class="dc-fit-row"><div><div class="dc-fit-label">Overall Fit</div><div class="dc-fit-pct" style="color:' + fitCol + ';">' + item.pct + '%</div></div>' +
-      '<div class="dc-fit-bar"><div class="dc-fit-fill" style="width:' + item.pct + '%;background:' + fitCol + ';"></div></div></div>' +
+    '<div class="dc-match-row"><div><div class="dc-match-label">Match</div><div class="dc-match-word" style="color:' + matchCol + ';">' + matchWord + '</div></div>' +
+      '<div class="dc-match-bar"><div class="dc-match-fill" style="width:' + item.pct + '%;background:' + matchCol + ';"></div></div></div>' +
     '<div class="dc-returns">' + ret('1M', s._m1) + ret('3M', s._m3) + ret('1Y', s._y5 != null ? null : null) + ret('5Y', s._y5) + '</div>' +
     '<div class="dc-section"><div class="dc-section-label">Signals</div><div class="dc-sig-list">' +
       (sig.g > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot green"></span><span class="dc-sig-count green">' + sig.g + '</span> Positive</div>' : '') +
@@ -1180,7 +1192,7 @@ function buildTrapScoreBreakdown(item) {
   return '<div style="margin-top:0.6rem;">' +
     item.checks.map(function(c) {
       var col = c.match ? '#4ADE80' : '#F87171';
-      var word = c.match ? 'Good Match' : 'Low Match';
+      var word = c.match ? 'Match' : 'Out of range';
       return '<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.72rem;">' +
         '<span style="color:var(--text);">' + c.label + '</span>' +
         '<div style="display:flex;align-items:center;gap:0.35rem;">' +

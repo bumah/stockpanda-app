@@ -886,12 +886,12 @@ input, select { font-family: var(--font); }
 .dc-company { font-size: 0.78rem; color: var(--muted); margin-top: 0.1rem; }
 .dc-country-plain { font-size: 0.65rem; color: var(--muted); margin-top: 0.25rem; }
 
-/* Fit row */
-.dc-fit-row { display: flex; align-items: center; gap: 0.6rem; margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--border); }
-.dc-fit-label { font-family: var(--mono); font-size: 0.5rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-.dc-fit-pct { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; }
-.dc-fit-bar { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.dc-fit-fill { height: 100%; border-radius: 3px; }
+/* Match row */
+.dc-match-row { display: flex; align-items: center; gap: 0.8rem; margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--border); }
+.dc-match-label { font-family: var(--mono); font-size: 0.5rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.dc-match-word { font-family: var(--mono); font-size: 1.1rem; font-weight: 700; }
+.dc-match-bar { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.dc-match-fill { height: 100%; border-radius: 3px; }
 
 /* Returns */
 .dc-returns { display: flex; justify-content: center; gap: 0.7rem; margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid var(--border); flex-wrap: wrap; }
@@ -918,10 +918,7 @@ input, select { font-family: var(--font); }
 .dc-style-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; }
 .dc-style-icon { width: 1.1rem; text-align: center; flex-shrink: 0; }
 .dc-style-name { color: var(--text); flex: 1; }
-.dc-style-pct { font-family: var(--mono); font-weight: 700; font-size: 0.68rem; }
-.dc-style-pct.hi { color: #4ADE80; }
-.dc-style-pct.mid { color: #FBBF24; }
-.dc-style-pct.lo { color: #F87171; }
+.dc-style-hearts { display: flex; gap: 2px; flex-shrink: 0; }
 .dc-style-sep { font-size: 0.5rem; color: var(--muted); margin: 0.15rem 0; padding-left: 1.6rem; }
 
 /* Actions */
