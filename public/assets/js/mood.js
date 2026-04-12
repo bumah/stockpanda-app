@@ -242,7 +242,7 @@ async function initNavStamp() {
     const el = document.querySelector('.nav-stamp span');
     if (el && meta.generatedAt) {
       const d = new Date(meta.generatedAt);
-      el.textContent = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      el.textContent = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
     }
   } catch(e) {}
 }

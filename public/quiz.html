@@ -231,8 +231,8 @@
       <div class="discover-wrap">
         <div class="discover-header">
           <span class="discover-counter" id="discover-counter"></span>
-          <button class="discover-refine" onclick="refineQuiz()">Refine Taste</button>
-          <button class="discover-refine" onclick="seeAllTable()">See All</button>
+          <button class="discover-refine" onclick="refineQuiz()">Edit Trap</button>
+          <button class="discover-refine" onclick="seeAllTable()">View Trap</button>
         </div>
         <div class="discover-container" id="discover-container"></div>
         <div class="discover-nav">
@@ -973,11 +973,12 @@ function updateProgress() {
 window.updateProgress = updateProgress;
 
 // ── Find stocks — discovery card mode ────────────────────────
-async function findStocks() {
+async function findStocks(opts) {
+  opts = opts || {};
   closeQuizModal();
   const ds = document.getElementById('discover-section');
   ds.style.display = 'block';
-  ds.scrollIntoView({ behavior: 'smooth' });
+  if (!opts.silent) ds.scrollIntoView({ behavior: 'smooth' });
   document.getElementById('discover-container').innerHTML = '<div class="finder-loading"><div class="spin"></div><div style="color:var(--muted);font-size:0.85rem;">Finding your matches\u2026</div></div>';
 
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
@@ -996,7 +997,12 @@ async function findStocks() {
   // Sort by fit desc, filter >= 50%
   scored.sort((a, b) => b.pct - a.pct || (a.stock.mood?.score ?? 20) - (b.stock.mood?.score ?? 20));
   _queue = scored.filter(x => x.pct >= 50);
-  _idx = 0;
+  _idx = opts.restoreIdx || 0;
+
+  // Persist to sessionStorage
+  sessionStorage.setItem('sp_trap_answers', JSON.stringify(answers));
+  sessionStorage.setItem('sp_trap_hasResults', '1');
+  sessionStorage.setItem('sp_trap_cardIdx', _idx);
 
   showCard();
 }
@@ -1185,8 +1191,8 @@ function nextCard() {
   const card = document.querySelector('.discover-card');
   if (card) {
     card.classList.add('slide-left');
-    setTimeout(function() { _idx++; showCard(); }, 300);
-  } else { _idx++; showCard(); }
+    setTimeout(function() { _idx++; sessionStorage.setItem('sp_trap_cardIdx', _idx); showCard(); }, 300);
+  } else { _idx++; sessionStorage.setItem('sp_trap_cardIdx', _idx); showCard(); }
 }
 window.nextCard = nextCard;
 
@@ -1195,8 +1201,8 @@ function prevCard() {
   const card = document.querySelector('.discover-card');
   if (card) {
     card.classList.add('slide-right');
-    setTimeout(function() { _idx--; showCard(); }, 300);
-  } else { _idx--; showCard(); }
+    setTimeout(function() { _idx--; sessionStorage.setItem('sp_trap_cardIdx', _idx); showCard(); }, 300);
+  } else { _idx--; sessionStorage.setItem('sp_trap_cardIdx', _idx); showCard(); }
 }
 window.prevCard = prevCard;
 
@@ -1205,6 +1211,9 @@ function resetQuiz() {
   Object.keys(answers).forEach(k => answers[k] = null);
   _queue = [];
   _idx = 0;
+  sessionStorage.removeItem('sp_trap_answers');
+  sessionStorage.removeItem('sp_trap_hasResults');
+  sessionStorage.removeItem('sp_trap_cardIdx');
   document.getElementById('discover-section').style.display = 'none';
   // Reset all quiz step selections
   document.querySelectorAll('.choice.selected').forEach(c => c.classList.remove('selected'));
@@ -1246,8 +1255,20 @@ function refineQuiz() {
 }
 window.refineQuiz = refineQuiz;
 
-// ── On load: show intro screen (quiz opens when user clicks Start) ──
-// Intro screen is visible by default; quiz modal opens on button click
+// ── On load: restore previous trap results if available ──
+(function initTrapRestore() {
+  if (sessionStorage.getItem('sp_trap_hasResults')) {
+    try {
+      const savedAnswers = JSON.parse(sessionStorage.getItem('sp_trap_answers') || '{}');
+      Object.assign(answers, savedAnswers);
+      const savedIdx = parseInt(sessionStorage.getItem('sp_trap_cardIdx') || '0', 10);
+      document.getElementById('scan-intro').style.display = 'none';
+      findStocks({ restoreIdx: savedIdx, silent: true });
+    } catch(e) {
+      // On error, show intro
+    }
+  }
+})();
 </script>
 </body>
 </html>

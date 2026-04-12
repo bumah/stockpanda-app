@@ -277,15 +277,14 @@
         <div class="discover-header">
           <span class="discover-counter" id="finder-dc-counter"></span>
           <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
-            <button class="discover-refine" onclick="openTrapWizard()">⚡ New Trap</button>
-            <button class="discover-refine" onclick="window.location.href='stocks.html'">All Stocks</button>
-            <button class="discover-refine" onclick="showTrapSummary()">View Trap</button>
+            <button class="discover-refine" onclick="openTrapWizard()">Edit Scan</button>
+            <button class="discover-refine" onclick="showTrapSummary()">View Scan</button>
           </div>
         </div>
 
         <!-- Trap summary (hidden by default, toggled by View Trap) -->
         <div id="trap-summary" style="display:none; margin-bottom:1rem; padding:0.8rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:10px; font-size:0.72rem;">
-          <div style="font-family:var(--mono);font-size:0.5rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.5rem;">Your Trap Settings</div>
+          <div style="font-family:var(--mono);font-size:0.5rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.5rem;">Your Scan Settings</div>
           <div id="trap-summary-content"></div>
         </div>
 
@@ -768,10 +767,11 @@ function scoreTrapCriteria(stock, criteria) {
 }
 
 // ── Find stocks (4-criteria approach) ───────────────────────
-async function findStocks() {
+async function findStocks(opts) {
+  opts = opts || {};
   const rs = document.getElementById('results-section');
   rs.style.display = 'block';
-  rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (!opts.silent) rs.scrollIntoView({ behavior: 'smooth', block: 'start' });
   document.getElementById('finder-dc-container').innerHTML = `
     <div class="finder-loading">
       <div class="spin"></div>
@@ -795,17 +795,27 @@ async function findStocks() {
   // Filter: must match at least 2 of 3 criteria
   let goodFits = scored.filter(x => x.matchCount >= 2);
 
-  // Randomize order (Fisher-Yates shuffle)
-  for (let i = goodFits.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [goodFits[i], goodFits[j]] = [goodFits[j], goodFits[i]];
+  // Randomize order (Fisher-Yates shuffle) — skip on restore so order is consistent
+  if (!opts.restoreIdx) {
+    for (let i = goodFits.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [goodFits[i], goodFits[j]] = [goodFits[j], goodFits[i]];
+    }
   }
 
   _allScored = scored;
   scoredCache = goodFits;
 
+  // Persist session
+  sessionStorage.setItem('sp_answers', JSON.stringify(answers));
+  sessionStorage.setItem('sp_trapCriteria', JSON.stringify(_trapCriteria));
+  sessionStorage.setItem('sp_preset', _presetMode ? '1' : '0');
+  if (_presetMode) sessionStorage.setItem('sp_presetKey', _lastPresetKey || '');
+  sessionStorage.setItem('sp_hasResults', '1');
+
   // Go straight to discover mode
-  _finderDcIdx = 0;
+  _finderDcIdx = opts.restoreIdx || 0;
+  sessionStorage.setItem('sp_cardIdx', _finderDcIdx);
   showFinderCard();
 }
 window.findStocks = findStocks;
@@ -883,6 +893,8 @@ function renderResults(scored, totalScanned, totalScored) {
   sessionStorage.setItem('sp_answers', JSON.stringify(answers));
   sessionStorage.setItem('sp_preset', _presetMode ? '1' : '0');
   if (_presetMode) sessionStorage.setItem('sp_presetKey', _lastPresetKey || '');
+  sessionStorage.setItem('sp_trapCriteria', JSON.stringify(_trapCriteria));
+  sessionStorage.setItem('sp_hasResults', '1');
 }
 
 // ── Ranking modal ──────────────────────────────────────────
@@ -980,6 +992,9 @@ function resetQuiz() {
   sessionStorage.removeItem('sp_answers');
   sessionStorage.removeItem('sp_preset');
   sessionStorage.removeItem('sp_presetKey');
+  sessionStorage.removeItem('sp_trapCriteria');
+  sessionStorage.removeItem('sp_hasResults');
+  sessionStorage.removeItem('sp_cardIdx');
   Object.keys(answers).forEach(k => answers[k] = null);
   scoredCache = [];
   updateActiveChip('');
@@ -1032,10 +1047,23 @@ document.addEventListener('click', e => {
     scoredCache = [];
     _trapCriteria = { region: region, sectors: 'all', styles: ['momentum'], level: level ? 'Level ' + level : null };
     findStocks();
+  } else if (sessionStorage.getItem('sp_hasResults')) {
+    // Restore previous scan from session
+    document.getElementById('scan-welcome').style.display = 'none';
+    try {
+      const savedAnswers = JSON.parse(sessionStorage.getItem('sp_answers') || '{}');
+      Object.assign(answers, savedAnswers);
+      _trapCriteria = JSON.parse(sessionStorage.getItem('sp_trapCriteria') || '{}');
+      _presetMode = sessionStorage.getItem('sp_preset') === '1';
+      _lastPresetKey = sessionStorage.getItem('sp_presetKey') || '';
+      const savedIdx = parseInt(sessionStorage.getItem('sp_cardIdx') || '0', 10);
+      findStocks({ restoreIdx: savedIdx, silent: true });
+    } catch(e) {
+      // On error, show welcome
+      document.getElementById('scan-welcome').style.display = '';
+    }
   } else {
-    // No URL params — check sessionStorage for last search, otherwise open wizard
-    // No URL params — show welcome screen (user clicks "Start scanning" to begin)
-    // Welcome screen is visible by default
+    // No URL params, no saved session — show welcome screen
   }
 })();
 
@@ -1199,16 +1227,16 @@ window.showTrapSummary = showTrapSummary;
 function finderNextCard() {
   if (_finderDcIdx >= scoredCache.length) return;
   var card = document.querySelector('#finder-dc-container .discover-card');
-  if (card) { card.classList.add('slide-left'); setTimeout(function(){ _finderDcIdx++; showFinderCard(); }, 300); }
-  else { _finderDcIdx++; showFinderCard(); }
+  if (card) { card.classList.add('slide-left'); setTimeout(function(){ _finderDcIdx++; sessionStorage.setItem('sp_cardIdx', _finderDcIdx); showFinderCard(); }, 300); }
+  else { _finderDcIdx++; sessionStorage.setItem('sp_cardIdx', _finderDcIdx); showFinderCard(); }
 }
 window.finderNextCard = finderNextCard;
 
 function finderPrevCard() {
   if (_finderDcIdx <= 0) return;
   var card = document.querySelector('#finder-dc-container .discover-card');
-  if (card) { card.classList.add('slide-right'); setTimeout(function(){ _finderDcIdx--; showFinderCard(); }, 300); }
-  else { _finderDcIdx--; showFinderCard(); }
+  if (card) { card.classList.add('slide-right'); setTimeout(function(){ _finderDcIdx--; sessionStorage.setItem('sp_cardIdx', _finderDcIdx); showFinderCard(); }, 300); }
+  else { _finderDcIdx--; sessionStorage.setItem('sp_cardIdx', _finderDcIdx); showFinderCard(); }
 }
 window.finderPrevCard = finderPrevCard;
 
