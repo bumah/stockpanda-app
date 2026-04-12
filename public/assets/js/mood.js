@@ -12,11 +12,11 @@ function esc(str) {
 }
 
 const MOOD_DESC = {
-  'Level 1':  'Level 1 — Ideal for Level 1 StockPandas. The stock is stable and steady — smooth sailing, with no signs of immediate danger.',
-  'Level 2':  'Level 2 — Ideal for Level 2 StockPandas. The stock is stable with mild movement — stay aware, but no need to panic.',
-  'Level 3':  'Level 3 — Ideal for Level 3 StockPandas. The stock is unsettled and can shift quickly — watch closely and keep your rules tight.',
-  'Level 4':  'Level 4 — Ideal for Level 4 StockPandas. The stock is unpredictable and risk is rising — stay on guard and move with discipline.',
-  'Level 5':  'Level 5 — Ideal for Level 5 StockPandas. The stock is highly volatile and can turn sharply at any moment — proceed with extreme caution.',
+  'Level 1':  'Level 1 — Suitable for Level 1 StockPandas. The stock is stable and steady — smooth sailing, with no signs of immediate danger.',
+  'Level 2':  'Level 2 — Suitable for Level 2 StockPandas. The stock is stable with mild movement — stay aware, but no need to panic.',
+  'Level 3':  'Level 3 — Suitable for Level 3 StockPandas. The stock is unsettled and can shift quickly — watch closely and keep your rules tight.',
+  'Level 4':  'Level 4 — Suitable for Level 4 StockPandas. The stock is unpredictable and risk is rising — stay on guard and move with discipline.',
+  'Level 5':  'Level 5 — Suitable for Level 5 StockPandas. The stock is highly volatile and can turn sharply at any moment — proceed with extreme caution.',
 };
 
 const MOOD = {
