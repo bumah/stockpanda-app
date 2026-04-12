@@ -136,7 +136,7 @@
   <div class="nav-links">
     <a class="nav-link" href="index.html">Home</a>
     <a class="nav-link" href="finder.html">Quick Trap</a>
-    <a class="nav-link" href="quiz.html">Scan Field</a>
+    <a class="nav-link" href="quiz.html">Pro Trap</a>
     <a class="nav-link" href="stocks.html">Browse</a>
     <a class="nav-link active" href="summary.html">Quick Bites</a>
   </div>
@@ -161,12 +161,14 @@
   </div>
 
   <div class="qb-controls" id="controls">
-    <button class="qb-tab active" data-region="us">🇺🇸 United States</button>
-    <button class="qb-tab" data-region="uk">🇬🇧 United Kingdom</button>
-    <button class="qb-tab" data-region="europe">🇪🇺 Europe</button>
-    <button class="qb-tab" data-region="hk">🇭🇰 Hong Kong</button>
-    <button class="qb-tab" data-region="china">🇨🇳 China</button>
+    <button class="qb-tab active" data-region="us">🇺🇸 US</button>
+    <button class="qb-tab" data-region="uk">🇬🇧 UK</button>
+    <button class="qb-tab" data-region="germany">🇩🇪 Germany</button>
+    <button class="qb-tab" data-region="france">🇫🇷 France</button>
     <button class="qb-tab" data-region="japan">🇯🇵 Japan</button>
+    <button class="qb-tab" data-region="hk">🇭🇰 HK</button>
+    <button class="qb-tab" data-region="china">🇨🇳 China</button>
+    <button class="qb-tab" data-region="india">🇮🇳 India</button>
     <div class="qb-country-wrap">
       <span class="qb-country-label">Country</span>
       <select class="qb-country-select" id="country-select">
@@ -188,12 +190,14 @@ const EUROPE_COUNTRIES = new Set(['United Kingdom','Ireland','Sweden','France','
 const MIDDLEEAST_COUNTRIES = new Set(['Saudi Arabia','United Arab Emirates','Israel','Kuwait','Qatar','Bahrain','Egypt','Jordan','Nigeria','Kenya','South Africa']);
 
 const REGION_CONFIG = {
-  us:     { label: '🇺🇸 United States', countries: new Set(['United States','Canada']) },
-  uk:     { label: '🇬🇧 United Kingdom', countries: new Set(['United Kingdom','Ireland']) },
-  europe: { label: '🇪🇺 Europe', countries: EUROPE_COUNTRIES },
-  hk:     { label: '🇭🇰 Hong Kong', countries: new Set(['Hong Kong','Macau']) },
-  china:  { label: '🇨🇳 China', countries: new Set(['China','Hong Kong']) },
-  japan:  { label: '🇯🇵 Japan', countries: new Set(['Japan']) },
+  us:      { label: '🇺🇸 US', countries: new Set(['United States','Canada']) },
+  uk:      { label: '🇬🇧 UK', countries: new Set(['United Kingdom','Ireland']) },
+  germany: { label: '🇩🇪 Germany', countries: new Set(['Germany']) },
+  france:  { label: '🇫🇷 France', countries: new Set(['France']) },
+  japan:   { label: '🇯🇵 Japan', countries: new Set(['Japan']) },
+  hk:      { label: '🇭🇰 HK', countries: new Set(['Hong Kong','Macau']) },
+  china:   { label: '🇨🇳 China', countries: new Set(['China','Hong Kong']) },
+  india:   { label: '🇮🇳 India', countries: new Set(['India']) },
 };
 
 const IC_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];

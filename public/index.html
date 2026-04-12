@@ -17,7 +17,7 @@
   <div class="nav-links">
     <a class="nav-link active" href="index.html">Home</a>
     <a class="nav-link" href="finder.html">Quick Trap</a>
-    <a class="nav-link" href="quiz.html">Scan Field</a>
+    <a class="nav-link" href="quiz.html">Pro Trap</a>
     <a class="nav-link" href="stocks.html">Browse</a>
     <a class="nav-link" href="summary.html">Quick Bites</a>
   </div>
@@ -38,13 +38,31 @@
   <div class="finder-wrap" style="max-width:900px;">
 
     <!-- ── Hero ─────────────────────────────────────────────── -->
-    <div class="finder-hero">
+    <div class="finder-hero" style="border-bottom:none; padding-bottom:1rem;">
       <div class="hero-eyebrow">The simpler way to hunt stocks</div>
       <h1 class="finder-hero-h1">Hunt stocks by your <span id="finder-word">taste.</span></h1>
-      <p class="finder-hero-sub">Set your trap. See your catch. Happy hunting.</p>
-      <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
-        <a class="finder-cta-btn" href="finder.html" style="background:transparent;border:2px solid var(--green);color:var(--green);text-decoration:none;">Quick Trap &rarr;</a>
-        <a class="finder-cta-btn" href="quiz.html" style="text-decoration:none;">Scan Field &rarr;</a>
+    </div>
+
+    <!-- ── Hunt your way ─────────────────────────────────────── -->
+    <div class="qf-wrap" style="margin-top:0;">
+      <div class="qf-label">Hunt your way</div>
+      <div class="qf-sub">Choose your hunting mode and review your catches.</div>
+      <div class="pillars-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <a class="pillar-card" href="finder.html" style="text-decoration:none;color:inherit;cursor:pointer;">
+          <div class="pillar-icon">⚡</div>
+          <div class="pillar-title">Quick Trap</div>
+          <div class="pillar-desc">Pick a territory, style, and level. We'll find matching stocks instantly.</div>
+        </a>
+        <a class="pillar-card" href="quiz.html" style="text-decoration:none;color:inherit;cursor:pointer;">
+          <div class="pillar-icon">🎯</div>
+          <div class="pillar-title">Pro Trap</div>
+          <div class="pillar-desc">Answer 12 questions about your preferences. We'll score every stock against your criteria.</div>
+        </a>
+        <a class="pillar-card" href="stocks.html" style="text-decoration:none;color:inherit;cursor:pointer;">
+          <div class="pillar-icon">📊</div>
+          <div class="pillar-title">Browse Fields</div>
+          <div class="pillar-desc">Explore the full universe of 30,000+ stocks with filters, sorting, and style scores.</div>
+        </a>
       </div>
     </div>
 
@@ -214,7 +232,7 @@
         ⚡ Quick Trap — Browse results
       </button>
       <button id="route-scan" onclick="goRoute('scan')" style="width:100%; background:rgba(255,255,255,0.05); border:1.5px solid var(--border); color:var(--text); font-weight:600; padding:0.75rem; border-radius:10px; font-size:0.88rem; cursor:pointer; font-family:var(--font);">
-        🔍 Scan Field — One stock at a time
+        🔍 Pro Trap — One stock at a time
       </button>
       <button onclick="closeRouteModal()" style="background:none; border:none; color:var(--muted); font-size:0.75rem; cursor:pointer; margin-top:0.3rem; font-family:var(--font);">Cancel</button>
     </div>
@@ -247,7 +265,7 @@ function goRoute(dest) {
     else if (type === 'style') window.location.href = `finder.html?style=${value}`;
     else if (type === 'level') window.location.href = `finder.html?style=momentum&level=${value}`;
   } else {
-    // Scan Field — go to quiz.html (the quiz always starts from scratch)
+    // Pro Trap — go to quiz.html (the quiz always starts from scratch)
     window.location.href = 'quiz.html';
   }
 }

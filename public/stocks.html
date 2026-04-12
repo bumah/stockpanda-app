@@ -74,7 +74,7 @@
   <div class="nav-links">
     <a class="nav-link" href="index.html">Home</a>
     <a class="nav-link" href="finder.html">Quick Trap</a>
-    <a class="nav-link" href="quiz.html">Scan Field</a>
+    <a class="nav-link" href="quiz.html">Pro Trap</a>
     <a class="nav-link active" href="stocks.html">Browse</a>
     <a class="nav-link" href="summary.html">Quick Bites</a>
   </div>
@@ -104,14 +104,16 @@
     <div class="bubble-row">
       <span class="bubble-label">Territory</span>
       <div class="bubble-chips" id="territory-chips">
-        <span class="bubble-chip active" data-territory="global">🌍 Global</span>
+        <span class="bubble-chip active" data-territory="global">🌍 All</span>
         <span class="bubble-chip" data-territory="us">🇺🇸 US</span>
         <span class="bubble-chip" data-territory="uk">🇬🇧 UK</span>
-        <span class="bubble-chip" data-territory="europe">🇪🇺 Europe</span>
+        <span class="bubble-chip" data-territory="germany">🇩🇪 Germany</span>
+        <span class="bubble-chip" data-territory="france">🇫🇷 France</span>
+        <span class="bubble-chip" data-territory="japan">🇯🇵 Japan</span>
         <span class="bubble-chip" data-territory="hk">🇭🇰 HK</span>
         <span class="bubble-chip" data-territory="china">🇨🇳 China</span>
-        <span class="bubble-chip" data-territory="japan">🇯🇵 Japan</span>
-        <span class="bubble-chip" data-territory="middleeast">🌙 Middle East</span>
+        <span class="bubble-chip" data-territory="india">🇮🇳 India</span>
+        <span class="bubble-chip" data-territory="rest">🌍 Rest of World</span>
       </div>
     </div>
     <!-- Style -->
@@ -155,17 +157,16 @@
       <option value="industrial">Industrial</option>
       <option value="utilities">Utilities</option>
     </select>
+    <select class="sf-select" id="country-filter">
+      <option value="">All Countries</option>
+    </select>
     <select class="sf-select" id="sort-select">
-      <option value="price-desc" selected>Sort: Price ↓</option>
-      <option value="price-asc">Sort: Price ↑</option>
-      <option value="m1-desc">Sort: 1M Change ↓</option>
+      <option value="m1-desc" selected>Sort: 1M Change ↓</option>
       <option value="m1-asc">Sort: 1M Change ↑</option>
       <option value="y1-desc">Sort: 1Y Change ↓</option>
       <option value="y1-asc">Sort: 1Y Change ↑</option>
       <option value="red-desc">Sort: Most Red Flags ↓</option>
       <option value="red-asc">Sort: Fewest Red Flags ↑</option>
-      <option value="score-asc">Sort: Best Mood First</option>
-      <option value="score-desc">Sort: Worst Mood First</option>
     </select>
     <div class="sf-count" id="sf-count">—</div>
   </div>
@@ -308,6 +309,7 @@ document.getElementById('level-chips').addEventListener('click', e => {
 
 document.getElementById('filter-input').addEventListener('input', () => { currentPage = 1; applyFilters(); });
 document.getElementById('sector-filter').addEventListener('change', () => { currentPage = 1; applyFilters(); });
+document.getElementById('country-filter').addEventListener('change', () => { currentPage = 1; applyFilters(); });
 document.getElementById('sort-select').addEventListener('change', () => { currentPage = 1; applyFilters(); });
 
 // ── Data helpers ──────────────────────────────────────────────────────────────
@@ -351,16 +353,33 @@ function fmtPct(v) {
 function applyFilters() {
   const q       = document.getElementById('filter-input').value.toLowerCase();
   const sector  = document.getElementById('sector-filter').value;
+  const country = document.getElementById('country-filter').value;
   const sort    = document.getElementById('sort-select').value;
 
-  const terrCfg = REGION_CONFIG[activeTerritory] || REGION_CONFIG.global;
-  const terrSet = terrCfg.countries;
+  // Build territory filter set
+  let terrSet = null;
+  let terrExclude = false;
+  if (activeTerritory === 'rest') {
+    // "Rest of World" = NOT in any named territory
+    terrSet = new Set();
+    ['us','uk','germany','france','japan','hk','china','india'].forEach(r => {
+      const cfg = REGION_CONFIG[r];
+      if (cfg && cfg.countries) cfg.countries.forEach(c => terrSet.add(c));
+    });
+    terrExclude = true;
+  } else if (activeTerritory !== 'global') {
+    const terrCfg = REGION_CONFIG[activeTerritory];
+    if (terrCfg) terrSet = terrCfg.countries;
+  }
 
   filtered = [];
 
   for (const e of allSearchData) {
     // Territory
-    if (terrSet && !terrSet.has(e.co)) continue;
+    if (terrSet) {
+      if (terrExclude) { if (terrSet.has(e.co)) continue; }
+      else { if (!terrSet.has(e.co)) continue; }
+    }
 
     // Max Level: show all levels up to and including the selected one
     const moodLabel = getMoodLabel(e);
@@ -379,6 +398,9 @@ function applyFilters() {
     // Sector group
     if (sector && !sectorGroupMatch(e.sec, sector)) continue;
 
+    // Country filter
+    if (country && (e.co || '') !== country) continue;
+
     // Text search
     if (q && !(e.t || '').toLowerCase().includes(q) && !(e.n || '').toLowerCase().includes(q)) continue;
 
@@ -391,22 +413,23 @@ function applyFilters() {
     filtered.sort((a, b) => ((b.ps || {})[activeStyle] || 0) - ((a.ps || {})[activeStyle] || 0));
   } else {
     filtered.sort((a, b) => {
-      if (sort === 'price-desc')  return (b.p || 0) - (a.p || 0);
-      if (sort === 'price-asc')   return (a.p || 0) - (b.p || 0);
       if (sort === 'm1-desc')     return (b.m1 ?? -9999) - (a.m1 ?? -9999);
       if (sort === 'm1-asc')      return (a.m1 ?? 9999) - (b.m1 ?? 9999);
       if (sort === 'y1-desc')     return (b.y1 ?? -9999) - (a.y1 ?? -9999);
       if (sort === 'y1-asc')      return (a.y1 ?? 9999) - (b.y1 ?? 9999);
-      if (sort === 'red-desc') {
-        return countSignals(b.ic).r - countSignals(a.ic).r;
-      }
-      if (sort === 'red-asc') {
-        return countSignals(a.ic).r - countSignals(b.ic).r;
-      }
-      if (sort === 'score-asc')   return (a.r ?? 50) - (b.r ?? 50);
-      if (sort === 'score-desc')  return (b.r ?? 50) - (a.r ?? 50);
-      return (b.p || 0) - (a.p || 0);
+      if (sort === 'red-desc')    return countSignals(b.ic).r - countSignals(a.ic).r;
+      if (sort === 'red-asc')     return countSignals(a.ic).r - countSignals(b.ic).r;
+      return (b.m1 ?? -9999) - (a.m1 ?? -9999);
     });
+  }
+
+  // Populate country dropdown from filtered results (if not already set)
+  const cSel = document.getElementById('country-filter');
+  if (cSel && !country) {
+    const countries = new Set();
+    filtered.forEach(e => { if (e.co) countries.add(e.co); });
+    cSel.innerHTML = '<option value="">All Countries</option>';
+    [...countries].sort().forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; cSel.appendChild(o); });
   }
 
   renderTable();
