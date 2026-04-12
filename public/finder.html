@@ -247,13 +247,6 @@
     <a class="nav-link" href="summary.html">Peek</a>
   </div>
   <div class="nav-right">
-    <div class="nav-search-wrap">
-      <div class="nav-search-bar">
-        <input id="nav-search-input" type="text" placeholder="Search ticker or company…" autocomplete="off" />
-        <button onclick="document.getElementById('nav-search-input').dispatchEvent(new Event('input'))">🔍</button>
-      </div>
-      <div class="nav-search-results" id="nav-search-results"></div>
-    </div>
     <a href="https://tally.so/r/waqMdX" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;color:var(--green);font-weight:600;">Get Pro</a>
     <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;">Contact</a>
     <div class="nav-stamp">Data: <span>—</span></div>
@@ -421,11 +414,6 @@
 injectSidebarHTML();
 initTooltip();
 initNavStamp();
-
-// ── Nav search ────────────────────────────────────────────────
-initGlobalSearch('#nav-search-input', '#nav-search-results', (ticker, exchange) => {
-  window.location.href = `stock.html?ticker=${encodeURIComponent(ticker)}&exchange=${exchange}`;
-});
 
 // ── State ─────────────────────────────────────────────────────
 const answers = { region:null, sector:null, size:null, return1m:null, growth5y:null, momentum:null, matrend:null, range52w:null, drawdown:null, vol:null, analyst:null, profit:null, watchlist:null };

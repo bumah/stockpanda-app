@@ -139,13 +139,6 @@
     <a class="nav-link active" href="summary.html">Peek</a>
   </div>
   <div class="nav-right">
-    <div class="nav-search-wrap">
-      <div class="nav-search-bar">
-        <input id="nav-search-input" type="text" placeholder="Search ticker or company…" autocomplete="off" />
-        <button onclick="document.getElementById('nav-search-input').dispatchEvent(new Event('input'))">🔍</button>
-      </div>
-      <div class="nav-search-results" id="nav-search-results"></div>
-    </div>
     <a href="https://tally.so/r/waqMdX" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;color:var(--green);font-weight:600;">Get Pro</a>
     <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;">Contact</a>
     <div class="nav-stamp">Data: <span id="nav-asof-span">—</span></div>
@@ -383,30 +376,6 @@ function renderAll() {
     renderAll();
   });
 
-})();
-</script>
-<script>
-(function() {
-  const input = document.getElementById('nav-search-input');
-  const results = document.getElementById('nav-search-results');
-  if (!input || !results) return;
-  input.addEventListener('input', async () => {
-    const q = input.value.trim();
-    if (q.length < 1) { results.style.display = 'none'; return; }
-    results.style.display = 'block';
-    results.innerHTML = '<div style="padding:0.5rem;color:var(--muted);font-size:0.8rem;">Searching…</div>';
-    try {
-      const hits = await DataCache.searchAll(q);
-      if (!hits.length) { results.innerHTML = '<div style="padding:0.5rem;color:var(--muted);font-size:0.8rem;">No results</div>'; return; }
-      results.innerHTML = hits.slice(0,8).map(h =>
-        `<a class="nav-search-item" href="stock.html?ticker=${encodeURIComponent(h.ticker)}&exchange=${h.exchange}&country=${encodeURIComponent(h.country || '')}">
-          <span class="nsi-ticker">${h.ticker}</span>
-          <span class="nsi-name">${h.company||''}</span>
-          <span class="nsi-exch">${h.exchangeLabel||''}</span>
-        </a>`).join('');
-    } catch { results.innerHTML = '<div style="padding:0.5rem;color:var(--red);font-size:0.8rem;">Search unavailable</div>'; }
-  });
-  document.addEventListener('click', e => { if (!e.target.closest('.nav-search-wrap')) results.style.display='none'; });
 })();
 </script>
 <footer style="border-top:1px solid rgba(74,222,128,0.12);padding:2rem;max-width:1400px;margin:4rem auto 0;">

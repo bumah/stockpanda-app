@@ -22,13 +22,6 @@
     <a class="nav-link" href="summary.html">Peek</a>
   </div>
   <div class="nav-right">
-    <div class="nav-search-wrap">
-      <div class="nav-search-bar">
-        <input id="nav-search-input" type="text" placeholder="Search ticker or company…" autocomplete="off" />
-        <button onclick="document.getElementById('nav-search-input').dispatchEvent(new Event('input'))">🔍</button>
-      </div>
-      <div class="nav-search-results" id="nav-search-results"></div>
-    </div>
     <a href="https://tally.so/r/waqMdX" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;color:var(--green);font-weight:600;">Get Pro</a>
     <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;">Contact</a>
     <div class="nav-stamp">Data: <span>—</span></div>
@@ -49,7 +42,10 @@
     <div class="finder-hero" style="border-bottom:none; padding-bottom:1rem;">
       <div class="hero-eyebrow">The simpler way to hunt stocks</div>
       <h1 class="finder-hero-h1">Hunt stocks by your <span id="finder-word">taste.</span></h1>
-      <button class="finder-cta-btn" onclick="document.getElementById('territory-section').scrollIntoView({behavior:'smooth'})">Get started &rarr;</button>
+      <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-top:0.5rem;">
+        <button class="finder-cta-btn" onclick="document.getElementById('territory-section').scrollIntoView({behavior:'smooth'})">Get started &rarr;</button>
+        <button class="finder-cta-btn" style="background:transparent;color:var(--green);border:1.5px solid var(--green);" onclick="openSearchModal()">Search stock</button>
+      </div>
     </div>
 
     <!-- ── Why StockPanda pillars ──────────────────────────── -->
@@ -232,6 +228,19 @@
   </div>
 </div>
 
+<!-- ── Search Modal ───────────────────────────────────────── -->
+<div id="search-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(5px); z-index:1200; align-items:flex-start; justify-content:center; padding-top:15vh;">
+  <div style="background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:1.5rem; width:min(440px,92vw);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;font-style:italic;color:var(--parchment);">Search stock</div>
+      <button onclick="closeSearchModal()" style="background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:0 4px;">✕</button>
+    </div>
+    <input id="search-modal-input" type="text" placeholder="Type a ticker or company name…" autocomplete="off"
+      style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.9rem;border-radius:8px;font-size:0.88rem;font-family:var(--font);outline:none;box-sizing:border-box;" />
+    <div id="search-modal-results" style="margin-top:0.5rem;max-height:300px;overflow-y:auto;"></div>
+  </div>
+</div>
+
 <!-- ── Route Choice Modal ──────────────────────────────────── -->
 <div id="route-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(5px); z-index:1200; display:none; align-items:center; justify-content:center;">
   <div style="background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:2rem; width:min(380px,92vw); text-align:center;">
@@ -253,9 +262,52 @@
 'use strict';
 injectSidebarHTML();
 initNavStamp();
-initGlobalSearch('#nav-search-input', '#nav-search-results', (ticker) => {
-  window.location.href = `stock.html?ticker=${encodeURIComponent(ticker)}`;
+
+// ── Search modal ──────────────────────────────────────────────
+function openSearchModal() {
+  document.getElementById('search-modal').style.display = 'flex';
+  const inp = document.getElementById('search-modal-input');
+  inp.value = '';
+  document.getElementById('search-modal-results').innerHTML = '';
+  setTimeout(() => inp.focus(), 100);
+}
+function closeSearchModal() {
+  document.getElementById('search-modal').style.display = 'none';
+}
+document.getElementById('search-modal').addEventListener('click', e => {
+  if (e.target.id === 'search-modal') closeSearchModal();
 });
+(function() {
+  const inp = document.getElementById('search-modal-input');
+  const res = document.getElementById('search-modal-results');
+  let timer;
+  inp.addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(async () => {
+      const q = inp.value.trim();
+      if (q.length < 1) { res.innerHTML = ''; return; }
+      const hits = await DataCache.searchAll(q);
+      if (!hits.length) {
+        res.innerHTML = '<div style="padding:0.6rem;color:var(--muted);font-size:0.82rem;">No results found</div>';
+      } else {
+        res.innerHTML = hits.slice(0, 8).map(s => {
+          const b = MOOD.band(s.mood?.label || 'Level 3');
+          return `<a href="stock.html?ticker=${encodeURIComponent(s.ticker)}&country=${encodeURIComponent(s.country || '')}" style="display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.6rem;text-decoration:none;border-bottom:1px solid var(--border);transition:background 0.1s;">
+            <div style="width:28px;height:28px;flex-shrink:0;" class="panda-wrap"><img class="panda-img" src="assets/img/${b.img}" alt="${b.label}" style="width:100%;height:100%;" /></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-family:var(--mono);font-weight:700;font-size:0.82rem;color:var(--green);">${esc(s.ticker)}</div>
+              <div style="font-size:0.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(s.company || '')}</div>
+            </div>
+            <div style="font-size:0.65rem;color:var(--muted);flex-shrink:0;">${esc(s.exchangeLabel || '')}</div>
+          </a>`;
+        }).join('');
+      }
+    }, 200);
+  });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeSearchModal();
+  });
+})();
 
 // ── Route choice modal ────────────────────────────────────────
 let _pendingRoute = {};

@@ -172,13 +172,6 @@
     <a class="nav-link" href="summary.html">Peek</a>
   </div>
   <div class="nav-right">
-    <div class="nav-search-wrap">
-    <div class="nav-search-bar">
-      <input id="nav-search-input" type="text" placeholder="Search ticker or company…" autocomplete="off" />
-      <button onclick="document.getElementById('nav-search-input').dispatchEvent(new Event('input'))">🔍</button>
-    </div>
-    <div class="nav-search-results" id="nav-search-results"></div>
-  </div>
     <a href="https://tally.so/r/waqMdX" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;color:var(--green);font-weight:600;">Get Pro</a>
     <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;">Contact</a>
     <div class="nav-stamp">Data: <span>—</span></div>
@@ -194,9 +187,7 @@
 
 <div class="main">
   <div class="back-nav">
-    <a class="back-btn" href="index.html">← Results</a>
-    <span class="back-btn-sep">·</span>
-    <a class="back-btn" id="back-btn" href="stocks.html">Explore</a>
+    <a class="back-btn" id="back-btn" href="stocks.html">← Explore</a>
   </div>
 
   <!-- Hero -->
@@ -270,17 +261,22 @@ const TICKER   = params.get('ticker');
 const EXCHANGE = params.get('exchange') || 'global';
 const COUNTRY  = params.get('country') || '';
 
-// Back button: if came from finder/quiz, go back to matches; otherwise to browse
+// Back button: if came from an internal page, go back; otherwise go to Explore
 const _backBtn = document.getElementById('back-btn');
 const _referrer = document.referrer || '';
-if (_referrer.includes('quiz.html') || _referrer.includes('finder.html')) {
+const _isInternal = _referrer && new URL(_referrer).origin === location.origin;
+if (_isInternal) {
   _backBtn.href = '#';
-  _backBtn.textContent = '← Back to Matches';
+  const _refPath = new URL(_referrer).pathname;
+  if (_refPath.includes('finder')) _backBtn.textContent = '← Back to Scan';
+  else if (_refPath.includes('quiz')) _backBtn.textContent = '← Back to Trap';
+  else if (_refPath.includes('summary')) _backBtn.textContent = '← Back to Peek';
+  else if (_refPath.includes('stocks')) _backBtn.textContent = '← Back to Explore';
+  else _backBtn.textContent = '← Back';
   _backBtn.addEventListener('click', (e) => { e.preventDefault(); history.back(); });
 } else {
-  const _knownExchanges = ['sp500','ftse100','hsi','nikkei225','nasdaq100','nasdaq_financial','nasdaq_biotech'];
-  _backBtn.href = _knownExchanges.includes(EXCHANGE)
-    ? `stocks.html?exchange=${EXCHANGE}` : 'stocks.html';
+  _backBtn.href = 'stocks.html';
+  _backBtn.textContent = '← Explore';
 }
 
 const IND_META_FULL = {
@@ -1607,49 +1603,6 @@ loadStock();
 
 }); // end window.addEventListener load
 
-// ── Nav search (all pages) ────────────────────────────────────────────────────
-(function() {
-  const input   = document.getElementById('nav-search-input');
-  const results = document.getElementById('nav-search-results');
-  if (!input || !results) return;
-  let timer;
-  input.addEventListener('input', () => {
-    clearTimeout(timer);
-    timer = setTimeout(async () => {
-      const q = input.value.trim();
-      if (q.length < 1) { results.classList.remove('open'); return; }
-      const hits = await DataCache.searchAll(q);
-      if (!hits.length) {
-        results.innerHTML = '<div class="sr-empty">No results found</div>';
-      } else {
-        results.innerHTML = hits.map(s => {
-          const b = MOOD.band(s.mood?.label || 'Level 3');
-          return `<div class="sr-item" data-ticker="${esc(s.ticker)}" data-exchange="${esc(s.exchange)}" data-country="${esc(s.country || '')}" style="cursor:pointer;">
-            <div class="sr-ticker">${esc(s.ticker)}</div>
-            <div class="sr-company">${esc(s.company || '')}</div>
-            <div class="sr-exchange">${esc(s.exchangeLabel)}</div>
-            <div class="sr-panda panda-wrap" style="width:28px;height:28px;">
-              <img class="panda-img" src="assets/img/${b.img}" alt="${esc(b.label)}" />
-            </div>
-          </div>`;
-        }).join('');
-      }
-      results.classList.add('open');
-    }, 220);
-  });
-  results.addEventListener('click', e => {
-    const item = e.target.closest('.sr-item');
-    if (!item) return;
-    results.classList.remove('open');
-    input.value = '';
-    window.location.href = `stock.html?ticker=${encodeURIComponent(item.dataset.ticker)}&exchange=${item.dataset.exchange}&country=${encodeURIComponent(item.dataset.country || '')}`;
-  });
-  document.addEventListener('click', e => {
-    if (!input.contains(e.target) && !results.contains(e.target)) {
-      results.classList.remove('open');
-    }
-  });
-})();
 
 </script>
 <footer style="border-top:1px solid rgba(74,222,128,0.12);padding:2rem;max-width:1400px;margin:4rem auto 0;">
