@@ -1122,35 +1122,45 @@ function buildDiscoverCard(item) {
   '</div>';
 }
 
-const SCORE_LABELS = [
-  { key:'size',     label:'Company Size',      ansKey:'size' },
-  { key:'return1m', label:'1-Month Return',    ansKey:'return1m' },
-  { key:'growth5y', label:'5-Year Growth',     ansKey:'growth5y' },
-  { key:'momentum', label:'Momentum',          ansKey:'momentum' },
-  { key:'matrend',  label:'MA Trend',          ansKey:'matrend' },
-  { key:'range52w', label:'52-Week Position',  ansKey:'range52w' },
-  { key:'drawdown', label:'Drawdown',          ansKey:'drawdown' },
-  { key:'vol',      label:'Volatility',        ansKey:'vol' },
-  { key:'analyst',  label:'Analyst Rating',    ansKey:'analyst' },
-  { key:'profit',   label:'Profitability',     ansKey:'profit' },
-];
+const SCORE_LABELS = {
+  size:     'Company Size',
+  return1m: '1-Month Return',
+  growth5y: '5-Year Growth',
+  momentum: 'Momentum',
+  matrend:  'MA Trend',
+  range52w: '52-Week Position',
+  drawdown: 'Drawdown',
+  vol:      'Volatility',
+  analyst:  'Analyst Rating',
+  profit:   'Profitability',
+};
+
+const ALL_CRITERIA_KEYS = ['size','return1m','growth5y','momentum','matrend','range52w','drawdown','vol','analyst','profit'];
 
 function buildScoreBreakdown(item) {
   if (!item.scores || !item.scores.length) return '<div style="font-size:0.72rem;color:var(--muted);padding:0.5rem 0;">Score breakdown not available for preset matches.</div>';
+
+  // Build list of only active criteria (matching scoreByAnswers v2)
+  const activeCriteria = ALL_CRITERIA_KEYS.filter(k => {
+    const v = answers[k];
+    return v && v !== 'any' && v !== 'all';
+  });
+
   return '<div style="margin-top:0.6rem;">' +
-    SCORE_LABELS.map((sl, i) => {
-      const sc = item.scores[i];
+    activeCriteria.map((key, i) => {
+      const sc = item.scores[i] ?? 0;
       const col = sc >= 1 ? '#4ADE80' : sc >= 0.5 ? '#FBBF24' : '#F87171';
       const word = sc >= 1 ? 'Good Match' : sc >= 0.5 ? 'Partial Match' : 'Low Match';
-      const pref = answers[sl.ansKey] || 'any';
+      const pref = answers[key] || '';
       return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.7rem;">' +
-        '<span style="color:var(--text);">' + sl.label + '</span>' +
+        '<span style="color:var(--text);">' + (SCORE_LABELS[key] || key) + '</span>' +
         '<div style="display:flex;align-items:center;gap:6px;">' +
           '<span style="color:var(--muted);font-size:0.62rem;">' + esc(pref) + '</span>' +
           '<span style="color:' + col + ';font-weight:700;font-family:var(--mono);font-size:0.65rem;min-width:40px;text-align:right;">' + word + '</span>' +
         '</div>' +
       '</div>';
     }).join('') +
+    '<div style="margin-top:0.4rem;font-size:0.62rem;color:var(--muted);">' + activeCriteria.length + ' active criteria scored</div>' +
   '</div>';
 }
 

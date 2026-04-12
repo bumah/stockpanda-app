@@ -42,19 +42,6 @@
     .qb-tab:hover { border-color: var(--muted); color: var(--text); }
     .qb-tab.active { border-color: var(--green); color: var(--green); background: rgba(74,222,128,0.07); }
 
-    .qb-country-wrap {
-      margin-left: auto; display: flex; align-items: center; gap: 0.5rem;
-    }
-    .qb-country-label {
-      font-family: var(--mono); font-size: 0.62rem; color: var(--muted);
-      text-transform: uppercase; letter-spacing: 0.08em;
-    }
-    .qb-country-select {
-      background: var(--card); border: 1px solid var(--border); color: var(--text);
-      padding: 0.35rem 0.7rem; border-radius: 8px; font-size: 0.75rem;
-      font-family: var(--font); cursor: pointer; min-width: 140px;
-    }
-
     .qb-section-label {
       font-family: var(--mono); font-size: 0.62rem; color: var(--muted);
       text-transform: uppercase; letter-spacing: 0.1em;
@@ -119,11 +106,22 @@
     }
     @keyframes qb-spin { to { transform: rotate(360deg); } }
 
+    .qb-table-scroll {
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+    }
+    .qb-table-scroll .qb-table { min-width: 640px; }
+
     @media (max-width: 720px) {
-      .qb-controls { flex-direction: column; align-items: stretch; }
-      .qb-country-wrap { margin-left: 0; }
+      .qb-controls {
+        flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch;
+        gap: 0.4rem; padding-bottom: 0.3rem;
+        scrollbar-width: none;
+      }
+      .qb-controls::-webkit-scrollbar { display: none; }
+      .qb-tab { flex-shrink: 0; font-size: 0.7rem; padding: 0.32rem 0.75rem; }
       .qb-style-sub { display: none; }
       .qb-company { max-width: 120px; }
+      .qb-hero h1 { font-size: 2rem; }
     }
   </style>
 </head>
@@ -170,12 +168,6 @@
     <button class="qb-tab" data-region="hk">🇭🇰 HK</button>
     <button class="qb-tab" data-region="china">🇨🇳 China</button>
     <button class="qb-tab" data-region="india">🇮🇳 India</button>
-    <div class="qb-country-wrap">
-      <span class="qb-country-label">Country</span>
-      <select class="qb-country-select" id="country-select">
-        <option value="">All in region</option>
-      </select>
-    </div>
   </div>
 
   <div id="content">
@@ -293,35 +285,10 @@ function fmtPrice(price, currency) {
 
 let allSearchData = [];
 let currentRegion = 'us';
-let currentCountry = '';
-
 function getRegionStocks() {
   const cfg = REGION_CONFIG[currentRegion];
   if (!cfg) return [];
-  let stocks = allSearchData.filter(e => cfg.countries.has(e.co));
-  if (currentCountry) stocks = stocks.filter(e => e.co === currentCountry);
-  return stocks;
-}
-
-function populateCountryDropdown() {
-  const cfg = REGION_CONFIG[currentRegion];
-  if (!cfg) return;
-  const stocks = allSearchData.filter(e => cfg.countries.has(e.co));
-  const counts = new Map();
-  for (const s of stocks) {
-    if (s.co) counts.set(s.co, (counts.get(s.co) || 0) + 1);
-  }
-  const sel = document.getElementById('country-select');
-  sel.innerHTML = '<option value="">All in region</option>';
-  [...counts.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .forEach(([co, n]) => {
-      const opt = document.createElement('option');
-      opt.value = co;
-      opt.textContent = `${co} (${n.toLocaleString()})`;
-      sel.appendChild(opt);
-    });
-  sel.value = currentCountry;
+  return allSearchData.filter(e => cfg.countries.has(e.co));
 }
 
 function renderAll() {
@@ -350,7 +317,7 @@ function renderAll() {
     if (!top5.length) {
       html += '<div class="qb-empty">No matching stocks found.</div>';
     } else {
-      html += `<table class="qb-table">
+      html += `<div class="qb-table-scroll"><table class="qb-table">
         <thead><tr>
           <th style="width:30px;">#</th>
           <th>Stock</th>
@@ -384,7 +351,10 @@ function renderAll() {
         </tr>`;
       });
 
-      html += '</tbody></table>';
+      html += '</tbody></table></div>';
+      html += `<div style="text-align:center;margin-top:0.75rem;">
+        <a href="stocks.html?market=${currentRegion}&style=${style.key}" style="display:inline-block;padding:0.45rem 1.2rem;font-size:0.78rem;color:var(--green);border:1px solid rgba(74,222,128,0.3);border-radius:8px;text-decoration:none;font-weight:600;background:rgba(74,222,128,0.06);transition:background 0.2s;">View all ${style.label} stocks →</a>
+      </div>`;
     }
     html += '</div>';
   }
@@ -395,7 +365,6 @@ function renderAll() {
 (async () => {
   allSearchData = await DataCache.getSearchIndex();
   initNavStamp();
-  populateCountryDropdown();
   renderAll();
 
   document.getElementById('controls').addEventListener('click', e => {
@@ -404,15 +373,9 @@ function renderAll() {
     document.querySelectorAll('.qb-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     currentRegion = tab.dataset.region;
-    currentCountry = '';
-    populateCountryDropdown();
     renderAll();
   });
 
-  document.getElementById('country-select').addEventListener('change', e => {
-    currentCountry = e.target.value;
-    renderAll();
-  });
 })();
 </script>
 <script>

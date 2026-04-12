@@ -940,8 +940,10 @@ function renderStyleBreakdown() {
   }
 
   const sorted = [...STYLE_META].sort((a, b) => (ps[b.key]?.pct || 0) - (ps[a.key]?.pct || 0));
+  const visible = sorted.filter(s => (ps[s.key]?.pct ?? 0) >= 40);
+  const hidden  = sorted.filter(s => (ps[s.key]?.pct ?? 0) < 40);
 
-  el.innerHTML = sorted.map(style => {
+  let html = visible.map(style => {
     const data = ps[style.key];
     const pct = data?.pct ?? 0;
     const col = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : 'var(--red)';
@@ -960,6 +962,23 @@ function renderStyleBreakdown() {
       </div>
     </div>`;
   }).join('');
+
+  // Hidden styles below 40% — collapsed, unlock with Pro
+  if (hidden.length > 0) {
+    const hiddenNames = hidden.map(s => `${s.icon} ${s.name}`).join(', ');
+    html += `<div style="margin-top:0.5rem;padding:0.6rem 0.75rem;border:1px dashed var(--border);border-radius:8px;background:var(--bg2);">
+      <div style="font-size:0.72rem;color:var(--muted);line-height:1.5;">
+        <span style="font-weight:600;">${hidden.length} other style${hidden.length > 1 ? 's' : ''}</span> below 40% match: ${hiddenNames}
+        <a href="https://tally.so/r/waqMdX" target="_blank" style="color:var(--green);text-decoration:none;font-weight:600;margin-left:0.3rem;">Unlock with Pro →</a>
+      </div>
+    </div>`;
+  }
+
+  if (!visible.length) {
+    html = `<div style="color:var(--muted);font-size:0.78rem;padding:0.5rem 0;">No strong style matches for this stock (all below 40%).</div>` + html;
+  }
+
+  el.innerHTML = html;
 }
 
 window.toggleIg = function(id) {

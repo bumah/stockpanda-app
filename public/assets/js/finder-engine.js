@@ -9,17 +9,99 @@ const IC_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maC
 const IC_MAP   = {g:'green', a:'amber', r:'red'};
 const MOOD_COLOR_LABELS = {'mc-blue':'Level 1','mc-green':'Level 2','mc-amber':'Level 3','mc-orange':'Level 4','mc-red':'Level 5'};
 
-// ── Hunting style presets ────────────────────────────────────────────────────
+// ── Hunting style presets v2 — weighted scoring ─────────────────────────────
+// Each criterion: core (×2) or supporting (×1). Only active criteria count.
+// score = (weighted sum) / (max weighted sum) × 100
 const PRESETS = {
-  optimistic:   { label: 'Optimistic',   sub: 'Turnaround stocks starting to recover after a rough patch.',                          a: { sector:'all', size:'any', return1m:'positive', growth5y:'any',    momentum:'any',      matrend:'any',        range52w:'lows',  drawdown:'deep',      vol:'any',      analyst:'any',     profit:'any'        } },
-  nimble:       { label: 'Nimble',       sub: 'Targets early breakouts with strong participation before they become overextended.',   a: { sector:'all', size:'any', return1m:'positive', growth5y:'any',    momentum:'positive', matrend:'above_50',   range52w:'any',   drawdown:'any',       vol:'any',      analyst:'any',     profit:'any'        } },
-  momentum:     { label: 'Momentum',     sub: 'Identifies stocks in sustained uptrends across multiple timeframes.',                 a: { sector:'all', size:'any', return1m:'positive', growth5y:'strong', momentum:'positive', matrend:'above_both', range52w:'highs', drawdown:'near_peak', vol:'any',      analyst:'any',     profit:'any'        } },
-  pack:         { label: 'Pack',         sub: 'Follows institutional flows and consensus sentiment backed by strong participation.',  a: { sector:'all', size:'large', return1m:'positive', growth5y:'any',  momentum:'positive', matrend:'above_50',   range52w:'highs', drawdown:'any',       vol:'any',      analyst:'buy',     profit:'any'        } },
-  patient:      { label: 'Patient',      sub: 'Screens for high-quality stocks consolidating before a potential breakout.',           a: { sector:'all', size:'any', return1m:'any',      growth5y:'strong', momentum:'any',      matrend:'any',        range52w:'lows',  drawdown:'moderate',  vol:'any',      analyst:'any',     profit:'profitable' } },
-  safe:         { label: 'Careful',      sub: 'Targets stable, low-risk companies with strong balance sheets and low sensitivity.',   a: { sector:'all', size:'large', return1m:'any',    growth5y:'strong', momentum:'neutral',  matrend:'above_both', range52w:'any',   drawdown:'any',       vol:'low',      analyst:'any',     profit:'profitable' } },
-  trophy:       { label: 'Trophy',       sub: 'Focuses on proven long-term winners with strong earnings and dominant positioning.',   a: { sector:'all', size:'large', return1m:'positive', growth5y:'strong', momentum:'positive', matrend:'above_both', range52w:'highs', drawdown:'near_peak', vol:'any',  analyst:'buy',     profit:'profitable' } },
-  wild_beast:   { label: 'Wild Beast',   sub: 'Captures high-volatility assets with extreme upside (and downside) potential.',        a: { sector:'all', size:'any', return1m:'any',      growth5y:'any',    momentum:'any',      matrend:'any',        range52w:'any',   drawdown:'any',       vol:'moderate', analyst:'any',     profit:'any'        } },
-  zombie:       { label: 'Zombie',       sub: 'Finds heavily beaten-down stocks showing early signs of revival and accumulation.',    a: { sector:'all', size:'any', return1m:'recovery', growth5y:'recovery', momentum:'any',    matrend:'any',        range52w:'lows',  drawdown:'deep',      vol:'any',      analyst:'any',     profit:'any'        } },
+  optimistic: { label: 'Optimistic', sub: 'Turnaround stocks starting to recover after a rough patch.',
+    criteria: [
+      { key:'return1m', expect:'positive', weight:2 },
+      { key:'range52w', expect:'middle',   weight:2 },
+      { key:'drawdown', expect:'deep',     weight:1 },
+      { key:'momentum', expect:'positive', weight:1 },
+      { key:'matrend',  expect:'above_50', weight:1 },
+    ],
+  },
+  nimble: { label: 'Nimble', sub: 'Targets early breakouts with strong participation before they become overextended.',
+    criteria: [
+      { key:'momentum', expect:'positive', weight:2 },
+      { key:'matrend',  expect:'above_50', weight:2 },
+      { key:'return1m', expect:'positive', weight:1 },
+      { key:'range52w', expect:'middle',   weight:1 },
+      { key:'vol',      expect:'moderate', weight:1 },
+    ],
+  },
+  momentum: { label: 'Momentum', sub: 'Identifies stocks in sustained uptrends across multiple timeframes.',
+    criteria: [
+      { key:'momentum', expect:'positive',   weight:2 },
+      { key:'matrend',  expect:'above_both', weight:2 },
+      { key:'return1m', expect:'positive',   weight:1 },
+      { key:'growth5y', expect:'strong',     weight:1 },
+      { key:'range52w', expect:'highs',      weight:1 },
+      { key:'drawdown', expect:'near_peak',  weight:1 },
+    ],
+  },
+  pack: { label: 'Pack', sub: 'Follows institutional flows and consensus sentiment backed by strong participation.',
+    criteria: [
+      { key:'analyst',  expect:'buy',      weight:2 },
+      { key:'size',     expect:'large',    weight:2 },
+      { key:'matrend',  expect:'above_50', weight:1 },
+      { key:'return1m', expect:'positive', weight:1 },
+      { key:'momentum', expect:'positive', weight:1 },
+      { key:'range52w', expect:'highs',    weight:1 },
+    ],
+  },
+  patient: { label: 'Patient', sub: 'Screens for high-quality stocks consolidating before a potential breakout.',
+    criteria: [
+      { key:'growth5y', expect:'strong',     weight:2 },
+      { key:'profit',   expect:'profitable', weight:2 },
+      { key:'drawdown', expect:'moderate',   weight:1 },
+      { key:'momentum', expect:'neutral',    weight:1 },
+      { key:'analyst',  expect:'buy',        weight:1 },
+      { key:'vol',      expect:'low',        weight:1 },
+    ],
+  },
+  safe: { label: 'Careful', sub: 'Targets stable, low-risk companies with strong balance sheets and low sensitivity.',
+    criteria: [
+      { key:'vol',      expect:'low',        weight:2 },
+      { key:'profit',   expect:'profitable', weight:2 },
+      { key:'size',     expect:'large',      weight:1 },
+      { key:'growth5y', expect:'strong',     weight:1 },
+      { key:'matrend',  expect:'above_both', weight:1 },
+      { key:'drawdown', expect:'near_peak',  weight:1 },
+    ],
+  },
+  trophy: { label: 'Trophy', sub: 'Focuses on proven long-term winners with strong earnings and dominant positioning.',
+    criteria: [
+      { key:'growth5y', expect:'strong',      weight:2 },
+      { key:'profit',   expect:'profitable',  weight:2 },
+      { key:'momentum', expect:'positive',    weight:1 },
+      { key:'matrend',  expect:'above_both',  weight:1 },
+      { key:'size',     expect:'large',       weight:1 },
+      { key:'analyst',  expect:'buy',         weight:1 },
+      { key:'drawdown', expect:'near_peak',   weight:1 },
+    ],
+  },
+  wild_beast: { label: 'Wild Beast', sub: 'Captures high-volatility assets with extreme upside (and downside) potential.',
+    criteria: [
+      { key:'vol',      expect:'high',     weight:2 },
+      { key:'size',     expect:'small',    weight:2 },
+      { key:'momentum', expect:'positive', weight:1 },
+      { key:'return1m', expect:'positive', weight:1 },
+      { key:'drawdown', expect:'deep',     weight:1 },
+      { key:'range52w', expect:'lows',     weight:1 },
+    ],
+  },
+  zombie: { label: 'Zombie', sub: 'Finds heavily beaten-down stocks showing early signs of revival and accumulation.',
+    criteria: [
+      { key:'range52w', expect:'lows',     weight:2 },
+      { key:'drawdown', expect:'deep',     weight:2 },
+      { key:'return1m', expect:'recovery', weight:1 },
+      { key:'growth5y', expect:'recovery', weight:1 },
+      { key:'momentum', expect:'positive', weight:1 },
+      { key:'matrend',  expect:'above_50', weight:1 },
+    ],
+  },
 };
 
 const STYLE_ICONS = { optimistic:'🐇', nimble:'⚡', momentum:'🚀', pack:'🐺', patient:'🧘', safe:'🛡️', trophy:'🏆', wild_beast:'🧬', zombie:'🧟' };
@@ -123,68 +205,103 @@ function sectorMatches(stock, ans) {
   return false;
 }
 
-function scoreByAnswers(stock, ans) {
-  const col = key => getIndicatorColor(stock, key);
-  const gs = key => col(key) === 'green' ? 1 : col(key) === 'amber' ? 0.5 : 0;
-  const ms = key => col(key) === 'amber' ? 1 : col(key) === 'green' ? 0.5 : 0;
-  const rs = key => col(key) === 'red'   ? 1 : col(key) === 'amber' ? 0.5 : 0;
-
+// ── Single criterion scorer (shared by presets and quiz) ─────────────────────
+function _scoreCriterion(key, expect, stock) {
+  const col = k => getIndicatorColor(stock, k);
+  const gs = k => col(k) === 'green' ? 1 : col(k) === 'amber' ? 0.5 : 0;
+  const ms = k => col(k) === 'amber' ? 1 : col(k) === 'green' ? 0.5 : 0;
+  const rs = k => col(k) === 'red'   ? 1 : col(k) === 'amber' ? 0.5 : 0;
   const mc  = stock._mc;
   const r52 = stock._r52;
   const eps = stock._eps;
   const ar  = stock._ar || '';
 
-  const qSize = ans.size === 'large' ? (mc >= 10e9 ? 1 : mc >= 2e9 ? 0.5 : 0)
-              : ans.size === 'mid'   ? (mc >= 2e9 && mc < 10e9 ? 1 : mc >= 500e6 ? 0.5 : 0)
-              : ans.size === 'small' ? (mc < 2e9 ? 1 : mc < 10e9 ? 0.5 : 0)
-              : 1;
+  if (key === 'size') {
+    if (expect === 'large') return mc >= 10e9 ? 1 : mc >= 2e9 ? 0.5 : 0;
+    if (expect === 'mid')   return mc >= 2e9 && mc < 10e9 ? 1 : mc >= 500e6 ? 0.5 : 0;
+    if (expect === 'small') return mc < 2e9 ? 1 : mc < 10e9 ? 0.5 : 0;
+  }
+  if (key === 'return1m') {
+    if (expect === 'positive') return gs('return1M');
+    if (expect === 'recovery') return rs('return1M');
+  }
+  if (key === 'growth5y') {
+    if (expect === 'strong')   return gs('cagr5Y');
+    if (expect === 'recovery') return rs('cagr5Y');
+  }
+  if (key === 'momentum') {
+    if (expect === 'positive') return gs('momentum');
+    if (expect === 'neutral') {
+      // green → 1 (not 0.5): "not falling" rather than "must be flat"
+      const c = col('momentum');
+      return (c === 'amber' || c === 'green') ? 1 : 0;
+    }
+  }
+  if (key === 'matrend') {
+    const sCol = col('shortTrend'), lCol = col('longTrend');
+    if (expect === 'above_both') return sCol === 'green' && lCol === 'green' ? 1 : (sCol === 'green' || lCol === 'green') ? 0.5 : 0;
+    if (expect === 'above_50')   return sCol === 'green' ? 1 : sCol === 'amber' ? 0.5 : 0;
+    if (expect === 'below_both') return sCol === 'red' && lCol === 'red' ? 1 : (sCol === 'red' || lCol === 'red') ? 0.5 : 0;
+  }
+  if (key === 'range52w') {
+    if (expect === 'highs')  return gs('range52W');
+    if (expect === 'middle') return ms('range52W');
+    if (expect === 'lows')   return rs('range52W');
+  }
+  if (key === 'drawdown') {
+    // Uses range52w_pct directly — finer thresholds than indicator colors
+    if (expect === 'near_peak') return r52 != null ? (r52 >= 80 ? 1 : r52 >= 50 ? 0.5 : 0) : 0.5;
+    if (expect === 'moderate')  return r52 != null ? (r52 >= 40 && r52 < 80 ? 1 : r52 >= 20 ? 0.5 : 0) : 0.5;
+    if (expect === 'deep')      return r52 != null ? (r52 < 40 ? 1 : r52 < 60 ? 0.5 : 0) : 0.5;
+  }
+  if (key === 'vol') {
+    if (expect === 'low')      return gs('volatility');
+    if (expect === 'moderate') return ms('volatility');
+    if (expect === 'high')     return rs('volatility');
+  }
+  if (key === 'analyst') {
+    const BUY_SET  = new Set(['Strong buy','Buy']);
+    const NEUT_SET = new Set(['Strong buy','Buy','Neutral']);
+    if (expect === 'buy')     return BUY_SET.has(ar) ? 1 : ar === 'Neutral' ? 0.5 : 0;
+    if (expect === 'neutral') return NEUT_SET.has(ar) ? 1 : 0.5;
+  }
+  if (key === 'profit') {
+    if (expect === 'profitable') return eps != null ? (eps > 0 ? 1 : 0) : 0.5;
+  }
+  return 1;
+}
 
-  const q1M  = ans.return1m === 'positive' ? gs('return1M')
-             : ans.return1m === 'recovery'  ? rs('return1M')
-             : 1;
+function scoreByAnswers(stock, ans) {
+  // v2: skip "any"/"all" criteria entirely — no free passes
+  // All active criteria weighted equally (×1) for quiz answers
+  const CRITERIA_KEYS = [
+    { key:'size',     ansKey:'size' },
+    { key:'return1m', ansKey:'return1m' },
+    { key:'growth5y', ansKey:'growth5y' },
+    { key:'momentum', ansKey:'momentum' },
+    { key:'matrend',  ansKey:'matrend' },
+    { key:'range52w', ansKey:'range52w' },
+    { key:'drawdown', ansKey:'drawdown' },
+    { key:'vol',      ansKey:'vol' },
+    { key:'analyst',  ansKey:'analyst' },
+    { key:'profit',   ansKey:'profit' },
+  ];
 
-  const q5Y  = ans.growth5y === 'strong'   ? gs('cagr5Y')
-             : ans.growth5y === 'recovery'  ? rs('cagr5Y')
-             : 1;
+  const scores = [];
+  let activeSum = 0;
+  let activeCount = 0;
 
-  const qMom = ans.momentum === 'positive' ? gs('momentum')
-             : ans.momentum === 'neutral'   ? ms('momentum')
-             : 1;
+  for (const c of CRITERIA_KEYS) {
+    const expect = ans[c.ansKey];
+    if (!expect || expect === 'any' || expect === 'all') continue; // skip — not active
+    const raw = _scoreCriterion(c.key, expect, stock);
+    scores.push(raw);
+    activeSum += raw;
+    activeCount++;
+  }
 
-  const sCol = col('shortTrend');
-  const lCol = col('longTrend');
-  const qMA  = ans.matrend === 'above_both' ? (sCol === 'green' && lCol === 'green' ? 1 : (sCol === 'green' || lCol === 'green') ? 0.5 : 0)
-             : ans.matrend === 'above_50'    ? (sCol === 'green' ? 1 : sCol === 'amber' ? 0.5 : 0)
-             : ans.matrend === 'below_both'  ? (sCol === 'red' && lCol === 'red' ? 1 : (sCol === 'red' || lCol === 'red') ? 0.5 : 0)
-             : 1;
-
-  const qR52 = ans.range52w === 'highs'  ? gs('range52W')
-             : ans.range52w === 'middle'  ? ms('range52W')
-             : ans.range52w === 'lows'    ? rs('range52W')
-             : 1;
-
-  const qDD  = ans.drawdown === 'near_peak' ? (r52 != null ? (r52 >= 80 ? 1 : r52 >= 50 ? 0.5 : 0) : 0.5)
-             : ans.drawdown === 'moderate'   ? (r52 != null ? (r52 >= 40 && r52 < 80 ? 1 : r52 >= 20 ? 0.5 : 0) : 0.5)
-             : ans.drawdown === 'deep'       ? (r52 != null ? (r52 < 40 ? 1 : r52 < 60 ? 0.5 : 0) : 0.5)
-             : 1;
-
-  const qVol = ans.vol === 'low'      ? gs('volatility')
-             : ans.vol === 'moderate' ? ms('volatility')
-             : 1;
-
-  const BUY_SET  = new Set(['Strong buy','Buy']);
-  const NEUT_SET = new Set(['Strong buy','Buy','Neutral']);
-  const qAn  = ans.analyst === 'buy'     ? (BUY_SET.has(ar) ? 1 : ar === 'Neutral' ? 0.5 : 0)
-             : ans.analyst === 'neutral'  ? (NEUT_SET.has(ar) ? 1 : 0.5)
-             : 1;
-
-  const qPr  = ans.profit === 'profitable' ? (eps != null ? (eps > 0 ? 1 : 0) : 0.5)
-             : 1;
-
-  const scores = [qSize, q1M, q5Y, qMom, qMA, qR52, qDD, qVol, qAn, qPr];
-  const total  = scores.reduce((a, b) => a + b, 0);
-  const pct    = Math.round((total / 10) * 100);
-  return { scores, total, pct };
+  const pct = activeCount > 0 ? Math.round((activeSum / activeCount) * 100) : 0;
+  return { scores, total: activeSum, pct };
 }
 
 const _EXCH_LABELS = { sp500:'S&P 500', ftse100:'FTSE 100', hsi:'Hang Seng', nikkei225:'Nikkei 225', nasdaq100:'NASDAQ 100', nasdaq_financial:'NASDAQ Financial', nasdaq_biotech:'NASDAQ Biotech' };
@@ -242,16 +359,16 @@ function _fmt3M(v) {
 function _buildStyleChips(ps) {
   if (!ps || !Object.keys(ps).length) return '';
   const sorted = Object.entries(ps).sort((a, b) => b[1] - a[1]);
-  const top3 = sorted.slice(0, 3);
-  const worst = sorted[sorted.length - 1];
+  // Only show styles ≥ 40%
+  const visible = sorted.filter(([, p]) => p >= 40);
+  if (!visible.length) return '';
+  const top3 = visible.slice(0, 3);
   const chip = (key, pct) => {
     const col = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : 'var(--red)';
     return `<span class="sc" style="border-color:${col};color:${col};" data-tip="${esc(STYLE_NAMES[key] || key)} — ${esc(STYLE_DESCS[key] || '')}">${STYLE_ICONS[key] || ''} ${pct}%</span>`;
   };
   return `<div class="rc-styles">
     ${top3.map(([k, p]) => chip(k, p)).join('')}
-    <span style="font-size:0.5rem;color:var(--muted);">&middot;</span>
-    ${chip(worst[0], worst[1])}
   </div>`;
 }
 
@@ -301,6 +418,7 @@ function buildTableRow(item, rank) {
   const styleCells = _PRESET_ORDER.map(k => {
     const p = ps[k];
     if (p == null) return '<td class="center">—</td>';
+    if (p < 40) return '<td class="center"><span class="t-style-pct dim">—</span></td>';
     const cls = p >= 80 ? 'hi' : p >= 50 ? 'mid' : 'lo';
     return `<td class="center"><span class="t-style-pct ${cls}">${p}</span></td>`;
   }).join('');

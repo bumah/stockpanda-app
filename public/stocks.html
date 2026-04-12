@@ -256,10 +256,22 @@ if (legacyExchange) {
   if (legacyMap[legacyExchange]) activeTerritory = legacyMap[legacyExchange];
 }
 
+// Read URL param for style
+if (urlParams.get('style') && ['optimistic','nimble','momentum','pack','patient','safe','trophy','wild_beast','zombie'].includes(urlParams.get('style'))) {
+  activeStyle = urlParams.get('style');
+}
+
 // Mark correct territory chip active on load
 document.querySelectorAll('#territory-chips .bubble-chip').forEach(c => {
   c.classList.toggle('active', c.dataset.territory === activeTerritory);
 });
+
+// Mark correct style chip active on load
+if (activeStyle) {
+  document.querySelectorAll('#style-chips .bubble-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.style === activeStyle);
+  });
+}
 
 // ── Bubble filter clicks ──────────────────────────────────────────────────────
 
@@ -457,6 +469,7 @@ function renderTable() {
       const styleCells = PRESET_ORDER.map(k => {
         const p = ps[k];
         if (p == null) return '<td class="center">—</td>';
+        if (p < 40) return '<td class="center"><span class="t-style-pct dim">—</span></td>';
         const cls = p >= 80 ? 'hi' : p >= 50 ? 'mid' : 'lo';
         return '<td class="center"><span class="t-style-pct ' + cls + '">' + p + '</span></td>';
       }).join('');

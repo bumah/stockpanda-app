@@ -563,6 +563,15 @@ function twUpdateNav() {
 function twBack() { if (twStep > 1) { twStep--; twRenderStep(); } }
 window.twBack = twBack;
 
+// Convert v2 criteria array to flat answer object for compatibility
+function _criteriaToFlat(criteria) {
+  const flat = { sector:'all', size:'any', return1m:'any', growth5y:'any', momentum:'any', matrend:'any', range52w:'any', drawdown:'any', vol:'any', analyst:'any', profit:'any' };
+  for (const c of criteria) {
+    flat[c.key] = c.expect;
+  }
+  return flat;
+}
+
 function twNext() {
   if (twStep < 3) { twStep++; twRenderStep(); return; }
   closeTrapWizard();
@@ -570,13 +579,16 @@ function twNext() {
   const sectors = twSec.size === 0 || twSec.has('all') ? 'all' : Array.from(twSec);
   const styleKeys = Array.from(twStyles);
   const basePreset = PRESETS[styleKeys[0]];
-  const merged = Object.assign({}, basePreset.a);
+  const merged = _criteriaToFlat(basePreset.criteria);
   if (sectors !== 'all') merged.sector = sectors;
   else merged.sector = 'all';
   if (styleKeys.length > 1) {
     const fields = ['return1m','growth5y','momentum','matrend','range52w','drawdown','vol','analyst','profit','size'];
     for (const f of fields) {
-      const vals = styleKeys.map(k => PRESETS[k].a[f]).filter(v => v && v !== 'any');
+      const vals = styleKeys.map(k => {
+        const flat = _criteriaToFlat(PRESETS[k].criteria);
+        return flat[f];
+      }).filter(v => v && v !== 'any');
       merged[f] = vals.length > 0 ? vals[0] : 'any';
     }
   }
@@ -616,7 +628,8 @@ window.closeRegionPicker = closeRegionPicker;
 function runPreset(region) {
   if (!_activePreset) return Promise.resolve();
   const p = PRESETS[_activePreset];
-  Object.assign(answers, p.a, { region });
+  const flat = _criteriaToFlat(p.criteria);
+  Object.assign(answers, flat, { region });
   answers.watchlist = p.watchlist || null;
   _presetMode = true;
   _lastPresetKey = _activePreset;
@@ -647,7 +660,7 @@ const QP_CRIT_LABELS = {
   matrend:  { above_both:'Above both MAs', above_50:'Above 50D MA', below_both:'Below both MAs' },
   range52w: { highs:'Near 52-week high', middle:'Mid 52-week range', lows:'Near 52-week low' },
   drawdown: { near_peak:'Near peak (<20% off)', moderate:'Moderate pullback (20-50%)', deep:'Deep discount (>50% off)' },
-  vol:      { low:'Low volatility', moderate:'Moderate volatility' },
+  vol:      { low:'Low volatility', moderate:'Moderate volatility', high:'High volatility' },
   analyst:  { buy:'Analyst: Buy-rated', neutral:'Analyst: Neutral or better' },
   profit:   { profitable:'Profitable (EPS > 0)' },
 };
@@ -692,10 +705,10 @@ function showPresetInfo(key, btn) {
   const items = [];
   if (p.skipRegion && p.region) items.push(`Index: ${QP_EXCH_NAMES[p.region] || p.region}`);
   if (p.watchlist?.length) items.push(`Stocks: ${p.watchlist.slice(0, 5).join(', ')}${p.watchlist.length > 5 ? '…' : ''}`);
-  Object.entries(p.a).forEach(([k, v]) => {
-    const lbl = QP_CRIT_LABELS[k]?.[v];
-    if (lbl) items.push(lbl);
-  });
+  for (const c of (p.criteria || [])) {
+    const lbl = QP_CRIT_LABELS[c.key]?.[c.expect];
+    if (lbl) items.push((c.weight === 2 ? '★ ' : '') + lbl);
+  }
   pop.innerHTML = `<div class="qp-pop-title">${p.label}</div><div class="qp-pop-sub">${p.sub}</div>${
     items.length
       ? items.map(i => `<div class="qp-crit">· ${i}</div>`).join('')
@@ -1024,7 +1037,7 @@ document.addEventListener('click', e => {
     _activePreset = style;
     const r = region || 'global';
     const p = PRESETS[style];
-    Object.assign(answers, p.a, { region: r });
+    Object.assign(answers, _criteriaToFlat(p.criteria), { region: r });
     _presetMode = true;
     _lastPresetKey = style;
     scoredCache = [];
@@ -1034,7 +1047,7 @@ document.addEventListener('click', e => {
     document.getElementById('scan-welcome').style.display = 'none';
     _activePreset = 'momentum';
     const p = PRESETS.momentum;
-    Object.assign(answers, p.a, { region });
+    Object.assign(answers, _criteriaToFlat(p.criteria), { region });
     _presetMode = true;
     _lastPresetKey = 'momentum';
     scoredCache = [];

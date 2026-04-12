@@ -695,6 +695,7 @@ input, select { font-family: var(--font); }
 .tbl .t-style-pct.hi { background: rgba(74,222,128,0.12); color: #4ADE80; }
 .tbl .t-style-pct.mid { background: rgba(251,191,36,0.12); color: #FBBF24; }
 .tbl .t-style-pct.lo { background: rgba(248,113,113,0.12); color: #F87171; }
+.tbl .t-style-pct.dim { background: none; color: var(--muted); opacity: 0.35; font-weight: 400; }
 .tbl td.center { text-align: center; }
 
 /* ── View toggle ────────────────────────────────────────────────────────────── */

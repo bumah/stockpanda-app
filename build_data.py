@@ -59,18 +59,114 @@ IND_ORDER = [
 
 COLOR_MAP = {"green": "g", "amber": "a", "red": "r"}
 
-# ── Hunting style presets (mirrored from finder.html) ─────────────────────────
+# ── Hunting style presets v2 — weighted scoring ───────────────────────────────
+# Each criterion is tagged as "core" (×2 weight) or "supporting" (×1 weight).
+# Only active criteria count — "any" values are excluded entirely (no free passes).
+# Score = (weighted sum of active criteria) / (max possible weighted sum) × 100
 
 PRESETS = {
-    "optimistic":  {"sector":"all","size":"any","return1m":"positive","growth5y":"any",   "momentum":"any",     "matrend":"any",       "range52w":"lows", "drawdown":"deep",     "vol":"any",     "analyst":"any",    "profit":"any"},
-    "nimble":      {"sector":"all","size":"any","return1m":"positive","growth5y":"any",   "momentum":"positive","matrend":"above_50",  "range52w":"any",  "drawdown":"any",      "vol":"any",     "analyst":"any",    "profit":"any"},
-    "momentum":    {"sector":"all","size":"any","return1m":"positive","growth5y":"strong","momentum":"positive","matrend":"above_both","range52w":"highs","drawdown":"near_peak","vol":"any",     "analyst":"any",    "profit":"any"},
-    "pack":        {"sector":"all","size":"large","return1m":"positive","growth5y":"any", "momentum":"positive","matrend":"above_50",  "range52w":"highs","drawdown":"any",      "vol":"any",     "analyst":"buy",    "profit":"any"},
-    "patient":     {"sector":"all","size":"any","return1m":"any",     "growth5y":"strong","momentum":"any",     "matrend":"any",       "range52w":"lows", "drawdown":"moderate", "vol":"any",     "analyst":"any",    "profit":"profitable"},
-    "safe":        {"sector":"all","size":"large","return1m":"any",   "growth5y":"strong","momentum":"neutral", "matrend":"above_both","range52w":"any",  "drawdown":"any",      "vol":"low",     "analyst":"any",    "profit":"profitable"},
-    "trophy":      {"sector":"all","size":"large","return1m":"positive","growth5y":"strong","momentum":"positive","matrend":"above_both","range52w":"highs","drawdown":"near_peak","vol":"any",  "analyst":"buy",    "profit":"profitable"},
-    "wild_beast":  {"sector":"all","size":"any","return1m":"any",     "growth5y":"any",   "momentum":"any",     "matrend":"any",       "range52w":"any",  "drawdown":"any",      "vol":"moderate","analyst":"any",    "profit":"any"},
-    "zombie":      {"sector":"all","size":"any","return1m":"recovery","growth5y":"recovery","momentum":"any",   "matrend":"any",       "range52w":"lows", "drawdown":"deep",     "vol":"any",     "analyst":"any",    "profit":"any"},
+    # 🐇 Optimistic — Turnaround stocks starting to recover
+    # Suggestion applied: range52w changed from "lows" to "middle" to differentiate from Zombie
+    "optimistic": {
+        "criteria": [
+            {"key": "return1m",  "expect": "positive",  "weight": 2},   # core — the bounce is the whole point
+            {"key": "range52w",  "expect": "middle",    "weight": 2},   # core — bounced off bottom, now mid-range
+            {"key": "drawdown",  "expect": "deep",      "weight": 1},   # supporting — confirms it has fallen
+            {"key": "momentum",  "expect": "positive",  "weight": 1},   # supporting — bounce is real
+            {"key": "matrend",   "expect": "above_50",  "weight": 1},   # supporting — trend shift
+        ],
+    },
+    # ⚡ Nimble — Early breakouts with strong participation
+    "nimble": {
+        "criteria": [
+            {"key": "momentum",  "expect": "positive",  "weight": 2},   # core — breakout needs momentum
+            {"key": "matrend",   "expect": "above_50",  "weight": 2},   # core — price breaking above short-term MA
+            {"key": "return1m",  "expect": "positive",  "weight": 1},   # supporting — recent price confirms
+            {"key": "range52w",  "expect": "middle",    "weight": 1},   # supporting — mid-range, not extended
+            {"key": "vol",       "expect": "moderate",  "weight": 1},   # supporting — some volatility for breakout
+        ],
+    },
+    # 🚀 Momentum — Sustained uptrends across multiple timeframes
+    "momentum": {
+        "criteria": [
+            {"key": "momentum",  "expect": "positive",   "weight": 2},  # core — core identity
+            {"key": "matrend",   "expect": "above_both", "weight": 2},  # core — confirmed sustained uptrend
+            {"key": "return1m",  "expect": "positive",   "weight": 1},  # supporting — short-term confirms
+            {"key": "growth5y",  "expect": "strong",     "weight": 1},  # supporting — not just a spike
+            {"key": "range52w",  "expect": "highs",      "weight": 1},  # supporting — confirms strength
+            {"key": "drawdown",  "expect": "near_peak",  "weight": 1},  # supporting — hasn't pulled back
+        ],
+    },
+    # 🐺 Pack — Institutional flows and consensus sentiment
+    "pack": {
+        "criteria": [
+            {"key": "analyst",   "expect": "buy",        "weight": 2},  # core — institutional consensus
+            {"key": "size",      "expect": "large",      "weight": 2},  # core — institutions trade large caps
+            {"key": "matrend",   "expect": "above_50",   "weight": 1},  # supporting — price confirms buying
+            {"key": "return1m",  "expect": "positive",   "weight": 1},  # supporting — recent price supports
+            {"key": "momentum",  "expect": "positive",   "weight": 1},  # supporting — broad momentum
+            {"key": "range52w",  "expect": "highs",      "weight": 1},  # supporting — pushed toward highs
+        ],
+    },
+    # 🧘 Patient — Quality stocks consolidating before breakout
+    # Suggestion applied: dropped range52w (redundant with drawdown), added analyst
+    # Suggestion applied: momentum "neutral" now treats green=1 (not 0.5)
+    "patient": {
+        "criteria": [
+            {"key": "growth5y",  "expect": "strong",     "weight": 2},  # core — proven quality grower
+            {"key": "profit",    "expect": "profitable",  "weight": 2},  # core — real earnings
+            {"key": "drawdown",  "expect": "moderate",   "weight": 1},  # supporting — pulled back but not cratering
+            {"key": "momentum",  "expect": "neutral",    "weight": 1},  # supporting — consolidating
+            {"key": "analyst",   "expect": "buy",        "weight": 1},  # supporting — quality backing
+            {"key": "vol",       "expect": "low",        "weight": 1},  # supporting — quiet consolidation
+        ],
+    },
+    # 🛡️ Careful — Stable, low-risk with strong balance sheets
+    "safe": {
+        "criteria": [
+            {"key": "vol",       "expect": "low",        "weight": 2},  # core — risk management
+            {"key": "profit",    "expect": "profitable",  "weight": 2},  # core — real earnings
+            {"key": "size",      "expect": "large",      "weight": 1},  # supporting — large caps more stable
+            {"key": "growth5y",  "expect": "strong",     "weight": 1},  # supporting — growing, not stagnant
+            {"key": "matrend",   "expect": "above_both", "weight": 1},  # supporting — healthy trend
+            {"key": "drawdown",  "expect": "near_peak",  "weight": 1},  # supporting — not in a hole
+        ],
+    },
+    # 🏆 Trophy — Proven long-term winners with strong earnings
+    # Suggestion applied: dropped return1m and range52w (timing criteria, not quality)
+    "trophy": {
+        "criteria": [
+            {"key": "growth5y",  "expect": "strong",      "weight": 2},  # core — proven compounder
+            {"key": "profit",    "expect": "profitable",   "weight": 2},  # core — sustained earnings
+            {"key": "momentum",  "expect": "positive",    "weight": 1},  # supporting — currently in uptrend
+            {"key": "matrend",   "expect": "above_both",  "weight": 1},  # supporting — trend-confirmed
+            {"key": "size",      "expect": "large",       "weight": 1},  # supporting — established company
+            {"key": "analyst",   "expect": "buy",         "weight": 1},  # supporting — consensus on quality
+            {"key": "drawdown",  "expect": "near_peak",   "weight": 1},  # supporting — hasn't pulled back
+        ],
+    },
+    # 🧬 Wild Beast — High-volatility with extreme upside potential
+    "wild_beast": {
+        "criteria": [
+            {"key": "vol",       "expect": "high",       "weight": 2},  # core — must be volatile
+            {"key": "size",      "expect": "small",      "weight": 2},  # core — small caps have explosive potential
+            {"key": "momentum",  "expect": "positive",   "weight": 1},  # supporting — momentum behind the move
+            {"key": "return1m",  "expect": "positive",   "weight": 1},  # supporting — recent positive action
+            {"key": "drawdown",  "expect": "deep",       "weight": 1},  # supporting — more upside room
+            {"key": "range52w",  "expect": "lows",       "weight": 1},  # supporting — coiled spring
+        ],
+    },
+    # 🧟 Zombie — Beaten-down stocks showing early signs of revival
+    "zombie": {
+        "criteria": [
+            {"key": "range52w",  "expect": "lows",       "weight": 2},  # core — must be near 52W low
+            {"key": "drawdown",  "expect": "deep",       "weight": 2},  # core — must have fallen substantially
+            {"key": "return1m",  "expect": "recovery",   "weight": 1},  # supporting — showing revival
+            {"key": "growth5y",  "expect": "recovery",   "weight": 1},  # supporting — growth was negative
+            {"key": "momentum",  "expect": "positive",   "weight": 1},  # supporting — early momentum shift
+            {"key": "matrend",   "expect": "above_50",   "weight": 1},  # supporting — crossing back above 50D
+        ],
+    },
 }
 
 PRESET_LABELS = {
@@ -99,106 +195,86 @@ def _red_score(inds, key):
     c = _ind_color(inds, key)
     return 1 if c == "red" else (0.5 if c == "amber" else 0)
 
-def score_preset(inds, ans, mc, r52, eps, ar):
-    """Score a stock against one preset. Returns { scores: [...], pct: int }."""
-    # 1. Size
-    if ans["size"] == "large":
-        q_size = 1 if mc is not None and mc >= 10e9 else (0.5 if mc is not None and mc >= 2e9 else 0)
-    elif ans["size"] == "mid":
-        q_size = 1 if mc is not None and 2e9 <= mc < 10e9 else (0.5 if mc is not None and mc >= 500e6 else 0)
-    elif ans["size"] == "small":
-        q_size = 1 if mc is not None and mc < 2e9 else (0.5 if mc is not None and mc < 10e9 else 0)
-    else:
-        q_size = 1
+def _score_criterion(key, expect, inds, mc, r52, eps, ar):
+    """Score a single criterion. Returns 0, 0.5, or 1."""
+    if key == "size":
+        if expect == "large":
+            return 1 if mc is not None and mc >= 10e9 else (0.5 if mc is not None and mc >= 2e9 else 0)
+        elif expect == "mid":
+            return 1 if mc is not None and 2e9 <= mc < 10e9 else (0.5 if mc is not None and mc >= 500e6 else 0)
+        elif expect == "small":
+            return 1 if mc is not None and mc < 2e9 else (0.5 if mc is not None and mc < 10e9 else 0)
+    elif key == "return1m":
+        if expect == "positive":  return _green_score(inds, "return1M")
+        if expect == "recovery":  return _red_score(inds, "return1M")
+    elif key == "growth5y":
+        if expect == "strong":    return _green_score(inds, "cagr5Y")
+        if expect == "recovery":  return _red_score(inds, "cagr5Y")
+    elif key == "momentum":
+        if expect == "positive":  return _green_score(inds, "momentum")
+        if expect == "neutral":
+            # Suggestion applied: green → 1 (not 0.5) — "not falling" rather than "must be flat"
+            c = _ind_color(inds, "momentum")
+            return 1 if c in ("amber", "green") else 0
+    elif key == "matrend":
+        s_col = _ind_color(inds, "shortTrend")
+        l_col = _ind_color(inds, "longTrend")
+        if expect == "above_both":
+            return 1 if s_col == "green" and l_col == "green" else (0.5 if s_col == "green" or l_col == "green" else 0)
+        if expect == "above_50":
+            return 1 if s_col == "green" else (0.5 if s_col == "amber" else 0)
+        if expect == "below_both":
+            return 1 if s_col == "red" and l_col == "red" else (0.5 if s_col == "red" or l_col == "red" else 0)
+    elif key == "range52w":
+        if expect == "highs":     return _green_score(inds, "range52W")
+        if expect == "middle":    return _amber_score(inds, "range52W")
+        if expect == "lows":      return _red_score(inds, "range52W")
+    elif key == "drawdown":
+        # Uses range52w_pct directly (not indicator colors) — finer thresholds needed
+        if expect == "near_peak":
+            return 1 if r52 is not None and r52 >= 80 else (0.5 if r52 is not None and r52 >= 50 else 0)
+        if expect == "moderate":
+            return 1 if r52 is not None and 40 <= r52 < 80 else (0.5 if r52 is not None and r52 >= 20 else 0)
+        if expect == "deep":
+            return 1 if r52 is not None and r52 < 40 else (0.5 if r52 is not None and r52 < 60 else 0)
+    elif key == "vol":
+        if expect == "low":       return _green_score(inds, "volatility")
+        if expect == "moderate":  return _amber_score(inds, "volatility")
+        if expect == "high":      return _red_score(inds, "volatility")
+    elif key == "analyst":
+        if expect == "buy":
+            return 1 if ar in BUY_SET else (0.5 if ar == "Neutral" else 0)
+        if expect == "neutral":
+            return 1 if ar in NEUT_SET else 0.5
+    elif key == "profit":
+        if expect == "profitable":
+            return 1 if eps is not None and eps > 0 else (0.5 if eps is None else 0)
+    return 1  # fallback (should not reach here for valid presets)
 
-    # 2. 1M Return
-    if ans["return1m"] == "positive":
-        q_1m = _green_score(inds, "return1M")
-    elif ans["return1m"] == "recovery":
-        q_1m = _red_score(inds, "return1M")
-    else:
-        q_1m = 1
 
-    # 3. 5Y Growth
-    if ans["growth5y"] == "strong":
-        q_5y = _green_score(inds, "cagr5Y")
-    elif ans["growth5y"] == "recovery":
-        q_5y = _red_score(inds, "cagr5Y")
-    else:
-        q_5y = 1
+def score_preset(inds, preset_def, mc, r52, eps, ar):
+    """Score a stock against one preset (v2 weighted). Returns { scores: [...], pct: int }."""
+    criteria = preset_def["criteria"]
+    weighted_sum = 0
+    max_weighted = 0
+    scores = []
 
-    # 4. Momentum
-    if ans["momentum"] == "positive":
-        q_mom = _green_score(inds, "momentum")
-    elif ans["momentum"] == "neutral":
-        q_mom = _amber_score(inds, "momentum")
-    else:
-        q_mom = 1
+    for c in criteria:
+        raw = _score_criterion(c["key"], c["expect"], inds, mc, r52, eps, ar)
+        w = c["weight"]
+        weighted_sum += raw * w
+        max_weighted += w
+        scores.append(raw)
 
-    # 5. MA Trend
-    s_col = _ind_color(inds, "shortTrend")
-    l_col = _ind_color(inds, "longTrend")
-    if ans["matrend"] == "above_both":
-        q_ma = 1 if s_col == "green" and l_col == "green" else (0.5 if s_col == "green" or l_col == "green" else 0)
-    elif ans["matrend"] == "above_50":
-        q_ma = 1 if s_col == "green" else (0.5 if s_col == "amber" else 0)
-    elif ans["matrend"] == "below_both":
-        q_ma = 1 if s_col == "red" and l_col == "red" else (0.5 if s_col == "red" or l_col == "red" else 0)
-    else:
-        q_ma = 1
-
-    # 6. 52W Range
-    if ans["range52w"] == "highs":
-        q_r52 = _green_score(inds, "range52W")
-    elif ans["range52w"] == "middle":
-        q_r52 = _amber_score(inds, "range52W")
-    elif ans["range52w"] == "lows":
-        q_r52 = _red_score(inds, "range52W")
-    else:
-        q_r52 = 1
-
-    # 7. Drawdown
-    if ans["drawdown"] == "near_peak":
-        q_dd = 1 if r52 is not None and r52 >= 80 else (0.5 if r52 is not None and r52 >= 50 else 0)
-    elif ans["drawdown"] == "moderate":
-        q_dd = 1 if r52 is not None and 40 <= r52 < 80 else (0.5 if r52 is not None and r52 >= 20 else 0)
-    elif ans["drawdown"] == "deep":
-        q_dd = 1 if r52 is not None and r52 < 40 else (0.5 if r52 is not None and r52 < 60 else 0)
-    else:
-        q_dd = 1
-
-    # 8. Volatility
-    if ans["vol"] == "low":
-        q_vol = _green_score(inds, "volatility")
-    elif ans["vol"] == "moderate":
-        q_vol = _amber_score(inds, "volatility")
-    else:
-        q_vol = 1
-
-    # 9. Analyst
-    if ans["analyst"] == "buy":
-        q_an = 1 if ar in BUY_SET else (0.5 if ar == "Neutral" else 0)
-    elif ans["analyst"] == "neutral":
-        q_an = 1 if ar in NEUT_SET else 0.5
-    else:
-        q_an = 1
-
-    # 10. Profit
-    if ans["profit"] == "profitable":
-        q_pr = 1 if eps is not None and eps > 0 else (0.5 if eps is None else 0)
-    else:
-        q_pr = 1
-
-    scores = [q_size, q_1m, q_5y, q_mom, q_ma, q_r52, q_dd, q_vol, q_an, q_pr]
-    total = sum(scores)
-    pct = round(total / 10 * 100)
+    pct = round(weighted_sum / max_weighted * 100) if max_weighted > 0 else 0
     return {"scores": scores, "pct": pct}
+
 
 def score_all_presets(inds, mc, r52, eps, ar):
     """Score a stock against all 9 presets. Returns dict of { key: {scores, pct} }."""
     result = {}
-    for key, ans in PRESETS.items():
-        result[key] = score_preset(inds, ans, mc, r52, eps, ar)
+    for key, preset_def in PRESETS.items():
+        result[key] = score_preset(inds, preset_def, mc, r52, eps, ar)
     return result
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
