@@ -247,7 +247,7 @@
     <a class="nav-link" href="summary.html">Peek</a>
   </div>
   <div class="nav-right">
-    <a href="https://tally.so/r/waqMdX" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;color:var(--green);font-weight:600;">Get Pro</a>
+    <a href="#" onclick="event.preventDefault();openProModal()" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;color:var(--green);font-weight:600;">Get Pro</a>
     <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;" title="Contact"><i data-lucide="mail" style="width:18px;height:18px;"></i></a>
     <div class="nav-stamp">Data: <span>—</span></div>
   </div>
@@ -1157,7 +1157,7 @@ function buildFinderDiscoverCard(item) {
     return '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[e[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[e[0]]||e[0]) + '</span>' + hearts(e[1]) + '</div>';
   }).join('');
   if (worst) {
-    styleRows += '<div class="dc-style-sep">worst match</div><div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[worst[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[worst[0]]||worst[0]) + '</span>' + hearts(worst[1]) + '</div>';
+    styleRows += '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[worst[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[worst[0]]||worst[0]) + '</span>' + hearts(worst[1]) + '</div>';
   }
 
   return '<div class="discover-card">' +
@@ -1201,7 +1201,6 @@ function buildTrapScoreBreakdown(item) {
         '</div>' +
       '</div>';
     }).join('') +
-    '<div style="margin-top:0.5rem;font-size:0.65rem;color:var(--muted);">' + item.matchCount + ' of 4 criteria matched</div>' +
   '</div>';
 }
 

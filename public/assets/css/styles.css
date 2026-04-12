@@ -943,8 +943,8 @@ input, select { font-family: var(--font); }
 }
 .discover-nav button svg { width: 22px; height: 22px; stroke-width: 2; }
 .discover-nav button:disabled { opacity: 0.25; cursor: not-allowed; }
-.dc-btn-back { background: var(--green); border: none; color: #000; }
-.dc-btn-back:hover:not(:disabled) { opacity: 0.85; }
+.dc-btn-back { background: rgba(255,255,255,0.06); border: 1.5px solid var(--border); color: var(--muted); }
+.dc-btn-back:hover:not(:disabled) { border-color: var(--muted); color: var(--text); background: rgba(255,255,255,0.1); }
 .dc-btn-next { background: var(--green); border: none; color: #000; }
 .dc-btn-next:hover:not(:disabled) { opacity: 0.85; }
 
