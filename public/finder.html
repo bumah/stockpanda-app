@@ -262,6 +262,14 @@
 <div class="main">
   <div class="finder-wrap">
 
+    <!-- ── Welcome Screen ────────────────────────────────────── -->
+    <div id="scan-welcome" class="finder-hero" style="padding-bottom:2.5rem;">
+      <div class="hero-eyebrow">Scan</div>
+      <h1 class="finder-hero-h1" style="font-size:2.6rem;">Scan the field.<br/>Find your match.</h1>
+      <p class="finder-hero-sub">Pick a territory, style, and risk level. We'll scan the market and show you stocks that match — one at a time.</p>
+      <button class="finder-cta-btn" onclick="document.getElementById('scan-welcome').style.display='none'; openTrapWizard();">Start scanning &rarr;</button>
+    </div>
+
     <!-- ── Results Section (discover-only) ─────────────────── -->
     <div id="results-section" style="display:none;">
       <div class="discover-wrap">
@@ -1011,6 +1019,7 @@ document.addEventListener('click', e => {
   const level  = params.get('level');
 
   if (style && PRESETS[style]) {
+    document.getElementById('scan-welcome').style.display = 'none';
     _activePreset = style;
     const r = region || 'global';
     const p = PRESETS[style];
@@ -1021,6 +1030,7 @@ document.addEventListener('click', e => {
     _trapCriteria = { region: r, sectors: 'all', styles: [style], level: level ? 'Level ' + level : null };
     findStocks();
   } else if (region) {
+    document.getElementById('scan-welcome').style.display = 'none';
     _activePreset = 'momentum';
     const p = PRESETS.momentum;
     Object.assign(answers, p.a, { region });
@@ -1031,22 +1041,8 @@ document.addEventListener('click', e => {
     findStocks();
   } else {
     // No URL params — check sessionStorage for last search, otherwise open wizard
-    const saved = sessionStorage.getItem('sp_answers');
-    if (saved) {
-      try {
-        const a = JSON.parse(saved);
-        Object.assign(answers, a);
-        _presetMode = sessionStorage.getItem('sp_preset') === '1';
-        _lastPresetKey = sessionStorage.getItem('sp_presetKey') || '';
-        if (_lastPresetKey) _activePreset = _lastPresetKey;
-        findStocks();
-      } catch(e) {
-        sessionStorage.removeItem('sp_answers');
-        openTrapWizard();
-      }
-    } else {
-      openTrapWizard();
-    }
+    // No URL params — show welcome screen (user clicks "Start scanning" to begin)
+    // Welcome screen is visible by default
   }
 })();
 

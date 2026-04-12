@@ -43,33 +43,10 @@
       <h1 class="finder-hero-h1">Hunt stocks by your <span id="finder-word">taste.</span></h1>
     </div>
 
-    <!-- ── Hunt your way ─────────────────────────────────────── -->
-    <div class="qf-wrap" style="margin-top:0;">
-      <div class="qf-label">Hunt your way</div>
-      <div class="qf-sub">Choose your hunting mode and review your catches.</div>
-      <div class="pillars-grid" style="grid-template-columns: repeat(3, 1fr);">
-        <a class="pillar-card" href="finder.html" style="text-decoration:none;color:inherit;cursor:pointer;">
-          <div class="pillar-icon">⚡</div>
-          <div class="pillar-title">Scan</div>
-          <div class="pillar-desc">Pick a territory, style, and level. We'll find matching stocks instantly.</div>
-        </a>
-        <a class="pillar-card" href="quiz.html" style="text-decoration:none;color:inherit;cursor:pointer;">
-          <div class="pillar-icon">🎯</div>
-          <div class="pillar-title">Trap</div>
-          <div class="pillar-desc">Answer 12 questions about your preferences. We'll score every stock against your criteria.</div>
-        </a>
-        <a class="pillar-card" href="stocks.html" style="text-decoration:none;color:inherit;cursor:pointer;">
-          <div class="pillar-icon">📊</div>
-          <div class="pillar-title">Explore</div>
-          <div class="pillar-desc">Explore the full universe of 30,000+ stocks with filters, sorting, and style scores.</div>
-        </a>
-      </div>
-    </div>
-
     <!-- ── Why StockPanda pillars ──────────────────────────── -->
     <div class="finder-pillars">
       <div style="font-family:var(--mono);font-size:0.58rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:0.4rem;">Why become a StockPanda</div>
-      <h2 class="pillars-headline">See opportunities and spot dangers more easily.</h2>
+      <h2 class="pillars-headline">Spot opportunities and dangers more easily.</h2>
       <div class="pillars-grid">
         <div class="pillar-card">
           <div class="pillar-icon">🌍</div>
@@ -94,50 +71,58 @@
       </div>
     </div>
 
-    <!-- ── Hunt by territory ──────────────────────────────── -->
-    <div class="qf-wrap">
-      <div class="qf-label">Hunt by territory</div>
-      <div class="qf-sub">Where do you want to hunt? Choose your market and start finding stocks.</div>
-      <div class="territory-grid">
-        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','us')">
-          <div class="territory-flag">🇺🇸</div>
-          <div class="territory-name">United States</div>
-          <div class="territory-desc">The world's largest market — home to tech giants, blue chips, and high-growth innovators.</div>
+    <!-- ── Hunt your way ─────────────────────────────────────── -->
+    <div class="qf-wrap" style="margin-top:2.5rem;">
+      <div class="qf-label">Hunt your way</div>
+      <div class="qf-sub">Choose your hunting mode and review your catches.</div>
+      <div class="pillars-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <a class="pillar-card" href="finder.html" style="text-decoration:none;color:inherit;cursor:pointer;">
+          <div class="pillar-icon">🔍</div>
+          <div class="pillar-title">Scan</div>
+          <div class="pillar-desc">Pick a territory, style, and level. We'll find matching stocks instantly.</div>
         </a>
-        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','uk')">
-          <div class="territory-flag">🇬🇧</div>
-          <div class="territory-name">United Kingdom</div>
-          <div class="territory-desc">London's financial hub — strong in banking, energy, and consumer goods.</div>
+        <a class="pillar-card" href="quiz.html" style="text-decoration:none;color:inherit;cursor:pointer;">
+          <div class="pillar-icon">🎯</div>
+          <div class="pillar-title">Trap</div>
+          <div class="pillar-desc">Answer quick questions about your preferences. We'll score every stock against your criteria.</div>
         </a>
-        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','germany')">
-          <div class="territory-flag">🇩🇪</div>
-          <div class="territory-name">Germany</div>
-          <div class="territory-desc">Europe's largest economy — automotive, industrial, and tech powerhouses.</div>
+        <a class="pillar-card" href="stocks.html" style="text-decoration:none;color:inherit;cursor:pointer;">
+          <div class="pillar-icon">📊</div>
+          <div class="pillar-title">Explore</div>
+          <div class="pillar-desc">Explore the full universe of 30,000+ stocks with filters, sorting, and style scores.</div>
         </a>
-        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','france')">
-          <div class="territory-flag">🇫🇷</div>
-          <div class="territory-name">France</div>
-          <div class="territory-desc">Luxury, aerospace, energy, and financial leaders.</div>
+      </div>
+    </div>
+
+    <!-- ── Hunt by level ──────────────────────────────────── -->
+    <div class="qf-wrap" style="margin-top:2.5rem;">
+      <div class="qf-label">Hunt by level</div>
+      <div class="qf-sub">What level of risk can you handle? Choose the level that matches your experience.</div>
+      <div class="level-grid">
+        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','1')" style="text-decoration:none;">
+          <img src="assets/img/panda-vcalm.png" alt="Level 1" />
+          <div class="level-card-name" style="color:#60A5FA;">Level 1</div>
+          <div class="level-card-desc">Steady, stable stocks.</div>
         </a>
-        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','japan')">
-          <div class="territory-flag">🇯🇵</div>
-          <div class="territory-name">Japan</div>
-          <div class="territory-desc">Asia's most mature market — precision manufacturing, tech, and automotive giants.</div>
+        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','2')" style="text-decoration:none;">
+          <img src="assets/img/panda-calm.png" alt="Level 2" />
+          <div class="level-card-name" style="color:#4ADE80;">Level 2</div>
+          <div class="level-card-desc">Stable with mild movement.</div>
         </a>
-        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','hk')">
-          <div class="territory-flag">🇭🇰</div>
-          <div class="territory-name">Hong Kong</div>
-          <div class="territory-desc">Gateway to China — mainland giants and regional financial players.</div>
+        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','3')" style="text-decoration:none;">
+          <img src="assets/img/panda-unsettled.png" alt="Level 3" />
+          <div class="level-card-name" style="color:#FBBF24;">Level 3</div>
+          <div class="level-card-desc">Faster-moving, requires timing.</div>
         </a>
-        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','china')">
-          <div class="territory-flag">🇨🇳</div>
-          <div class="territory-name">China</div>
-          <div class="territory-desc">Fast-moving tech, e-commerce, and manufacturing.</div>
+        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','4')" style="text-decoration:none;">
+          <img src="assets/img/panda-stressed.png" alt="Level 4" />
+          <div class="level-card-name" style="color:#FB923C;">Level 4</div>
+          <div class="level-card-desc">Higher-risk, unpredictable.</div>
         </a>
-        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','india')">
-          <div class="territory-flag">🇮🇳</div>
-          <div class="territory-name">India</div>
-          <div class="territory-desc">Rapidly growing economy — IT, pharma, and financial services.</div>
+        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','5')" style="text-decoration:none;">
+          <img src="assets/img/panda-danger.png" alt="Level 5" />
+          <div class="level-card-name" style="color:#F87171;">Level 5</div>
+          <div class="level-card-desc">Highly volatile, extreme caution.</div>
         </a>
       </div>
     </div>
@@ -186,38 +171,54 @@
       </div>
     </div>
 
-    <!-- ── Hunt by level ──────────────────────────────────── -->
+    <!-- ── Hunt by territory ──────────────────────────────── -->
     <div class="qf-wrap" style="margin-top:2.5rem;">
-      <div class="qf-label">Hunt by level</div>
-      <div class="qf-sub">What level of risk can you handle? Choose the level that matches your experience.</div>
-      <div class="level-grid">
-        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','1')" style="text-decoration:none;">
-          <img src="assets/img/panda-vcalm.png" alt="Level 1" />
-          <div class="level-card-name" style="color:#60A5FA;">Level 1</div>
-          <div class="level-card-desc">Steady, stable stocks.</div>
+      <div class="qf-label">Hunt by territory</div>
+      <div class="qf-sub">Where do you want to hunt? Choose your market and start finding stocks.</div>
+      <div class="territory-grid">
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','us')">
+          <div class="territory-flag">🇺🇸</div>
+          <div class="territory-name">United States</div>
+          <div class="territory-desc">The world's largest market — home to tech giants, blue chips, and high-growth innovators.</div>
         </a>
-        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','2')" style="text-decoration:none;">
-          <img src="assets/img/panda-calm.png" alt="Level 2" />
-          <div class="level-card-name" style="color:#4ADE80;">Level 2</div>
-          <div class="level-card-desc">Stable with mild movement.</div>
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','uk')">
+          <div class="territory-flag">🇬🇧</div>
+          <div class="territory-name">United Kingdom</div>
+          <div class="territory-desc">London's financial hub — strong in banking, energy, and consumer goods.</div>
         </a>
-        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','3')" style="text-decoration:none;">
-          <img src="assets/img/panda-unsettled.png" alt="Level 3" />
-          <div class="level-card-name" style="color:#FBBF24;">Level 3</div>
-          <div class="level-card-desc">Faster-moving, requires timing.</div>
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','germany')">
+          <div class="territory-flag">🇩🇪</div>
+          <div class="territory-name">Germany</div>
+          <div class="territory-desc">Europe's largest economy — automotive, industrial, and tech powerhouses.</div>
         </a>
-        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','4')" style="text-decoration:none;">
-          <img src="assets/img/panda-stressed.png" alt="Level 4" />
-          <div class="level-card-name" style="color:#FB923C;">Level 4</div>
-          <div class="level-card-desc">Higher-risk, unpredictable.</div>
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','france')">
+          <div class="territory-flag">🇫🇷</div>
+          <div class="territory-name">France</div>
+          <div class="territory-desc">Luxury, aerospace, energy, and financial leaders.</div>
         </a>
-        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','5')" style="text-decoration:none;">
-          <img src="assets/img/panda-danger.png" alt="Level 5" />
-          <div class="level-card-name" style="color:#F87171;">Level 5</div>
-          <div class="level-card-desc">Highly volatile, extreme caution.</div>
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','japan')">
+          <div class="territory-flag">🇯🇵</div>
+          <div class="territory-name">Japan</div>
+          <div class="territory-desc">Asia's most mature market — precision manufacturing, tech, and automotive giants.</div>
+        </a>
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','hk')">
+          <div class="territory-flag">🇭🇰</div>
+          <div class="territory-name">Hong Kong</div>
+          <div class="territory-desc">Gateway to China — mainland giants and regional financial players.</div>
+        </a>
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','china')">
+          <div class="territory-flag">🇨🇳</div>
+          <div class="territory-name">China</div>
+          <div class="territory-desc">Fast-moving tech, e-commerce, and manufacturing.</div>
+        </a>
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','india')">
+          <div class="territory-flag">🇮🇳</div>
+          <div class="territory-name">India</div>
+          <div class="territory-desc">Rapidly growing economy — IT, pharma, and financial services.</div>
         </a>
       </div>
     </div>
+
 
   </div>
 </div>
@@ -225,14 +226,13 @@
 <!-- ── Route Choice Modal ──────────────────────────────────── -->
 <div id="route-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(5px); z-index:1200; display:none; align-items:center; justify-content:center;">
   <div style="background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:2rem; width:min(380px,92vw); text-align:center;">
-    <div style="font-family:var(--serif); font-size:1.2rem; font-weight:700; font-style:italic; color:var(--parchment); margin-bottom:0.4rem;">How do you want to explore?</div>
-    <div style="font-size:0.78rem; color:var(--muted); margin-bottom:1.5rem; line-height:1.5;">Choose your experience for this selection.</div>
+    <div style="font-family:var(--serif); font-size:1.2rem; font-weight:700; font-style:italic; color:var(--parchment); margin-bottom:1.2rem;">How do you want to hunt?</div>
     <div style="display:flex; flex-direction:column; gap:0.6rem;">
       <button id="route-quick" onclick="goRoute('quick')" style="width:100%; background:var(--green); color:#000; font-weight:700; padding:0.75rem; border-radius:10px; border:none; font-size:0.88rem; cursor:pointer; font-family:var(--font);">
-        ⚡ Scan — Browse results
+        🔍 Scan the field
       </button>
       <button id="route-scan" onclick="goRoute('scan')" style="width:100%; background:rgba(255,255,255,0.05); border:1.5px solid var(--border); color:var(--text); font-weight:600; padding:0.75rem; border-radius:10px; font-size:0.88rem; cursor:pointer; font-family:var(--font);">
-        🔍 Trap — One stock at a time
+        🎯 Set my trap
       </button>
       <button onclick="closeRouteModal()" style="background:none; border:none; color:var(--muted); font-size:0.75rem; cursor:pointer; margin-top:0.3rem; font-family:var(--font);">Cancel</button>
     </div>
