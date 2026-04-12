@@ -241,21 +241,6 @@
   </div>
 </div>
 
-<!-- ── Route Choice Modal ──────────────────────────────────── -->
-<div id="route-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(5px); z-index:1200; display:none; align-items:center; justify-content:center;">
-  <div style="background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:2rem; width:min(380px,92vw); text-align:center;">
-    <div style="font-family:var(--serif); font-size:1.2rem; font-weight:700; font-style:italic; color:var(--parchment); margin-bottom:1.2rem;">How do you want to hunt?</div>
-    <div style="display:flex; flex-direction:column; gap:0.6rem;">
-      <button id="route-quick" onclick="goRoute('quick')" style="width:100%; background:var(--green); color:#000; font-weight:700; padding:0.75rem; border-radius:10px; border:none; font-size:0.88rem; cursor:pointer; font-family:var(--font);">
-        🔍 Scan the field
-      </button>
-      <button id="route-scan" onclick="goRoute('scan')" style="width:100%; background:rgba(255,255,255,0.05); border:1.5px solid var(--border); color:var(--text); font-weight:600; padding:0.75rem; border-radius:10px; font-size:0.88rem; cursor:pointer; font-family:var(--font);">
-        🎯 Set my trap
-      </button>
-      <button onclick="closeRouteModal()" style="background:none; border:none; color:var(--muted); font-size:0.75rem; cursor:pointer; margin-top:0.3rem; font-family:var(--font);">Cancel</button>
-    </div>
-  </div>
-</div>
 
 <script src="assets/js/mood.js"></script>
 <script>
@@ -309,26 +294,11 @@ document.getElementById('search-modal').addEventListener('click', e => {
   });
 })();
 
-// ── Route choice modal ────────────────────────────────────────
-let _pendingRoute = {};
+// ── Direct route to finder ────────────────────────────────────
 function chooseRoute(type, value) {
-  _pendingRoute = { type, value };
-  document.getElementById('route-modal').style.display = 'flex';
-}
-function closeRouteModal() {
-  document.getElementById('route-modal').style.display = 'none';
-}
-function goRoute(dest) {
-  closeRouteModal();
-  const { type, value } = _pendingRoute;
-  if (dest === 'quick') {
-    if (type === 'region') window.location.href = `finder.html?region=${value}`;
-    else if (type === 'style') window.location.href = `finder.html?style=${value}`;
-    else if (type === 'level') window.location.href = `finder.html?style=momentum&level=${value}`;
-  } else {
-    // Trap — go to quiz.html (the quiz always starts from scratch)
-    window.location.href = 'quiz.html';
-  }
+  if (type === 'region') window.location.href = 'finder.html?region=' + value;
+  else if (type === 'style') window.location.href = 'finder.html?style=' + value;
+  else if (type === 'level') window.location.href = 'finder.html?level=' + value;
 }
 
 // Rotating word in hero

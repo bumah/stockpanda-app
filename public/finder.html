@@ -1037,6 +1037,16 @@ document.addEventListener('click', e => {
     scoredCache = [];
     _trapCriteria = { region: r, sectors: 'all', styles: [style], level: level ? 'Level ' + level : null };
     findStocks();
+  } else if (level) {
+    document.getElementById('scan-welcome').style.display = 'none';
+    _activePreset = 'momentum';
+    const p = PRESETS.momentum;
+    Object.assign(answers, _criteriaToFlat(p.criteria), { region: region || 'global' });
+    _presetMode = true;
+    _lastPresetKey = 'momentum';
+    scoredCache = [];
+    _trapCriteria = { region: region || 'global', sectors: 'all', styles: ['momentum'], level: 'Level ' + level };
+    findStocks();
   } else if (region) {
     document.getElementById('scan-welcome').style.display = 'none';
     _activePreset = 'momentum';

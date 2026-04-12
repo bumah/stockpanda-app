@@ -231,8 +231,10 @@
       <div class="discover-wrap">
         <div class="discover-header">
           <span class="discover-counter" id="discover-counter"></span>
-          <button class="discover-refine" onclick="refineQuiz()">Edit Trap</button>
-          <button class="discover-refine" onclick="seeAllTable()">View Trap</button>
+          <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+            <button class="discover-refine" onclick="refineQuiz()">Edit Trap</button>
+            <button class="discover-refine" onclick="seeAllTable()">View Trap</button>
+          </div>
         </div>
         <div class="discover-container" id="discover-container"></div>
         <div class="discover-nav">
@@ -1153,16 +1155,15 @@ function buildScoreBreakdown(item) {
       const sc = item.scores[i] ?? 0;
       const col = sc >= 1 ? '#4ADE80' : sc >= 0.5 ? '#FBBF24' : '#F87171';
       const word = sc >= 1 ? 'Good Match' : sc >= 0.5 ? 'Partial Match' : 'Low Match';
-      const pref = answers[key] || '';
-      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.7rem;">' +
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.72rem;">' +
         '<span style="color:var(--text);">' + (SCORE_LABELS[key] || key) + '</span>' +
-        '<div style="display:flex;align-items:center;gap:6px;">' +
-          '<span style="color:var(--muted);font-size:0.62rem;">' + esc(pref) + '</span>' +
-          '<span style="color:' + col + ';font-weight:700;font-family:var(--mono);font-size:0.65rem;min-width:40px;text-align:right;">' + word + '</span>' +
+        '<div style="display:flex;align-items:center;gap:0.35rem;">' +
+          '<span style="width:7px;height:7px;border-radius:50%;background:' + col + ';display:inline-block;"></span>' +
+          '<span style="font-family:var(--mono);font-size:0.65rem;font-weight:700;color:' + col + ';">' + word + '</span>' +
         '</div>' +
       '</div>';
     }).join('') +
-    '<div style="margin-top:0.4rem;font-size:0.62rem;color:var(--muted);">' + activeCriteria.length + ' active criteria scored</div>' +
+    '<div style="margin-top:0.5rem;font-size:0.65rem;color:var(--muted);">' + activeCriteria.length + ' active criteria scored</div>' +
   '</div>';
 }
 
