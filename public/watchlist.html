@@ -71,16 +71,20 @@ injectSidebarHTML();
 initNavStamp();
 
 var COUNTRY_FLAGS = {
-  us:'🇺🇸', gb:'🇬🇧', de:'🇩🇪', fr:'🇫🇷', jp:'🇯🇵',
-  hk:'🇭🇰', cn:'🇨🇳', in:'🇮🇳', ca:'🇨🇦', au:'🇦🇺',
-  kr:'🇰🇷', tw:'🇹🇼', sg:'🇸🇬', ch:'🇨🇭', nl:'🇳🇱',
-  se:'🇸🇪', es:'🇪🇸', it:'🇮🇹', br:'🇧🇷', mx:'🇲🇽'
+  'United States':'🇺🇸','Canada':'🇨🇦','United Kingdom':'🇬🇧','Ireland':'🇮🇪','France':'🇫🇷','Germany':'🇩🇪',
+  'Italy':'🇮🇹','Switzerland':'🇨🇭','Spain':'🇪🇸','Netherlands':'🇳🇱','Sweden':'🇸🇪','Norway':'🇳🇴','Denmark':'🇩🇰',
+  'Finland':'🇫🇮','Belgium':'🇧🇪','Austria':'🇦🇹','Poland':'🇵🇱','Portugal':'🇵🇹','Greece':'🇬🇷',
+  'Japan':'🇯🇵','China':'🇨🇳','Hong Kong':'🇭🇰','Taiwan':'🇹🇼','South Korea':'🇰🇷','India':'🇮🇳',
+  'Singapore':'🇸🇬','Thailand':'🇹🇭','Indonesia':'🇮🇩','Malaysia':'🇲🇾','Philippines':'🇵🇭','Vietnam':'🇻🇳',
+  'Australia':'🇦🇺','New Zealand':'🇳🇿','Brazil':'🇧🇷','Mexico':'🇲🇽','Argentina':'🇦🇷','Chile':'🇨🇱','Colombia':'🇨🇴',
+  'Saudi Arabia':'🇸🇦','United Arab Emirates':'🇦🇪','Israel':'🇮🇱','South Africa':'🇿🇦','Nigeria':'🇳🇬',
+  'Egypt':'🇪🇬','Kuwait':'🇰🇼','Qatar':'🇶🇦','Turkey':'🇹🇷','Russian Federation':'🇷🇺'
 };
 
 var IC_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
 var IC_MAP = {g:'green', a:'amber', r:'red'};
-var MOOD_LABELS = {'mc-blue':'Level 1','mc-green':'Level 2','mc-amber':'Level 3','mc-orange':'Level 4','mc-red':'Level 5'};
-var MOOD_COLORS = {'mc-blue':'#60A5FA','mc-green':'#4ADE80','mc-amber':'#FBBF24','mc-orange':'#FB923C','mc-red':'#F87171'};
+// e.m in search data is already the label string like "Level 1"
+var MOOD_COLORS = {'Level 1':'#60A5FA','Level 2':'#4ADE80','Level 3':'#FBBF24','Level 4':'#FB923C','Level 5':'#F87171'};
 
 function getWatchlist() {
   try { return JSON.parse(localStorage.getItem('sp_watchlist') || '[]'); }
@@ -158,7 +162,7 @@ async function renderWatchlist() {
 
     // Extract data from search entry
     var sector = e ? (e.sec || '') : '';
-    var level = e ? (MOOD_LABELS[e.m] || 'Level 3') : '';
+    var level = e ? (e.m || '') : '';
     var levelCol = e ? (MOOD_COLORS[e.m] || '#FBBF24') : '#FBBF24';
     var sig = e ? countSignals(e.ic || '') : { g: 0, a: 0, r: 0 };
     var m1 = e ? e.m1 : null;

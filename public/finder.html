@@ -797,13 +797,13 @@ function scoreTrapCriteria(stock, criteria) {
   }
   checks.push({ label: 'Style', match: styleMatch });
 
-  // 3. Level: Strict=exact match, Open=±1 from selected
+  // 3. Level: Strict=at or below chosen, Open=±1 from selected
   let levelMatch = true;
   if (criteria.level) {
     const chosenLvl = parseInt(criteria.level.replace(/\D/g, '')) || 99;
     const stockLvl = parseInt((stock.mood?.label || '').replace(/\D/g, '')) || 99;
     if (isStrict) {
-      levelMatch = stockLvl === chosenLvl;
+      levelMatch = stockLvl <= chosenLvl;
     } else {
       levelMatch = Math.abs(stockLvl - chosenLvl) <= 1;
     }
