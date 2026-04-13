@@ -262,6 +262,11 @@ if (urlParams.get('style') && ['optimistic','nimble','momentum','pack','patient'
   activeStyle = urlParams.get('style');
 }
 
+// Read URL param for level
+if (urlParams.get('level') && ['1','2','3','4','5'].includes(urlParams.get('level'))) {
+  activeLevel = 'Level ' + urlParams.get('level');
+}
+
 // Mark correct territory chip active on load
 document.querySelectorAll('#territory-chips .bubble-chip').forEach(c => {
   c.classList.toggle('active', c.dataset.territory === activeTerritory);
@@ -271,6 +276,13 @@ document.querySelectorAll('#territory-chips .bubble-chip').forEach(c => {
 if (activeStyle) {
   document.querySelectorAll('#style-chips .bubble-chip').forEach(c => {
     c.classList.toggle('active', c.dataset.style === activeStyle);
+  });
+}
+
+// Mark correct level chip active on load
+if (activeLevel) {
+  document.querySelectorAll('#level-chips .bubble-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.level === activeLevel);
   });
 }
 
@@ -470,7 +482,6 @@ function renderTable() {
       const styleCells = PRESET_ORDER.map(k => {
         const p = ps[k];
         if (p == null) return '<td class="center">—</td>';
-        if (p < 40) return '<td class="center"><span class="t-style-pct dim">—</span></td>';
         const cls = p >= 80 ? 'hi' : p >= 50 ? 'mid' : 'lo';
         return '<td class="center"><span class="t-style-pct ' + cls + '">' + p + '</span></td>';
       }).join('');
