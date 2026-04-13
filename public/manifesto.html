@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockPanda — Our Manifesto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    .mf-wrap { max-width: 680px; margin: 0 auto; padding: 2rem 1.2rem 4rem; }
+
+    /* Hero */
+    .mf-hero {
+      text-align: center; padding: 3rem 0 2.5rem;
+      border-bottom: 1px solid var(--border); margin-bottom: 2.5rem;
+    }
+    .mf-eyebrow {
+      font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--green); margin-bottom: 0.8rem;
+    }
+    .mf-hero h1 {
+      font-family: var(--serif); font-size: 2.4rem; font-weight: 700;
+      color: var(--parchment); font-style: italic; letter-spacing: -0.02em;
+      line-height: 1.2; margin-bottom: 1.2rem;
+    }
+    .mf-hero p {
+      font-size: 0.88rem; color: var(--muted); line-height: 1.7;
+      max-width: 560px; margin: 0 auto 0.8rem;
+    }
+
+    /* Promise bridge */
+    .mf-promise {
+      text-align: center; margin-bottom: 2.5rem;
+      padding-bottom: 2rem; border-bottom: 1px solid var(--border);
+    }
+    .mf-promise-label {
+      font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem;
+    }
+    .mf-promise p {
+      font-size: 0.88rem; color: var(--muted); line-height: 1.7;
+      max-width: 560px; margin: 0 auto;
+    }
+    .mf-promise h2 {
+      font-family: var(--serif); font-size: 1.4rem; font-weight: 700;
+      color: var(--parchment); font-style: italic; margin-bottom: 0.6rem;
+    }
+
+    /* SIMPLE framework */
+    .mf-framework-label {
+      font-family: var(--mono); font-size: 0.55rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--muted); text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .mf-pillar {
+      display: flex; gap: 1.2rem; align-items: flex-start;
+      padding: 1.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .mf-pillar:last-child { border-bottom: none; }
+    .mf-letter {
+      font-family: var(--mono); font-size: 2.4rem; font-weight: 700;
+      color: var(--green); line-height: 1; flex-shrink: 0; width: 2.5rem;
+      text-align: center;
+    }
+    .mf-pillar-content { flex: 1; }
+    .mf-pillar-title {
+      font-family: var(--serif); font-size: 1.05rem; font-weight: 700;
+      color: var(--parchment); font-style: italic; margin-bottom: 0.35rem;
+    }
+    .mf-pillar-desc {
+      font-size: 0.82rem; color: var(--muted); line-height: 1.7;
+    }
+
+    @media (max-width: 480px) {
+      .mf-hero h1 { font-size: 1.8rem; }
+      .mf-letter { font-size: 2rem; width: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-sp">Stock</span><span class="nav-logo-rest">Panda</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="finder.html">Scan</a>
+    <a class="nav-link" href="quiz.html">Trap</a>
+    <a class="nav-link" href="stocks.html">Explore</a>
+    <a class="nav-link" href="summary.html">Peek</a>
+  </div>
+  <div class="nav-right">
+    <a href="manifesto.html" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;">Manifesto</a>
+    <a href="#" onclick="event.preventDefault();openProModal()" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;color:var(--green);font-weight:600;">StockPanda Pro</a>
+    <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;" title="Contact"><i data-lucide="mail" style="width:18px;height:18px;"></i></a>
+    <div class="nav-stamp">Data: <span>—</span></div>
+  </div>
+</nav>
+<nav class="nav-bottom">
+  <a href="index.html"><i data-lucide="house" class="nb-icon"></i>Home</a>
+  <a href="finder.html"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
+  <a href="quiz.html"><i data-lucide="crosshair" class="nb-icon"></i>Trap</a>
+  <a href="stocks.html"><i data-lucide="bar-chart-3" class="nb-icon"></i>Explore</a>
+  <a href="summary.html"><i data-lucide="eye" class="nb-icon"></i>Peek</a>
+</nav>
+
+<div class="main">
+  <div class="mf-wrap">
+
+    <!-- Hero -->
+    <div class="mf-hero">
+      <div class="mf-eyebrow">Our Manifesto</div>
+      <h1>The Simple Way to Hunt Stocks</h1>
+      <p>Stock investing is one of the most powerful ways to build wealth. Yet it is still inaccessible to billions worldwide.</p>
+      <p>We believe stock investing shouldn't be reserved for the few who speak the language of finance. It should be simple so everyone, everywhere can build wealth.</p>
+    </div>
+
+    <!-- Promise bridge -->
+    <div class="mf-promise">
+      <div class="mf-promise-label">Our promise to our StockPandas</div>
+      <h2>StockPanda was born to demystify stock investing for everyone.</h2>
+      <p>To achieve this we are focusing on six core pillars.</p>
+    </div>
+
+    <!-- SIMPLE framework -->
+    <div class="mf-framework-label">What SIMPLE means to us</div>
+
+    <div class="mf-pillar">
+      <div class="mf-letter">S</div>
+      <div class="mf-pillar-content">
+        <div class="mf-pillar-title">We keep you Safe.</div>
+        <div class="mf-pillar-desc">Your money is not a game. That's why we focus heavily on risk — not fancy charts or hype. We put your financial wellbeing at the centre of everything we do.</div>
+      </div>
+    </div>
+
+    <div class="mf-pillar">
+      <div class="mf-letter">I</div>
+      <div class="mf-pillar-content">
+        <div class="mf-pillar-title">We go International.</div>
+        <div class="mf-pillar-desc">Markets don't stop at borders. Neither do we. From New York to London, Tokyo to Johannesburg — we cover the world's markets so you never miss a hunt.</div>
+      </div>
+    </div>
+
+    <div class="mf-pillar">
+      <div class="mf-letter">M</div>
+      <div class="mf-pillar-content">
+        <div class="mf-pillar-title">We stay Modern.</div>
+        <div class="mf-pillar-desc">AI-powered, mobile-first, and built for the modern era to ensure future generations are not locked out of wealth-building opportunities like their predecessors.</div>
+      </div>
+    </div>
+
+    <div class="mf-pillar">
+      <div class="mf-letter">P</div>
+      <div class="mf-pillar-content">
+        <div class="mf-pillar-title">We make it Personal.</div>
+        <div class="mf-pillar-desc">Your portfolio, your risk appetite, your goals. StockPanda provides the tools so you can filter out the noise and focus on what really matters to you — not everyone.</div>
+      </div>
+    </div>
+
+    <div class="mf-pillar">
+      <div class="mf-letter">L</div>
+      <div class="mf-pillar-content">
+        <div class="mf-pillar-title">We help you Learn.</div>
+        <div class="mf-pillar-desc">Complex concepts, plain language. We don't dumb it down — we open it up. Every metric, every signal, every chart explained so you leave smarter than you arrived.</div>
+      </div>
+    </div>
+
+    <div class="mf-pillar">
+      <div class="mf-letter">E</div>
+      <div class="mf-pillar-content">
+        <div class="mf-pillar-title">We are Expressive.</div>
+        <div class="mf-pillar-desc">Data should be felt, not just read. We use visual cues, colour, and design to turn numbers into narrative — so you can read the market at a glance.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer style="border-top:1px solid rgba(74,222,128,0.12);padding:2rem;max-width:1400px;margin:4rem auto 0;">
+  <div style="margin-bottom:1.25rem;">
+    <p style="font-size:0.78rem;color:var(--muted);line-height:1.85;margin:0;">StockPanda is a free stock research and education app. It was built to make investing more accessible. Nothing on this site constitutes financial advice. Always do your own research before making investment decisions.</p>
+  </div>
+  <div style="border-top:1px solid rgba(74,222,128,0.08);padding-top:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+    <span style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);">&copy; StockPanda</span>
+    <span style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);">Not financial advice</span>
+  </div>
+</footer>
+
+<script src="assets/js/mood.js"></script>
+<script>
+'use strict';
+injectSidebarHTML();
+initNavStamp();
+</script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
