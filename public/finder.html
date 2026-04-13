@@ -302,12 +302,6 @@
         </div>
 
         <div class="discover-container" id="finder-dc-container"></div>
-        <div class="discover-nav">
-          <div class="dc-nav-item"><button class="dc-btn-back" id="finder-dc-back" onclick="finderPrevCard()" disabled title="Back"><i data-lucide="arrow-left"></i></button><div class="dc-label">Back</div></div>
-          <div class="dc-nav-item"><button class="dc-btn-heart" id="finder-dc-heart" onclick="finderToggleHeart()" title="Save to watchlist"><i data-lucide="heart"></i></button><div class="dc-label">Save</div></div>
-          <div class="dc-nav-item"><button class="dc-btn-open" id="finder-dc-open" onclick="finderOpenStock()" title="View details"><i data-lucide="external-link"></i></button><div class="dc-label">Open</div></div>
-          <div class="dc-nav-item"><button class="dc-btn-next" id="finder-dc-next" onclick="finderNextCard()" title="Next"><i data-lucide="arrow-right"></i></button><div class="dc-label">Next</div></div>
-        </div>
       </div>
     </div>
 
@@ -1148,8 +1142,6 @@ function switchToDiscover() {
 function showFinderCard() {
   const container = document.getElementById('finder-dc-container');
   const counter = document.getElementById('finder-dc-counter');
-  const backBtn = document.getElementById('finder-dc-back');
-  const nextBtn = document.getElementById('finder-dc-next');
   const items = scoredCache;
 
   if (!items.length) {
@@ -1157,28 +1149,26 @@ function showFinderCard() {
     const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try Open Hunt \u2192</button>' : '';
     container.innerHTML = '<div class="discover-done"><h3>No matches</h3><p>Edit your Scan' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p>' + openHint + '</div>';
     counter.textContent = '0 matches';
-    backBtn.disabled = true; nextBtn.disabled = true;
     return;
   }
   if (_finderDcIdx >= items.length) {
     const isStrict = _trapCriteria.huntMode === 'strict';
     const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try Open Hunt \u2192</button>' : '';
-    container.innerHTML = '<div class="discover-done"><h3>You\'ve seen all matches</h3><p>' + items.length + ' stocks. Edit your Scan' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p>' + openHint + '</div>';
+    container.innerHTML = '<div class="discover-done"><h3>You\'ve seen all matches</h3><p>' + items.length + ' stocks. Edit your Scan' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p><button class="discover-refine" onclick="finderPrevCard()" style="margin-top:0.6rem;">\u2190 Back</button>' + openHint + '</div>';
     counter.textContent = items.length + ' of ' + items.length;
-    backBtn.disabled = _finderDcIdx <= 0; nextBtn.disabled = true;
     return;
   }
 
   counter.textContent = (_finderDcIdx + 1) + ' of ' + items.length;
-  backBtn.disabled = _finderDcIdx <= 0;
-  nextBtn.disabled = false;
 
   const item = items[_finderDcIdx];
   container.innerHTML = buildFinderDiscoverCard(item);
   if (typeof lucide !== 'undefined') lucide.createIcons();
   var card = container.querySelector('.discover-card');
   if (card) card.classList.add('entering');
-  updateFinderHeartBtn();
+  // Disable back on first card
+  var backBtn = container.querySelector('.dc-btn-back');
+  if (backBtn) backBtn.disabled = _finderDcIdx <= 0;
 }
 
 function switchToOpenHunt() {
@@ -1200,6 +1190,7 @@ function buildFinderDiscoverCard(item) {
   else if (item.pct >= 45) { matchWord = 'Poor'; matchCol = '#F87171'; }
   else { matchWord = 'Very Poor'; matchCol = '#F87171'; }
   var href = 'stock.html?ticker=' + encodeURIComponent(s.ticker) + '&country=' + encodeURIComponent(s.country || '');
+  var hearted = isInWatchlist(s.ticker, s.country);
 
   function ret(label, val) {
     if (val == null) return '<div class="dc-ret"><span class="dc-ret-label">' + label + '</span><span class="dc-ret-val" style="color:var(--muted);">\u2014</span></div>';
@@ -1248,44 +1239,14 @@ function buildFinderDiscoverCard(item) {
       (sig.r > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot red"></span><span class="dc-sig-count red">' + sig.r + '</span> Warning</div>' : '') +
     '</div></div>' +
     '<div class="dc-section"><div class="dc-section-label">Styles</div><div class="dc-style-list">' + styleRows + '</div></div>' +
-    '<div class="dc-actions">' +
-      '<a class="dc-btn-primary" href="' + href + '"><i data-lucide="external-link" style="width:15px;height:15px;display:inline-block;vertical-align:-2px;margin-right:4px;"></i>View Details</a>' +
-      '<button class="dc-btn-secondary" onclick="event.stopPropagation(); toggleFinderScores()"><i data-lucide="list" style="width:14px;height:14px;display:inline-block;vertical-align:-2px;margin-right:4px;"></i>View Scores</button>' +
+    '<div class="discover-nav" style="border-top:1px solid var(--border);margin-top:1.2rem;padding-top:1rem;">' +
+      '<div class="dc-nav-item"><button class="dc-btn-back" onclick="finderPrevCard()" title="Back"><i data-lucide="arrow-left"></i></button><div class="dc-label">Back</div></div>' +
+      '<div class="dc-nav-item"><button class="dc-btn-heart' + (hearted ? ' hearted' : '') + '" onclick="finderToggleHeart()" title="' + (hearted ? 'Remove from watchlist' : 'Save to watchlist') + '"><i data-lucide="heart"></i></button><div class="dc-label">Save</div></div>' +
+      '<div class="dc-nav-item"><button class="dc-btn-open" onclick="finderOpenStock()" title="View details"><i data-lucide="external-link"></i></button><div class="dc-label">Open</div></div>' +
+      '<div class="dc-nav-item"><button class="dc-btn-next" onclick="finderNextCard()" title="Next"><i data-lucide="arrow-right"></i></button><div class="dc-label">Next</div></div>' +
     '</div>' +
-    '<div class="dc-scores-panel" id="finder-scores-panel" style="display:none;">' + buildTrapScoreBreakdown(item) + '</div>' +
   '</div>';
 }
-
-function buildTrapScoreBreakdown(item) {
-  if (!item.checks) return '';
-  return '<div style="margin-top:0.6rem;">' +
-    item.checks.map(function(c) {
-      var col = c.match ? '#4ADE80' : '#F87171';
-      var word = c.match ? 'Match' : 'Out of range';
-      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.72rem;">' +
-        '<span style="color:var(--text);">' + c.label + '</span>' +
-        '<div style="display:flex;align-items:center;gap:0.35rem;">' +
-          '<span style="width:7px;height:7px;border-radius:50%;background:' + col + ';display:inline-block;"></span>' +
-          '<span style="font-family:var(--mono);font-size:0.65rem;font-weight:700;color:' + col + ';">' + word + '</span>' +
-        '</div>' +
-      '</div>';
-    }).join('') +
-  '</div>';
-}
-
-function toggleFinderScores() {
-  var panel = document.getElementById('finder-scores-panel');
-  if (!panel) return;
-  var btn = document.querySelector('#finder-dc-container .dc-btn-secondary');
-  if (panel.style.display === 'none') {
-    panel.style.display = 'block';
-    if (btn) btn.textContent = 'Hide Scores';
-  } else {
-    panel.style.display = 'none';
-    if (btn) btn.textContent = 'View Scores';
-  }
-}
-window.toggleFinderScores = toggleFinderScores;
 
 function showTrapSummary() {
   const panel = document.getElementById('trap-summary');
@@ -1352,7 +1313,7 @@ function removeFromWatchlist(ticker, country) {
 }
 
 function updateFinderHeartBtn() {
-  var btn = document.getElementById('finder-dc-heart');
+  var btn = document.querySelector('#finder-dc-container .dc-btn-heart');
   if (!btn || !scoredCache.length || _finderDcIdx >= scoredCache.length) return;
   var s = scoredCache[_finderDcIdx].stock;
   if (isInWatchlist(s.ticker, s.country)) {
