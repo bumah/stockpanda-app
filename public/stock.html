@@ -168,6 +168,7 @@
     <a class="nav-link" href="index.html">Home</a>
     <a class="nav-link" href="finder.html">Scan</a>
     <a class="nav-link" href="quiz.html">Trap</a>
+    <a class="nav-link" href="watchlist.html">Saved</a>
     <a class="nav-link" href="stocks.html">Explore</a>
     <a class="nav-link" href="summary.html">Peek</a>
   </div>
@@ -182,6 +183,7 @@
   <a href="index.html"><i data-lucide="house" class="nb-icon"></i>Home</a>
   <a href="finder.html"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
   <a href="quiz.html"><i data-lucide="crosshair" class="nb-icon"></i>Trap</a>
+  <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Saved</a>
   <a href="stocks.html"><i data-lucide="bar-chart-3" class="nb-icon"></i>Explore</a>
   <a href="summary.html"><i data-lucide="eye" class="nb-icon"></i>Peek</a>
 </nav>
@@ -300,6 +302,7 @@ if (_isInternal) {
   const _refPath = new URL(_referrer).pathname;
   if (_refPath.includes('finder')) _backBtn.textContent = '← Back to Scan';
   else if (_refPath.includes('quiz')) _backBtn.textContent = '← Back to Trap';
+  else if (_refPath.includes('watchlist')) _backBtn.textContent = '← Back to Saved';
   else if (_refPath.includes('summary')) _backBtn.textContent = '← Back to Peek';
   else if (_refPath.includes('stocks')) _backBtn.textContent = '← Back to Explore';
   else _backBtn.textContent = '← Back';

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockPanda — Saved</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-sp">Stock</span><span class="nav-logo-rest">Panda</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="finder.html">Scan</a>
+    <a class="nav-link" href="quiz.html">Trap</a>
+    <a class="nav-link active" href="watchlist.html">Saved</a>
+    <a class="nav-link" href="stocks.html">Explore</a>
+    <a class="nav-link" href="summary.html">Peek</a>
+  </div>
+  <div class="nav-right">
+    <a href="manifesto.html" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;">Manifesto</a>
+    <a href="#" onclick="event.preventDefault();openProModal()" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;color:var(--green);font-weight:600;">StockPanda Pro</a>
+    <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;" title="Contact"><i data-lucide="mail" style="width:18px;height:18px;"></i></a>
+    <div class="nav-stamp">Data: <span>—</span></div>
+  </div>
+</nav>
+<nav class="nav-bottom">
+  <a href="index.html"><i data-lucide="house" class="nb-icon"></i>Home</a>
+  <a href="finder.html"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
+  <a href="quiz.html"><i data-lucide="crosshair" class="nb-icon"></i>Trap</a>
+  <a href="watchlist.html" class="active"><i data-lucide="heart" class="nb-icon"></i>Saved</a>
+  <a href="stocks.html"><i data-lucide="bar-chart-3" class="nb-icon"></i>Explore</a>
+  <a href="summary.html"><i data-lucide="eye" class="nb-icon"></i>Peek</a>
+</nav>
+
+<div class="main">
+  <div class="finder-wrap" style="max-width:700px;">
+    <div style="text-align:center;margin-bottom:2rem;">
+      <div style="display:inline-block;font-family:var(--mono);font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--green);border:1px solid var(--border2);padding:0.3rem 1rem;border-radius:99px;margin-bottom:1rem;">SAVED</div>
+      <h1 style="font-family:var(--serif);font-size:2rem;font-weight:400;font-style:italic;line-height:1.2;margin-bottom:0.5rem;">Your watchlist.</h1>
+      <p style="color:var(--muted);font-size:0.92rem;">Stocks you've saved from Scan and Trap.</p>
+    </div>
+
+    <div id="wl-list"></div>
+    <div id="wl-empty" style="display:none;text-align:center;padding:3rem 1rem;">
+      <div style="font-size:2.5rem;margin-bottom:1rem;">♡</div>
+      <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;">No saved stocks yet.<br>Use the <span style="color:var(--red);">♥</span> Save button on Scan or Trap cards to save stocks here.</p>
+    </div>
+  </div>
+</div>
+
+<footer style="border-top:1px solid rgba(74,222,128,0.12);padding:2rem;max-width:1400px;margin:4rem auto 0;">
+  <div style="margin-bottom:1.25rem;">
+    <p style="font-size:0.78rem;color:var(--muted);line-height:1.85;margin:0;">StockPanda is a free stock research and education app. It was built to make investing more accessible. Nothing on this site constitutes financial advice. Always do your own research before making investment decisions.</p>
+  </div>
+  <div style="border-top:1px solid rgba(74,222,128,0.08);padding-top:1rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+    <span style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);">© StockPanda</span>
+    <span style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);">Not financial advice</span>
+  </div>
+</footer>
+
+<script src="assets/js/mood.js"></script>
+<script>
+'use strict';
+injectSidebarHTML();
+initNavStamp();
+
+var COUNTRY_FLAGS = {
+  us:'🇺🇸', gb:'🇬🇧', de:'🇩🇪', fr:'🇫🇷', jp:'🇯🇵',
+  hk:'🇭🇰', cn:'🇨🇳', in:'🇮🇳', ca:'🇨🇦', au:'🇦🇺',
+  kr:'🇰🇷', tw:'🇹🇼', sg:'🇸🇬', ch:'🇨🇭', nl:'🇳🇱',
+  se:'🇸🇪', es:'🇪🇸', it:'🇮🇹', br:'🇧🇷', mx:'🇲🇽'
+};
+
+var IC_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
+var IC_MAP = {g:'green', a:'amber', r:'red'};
+var MOOD_LABELS = {'mc-blue':'Level 1','mc-green':'Level 2','mc-amber':'Level 3','mc-orange':'Level 4','mc-red':'Level 5'};
+var MOOD_COLORS = {'mc-blue':'#60A5FA','mc-green':'#4ADE80','mc-amber':'#FBBF24','mc-orange':'#FB923C','mc-red':'#F87171'};
+
+function getWatchlist() {
+  try { return JSON.parse(localStorage.getItem('sp_watchlist') || '[]'); }
+  catch(e) { return []; }
+}
+
+function removeFromWatchlist(ticker, country) {
+  var wl = getWatchlist().filter(function(w) {
+    return !(w.ticker === ticker && w.country === (country || ''));
+  });
+  localStorage.setItem('sp_watchlist', JSON.stringify(wl));
+}
+
+function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function countSignals(ic) {
+  var g = 0, a = 0, r = 0;
+  for (var i = 0; i < ic.length; i++) {
+    var c = ic[i];
+    if (c === 'g') g++; else if (c === 'a') a++; else if (c === 'r') r++;
+  }
+  return { g: g, a: a, r: r };
+}
+
+function fmtRet(v) {
+  if (v == null) return '<span style="color:var(--muted);">—</span>';
+  var col = v >= 0 ? 'var(--green)' : 'var(--red)';
+  var sign = v >= 0 ? '+' : '';
+  return '<span style="color:' + col + ';font-weight:500;">' + sign + v.toFixed(1) + '%</span>';
+}
+
+var _searchData = null;
+async function loadSearchData() {
+  if (_searchData) return _searchData;
+  _searchData = await DataCache.getSearchIndex();
+  return _searchData;
+}
+
+function lookupStock(searchData, ticker, country) {
+  for (var i = 0; i < searchData.length; i++) {
+    var e = searchData[i];
+    if (e.t === ticker && e.co === (country || '')) return e;
+  }
+  // Fallback: match ticker only
+  for (var j = 0; j < searchData.length; j++) {
+    if (searchData[j].t === ticker) return searchData[j];
+  }
+  return null;
+}
+
+async function renderWatchlist() {
+  var wl = getWatchlist();
+  var listEl = document.getElementById('wl-list');
+  var emptyEl = document.getElementById('wl-empty');
+
+  if (!wl.length) {
+    listEl.innerHTML = '';
+    emptyEl.style.display = '';
+    return;
+  }
+
+  emptyEl.style.display = 'none';
+  listEl.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-size:0.85rem;">Loading stock data...</div>';
+
+  var searchData = await loadSearchData();
+
+  // Sort by most recently added
+  wl.sort(function(a, b) { return (b.addedAt || 0) - (a.addedAt || 0); });
+
+  var html = '';
+  wl.forEach(function(item) {
+    var flag = COUNTRY_FLAGS[item.country] || '';
+    var href = 'stock.html?ticker=' + encodeURIComponent(item.ticker) + '&country=' + encodeURIComponent(item.country || '');
+    var e = lookupStock(searchData, item.ticker, item.country);
+
+    // Extract data from search entry
+    var sector = e ? (e.sec || '') : '';
+    var level = e ? (MOOD_LABELS[e.m] || 'Level 3') : '';
+    var levelCol = e ? (MOOD_COLORS[e.m] || '#FBBF24') : '#FBBF24';
+    var sig = e ? countSignals(e.ic || '') : { g: 0, a: 0, r: 0 };
+    var m1 = e ? e.m1 : null;
+    var m3 = e ? e.m3 : null;
+    var y5 = e ? e.y5 : null;
+
+    html +=
+      '<a href="' + esc(href) + '" class="wl-card" style="display:block;padding:1rem 1.2rem;border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:0.6rem;background:var(--bg2);transition:border-color 0.15s;text-decoration:none;color:inherit;">' +
+        // Row 1: Ticker, company, flag, remove btn
+        '<div style="display:flex;align-items:center;gap:0.8rem;">' +
+          '<div style="flex:1;min-width:0;">' +
+            '<div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">' +
+              '<span style="font-family:var(--mono);font-weight:600;font-size:1.05rem;color:var(--green);">' + esc(item.ticker) + '</span>' +
+              '<span style="font-size:0.78rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(item.company || '') + '</span>' +
+            '</div>' +
+            '<div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.3rem;flex-wrap:wrap;">' +
+              '<span style="font-size:0.72rem;color:var(--muted);">' + flag + ' ' + esc((item.country || '').toUpperCase()) + '</span>' +
+              (sector ? '<span style="font-size:0.72rem;color:var(--muted);">·</span><span style="font-size:0.72rem;color:var(--muted);">' + esc(sector) + '</span>' : '') +
+              (level ? '<span style="font-family:var(--mono);font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:99px;border:1px solid ' + levelCol + ';color:' + levelCol + ';">' + esc(level) + '</span>' : '') +
+            '</div>' +
+          '</div>' +
+          '<button onclick="event.preventDefault();event.stopPropagation();removeSaved(\'' + esc(item.ticker) + '\',\'' + esc(item.country || '') + '\')" title="Remove" style="flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:rgba(248,113,113,0.1);color:#F87171;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:0;padding:0;">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="#F87171" stroke="#F87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>' +
+          '</button>' +
+        '</div>' +
+        // Row 2: Signals + Returns
+        '<div style="display:flex;align-items:center;gap:1rem;margin-top:0.6rem;flex-wrap:wrap;">' +
+          // Signals
+          '<div style="display:flex;align-items:center;gap:0.5rem;">' +
+            (sig.g > 0 ? '<span style="display:flex;align-items:center;gap:0.2rem;font-size:0.72rem;"><span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;"></span><span style="color:var(--green);font-weight:600;">' + sig.g + '</span></span>' : '') +
+            (sig.a > 0 ? '<span style="display:flex;align-items:center;gap:0.2rem;font-size:0.72rem;"><span style="width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block;"></span><span style="color:var(--amber);font-weight:600;">' + sig.a + '</span></span>' : '') +
+            (sig.r > 0 ? '<span style="display:flex;align-items:center;gap:0.2rem;font-size:0.72rem;"><span style="width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;"></span><span style="color:var(--red);font-weight:600;">' + sig.r + '</span></span>' : '') +
+          '</div>' +
+          // Spacer
+          '<span style="flex:1;"></span>' +
+          // Returns
+          '<div style="display:flex;align-items:center;gap:0.8rem;font-size:0.75rem;">' +
+            '<span><span style="color:var(--muted);font-family:var(--mono);font-size:0.65rem;">1M</span> ' + fmtRet(m1) + '</span>' +
+            '<span><span style="color:var(--muted);font-family:var(--mono);font-size:0.65rem;">3M</span> ' + fmtRet(m3) + '</span>' +
+            '<span><span style="color:var(--muted);font-family:var(--mono);font-size:0.65rem;">5Y</span> ' + fmtRet(y5) + '</span>' +
+          '</div>' +
+        '</div>' +
+      '</a>';
+  });
+
+  listEl.innerHTML = html;
+}
+
+function removeSaved(ticker, country) {
+  removeFromWatchlist(ticker, country);
+  renderWatchlist();
+}
+window.removeSaved = removeSaved;
+
+renderWatchlist();
+</script>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
