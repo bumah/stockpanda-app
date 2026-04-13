@@ -935,18 +935,26 @@ input, select { font-family: var(--font); }
 .dc-score-word { font-family: var(--mono); font-size: 0.65rem; font-weight: 700; }
 
 .discover-nav {
-  display: flex; justify-content: center; align-items: center; gap: 1.5rem; margin-top: 1.2rem;
+  display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 1.2rem;
 }
 .discover-nav button {
-  width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
   cursor: pointer; transition: all 0.15s; padding: 0; font-size: 0;
 }
-.discover-nav button svg { width: 22px; height: 22px; stroke-width: 2; }
+.discover-nav button svg { width: 20px; height: 20px; stroke-width: 2; }
 .discover-nav button:disabled { opacity: 0.25; cursor: not-allowed; }
 .dc-btn-back { background: rgba(255,255,255,0.06); border: 1.5px solid var(--border); color: var(--muted); }
 .dc-btn-back:hover:not(:disabled) { border-color: var(--muted); color: var(--text); background: rgba(255,255,255,0.1); }
+.dc-btn-heart { background: rgba(255,255,255,0.06); border: 1.5px solid var(--border); color: var(--muted); }
+.dc-btn-heart:hover { border-color: #F87171; color: #F87171; background: rgba(248,113,113,0.08); }
+.dc-btn-heart.hearted { background: rgba(248,113,113,0.15); border-color: #F87171; color: #F87171; }
+.dc-btn-heart.hearted svg { fill: #F87171; }
+.dc-btn-open { background: rgba(255,255,255,0.06); border: 1.5px solid var(--border); color: var(--muted); }
+.dc-btn-open:hover { border-color: var(--green); color: var(--green); background: rgba(74,222,128,0.08); }
 .dc-btn-next { background: var(--green); border: none; color: #000; }
 .dc-btn-next:hover:not(:disabled) { opacity: 0.85; }
+.discover-nav .dc-label { font-size: 0.55rem; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); text-align: center; margin-top: 0.3rem; }
+.discover-nav .dc-nav-item { display: flex; flex-direction: column; align-items: center; }
 
 .discover-done {
   text-align: center; padding: 3rem 1rem; color: var(--muted);

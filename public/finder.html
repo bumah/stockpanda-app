@@ -303,8 +303,10 @@
 
         <div class="discover-container" id="finder-dc-container"></div>
         <div class="discover-nav">
-          <button class="dc-btn-back" id="finder-dc-back" onclick="finderPrevCard()" disabled title="Back"><i data-lucide="arrow-left"></i></button>
-          <button class="dc-btn-next" id="finder-dc-next" onclick="finderNextCard()" title="Next"><i data-lucide="arrow-right"></i></button>
+          <div class="dc-nav-item"><button class="dc-btn-back" id="finder-dc-back" onclick="finderPrevCard()" disabled title="Back"><i data-lucide="arrow-left"></i></button><div class="dc-label">Back</div></div>
+          <div class="dc-nav-item"><button class="dc-btn-heart" id="finder-dc-heart" onclick="finderToggleHeart()" title="Save to watchlist"><i data-lucide="heart"></i></button><div class="dc-label">Save</div></div>
+          <div class="dc-nav-item"><button class="dc-btn-open" id="finder-dc-open" onclick="finderOpenStock()" title="View details"><i data-lucide="external-link"></i></button><div class="dc-label">Open</div></div>
+          <div class="dc-nav-item"><button class="dc-btn-next" id="finder-dc-next" onclick="finderNextCard()" title="Next"><i data-lucide="arrow-right"></i></button><div class="dc-label">Next</div></div>
         </div>
       </div>
     </div>
@@ -1176,6 +1178,7 @@ function showFinderCard() {
   if (typeof lucide !== 'undefined') lucide.createIcons();
   var card = container.querySelector('.discover-card');
   if (card) card.classList.add('entering');
+  updateFinderHeartBtn();
 }
 
 function switchToOpenHunt() {
@@ -1327,6 +1330,59 @@ function finderPrevCard() {
   else { _finderDcIdx--; sessionStorage.setItem('sp_cardIdx', _finderDcIdx); showFinderCard(); }
 }
 window.finderPrevCard = finderPrevCard;
+
+// ── Watchlist (localStorage) ──────────────────────────────────
+function getWatchlist() {
+  try { return JSON.parse(localStorage.getItem('sp_watchlist') || '[]'); }
+  catch(e) { return []; }
+}
+function isInWatchlist(ticker, country) {
+  return getWatchlist().some(function(w){ return w.ticker === ticker && w.country === (country||''); });
+}
+function addToWatchlist(ticker, country, company) {
+  var wl = getWatchlist();
+  if (!wl.some(function(w){ return w.ticker === ticker && w.country === (country||''); })) {
+    wl.push({ ticker: ticker, country: country||'', company: company||'', addedAt: Date.now() });
+    localStorage.setItem('sp_watchlist', JSON.stringify(wl));
+  }
+}
+function removeFromWatchlist(ticker, country) {
+  var wl = getWatchlist().filter(function(w){ return !(w.ticker === ticker && w.country === (country||'')); });
+  localStorage.setItem('sp_watchlist', JSON.stringify(wl));
+}
+
+function updateFinderHeartBtn() {
+  var btn = document.getElementById('finder-dc-heart');
+  if (!btn || !scoredCache.length || _finderDcIdx >= scoredCache.length) return;
+  var s = scoredCache[_finderDcIdx].stock;
+  if (isInWatchlist(s.ticker, s.country)) {
+    btn.classList.add('hearted');
+    btn.title = 'Remove from watchlist';
+  } else {
+    btn.classList.remove('hearted');
+    btn.title = 'Save to watchlist';
+  }
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function finderToggleHeart() {
+  if (!scoredCache.length || _finderDcIdx >= scoredCache.length) return;
+  var s = scoredCache[_finderDcIdx].stock;
+  if (isInWatchlist(s.ticker, s.country)) {
+    removeFromWatchlist(s.ticker, s.country);
+  } else {
+    addToWatchlist(s.ticker, s.country, s.company);
+  }
+  updateFinderHeartBtn();
+}
+window.finderToggleHeart = finderToggleHeart;
+
+function finderOpenStock() {
+  if (!scoredCache.length || _finderDcIdx >= scoredCache.length) return;
+  var s = scoredCache[_finderDcIdx].stock;
+  window.open('stock.html?ticker=' + encodeURIComponent(s.ticker) + '&country=' + encodeURIComponent(s.country || ''), '_blank');
+}
+window.finderOpenStock = finderOpenStock;
 
 // Override switchView to handle discover mode
 var _origSwitchView = switchView;

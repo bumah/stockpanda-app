@@ -155,25 +155,7 @@
       transform: translateX(120%); opacity: 0;
     }
 
-    /* Discover card styles now come from styles.css — no overrides here */
-
-    /* ── Nav buttons ───────────────────────────────────────────── */
-    .discover-nav {
-      display: flex; align-items: center; justify-content: center;
-      gap: 1rem; margin-top: 1.2rem;
-    }
-    .dc-btn-back, .dc-btn-next {
-      padding: 0.55rem 1.6rem; border-radius: 8px; font-size: 0.85rem;
-      font-weight: 600; font-family: var(--font); cursor: pointer;
-      transition: all 0.15s; border: 1px solid var(--border);
-      background: transparent; color: var(--text);
-    }
-    .dc-btn-back:hover:not(:disabled), .dc-btn-next:hover:not(:disabled) {
-      border-color: var(--green); color: var(--green);
-    }
-    .dc-btn-back:disabled, .dc-btn-next:disabled {
-      opacity: 0.35; cursor: not-allowed;
-    }
+    /* Discover card + nav styles now come from styles.css */
 
     /* ── Done state ────────────────────────────────────────────── */
     .discover-done {
@@ -239,8 +221,10 @@
         </div>
         <div class="discover-container" id="discover-container"></div>
         <div class="discover-nav">
-          <button class="dc-btn-back" id="dc-back" onclick="prevCard()" disabled title="Back"><i data-lucide="arrow-left"></i></button>
-          <button class="dc-btn-next" id="dc-next" onclick="nextCard()" title="Next"><i data-lucide="arrow-right"></i></button>
+          <div class="dc-nav-item"><button class="dc-btn-back" id="dc-back" onclick="prevCard()" disabled title="Back"><i data-lucide="arrow-left"></i></button><div class="dc-label">Back</div></div>
+          <div class="dc-nav-item"><button class="dc-btn-heart" id="dc-heart" onclick="toggleHeart()" title="Save to watchlist"><i data-lucide="heart"></i></button><div class="dc-label">Save</div></div>
+          <div class="dc-nav-item"><button class="dc-btn-open" id="dc-open" onclick="openStock()" title="View details"><i data-lucide="external-link"></i></button><div class="dc-label">Open</div></div>
+          <div class="dc-nav-item"><button class="dc-btn-next" id="dc-next" onclick="nextCard()" title="Next"><i data-lucide="arrow-right"></i></button><div class="dc-label">Next</div></div>
         </div>
       </div>
     </div>
@@ -1089,6 +1073,7 @@ function showCard() {
   // Trigger enter animation
   const card = container.querySelector('.discover-card');
   if (card) card.classList.add('entering');
+  updateHeartBtn();
 }
 
 // ── Build card HTML (Option C: split layout) ────────────────
@@ -1264,6 +1249,59 @@ function prevCard() {
   } else { _idx--; sessionStorage.setItem('sp_trap_cardIdx', _idx); showCard(); }
 }
 window.prevCard = prevCard;
+
+// ── Watchlist (localStorage) ──────────────────────────────────
+function getWatchlist() {
+  try { return JSON.parse(localStorage.getItem('sp_watchlist') || '[]'); }
+  catch(e) { return []; }
+}
+function isInWatchlist(ticker, country) {
+  return getWatchlist().some(function(w){ return w.ticker === ticker && w.country === (country||''); });
+}
+function addToWatchlist(ticker, country, company) {
+  var wl = getWatchlist();
+  if (!wl.some(function(w){ return w.ticker === ticker && w.country === (country||''); })) {
+    wl.push({ ticker: ticker, country: country||'', company: company||'', addedAt: Date.now() });
+    localStorage.setItem('sp_watchlist', JSON.stringify(wl));
+  }
+}
+function removeFromWatchlist(ticker, country) {
+  var wl = getWatchlist().filter(function(w){ return !(w.ticker === ticker && w.country === (country||'')); });
+  localStorage.setItem('sp_watchlist', JSON.stringify(wl));
+}
+
+function updateHeartBtn() {
+  var btn = document.getElementById('dc-heart');
+  if (!btn || !_queue.length || _idx >= _queue.length) return;
+  var s = _queue[_idx].stock;
+  if (isInWatchlist(s.ticker, s.country)) {
+    btn.classList.add('hearted');
+    btn.title = 'Remove from watchlist';
+  } else {
+    btn.classList.remove('hearted');
+    btn.title = 'Save to watchlist';
+  }
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function toggleHeart() {
+  if (!_queue.length || _idx >= _queue.length) return;
+  var s = _queue[_idx].stock;
+  if (isInWatchlist(s.ticker, s.country)) {
+    removeFromWatchlist(s.ticker, s.country);
+  } else {
+    addToWatchlist(s.ticker, s.country, s.company);
+  }
+  updateHeartBtn();
+}
+window.toggleHeart = toggleHeart;
+
+function openStock() {
+  if (!_queue.length || _idx >= _queue.length) return;
+  var s = _queue[_idx].stock;
+  window.open('stock.html?ticker=' + encodeURIComponent(s.ticker) + '&country=' + encodeURIComponent(s.country || ''), '_blank');
+}
+window.openStock = openStock;
 
 // ── Reset quiz ──────────────────────────────────────────────
 function resetQuiz() {
