@@ -322,7 +322,7 @@ async function loadAllStocks(answers) {
   for (const e of searchData) {
     if (countrySet !== null && !countrySet.has(e.co)) continue;
     const stock = normalizeSearchEntry(e, _EXCH_LABELS);
-    if (!sectorMatches(stock, answers)) continue;
+    if (!answers._skipSectorFilter && !sectorMatches(stock, answers)) continue;
     all.push(stock);
   }
   return all;

@@ -69,6 +69,18 @@
     .tw-level-card:hover { border-color: var(--green); background: rgba(74,222,128,0.05); }
     .tw-level-card.selected { border-color: var(--green); background: rgba(74,222,128,0.12); }
     .tw-level-card img { width: 48px; height: 48px; }
+    .tw-hunt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
+    @media (max-width: 420px) { .tw-hunt-grid { grid-template-columns: 1fr; } }
+    .tw-hunt-card {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.4rem 1rem; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      text-align: center; cursor: pointer; transition: all 0.15s;
+    }
+    .tw-hunt-card:hover { border-color: var(--green); background: rgba(74,222,128,0.05); }
+    .tw-hunt-card.selected { border-color: var(--green); background: rgba(74,222,128,0.12); }
+    .tw-hunt-icon { font-size: 2rem; }
+    .tw-hunt-name { font-family: var(--serif); font-size: 1.05rem; font-weight: 700; color: var(--parchment); }
+    .tw-hunt-desc { font-size: 0.72rem; color: var(--muted); line-height: 1.6; }
     .tw-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--border); }
     .tw-btn {
       padding: 0.55rem 1.4rem; border-radius: 8px; font-size: 0.82rem; font-weight: 600;
@@ -320,6 +332,8 @@
       <div class="tw-step" id="tw-s2">2</div>
       <div class="tw-step-line" id="tw-l2"></div>
       <div class="tw-step" id="tw-s3">3</div>
+      <div class="tw-step-line" id="tw-l3"></div>
+      <div class="tw-step" id="tw-s4">4</div>
     </div>
     <div id="tw-page1">
       <div class="tw-title">Mark your hunting territory</div>
@@ -339,6 +353,22 @@
       <div class="tw-title">Set your hunting level</div>
       <div class="tw-sub">What level of risk can you handle? Choose the hunt that matches your experience and skill.</div>
       <div class="tw-level-grid" id="tw-level-grid"></div>
+    </div>
+    <div id="tw-page4" style="display:none;">
+      <div class="tw-title">Choose your hunting mode</div>
+      <div class="tw-sub">How precise should your hunt be?</div>
+      <div class="tw-hunt-grid" id="tw-hunt-grid">
+        <div class="tw-hunt-card" data-key="strict" onclick="twSelectHuntMode(this,'strict')">
+          <span class="tw-hunt-icon">🎯</span>
+          <div class="tw-hunt-name">Strict Hunt</div>
+          <div class="tw-hunt-desc">Precise results. Hard filter on region, sector, and level. Only strong style matches.</div>
+        </div>
+        <div class="tw-hunt-card" data-key="open" onclick="twSelectHuntMode(this,'open')">
+          <span class="tw-hunt-icon">🌍</span>
+          <div class="tw-hunt-name">Open Hunt</div>
+          <div class="tw-hunt-desc">Cast a wider net. Flexible on sector and level. Easier style thresholds.</div>
+        </div>
+      </div>
     </div>
     <div class="tw-nav">
       <button class="tw-btn tw-btn-back" id="tw-back" onclick="twBack()" style="visibility:hidden;">← Back</button>
@@ -474,9 +504,10 @@ let twGeo = new Set();
 let twSec = new Set();
 let twStyles = new Set();
 let twLevel = null;
+let twHuntMode = null;
 
 function openTrapWizard() {
-  twStep = 1; twGeo.clear(); twSec.clear(); twStyles.clear(); twLevel = null;
+  twStep = 1; twGeo.clear(); twSec.clear(); twStyles.clear(); twLevel = null; twHuntMode = null;
   twRenderStep();
   twBuildChips();
   document.getElementById('tw-overlay').style.display = 'flex';
@@ -532,16 +563,24 @@ function twSelectLevel(el, label) {
 }
 window.twSelectLevel = twSelectLevel;
 
+function twSelectHuntMode(el, mode) {
+  twHuntMode = mode;
+  document.querySelectorAll('#tw-hunt-grid .tw-hunt-card').forEach(c => c.classList.toggle('selected', c.dataset.key === mode));
+  twUpdateNav();
+}
+window.twSelectHuntMode = twSelectHuntMode;
+
 function twRenderStep() {
   document.getElementById('tw-page1').style.display = twStep === 1 ? '' : 'none';
   document.getElementById('tw-page2').style.display = twStep === 2 ? '' : 'none';
   document.getElementById('tw-page3').style.display = twStep === 3 ? '' : 'none';
-  ['tw-s1','tw-s2','tw-s3'].forEach((id, i) => {
+  document.getElementById('tw-page4').style.display = twStep === 4 ? '' : 'none';
+  ['tw-s1','tw-s2','tw-s3','tw-s4'].forEach((id, i) => {
     const el = document.getElementById(id);
     const step = i + 1;
     el.className = 'tw-step' + (step === twStep ? ' active' : step < twStep ? ' done' : '');
   });
-  ['tw-l1','tw-l2'].forEach((id, i) => {
+  ['tw-l1','tw-l2','tw-l3'].forEach((id, i) => {
     document.getElementById(id).className = 'tw-step-line' + (i + 1 < twStep ? ' done' : '');
   });
   document.getElementById('tw-back').style.visibility = twStep === 1 ? 'hidden' : 'visible';
@@ -550,9 +589,10 @@ function twRenderStep() {
 
 function twUpdateNav() {
   const btn = document.getElementById('tw-next');
-  if (twStep === 1) { btn.textContent = 'Next →'; btn.disabled = twGeo.size === 0; }
-  else if (twStep === 2) { btn.textContent = 'Next →'; btn.disabled = twStyles.size === 0; }
-  else { btn.textContent = 'Hunt →'; btn.disabled = !twLevel; }
+  if (twStep === 1) { btn.textContent = 'Next \u2192'; btn.disabled = twGeo.size === 0; }
+  else if (twStep === 2) { btn.textContent = 'Next \u2192'; btn.disabled = twStyles.size === 0; }
+  else if (twStep === 3) { btn.textContent = 'Next \u2192'; btn.disabled = !twLevel; }
+  else { btn.textContent = 'Hunt \u2192'; btn.disabled = !twHuntMode; }
 }
 
 function twBack() { if (twStep > 1) { twStep--; twRenderStep(); } }
@@ -568,7 +608,7 @@ function _criteriaToFlat(criteria) {
 }
 
 function twNext() {
-  if (twStep < 3) { twStep++; twRenderStep(); return; }
+  if (twStep < 4) { twStep++; twRenderStep(); return; }
   closeTrapWizard();
   const region = twGeo.size === 0 || twGeo.has('global') ? 'global' : Array.from(twGeo);
   const sectors = twSec.size === 0 || twSec.has('all') ? 'all' : Array.from(twSec);
@@ -599,7 +639,8 @@ function twNext() {
     region: region,
     sectors: sectors,
     styles: styleKeys,
-    level: twLevel
+    level: twLevel,
+    huntMode: twHuntMode || 'open'
   };
 
   findStocks();
@@ -636,7 +677,8 @@ function runPreset(region) {
     region: _trapCriteria.region || region,
     sectors: _trapCriteria.sectors || 'all',
     styles: [_activePreset],
-    level: _trapCriteria.level
+    level: _trapCriteria.level,
+    huntMode: _trapCriteria.huntMode || 'open'
   };
 
   document.getElementById('region-picker-overlay').style.display = 'none';
@@ -727,15 +769,17 @@ document.addEventListener('click', e => {
 // Quick presets strip removed — discover-only mode
 
 // ── Trap criteria (stored from wizard for scoring) ──────────
-let _trapCriteria = { region: 'global', sectors: 'all', styles: [], level: null };
+let _trapCriteria = { region: 'global', sectors: 'all', styles: [], level: null, huntMode: 'open' };
 
 // ── 3-criteria scoring for Scan (territory is pre-filtered via loadAllStocks) ──
 function scoreTrapCriteria(stock, criteria) {
   const checks = [];
+  const isStrict = criteria.huntMode === 'strict';
 
   // 1. Sector: does stock's sector match selected sectors?
   let secMatch = true;
-  if (criteria.sectors && criteria.sectors !== 'all') {
+  if (isStrict && criteria.sectors && criteria.sectors !== 'all') {
+    // Strict: hard filter on sector
     const groups = Array.isArray(criteria.sectors) ? criteria.sectors : [criteria.sectors];
     secMatch = false;
     for (const g of groups) {
@@ -743,24 +787,30 @@ function scoreTrapCriteria(stock, criteria) {
       if (set && set.has(stock.sector || '')) { secMatch = true; break; }
     }
   }
+  // Open: sector always passes (secMatch stays true)
   checks.push({ label: 'Sector', match: secMatch });
 
-  // 2. Style: stock scores ≥50% for at least one selected style
+  // 2. Style: stock scores threshold for at least one selected style
   let styleMatch = true;
   if (criteria.styles && criteria.styles.length > 0) {
     const ps = stock._ps || {};
-    styleMatch = criteria.styles.some(k => (ps[k] || 0) >= 50);
+    const threshold = isStrict ? 75 : 50;
+    styleMatch = criteria.styles.some(k => (ps[k] || 0) >= threshold);
   }
   checks.push({ label: 'Style', match: styleMatch });
 
-  // 3. Level: stock's mood level ≤ selected max level
+  // 3. Level: Strict=exact match, Open=±1 from selected
   let levelMatch = true;
   if (criteria.level) {
-    const maxLvl = parseInt(criteria.level.replace(/\D/g, '')) || 99;
+    const chosenLvl = parseInt(criteria.level.replace(/\D/g, '')) || 99;
     const stockLvl = parseInt((stock.mood?.label || '').replace(/\D/g, '')) || 99;
-    levelMatch = stockLvl <= maxLvl;
+    if (isStrict) {
+      levelMatch = stockLvl === chosenLvl;
+    } else {
+      levelMatch = Math.abs(stockLvl - chosenLvl) <= 1;
+    }
   }
-  checks.push({ label: 'Max Level', match: levelMatch });
+  checks.push({ label: 'Level', match: levelMatch });
 
   const matchCount = checks.filter(c => c.match).length;
   const pct = Math.round((matchCount / 3) * 100);
@@ -784,8 +834,11 @@ async function findStocks(opts) {
   // Load stocks filtered to the selected territory
   const origSector = answers.sector;
   answers.sector = 'all';
+  // Open hunt: skip sector hard-filter in loadAllStocks
+  if (_trapCriteria.huntMode === 'open') answers._skipSectorFilter = true;
   const allStocks = await loadAllStocks(answers);
   answers.sector = origSector;
+  delete answers._skipSectorFilter;
 
   // Score each stock against the 4 trap criteria
   const scored = allStocks.map(s => {
@@ -793,8 +846,9 @@ async function findStocks(opts) {
     return { stock: s, pct: result.pct, matchCount: result.matchCount, checks: result.checks, scores: [] };
   });
 
-  // Filter: must match at least 2 of 3 criteria
-  let goodFits = scored.filter(x => x.matchCount >= 2);
+  // Filter: Strict = all 3 must match, Open = at least 2 of 3
+  const minMatch = _trapCriteria.huntMode === 'strict' ? 3 : 2;
+  let goodFits = scored.filter(x => x.matchCount >= minMatch);
 
   // Randomize order (Fisher-Yates shuffle) — skip on restore so order is consistent
   if (!opts.restoreIdx) {
@@ -1036,7 +1090,7 @@ document.addEventListener('click', e => {
     _presetMode = true;
     _lastPresetKey = style;
     scoredCache = [];
-    _trapCriteria = { region: r, sectors: 'all', styles: [style], level: level ? 'Level ' + level : null };
+    _trapCriteria = { region: r, sectors: 'all', styles: [style], level: level ? 'Level ' + level : null, huntMode: 'open' };
     findStocks();
   } else if (level) {
     document.getElementById('scan-welcome').style.display = 'none';
@@ -1046,7 +1100,7 @@ document.addEventListener('click', e => {
     _presetMode = true;
     _lastPresetKey = 'momentum';
     scoredCache = [];
-    _trapCriteria = { region: region || 'global', sectors: 'all', styles: ['momentum'], level: 'Level ' + level };
+    _trapCriteria = { region: region || 'global', sectors: 'all', styles: ['momentum'], level: 'Level ' + level, huntMode: 'open' };
     findStocks();
   } else if (region) {
     document.getElementById('scan-welcome').style.display = 'none';
@@ -1056,7 +1110,7 @@ document.addEventListener('click', e => {
     _presetMode = true;
     _lastPresetKey = 'momentum';
     scoredCache = [];
-    _trapCriteria = { region: region, sectors: 'all', styles: ['momentum'], level: level ? 'Level ' + level : null };
+    _trapCriteria = { region: region, sectors: 'all', styles: ['momentum'], level: level ? 'Level ' + level : null, huntMode: 'open' };
     findStocks();
   } else if (sessionStorage.getItem('sp_hasResults')) {
     // Restore previous scan from session
@@ -1097,13 +1151,17 @@ function showFinderCard() {
   const items = scoredCache;
 
   if (!items.length) {
-    container.innerHTML = '<div class="discover-done"><h3>No matches</h3><p>Try changing filters.</p></div>';
+    const isStrict = _trapCriteria.huntMode === 'strict';
+    const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try Open Hunt \u2192</button>' : '';
+    container.innerHTML = '<div class="discover-done"><h3>No matches</h3><p>Edit your Scan' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p>' + openHint + '</div>';
     counter.textContent = '0 matches';
     backBtn.disabled = true; nextBtn.disabled = true;
     return;
   }
   if (_finderDcIdx >= items.length) {
-    container.innerHTML = '<div class="discover-done"><h3>You\'ve seen all matches</h3><p>' + items.length + ' stocks total.</p></div>';
+    const isStrict = _trapCriteria.huntMode === 'strict';
+    const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try Open Hunt \u2192</button>' : '';
+    container.innerHTML = '<div class="discover-done"><h3>You\'ve seen all matches</h3><p>' + items.length + ' stocks. Edit your Scan' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p>' + openHint + '</div>';
     counter.textContent = items.length + ' of ' + items.length;
     backBtn.disabled = _finderDcIdx <= 0; nextBtn.disabled = true;
     return;
@@ -1119,6 +1177,13 @@ function showFinderCard() {
   var card = container.querySelector('.discover-card');
   if (card) card.classList.add('entering');
 }
+
+function switchToOpenHunt() {
+  _trapCriteria.huntMode = 'open';
+  twHuntMode = 'open';
+  findStocks();
+}
+window.switchToOpenHunt = switchToOpenHunt;
 
 function buildFinderDiscoverCard(item) {
   var s = item.stock;
