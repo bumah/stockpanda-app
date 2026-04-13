@@ -269,10 +269,12 @@ document.getElementById('search-modal').addEventListener('click', e => {
   let timer;
   inp.addEventListener('input', () => {
     clearTimeout(timer);
+    const q = inp.value.trim();
+    if (q.length < 1) { res.innerHTML = ''; return; }
+    res.innerHTML = '<div style="padding:0.6rem;color:var(--muted);font-size:0.82rem;">Searching…</div>';
     timer = setTimeout(async () => {
-      const q = inp.value.trim();
-      if (q.length < 1) { res.innerHTML = ''; return; }
       const hits = await DataCache.searchAll(q);
+      if (inp.value.trim() !== q) return; // stale
       if (!hits.length) {
         res.innerHTML = '<div style="padding:0.6rem;color:var(--muted);font-size:0.82rem;">No results found</div>';
       } else {

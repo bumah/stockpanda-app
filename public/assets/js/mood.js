@@ -183,6 +183,18 @@ const DataCache = {
     }
     return this._store._search;
   },
+  async getSearchLite() {
+    if (this._store._searchLite) return this._store._searchLite;
+    try {
+      const res = await fetch('data/search-lite.json');
+      if (!res.ok) throw new Error(`search-lite.json: ${res.status}`);
+      this._store._searchLite = await res.json();
+    } catch(e) {
+      console.error('DataCache.getSearchLite failed:', e);
+      this._store._searchLite = [];
+    }
+    return this._store._searchLite;
+  },
   async getGlobalStock(ticker) {
     const idx = await this.getSearchIndex();
     return idx.find(e => e.t === ticker) || null;
@@ -206,7 +218,7 @@ const DataCache = {
   async searchAll(query) {
     const q = query.toLowerCase().trim();
     if (!q || q.length < 1) return [];
-    const idx = await this.getSearchIndex();
+    const idx = await this.getSearchLite();
     const results = [];
     for (const entry of idx) {
       if (
@@ -215,15 +227,12 @@ const DataCache = {
       ) {
         const mood = entry.m
           ? (() => { const b = MOOD_BANDS_JS.find(b => b.label === entry.m) || MOOD_BANDS_JS[2];
-              return { label: b.label, colorKey: b.colorKey, color: b.color, score: null, pct: entry.r ?? 50 }; })()
-          : moodFromScore(entry.s || 0);
+              return { label: b.label, colorKey: b.colorKey, color: b.color, score: null, pct: 50 }; })()
+          : { label: 'Level 3', colorKey: 'neutral', color: '#A3A3A3', score: null, pct: 50 };
         results.push({
           ticker:        entry.t,
           company:       entry.n,
-          price:         entry.p,
-          currency:      entry.c || 'USD',
           mood,
-          sector:        entry.sec || '',
           country:       entry.co || '',
           exchange:      entry.x || 'global',
           exchangeLabel: EXCHANGE_LABELS[entry.x] || 'Global',
