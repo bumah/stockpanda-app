@@ -225,14 +225,24 @@
       <!-- Field Notes -->
       <div id="field-notes" style="margin-bottom:1.5rem;"></div>
 
-      <div class="section-label">Company Performance</div>
-      <div id="stat-grid" style="margin-bottom:1.25rem;"></div>
+      <!-- Follow the trail CTA -->
+      <div id="trail-cta" style="text-align:center;padding:2rem 0 1rem;border-top:1px dashed rgba(74,222,128,0.2);margin-bottom:1rem;transition:opacity 0.3s ease;">
+        <div style="font-size:1.8rem;margin-bottom:0.5rem;">🐾</div>
+        <button id="trail-btn" onclick="revealTrail()" style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);color:#4ADE80;padding:0.7rem 2rem;border-radius:10px;font-family:var(--serif);font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.2s;">Follow the trail →</button>
+        <div style="font-size:0.68rem;color:rgba(255,255,255,0.3);margin-top:0.5rem;">Performance · Financials · Analysis · Styles</div>
+      </div>
 
-      <div id="financials-section"></div>
+      <!-- Hidden trail sections (revealed on click) -->
+      <div id="trail-sections" style="display:none;opacity:0;transition:opacity 0.4s ease;">
+        <div class="section-label">Company Performance</div>
+        <div id="stat-grid" style="margin-bottom:1.25rem;"></div>
+
+        <div id="financials-section"></div>
+      </div>
     </div>
 
-    <!-- Sidebar -->
-    <div class="dash-sidebar">
+    <!-- Sidebar (hidden until trail revealed) -->
+    <div class="dash-sidebar" id="trail-sidebar" style="display:none;opacity:0;transition:opacity 0.4s ease;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
         <div class="section-label" style="margin-bottom:0;">Company Analysis</div>
         <button class="share-btn" style="margin-top:0;font-size:0.68rem;padding:3px 9px;" onclick="openIndicatorsShareModal()">↗ Share</button>
@@ -252,6 +262,25 @@
 <script src="assets/js/mood.js"></script>
 <script>
 'use strict';
+
+function revealTrail() {
+  var cta = document.getElementById('trail-cta');
+  var sections = document.getElementById('trail-sections');
+  var sidebar = document.getElementById('trail-sidebar');
+  // Fade out button
+  cta.style.opacity = '0';
+  setTimeout(function() {
+    cta.style.display = 'none';
+    // Show sections
+    sections.style.display = '';
+    sidebar.style.display = '';
+    // Trigger fade in
+    requestAnimationFrame(function() {
+      sections.style.opacity = '1';
+      sidebar.style.opacity = '1';
+    });
+  }, 300);
+}
 
 // All init wrapped in load event so mood.js + Chart.js are both ready
 window.addEventListener('load', function() {
@@ -339,7 +368,7 @@ function renderHeader() {
   const b = MOOD.band(s.mood?.label || 'Level 3');
   document.title = `StockPanda — ${s.ticker}`;
   const pandaEl = document.getElementById('hd-panda');
-  pandaEl.innerHTML = `<img class="panda-img" src="assets/img/${b.img}" alt="${b.label}" /><span class="panda-click-me">read me</span>`;
+  pandaEl.innerHTML = `<img class="panda-img" src="assets/img/${b.img}" alt="${b.label}" />`;
   pandaEl.style.cursor = 'pointer';
   pandaEl.title = MOOD_DESC[b.label] || '';
   pandaEl.onclick = () => {
@@ -614,10 +643,11 @@ function renderFieldNotes() {
     const best = sorted.slice(0, 3);
     const worst = sorted[sorted.length - 1];
     const NAMES = { optimistic:'Optimistic', nimble:'Nimble', momentum:'Momentum', pack:'Pack', patient:'Patient', safe:'Careful', trophy:'Trophy', wild_beast:'Wild Beast', zombie:'Zombie' };
+    function _hearts(p) { return p >= 90 ? 5 : p >= 70 ? 4 : p >= 50 ? 3 : p >= 30 ? 2 : 1; }
     let styleTxt = 'This stock is a strong match for ';
-    styleTxt += best.map(([k, v]) => NAMES[k] + ' (' + v.pct + '%)').join(', ') + '.';
+    styleTxt += best.map(([k, v]) => NAMES[k] + ' (' + _hearts(v.pct) + ' hearts)').join(', ') + '.';
     if (worst && worst[1].pct < 60) {
-      styleTxt += ' It\'s a weak match for ' + NAMES[worst[0]] + ' (' + worst[1].pct + '%).';
+      styleTxt += ' It\'s a weak match for ' + NAMES[worst[0]] + ' (' + _hearts(worst[1].pct) + ' heart' + (_hearts(worst[1].pct) === 1 ? '' : 's') + ').';
     }
     notes.push({ icon: '🎯', title: 'Style Fit', text: styleTxt });
   }
@@ -627,7 +657,7 @@ function renderFieldNotes() {
   if (mood && mood.label) {
     const LEVEL_DESC = {
       'Level 1': 'This stock is stable and steady — smooth sailing with no signs of immediate danger.',
-      'Level 2': 'This stock is stable with mild movement — stay aware, but no need to worry.',
+      'Level 2': 'This stock is stable with mild movement — no major concerns, but stay aware.',
       'Level 3': 'This stock is unsettled and can shift quickly — watch closely and stay disciplined.',
       'Level 4': 'This stock is unpredictable and risk is rising — move with caution.',
       'Level 5': 'This stock is highly volatile and can turn sharply — proceed with extreme care.'
@@ -951,13 +981,18 @@ function renderStyleBreakdown() {
     const data = ps[style.key];
     const pct = data?.pct ?? 0;
     const col = pct >= 80 ? 'var(--green)' : pct >= 50 ? 'var(--amber)' : 'var(--red)';
-    const bgCol = pct >= 80 ? 'rgba(74,222,128,0.15)' : pct >= 50 ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)';
+    const n = pct >= 90 ? 5 : pct >= 70 ? 4 : pct >= 50 ? 3 : pct >= 30 ? 2 : 1;
+    const hCol = n >= 4 ? '#4ADE80' : n >= 3 ? '#FBBF24' : '#F87171';
+    let heartsHtml = '';
+    for (let i = 0; i < 5; i++) {
+      heartsHtml += `<span style="font-size:0.75rem;color:${i < n ? hCol : 'rgba(255,255,255,0.12)'};">${i < n ? '\u2665' : '\u2661'}</span>`;
+    }
     return `<div style="display:flex;align-items:center;gap:0.7rem;padding:0.6rem 0.75rem;border:1px solid var(--border);border-radius:8px;margin-bottom:0.45rem;background:var(--card);">
       <div style="font-size:1.2rem;width:1.6rem;text-align:center;flex-shrink:0;">${style.icon}</div>
       <div style="flex:1;min-width:0;">
         <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.2rem;">
           <span style="font-weight:700;font-size:0.85rem;color:var(--text);">${style.name}</span>
-          <span style="font-family:var(--mono);font-size:0.72rem;font-weight:700;color:${col};background:${bgCol};padding:1px 6px;border-radius:4px;">${pct}%</span>
+          <span style="letter-spacing:1px;">${heartsHtml}</span>
         </div>
         <div style="font-size:0.7rem;color:var(--muted);line-height:1.35;">${style.desc}</div>
         <div style="margin-top:0.35rem;height:4px;background:var(--border);border-radius:2px;overflow:hidden;">
