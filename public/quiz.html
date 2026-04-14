@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StockPanda — Trap</title>
+  <title>StockPanda — Pro Hunt</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="assets/css/styles.css" />
@@ -178,11 +178,11 @@
   </a>
   <div class="nav-links">
     <a class="nav-link" href="index.html">Home</a>
-    <a class="nav-link" href="finder.html">Scan</a>
-    <a class="nav-link active" href="quiz.html">Trap</a>
-    <a class="nav-link" href="watchlist.html">Saved</a>
-    <a class="nav-link" href="stocks.html">Explore</a>
-    <a class="nav-link" href="summary.html">Peek</a>
+    <a class="nav-link" href="finder.html">Hunt</a>
+    <a class="nav-link active" href="quiz.html">Pro Hunt</a>
+    <a class="nav-link" href="watchlist.html">Catch</a>
+    <a class="nav-link" href="stocks.html">Scan</a>
+    <a class="nav-link" href="summary.html">Brief</a>
   </div>
   <div class="nav-right">
     <a href="manifesto.html" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;">Manifesto</a>
@@ -193,11 +193,11 @@
 </nav>
 <nav class="nav-bottom">
   <a href="index.html"><i data-lucide="house" class="nb-icon"></i>Home</a>
-  <a href="finder.html"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
-  <a href="quiz.html" class="active"><i data-lucide="crosshair" class="nb-icon"></i>Trap</a>
-  <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Saved</a>
-  <a href="stocks.html"><i data-lucide="bar-chart-3" class="nb-icon"></i>Explore</a>
-  <a href="summary.html"><i data-lucide="eye" class="nb-icon"></i>Peek</a>
+  <a href="finder.html"><i data-lucide="scan-search" class="nb-icon"></i>Hunt</a>
+  <a href="quiz.html" class="active"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
+  <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Catch</a>
+  <a href="stocks.html"><i data-lucide="bar-chart-3" class="nb-icon"></i>Scan</a>
+  <a href="summary.html"><i data-lucide="eye" class="nb-icon"></i>Brief</a>
 </nav>
 
 <div class="main">
@@ -205,10 +205,10 @@
 
     <!-- ── Intro Screen ────────────────────────────────────────── -->
     <div id="scan-intro" class="finder-hero" style="padding-bottom:2.5rem;">
-      <div class="hero-eyebrow">Trap</div>
+      <div class="hero-eyebrow">Pro Hunt</div>
       <h1 class="finder-hero-h1" style="font-size:2.6rem;">Define what matters to you.<br/>See how stocks measure up.</h1>
       <p class="finder-hero-sub">Answer quick questions about your style, risk appetite, and goals. We'll scan 30,000+ stocks and show you the best matches — one at a time.</p>
-      <button class="finder-cta-btn" onclick="document.getElementById('scan-intro').style.display='none'; openQuizModal();">Set your trap &rarr;</button>
+      <button class="finder-cta-btn" onclick="document.getElementById('scan-intro').style.display='none'; openQuizModal();">Start pro hunt &rarr;</button>
     </div>
 
     <!-- ── Discovery Section ──────────────────────────────────── -->
@@ -217,8 +217,8 @@
         <div class="discover-header">
           <span class="discover-counter" id="discover-counter"></span>
           <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
-            <button class="discover-refine" onclick="refineQuiz()">Edit Trap</button>
-            <button class="discover-refine" onclick="seeAllTable()">View Trap</button>
+            <button class="discover-refine" onclick="refineQuiz()">Edit Pro Hunt</button>
+            <button class="discover-refine" onclick="seeAllTable()">View Pro Hunt</button>
           </div>
         </div>
         <div class="discover-container" id="discover-container"></div>
@@ -1041,7 +1041,7 @@ function showCard() {
   if (!_queue.length) {
     const isStrict = answers.huntmode === 'strict';
     const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try Open Hunt \u2192</button>' : '';
-    container.innerHTML = '<div class="discover-done"><h3>No matches found</h3><p>Edit your Trap' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p>' + openHint + '</div>';
+    container.innerHTML = '<div class="discover-done"><h3>No matches found</h3><p>Edit your Pro Hunt' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p>' + openHint + '</div>';
     counter.textContent = '0 matches';
     return;
   }
@@ -1049,7 +1049,7 @@ function showCard() {
   if (_idx >= _queue.length) {
     const isStrict = answers.huntmode === 'strict';
     const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try Open Hunt \u2192</button>' : '';
-    container.innerHTML = '<div class="discover-done"><h3>You\'ve seen all matches</h3><p>' + _queue.length + ' stocks. Edit your Trap' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p><button class="discover-refine" onclick="prevCard()" style="margin-top:0.6rem;">\u2190 Back</button>' + openHint + '</div>';
+    container.innerHTML = '<div class="discover-done"><h3>You\'ve seen all matches</h3><p>' + _queue.length + ' stocks. Edit your Pro Hunt' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p><button class="discover-refine" onclick="prevCard()" style="margin-top:0.6rem;">\u2190 Back</button>' + openHint + '</div>';
     counter.textContent = _queue.length + ' of ' + _queue.length + ' matches';
     return;
   }

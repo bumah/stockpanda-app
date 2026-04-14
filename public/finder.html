@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StockPanda — Scan</title>
+  <title>StockPanda — Hunt</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="assets/css/styles.css" />
@@ -253,11 +253,11 @@
   </a>
   <div class="nav-links">
     <a class="nav-link" href="index.html">Home</a>
-    <a class="nav-link active" href="finder.html">Scan</a>
-    <a class="nav-link" href="quiz.html">Trap</a>
-    <a class="nav-link" href="watchlist.html">Saved</a>
-    <a class="nav-link" href="stocks.html">Explore</a>
-    <a class="nav-link" href="summary.html">Peek</a>
+    <a class="nav-link active" href="finder.html">Hunt</a>
+    <a class="nav-link" href="quiz.html">Pro Hunt</a>
+    <a class="nav-link" href="watchlist.html">Catch</a>
+    <a class="nav-link" href="stocks.html">Scan</a>
+    <a class="nav-link" href="summary.html">Brief</a>
   </div>
   <div class="nav-right">
     <a href="manifesto.html" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;">Manifesto</a>
@@ -268,11 +268,11 @@
 </nav>
 <nav class="nav-bottom">
   <a href="index.html"><i data-lucide="house" class="nb-icon"></i>Home</a>
-  <a href="finder.html" class="active"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
-  <a href="quiz.html"><i data-lucide="crosshair" class="nb-icon"></i>Trap</a>
-  <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Saved</a>
-  <a href="stocks.html"><i data-lucide="bar-chart-3" class="nb-icon"></i>Explore</a>
-  <a href="summary.html"><i data-lucide="eye" class="nb-icon"></i>Peek</a>
+  <a href="finder.html" class="active"><i data-lucide="scan-search" class="nb-icon"></i>Hunt</a>
+  <a href="quiz.html"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
+  <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Catch</a>
+  <a href="stocks.html"><i data-lucide="bar-chart-3" class="nb-icon"></i>Scan</a>
+  <a href="summary.html"><i data-lucide="eye" class="nb-icon"></i>Brief</a>
 </nav>
 
 <div class="main">
@@ -280,10 +280,10 @@
 
     <!-- ── Welcome Screen ────────────────────────────────────── -->
     <div id="scan-welcome" class="finder-hero" style="padding-bottom:2.5rem;">
-      <div class="hero-eyebrow">Scan</div>
-      <h1 class="finder-hero-h1" style="font-size:2.6rem;">Scan the field.<br/>Find your match.</h1>
-      <p class="finder-hero-sub">Pick a territory, style, and risk level. We'll scan the market and show you stocks that match — one at a time.</p>
-      <button class="finder-cta-btn" onclick="document.getElementById('scan-welcome').style.display='none'; openTrapWizard();">Start scanning &rarr;</button>
+      <div class="hero-eyebrow">Hunt</div>
+      <h1 class="finder-hero-h1" style="font-size:2.6rem;">Hunt the field.<br/>Find your match.</h1>
+      <p class="finder-hero-sub">Pick a territory, style, and risk level. We'll hunt the market and show you stocks that match — one at a time.</p>
+      <button class="finder-cta-btn" onclick="document.getElementById('scan-welcome').style.display='none'; openTrapWizard();">Start hunting &rarr;</button>
     </div>
 
     <!-- ── Results Section (discover-only) ─────────────────── -->
@@ -292,14 +292,14 @@
         <div class="discover-header">
           <span class="discover-counter" id="finder-dc-counter"></span>
           <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
-            <button class="discover-refine" onclick="openTrapWizard()">Edit Scan</button>
-            <button class="discover-refine" onclick="showTrapSummary()">View Scan</button>
+            <button class="discover-refine" onclick="openTrapWizard()">Edit Hunt</button>
+            <button class="discover-refine" onclick="showTrapSummary()">View Hunt</button>
           </div>
         </div>
 
         <!-- Trap summary (hidden by default, toggled by View Trap) -->
         <div id="trap-summary" style="display:none; margin-bottom:1rem; padding:0.8rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:10px; font-size:0.72rem;">
-          <div style="font-family:var(--mono);font-size:0.5rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.5rem;">Your Scan Settings</div>
+          <div style="font-family:var(--mono);font-size:0.5rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.5rem;">Your Hunt Settings</div>
           <div id="trap-summary-content"></div>
         </div>
 
@@ -1149,14 +1149,14 @@ function showFinderCard() {
   if (!items.length) {
     const isStrict = _trapCriteria.huntMode === 'strict';
     const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try Open Hunt \u2192</button>' : '';
-    container.innerHTML = '<div class="discover-done"><h3>No matches</h3><p>Edit your Scan' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p>' + openHint + '</div>';
+    container.innerHTML = '<div class="discover-done"><h3>No matches</h3><p>Edit your Hunt' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p>' + openHint + '</div>';
     counter.textContent = '0 matches';
     return;
   }
   if (_finderDcIdx >= items.length) {
     const isStrict = _trapCriteria.huntMode === 'strict';
     const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try Open Hunt \u2192</button>' : '';
-    container.innerHTML = '<div class="discover-done"><h3>You\'ve seen all matches</h3><p>' + items.length + ' stocks. Edit your Scan' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p><button class="discover-refine" onclick="finderPrevCard()" style="margin-top:0.6rem;">\u2190 Back</button>' + openHint + '</div>';
+    container.innerHTML = '<div class="discover-done"><h3>You\'ve seen all matches</h3><p>' + items.length + ' stocks. Edit your Hunt' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p><button class="discover-refine" onclick="finderPrevCard()" style="margin-top:0.6rem;">\u2190 Back</button>' + openHint + '</div>';
     counter.textContent = items.length + ' of ' + items.length;
     return;
   }
