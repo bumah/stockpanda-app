@@ -1053,26 +1053,96 @@ function fmtPrice(stock) {
 }
 const exchLabelsMap   = { sp500:'S&P 500', ftse100:'FTSE 100', hsi:'Hang Seng', nikkei225:'Nikkei 225' };
 
+function getYahooTicker(ticker, currency, country) {
+  // Country-based suffix for share text display (handles cross-listed stocks)
+  const COUNTRY_SUFFIX = {
+    'United States':'','Germany':'.DE','France':'.PA','Netherlands':'.AS',
+    'Spain':'.MC','Italy':'.MI','Belgium':'.BR','Finland':'.HE','Austria':'.VI',
+    'Portugal':'.LS','Ireland':'.IR','Greece':'.AT','United Kingdom':'.L',
+    'Switzerland':'.SW','Sweden':'.ST','Norway':'.OL','Denmark':'.CO',
+    'South Africa':'.JO','Brazil':'.SA','Japan':'.T','Hong Kong':'.HK',
+    'Australia':'.AX','Canada':'.TO','India':'.NS','China':'.SS',
+    'South Korea':'.KS','Taiwan':'.TW','Singapore':'.SI','Malaysia':'.KL',
+    'Thailand':'.BK','Indonesia':'.JK','Mexico':'.MX',
+  };
+  const suffix = COUNTRY_SUFFIX[country];
+  if (suffix === undefined) return '$' + ticker;
+  let t = ticker;
+  if (['Hong Kong','China','Japan'].includes(country) && /^\d+$/.test(ticker) && ticker.length < 4) {
+    t = ticker.padStart(4, '0');
+  }
+  return '$' + t + suffix;
+}
+
 function buildShareText() {
   const s   = stockData;
   const ind = s.indicators || {};
-  const priceFmt = fmtPrice(s);
-  const ret1m  = ind.return1M?.label  || '—';
-  const ret1y  = ind.return1Y?.label  || '—';
-  const cagr5y = ind.cagr5Y?.label    || '—';
-  const mood   = s.mood?.label || 'Level 3';
-  const url = `${location.origin}${location.pathname}?ticker=${encodeURIComponent(s.ticker)}&exchange=${encodeURIComponent(EXCHANGE)}`;
+  const country = s.country || '';
+
+  // Yahoo-style ticker
+  const yTicker = getYahooTicker(s.ticker, s.currency, country);
+
+  // Country flag emoji
+  const FLAG_MAP = {
+    'United States':'\u{1F1FA}\u{1F1F8}','United Kingdom':'\u{1F1EC}\u{1F1E7}','Hong Kong':'\u{1F1ED}\u{1F1F0}',
+    'China':'\u{1F1E8}\u{1F1F3}','Japan':'\u{1F1EF}\u{1F1F5}','Germany':'\u{1F1E9}\u{1F1EA}',
+    'France':'\u{1F1EB}\u{1F1F7}','Canada':'\u{1F1E8}\u{1F1E6}','Australia':'\u{1F1E6}\u{1F1FA}',
+    'India':'\u{1F1EE}\u{1F1F3}','South Korea':'\u{1F1F0}\u{1F1F7}','Brazil':'\u{1F1E7}\u{1F1F7}',
+    'Switzerland':'\u{1F1E8}\u{1F1ED}','Sweden':'\u{1F1F8}\u{1F1EA}','Netherlands':'\u{1F1F3}\u{1F1F1}',
+    'Singapore':'\u{1F1F8}\u{1F1EC}','Taiwan':'\u{1F1F9}\u{1F1FC}','South Africa':'\u{1F1FF}\u{1F1E6}',
+    'Spain':'\u{1F1EA}\u{1F1F8}','Italy':'\u{1F1EE}\u{1F1F9}','Mexico':'\u{1F1F2}\u{1F1FD}',
+    'Norway':'\u{1F1F3}\u{1F1F4}','Denmark':'\u{1F1E9}\u{1F1F0}','Finland':'\u{1F1EB}\u{1F1EE}',
+    'Belgium':'\u{1F1E7}\u{1F1EA}','Austria':'\u{1F1E6}\u{1F1F9}','Ireland':'\u{1F1EE}\u{1F1EA}',
+    'Portugal':'\u{1F1F5}\u{1F1F9}','Greece':'\u{1F1EC}\u{1F1F7}','Thailand':'\u{1F1F9}\u{1F1ED}',
+    'Indonesia':'\u{1F1EE}\u{1F1E9}','Malaysia':'\u{1F1F2}\u{1F1FE}',
+  };
+  const flag = FLAG_MAP[country] || '\u{1F30D}';
+
+  // Returns
+  const m1 = s.performance?.m1;
+  const m3 = s.performance?.m3;
+  const m1Str = m1 != null ? (m1 >= 0 ? '+' : '') + m1.toFixed(1) + '%' : '—';
+  const m3Str = m3 != null ? (m3 >= 0 ? '+' : '') + m3.toFixed(1) + '%' : '—';
+
+  // Warning signal count
+  const indVals = Object.values(ind);
+  const redCount = indVals.filter(i => i && i.color === 'red').length;
+  const warnWord = redCount === 1 ? 'warning signal' : 'warning signals';
+
+  // Trend sentence based on shortTrend + longTrend
+  const st = ind.shortTrend?.color || 'amber';
+  const lt = ind.longTrend?.color  || 'amber';
+  let trendSentence;
+  if (st === 'green' && lt === 'green') {
+    trendSentence = 'The price is above both its short-term and long-term averages \u2014 in a clear uptrend.';
+  } else if (st === 'green' && lt !== 'green') {
+    trendSentence = 'The price is recovering above its short-term average but still below its long-term average.';
+  } else if (st !== 'green' && lt === 'green') {
+    trendSentence = 'The price has dipped below its short-term average despite holding above its long-term average.';
+  } else if (st === 'red' && lt === 'red') {
+    trendSentence = 'The price is below both its short-term and long-term averages \u2014 in a clear downtrend.';
+  } else {
+    trendSentence = 'The price is trading around its moving averages \u2014 no clear trend.';
+  }
+
+  // Level emoji + caption
+  const mood = s.mood?.label || 'Level 3';
+  const LEVEL_EMOJI   = { 'Level 1':'\u{1F535}','Level 2':'\u{1F7E2}','Level 3':'\u{1F7E1}','Level 4':'\u{1F7E0}','Level 5':'\u{1F534}' };
+  const LEVEL_CAPTION = { 'Level 1':'Calm waters.','Level 2':'Looking steady.','Level 3':'Stay alert.','Level 4':'Move with caution.','Level 5':'High risk territory.' };
+  const moodEmoji   = LEVEL_EMOJI[mood]   || '\u{1F7E1}';
+  const moodCaption = LEVEL_CAPTION[mood]  || 'Stay alert.';
+
+  // Country hashtag (remove spaces)
+  const COUNTRY_HASHTAG = { 'United States':'US','United Kingdom':'UK','Hong Kong':'HongKong','South Korea':'SouthKorea','South Africa':'SouthAfrica','New Zealand':'NewZealand' };
+  const countryTag = COUNTRY_HASHTAG[country] || country.replace(/\s+/g, '');
+
   return [
-    `$${s.ticker} — ${s.company || exchLabelsMap[EXCHANGE] || EXCHANGE}`,
-    `Level: ${mood}  |  Price: ${priceFmt}`,
+    `\u{1F43C} Hunt of the Day \u00B7 ${flag}`,
     ``,
-    `Returns`,
-    `• 1M: ${ret1m}`,
-    `• 1Y: ${ret1y}`,
-    `• 5Y CAGR: ${cagr5y}`,
+    `${yTicker} | ${s.company || ''}`,
+    `${m1Str} this month, ${m3Str} over 3 months. ${redCount} ${warnWord}. ${trendSentence} ${mood} risk ${moodEmoji} ${moodCaption}`,
     ``,
-    `View on StockPanda: ${url}`,
-    `stockpanda.app`,
+    `#HuntOfTheDay #${countryTag} #Stocks`,
   ].join('\n');
 }
 
@@ -1181,9 +1251,9 @@ window.openShareModal = function openShareModal() {
   const actions = document.createElement('div');
   actions.className = 'share-actions';
 
-  const shareUrl  = `${location.origin}${location.pathname}?ticker=${encodeURIComponent(s.ticker)}&exchange=${encodeURIComponent(EXCHANGE)}`;
+  const shareUrl  = `${location.origin}${location.pathname}?ticker=${encodeURIComponent(s.ticker)}&country=${encodeURIComponent(s.country || '')}`;
   const shareText = buildShareText();
-  const xText     = `$${s.ticker} — ${s.mood?.label || 'Level 3'}. 1Y: ${ind.return1Y?.label||'—'} · 5Y CAGR: ${ind.cagr5Y?.label||'—'} via @StockPanda`;
+  const xText     = shareText;
 
   function makeBtn(icon, label) {
     const btn = document.createElement('button');
