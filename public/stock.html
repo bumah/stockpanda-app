@@ -492,7 +492,13 @@ function getYahooUrl(ticker, currency, country) {
   const key = `${currency}|${country}`;
   const suffix = YAHOO_SUFFIX[key];
   if (suffix === undefined) return null;
-  return `https://finance.yahoo.com/quote/${encodeURIComponent(ticker)}${suffix}`;
+  // Zero-pad numeric tickers to 4 digits for HK, China, Japan
+  let yTicker = ticker;
+  const PAD_COUNTRIES = ['Hong Kong', 'China', 'Japan'];
+  if (PAD_COUNTRIES.includes(country) && /^\d+$/.test(ticker) && ticker.length < 4) {
+    yTicker = ticker.padStart(4, '0');
+  }
+  return `https://finance.yahoo.com/quote/${encodeURIComponent(yTicker)}${suffix}`;
 }
 
 function renderCompanyInfo() {
