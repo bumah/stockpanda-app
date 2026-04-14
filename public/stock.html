@@ -214,6 +214,7 @@
   <!-- Action bar -->
   <div class="action-bar">
     <button class="share-btn" style="margin-top:0;" id="share-btn" onclick="openShareModal()">↗ Share</button>
+    <button class="share-btn" style="margin-top:0;" id="preview-btn" onclick="openPreviewCard()">👁 Preview</button>
     <button class="share-btn" style="margin-top:0;" id="pdf-btn" onclick="exportPDF()">⬇ PDF</button>
   </div>
 
@@ -1315,6 +1316,129 @@ window.openShareModal = function openShareModal() {
   modal.append(modalHd, card, actions);
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+};
+
+// ── Preview Card ─────────────────────────────────────────────────────────────
+window.openPreviewCard = function openPreviewCard() {
+  if (!stockData) return;
+  const s   = stockData;
+  const ind = s.indicators || {};
+  const perf = s.performance || {};
+  const ps  = s.presetScores || {};
+  const b   = MOOD.band(s.mood?.label || 'Level 3');
+
+  // Country flag
+  const FLAG_MAP = {
+    'United States':'\u{1F1FA}\u{1F1F8}','United Kingdom':'\u{1F1EC}\u{1F1E7}','Hong Kong':'\u{1F1ED}\u{1F1F0}',
+    'China':'\u{1F1E8}\u{1F1F3}','Japan':'\u{1F1EF}\u{1F1F5}','Germany':'\u{1F1E9}\u{1F1EA}',
+    'France':'\u{1F1EB}\u{1F1F7}','Canada':'\u{1F1E8}\u{1F1E6}','Australia':'\u{1F1E6}\u{1F1FA}',
+    'India':'\u{1F1EE}\u{1F1F3}','South Korea':'\u{1F1F0}\u{1F1F7}','Brazil':'\u{1F1E7}\u{1F1F7}',
+    'Switzerland':'\u{1F1E8}\u{1F1ED}','Sweden':'\u{1F1F8}\u{1F1EA}','Netherlands':'\u{1F1F3}\u{1F1F1}',
+    'Singapore':'\u{1F1F8}\u{1F1EC}','Taiwan':'\u{1F1F9}\u{1F1FC}','South Africa':'\u{1F1FF}\u{1F1E6}',
+    'Spain':'\u{1F1EA}\u{1F1F8}','Italy':'\u{1F1EE}\u{1F1F9}','Mexico':'\u{1F1F2}\u{1F1FD}',
+    'Norway':'\u{1F1F3}\u{1F1F4}','Denmark':'\u{1F1E9}\u{1F1F0}','Finland':'\u{1F1EB}\u{1F1EE}',
+    'Belgium':'\u{1F1E7}\u{1F1EA}','Austria':'\u{1F1E6}\u{1F1F9}','Ireland':'\u{1F1EE}\u{1F1EA}',
+    'Portugal':'\u{1F1F5}\u{1F1F9}','Greece':'\u{1F1EC}\u{1F1F7}','Thailand':'\u{1F1F9}\u{1F1ED}',
+    'Indonesia':'\u{1F1EE}\u{1F1E9}','Malaysia':'\u{1F1F2}\u{1F1FE}',
+  };
+  const flag = FLAG_MAP[s.country] || '\u{1F30D}';
+
+  // Signal counting from indicators
+  const IND_KEYS = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
+  let sigG = 0, sigA = 0, sigR = 0;
+  IND_KEYS.forEach(k => {
+    const c = ind[k]?.color || 'amber';
+    if (c === 'green') sigG++;
+    else if (c === 'red') sigR++;
+    else sigA++;
+  });
+
+  // Returns helper
+  function ret(label, val) {
+    if (val == null) return '<div class="dc-ret"><span class="dc-ret-label">' + label + '</span><span class="dc-ret-val" style="color:var(--muted);">\u2014</span></div>';
+    const cls = val >= 0 ? 'pos' : 'neg';
+    const sign = val >= 0 ? '+' : '';
+    return '<div class="dc-ret"><span class="dc-ret-label">' + label + '</span><span class="dc-ret-val ' + cls + '">' + sign + val.toFixed(1) + '%</span></div>';
+  }
+
+  // Hearts helper
+  function hearts(pct) {
+    const n = pct >= 90 ? 5 : pct >= 70 ? 4 : pct >= 50 ? 3 : pct >= 30 ? 2 : 1;
+    const col = n >= 4 ? '#4ADE80' : n >= 3 ? '#FBBF24' : '#F87171';
+    let h = '';
+    for (let i = 0; i < 5; i++) {
+      h += '<span style="font-size:0.65rem;color:' + (i < n ? col : 'rgba(255,255,255,0.12)') + ';">' + (i < n ? '\u2665' : '\u2661') + '</span>';
+    }
+    return '<span class="dc-style-hearts">' + h + '</span>';
+  }
+
+  // Styles — top 3 + worst
+  const STYLE_ICONS = { optimistic:'\u{1F407}', nimble:'\u26A1', momentum:'\u{1F680}', pack:'\u{1F43A}', patient:'\u{1F9D8}', safe:'\u{1F6E1}\uFE0F', trophy:'\u{1F3C6}', wild_beast:'\u{1F9EC}', zombie:'\u{1F9DF}' };
+  const STYLE_NAMES = { optimistic:'Optimistic', nimble:'Nimble', momentum:'Momentum', pack:'Pack', patient:'Patient', safe:'Careful', trophy:'Trophy', wild_beast:'Wild Beast', zombie:'Zombie' };
+  const sorted = Object.entries(ps).map(([k, v]) => [k, v?.pct ?? 0]).sort((a, b) => b[1] - a[1]);
+  const top3 = sorted.slice(0, 3);
+  const worst = sorted[sorted.length - 1];
+  let styleRows = top3.map(e =>
+    '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[e[0]] || '') + '</span><span class="dc-style-name">' + (STYLE_NAMES[e[0]] || e[0]) + '</span>' + hearts(e[1]) + '</div>'
+  ).join('');
+  if (worst && worst[0] !== top3[top3.length - 1]?.[0]) {
+    styleRows += '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[worst[0]] || '') + '</span><span class="dc-style-name">' + (STYLE_NAMES[worst[0]] || worst[0]) + '</span>' + hearts(worst[1]) + '</div>';
+  }
+
+  // Escape helper
+  function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+
+  // Build card HTML
+  const cardHtml =
+    '<div class="discover-card" style="max-width:400px;margin:0 auto;">' +
+      '<div class="dc-split"><div class="dc-split-left">' +
+        '<div class="dc-ticker">' + esc(s.ticker) + '</div>' +
+        '<div class="dc-company">' + esc(s.company || '\u2014') + '</div>' +
+        '<div class="dc-country-plain">' + flag + ' ' + esc(s.country || '') + (s.sector ? ' \u00B7 ' + esc(s.sector) : '') + '</div>' +
+      '</div><div class="dc-split-right">' +
+        '<div class="dc-panda" style="display:flex;align-items:center;justify-content:center;font-size:2.2rem;">\u{1F43C}</div>' +
+        '<span class="dc-level-label">Panda Level</span>' +
+        '<span class="mood-chip ' + b.cls + '">' + b.label + '</span>' +
+      '</div></div>' +
+      '<div class="dc-returns" style="margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--border);">' +
+        ret('1M', perf.m1) + ret('3M', perf.m3) + ret('1Y', perf.y1) + ret('5Y', perf.y5) +
+      '</div>' +
+      '<div class="dc-section"><div class="dc-section-label">Signals</div><div class="dc-sig-list">' +
+        (sigG > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot green"></span><span class="dc-sig-count green">' + sigG + '</span> Positive</div>' : '') +
+        (sigA > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot amber"></span><span class="dc-sig-count amber">' + sigA + '</span> Cautionary</div>' : '') +
+        (sigR > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot red"></span><span class="dc-sig-count red">' + sigR + '</span> Warning</div>' : '') +
+      '</div></div>' +
+      '<div class="dc-section"><div class="dc-section-label">Styles</div><div class="dc-style-list">' + styleRows + '</div></div>' +
+      '<div style="text-align:center;margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--border);font-size:0.6rem;color:var(--muted);font-family:var(--mono);letter-spacing:0.5px;">stockpanda.app</div>' +
+    '</div>';
+
+  // Build overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'share-overlay';
+  overlay.id = 'preview-overlay';
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+
+  const modal = document.createElement('div');
+  modal.className = 'share-modal';
+  modal.style.maxWidth = '440px';
+  modal.style.padding = '1.25rem';
+
+  // Close button
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'share-close';
+  closeBtn.textContent = '\u2715';
+  closeBtn.style.cssText = 'position:absolute;top:0.75rem;right:0.75rem;z-index:1;';
+  closeBtn.addEventListener('click', () => overlay.remove());
+
+  modal.style.position = 'relative';
+  modal.appendChild(closeBtn);
+  modal.insertAdjacentHTML('beforeend', cardHtml);
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  // Re-init Lucide icons inside the card (if any)
+  if (window.lucide) lucide.createIcons();
 };
 
 // ── PDF Export ────────────────────────────────────────────────────────────────
