@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockPanda — Hunt Different</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-sp">Stock</span><span class="nav-logo-rest">Panda</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link active" href="index.html">Home</a>
+    <a class="nav-link" href="finder.html">Hunt</a>
+    <a class="nav-link" href="watchlist.html">Catch</a>
+    <div class="nav-dropdown">
+      <button class="nav-link nav-dropdown-trigger">Tools <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
+      <div class="nav-dropdown-menu">
+        <a class="nav-dropdown-item" href="quiz.html">Pro Hunt</a>
+        <a class="nav-dropdown-item" href="stocks.html">Scan</a>
+        <a class="nav-dropdown-item" href="summary.html">Brief</a>
+      </div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a href="manifesto.html" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;">Manifesto</a>
+    <a href="#" onclick="event.preventDefault();openProModal()" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;color:var(--green);font-weight:600;">StockPanda Pro</a>
+    <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;" title="Contact"><i data-lucide="mail" style="width:18px;height:18px;"></i></a>
+    <div class="nav-stamp">Data: <span>—</span></div>
+  </div>
+</nav>
+<div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
+<div class="tools-popover" id="toolsPopover">
+  <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
+  <a href="stocks.html" class="tools-popover-item"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
+  <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
+</div>
+<nav class="nav-bottom">
+  <a href="index.html" class="active"><i data-lucide="house" class="nb-icon"></i>Home</a>
+  <a href="finder.html"><i data-lucide="eye" class="nb-icon"></i>Hunt</a>
+  <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Catch</a>
+  <a href="#" onclick="event.preventDefault();toggleToolsPopover()"><i data-lucide="wrench" class="nb-icon"></i>Tools</a>
+</nav>
+<script>
+function toggleToolsPopover(){
+  var p=document.getElementById('toolsPopover'),b=document.getElementById('toolsBackdrop');
+  if(p.classList.contains('open')){p.classList.remove('open');b.classList.remove('open');}
+  else{p.classList.add('open');b.classList.add('open');}
+}
+function closeToolsPopover(){
+  document.getElementById('toolsPopover').classList.remove('open');
+  document.getElementById('toolsBackdrop').classList.remove('open');
+}
+</script>
+
+<div class="main">
+  <div class="finder-wrap" style="max-width:900px;">
+
+    <!-- ── Hero ─────────────────────────────────────────────── -->
+    <div class="finder-hero" style="border-bottom:none; padding-bottom:1rem;">
+      <div class="hero-eyebrow">The simple way to hunt stocks. <a href="manifesto.html" style="color:var(--green);text-decoration:underline;text-underline-offset:2px;">Read our manifesto</a></div>
+      <h1 class="finder-hero-h1">Hunt stocks by your <span id="finder-word">taste.</span></h1>
+      <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-top:0.5rem;">
+        <button class="finder-cta-btn" onclick="window.location.href='finder.html'">Get started &rarr;</button>
+        <button class="finder-cta-btn" style="background:transparent;color:var(--green);border:1.5px solid var(--green);" onclick="openSearchModal()">Search stock</button>
+      </div>
+    </div>
+
+    <!-- ── Why StockPanda pillars ──────────────────────────── -->
+    <div class="finder-pillars">
+      <div style="font-family:var(--mono);font-size:0.58rem;text-transform:uppercase;letter-spacing:0.14em;color:var(--muted);margin-bottom:0.4rem;">Why become a StockPanda</div>
+      <h2 class="pillars-headline">Spot opportunities and dangers more easily.</h2>
+      <div class="pillars-grid">
+        <div class="pillar-card">
+          <div class="pillar-icon">🌍</div>
+          <div class="pillar-title">Hunt globally</div>
+          <div class="pillar-desc">Scan stocks everywhere — no limits, no stress</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-icon">⚡</div>
+          <div class="pillar-title">Hunt quickly</div>
+          <div class="pillar-desc">Find opportunities in seconds, not hours</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-icon">🧠</div>
+          <div class="pillar-title">Hunt intelligently</div>
+          <div class="pillar-desc">Set your trap. Let the right ones come to you</div>
+        </div>
+        <div class="pillar-card">
+          <div class="pillar-icon">🛡️</div>
+          <div class="pillar-title">Hunt carefully</div>
+          <div class="pillar-desc">Spot hidden dangers before they catch you</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Hunt your way ─────────────────────────────────────── -->
+    <div class="qf-wrap" style="margin-top:2.5rem;">
+      <div class="qf-label">Hunt your way</div>
+      <div class="qf-sub">Choose your hunting mode and review your catches.</div>
+      <div class="pillars-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <a class="pillar-card" href="finder.html" style="text-decoration:none;color:inherit;cursor:pointer;">
+          <div class="pillar-icon">🔍</div>
+          <div class="pillar-title">Hunt</div>
+          <div class="pillar-desc">Pick a territory, style, and level. We'll find matching stocks instantly.</div>
+        </a>
+        <a class="pillar-card" href="quiz.html" style="text-decoration:none;color:inherit;cursor:pointer;">
+          <div class="pillar-icon">🎯</div>
+          <div class="pillar-title">Pro Hunt</div>
+          <div class="pillar-desc">Answer quick questions about your preferences. We'll score every stock against your criteria.</div>
+        </a>
+        <a class="pillar-card" href="stocks.html" style="text-decoration:none;color:inherit;cursor:pointer;">
+          <div class="pillar-icon">📊</div>
+          <div class="pillar-title">Scan</div>
+          <div class="pillar-desc">Scan the full universe of 30,000+ stocks with filters, sorting, and style scores.</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Hunt by level ──────────────────────────────────── -->
+    <div class="qf-wrap" style="margin-top:2.5rem;">
+      <div class="qf-label">Choose your risk level</div>
+      <div class="qf-sub">What level of risk can you handle? Choose the level that matches your experience.</div>
+      <div class="level-grid">
+        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','1')" style="text-decoration:none;">
+          <img src="assets/img/panda-vcalm.png" alt="Level 1" />
+          <div class="level-card-name" style="color:#60A5FA;">Level 1</div>
+          <div class="level-card-desc">I'm comfortable with steady, stable stocks.</div>
+        </a>
+        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','2')" style="text-decoration:none;">
+          <img src="assets/img/panda-calm.png" alt="Level 2" />
+          <div class="level-card-name" style="color:#4ADE80;">Level 2</div>
+          <div class="level-card-desc">I'm comfortable with stable stocks that have mild movement.</div>
+        </a>
+        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','3')" style="text-decoration:none;">
+          <img src="assets/img/panda-unsettled.png" alt="Level 3" />
+          <div class="level-card-name" style="color:#FBBF24;">Level 3</div>
+          <div class="level-card-desc">I can handle faster-moving stocks that require timing.</div>
+        </a>
+        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','4')" style="text-decoration:none;">
+          <img src="assets/img/panda-stressed.png" alt="Level 4" />
+          <div class="level-card-name" style="color:#FB923C;">Level 4</div>
+          <div class="level-card-desc">I can handle higher-risk stocks that are unpredictable.</div>
+        </a>
+        <a class="level-card" href="#" onclick="event.preventDefault(); chooseRoute('level','5')" style="text-decoration:none;">
+          <img src="assets/img/panda-danger.png" alt="Level 5" />
+          <div class="level-card-name" style="color:#F87171;">Level 5</div>
+          <div class="level-card-desc">I can handle highly volatile stocks that can turn sharply.</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Hunt by style ──────────────────────────────────── -->
+    <div class="qf-wrap" style="margin-top:2.5rem;">
+      <div class="qf-label">Choose your style</div>
+      <div class="qf-sub">How do you hunt? Choose a style that matches how you find opportunities.</div>
+      <div class="qf-grid">
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','optimistic')">
+          <div class="qfc-top"><span class="qfc-icon">🐇</span><span class="qfc-name">Optimistic</span></div>
+          <div class="qfc-desc">Turnaround stocks starting to recover after a rough patch.</div>
+        </a>
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','nimble')">
+          <div class="qfc-top"><span class="qfc-icon">⚡</span><span class="qfc-name">Nimble</span></div>
+          <div class="qfc-desc">Targets early breakouts with strong participation.</div>
+        </a>
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','momentum')">
+          <div class="qfc-top"><span class="qfc-icon">🚀</span><span class="qfc-name">Momentum</span></div>
+          <div class="qfc-desc">Stocks in sustained uptrends across multiple timeframes.</div>
+        </a>
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','pack')">
+          <div class="qfc-top"><span class="qfc-icon">🐺</span><span class="qfc-name">Pack</span></div>
+          <div class="qfc-desc">Follows institutional flows and consensus sentiment.</div>
+        </a>
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','patient')">
+          <div class="qfc-top"><span class="qfc-icon">🧘</span><span class="qfc-name">Patient</span></div>
+          <div class="qfc-desc">High-quality stocks consolidating before a breakout.</div>
+        </a>
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','safe')">
+          <div class="qfc-top"><span class="qfc-icon">🛡️</span><span class="qfc-name">Careful</span></div>
+          <div class="qfc-desc">Stable, low-risk companies with strong balance sheets.</div>
+        </a>
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','trophy')">
+          <div class="qfc-top"><span class="qfc-icon">🏆</span><span class="qfc-name">Trophy</span></div>
+          <div class="qfc-desc">Proven long-term winners with strong earnings.</div>
+        </a>
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','wild_beast')">
+          <div class="qfc-top"><span class="qfc-icon">🧬</span><span class="qfc-name">Wild Beast</span></div>
+          <div class="qfc-desc">High-volatility assets with extreme upside potential.</div>
+        </a>
+        <a class="qf-card" href="#" onclick="event.preventDefault(); chooseRoute('style','zombie')">
+          <div class="qfc-top"><span class="qfc-icon">🧟</span><span class="qfc-name">Zombie</span></div>
+          <div class="qfc-desc">Beaten-down stocks showing early signs of revival.</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Hunt by territory ──────────────────────────────── -->
+    <div id="territory-section" class="qf-wrap" style="margin-top:2.5rem;">
+      <div class="qf-label">Choose your territory</div>
+      <div class="qf-sub">Where do you want to hunt? Choose your market and start finding stocks.</div>
+      <div class="territory-grid">
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','us')">
+          <div class="territory-flag">🇺🇸</div>
+          <div class="territory-name">United States</div>
+          <div class="territory-desc">The world's largest market — home to tech giants, blue chips, and high-growth innovators.</div>
+        </a>
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','uk')">
+          <div class="territory-flag">🇬🇧</div>
+          <div class="territory-name">United Kingdom</div>
+          <div class="territory-desc">London's financial hub — strong in banking, energy, and consumer goods.</div>
+        </a>
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','germany')">
+          <div class="territory-flag">🇩🇪</div>
+          <div class="territory-name">Germany</div>
+          <div class="territory-desc">Europe's largest economy — automotive, industrial, and tech powerhouses.</div>
+        </a>
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','france')">
+          <div class="territory-flag">🇫🇷</div>
+          <div class="territory-name">France</div>
+          <div class="territory-desc">Luxury, aerospace, energy, and financial leaders.</div>
+        </a>
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','japan')">
+          <div class="territory-flag">🇯🇵</div>
+          <div class="territory-name">Japan</div>
+          <div class="territory-desc">Asia's most mature market — precision manufacturing, tech, and automotive giants.</div>
+        </a>
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','hk')">
+          <div class="territory-flag">🇭🇰</div>
+          <div class="territory-name">Hong Kong</div>
+          <div class="territory-desc">Gateway to China — mainland giants and regional financial players.</div>
+        </a>
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','china')">
+          <div class="territory-flag">🇨🇳</div>
+          <div class="territory-name">China</div>
+          <div class="territory-desc">Fast-moving tech, e-commerce, and manufacturing.</div>
+        </a>
+        <a class="territory-card" href="#" onclick="event.preventDefault(); chooseRoute('region','india')">
+          <div class="territory-flag">🇮🇳</div>
+          <div class="territory-name">India</div>
+          <div class="territory-desc">Rapidly growing economy — IT, pharma, and financial services.</div>
+        </a>
+      </div>
+    </div>
+
+
+  </div>
+</div>
+
+<!-- ── Search Modal ───────────────────────────────────────── -->
+<div id="search-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(5px); z-index:1200; align-items:flex-start; justify-content:center; padding-top:15vh;">
+  <div style="background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:1.5rem; width:min(440px,92vw);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;font-style:italic;color:var(--parchment);">Search stock</div>
+      <button onclick="closeSearchModal()" style="background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:0 4px;">✕</button>
+    </div>
+    <input id="search-modal-input" type="text" placeholder="Type a ticker or company name…" autocomplete="off"
+      style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.9rem;border-radius:8px;font-size:0.88rem;font-family:var(--font);outline:none;box-sizing:border-box;" />
+    <div id="search-modal-results" style="margin-top:0.5rem;max-height:300px;overflow-y:auto;"></div>
+  </div>
+</div>
+
+
+<script src="assets/js/mood.js"></script>
+<script>
+'use strict';
+injectSidebarHTML();
+initNavStamp();
+
+// ── Search modal ──────────────────────────────────────────────
+function openSearchModal() {
+  document.getElementById('search-modal').style.display = 'flex';
+  const inp = document.getElementById('search-modal-input');
+  inp.value = '';
+  document.getElementById('search-modal-results').innerHTML = '';
+  setTimeout(() => inp.focus(), 100);
+}
+function closeSearchModal() {
+  document.getElementById('search-modal').style.display = 'none';
+}
+document.getElementById('search-modal').addEventListener('click', e => {
+  if (e.target.id === 'search-modal') closeSearchModal();
+});
+(function() {
+  const inp = document.getElementById('search-modal-input');
+  const res = document.getElementById('search-modal-results');
+  let timer;
+  inp.addEventListener('input', () => {
+    clearTimeout(timer);
+    const q = inp.value.trim();
+    if (q.length < 1) { res.innerHTML = ''; return; }
+    res.innerHTML = '<div style="padding:0.6rem;color:var(--muted);font-size:0.82rem;">Searching…</div>';
+    timer = setTimeout(async () => {
+      const hits = await DataCache.searchAll(q);
+      if (inp.value.trim() !== q) return; // stale
+      if (!hits.length) {
+        res.innerHTML = '<div style="padding:0.6rem;color:var(--muted);font-size:0.82rem;">No results found</div>';
+      } else {
+        res.innerHTML = hits.slice(0, 8).map(s => {
+          const b = MOOD.band(s.mood?.label || 'Level 3');
+          return `<a href="stock.html?ticker=${encodeURIComponent(s.ticker)}&country=${encodeURIComponent(s.country || '')}" style="display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.6rem;text-decoration:none;border-bottom:1px solid var(--border);transition:background 0.1s;">
+            <div style="width:28px;height:28px;flex-shrink:0;" class="panda-wrap"><img class="panda-img" src="assets/img/${b.img}" alt="${b.label}" style="width:100%;height:100%;" /></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-family:var(--mono);font-weight:700;font-size:0.82rem;color:var(--green);">${esc(s.ticker)}</div>
+              <div style="font-size:0.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(s.company || '')}</div>
+            </div>
+            <div style="font-size:0.65rem;color:var(--muted);flex-shrink:0;">${esc(s.exchangeLabel || '')}</div>
+          </a>`;
+        }).join('');
+      }
+    }, 200);
+  });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeSearchModal();
+  });
+})();
+
+// ── Direct route to finder ────────────────────────────────────
+function chooseRoute(type, value) {
+  if (type === 'region') window.location.href = 'stocks.html?market=' + value;
+  else if (type === 'style') window.location.href = 'stocks.html?style=' + value;
+  else if (type === 'level') window.location.href = 'stocks.html?level=' + value;
+}
+
+// Rotating word in hero
+(function() {
+  const words = ['taste.', 'style.', 'level.'];
+  let idx = 0;
+  const el = document.getElementById('finder-word');
+  if (!el) return;
+  setInterval(() => {
+    el.classList.add('fade-out');
+    setTimeout(() => {
+      idx = (idx + 1) % words.length;
+      el.textContent = words[idx];
+      el.classList.remove('fade-out');
+      el.classList.add('fade-in');
+      setTimeout(() => el.classList.remove('fade-in'), 350);
+    }, 320);
+  }, 2600);
+})();
+</script>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
