@@ -87,10 +87,15 @@
   <div class="nav-links">
     <a class="nav-link" href="index.html">Home</a>
     <a class="nav-link" href="finder.html">Hunt</a>
-    <a class="nav-link" href="quiz.html">Pro Hunt</a>
     <a class="nav-link" href="watchlist.html">Catch</a>
-    <a class="nav-link" href="stocks.html">Scan</a>
-    <a class="nav-link" href="summary.html">Brief</a>
+    <div class="nav-dropdown">
+      <button class="nav-link nav-dropdown-trigger">Tools <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
+      <div class="nav-dropdown-menu">
+        <a class="nav-dropdown-item" href="quiz.html">Pro Hunt</a>
+        <a class="nav-dropdown-item" href="stocks.html">Scan</a>
+        <a class="nav-dropdown-item" href="summary.html">Brief</a>
+      </div>
+    </div>
   </div>
   <div class="nav-right">
     <a href="manifesto.html" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;">Manifesto</a>
@@ -99,14 +104,29 @@
     <div class="nav-stamp">Data: <span>—</span></div>
   </div>
 </nav>
+<div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
+<div class="tools-popover" id="toolsPopover">
+  <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
+  <a href="stocks.html" class="tools-popover-item"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
+  <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
+</div>
 <nav class="nav-bottom">
   <a href="index.html"><i data-lucide="house" class="nb-icon"></i>Home</a>
   <a href="finder.html"><i data-lucide="eye" class="nb-icon"></i>Hunt</a>
-  <a href="quiz.html"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
   <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Catch</a>
-  <a href="stocks.html"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
-  <a href="summary.html"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
+  <a href="#" onclick="event.preventDefault();toggleToolsPopover()"><i data-lucide="wrench" class="nb-icon"></i>Tools</a>
 </nav>
+<script>
+function toggleToolsPopover(){
+  var p=document.getElementById('toolsPopover'),b=document.getElementById('toolsBackdrop');
+  if(p.classList.contains('open')){p.classList.remove('open');b.classList.remove('open');}
+  else{p.classList.add('open');b.classList.add('open');}
+}
+function closeToolsPopover(){
+  document.getElementById('toolsPopover').classList.remove('open');
+  document.getElementById('toolsBackdrop').classList.remove('open');
+}
+</script>
 
 <div class="main">
   <div class="mf-wrap">

@@ -119,10 +119,56 @@ input, select { font-family: var(--font); }
   display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;
 }
 
+/* Nav Tools dropdown (desktop) */
+.nav-dropdown { position: relative; }
+button.nav-dropdown-trigger {
+  font-size: 0.85rem; color: var(--muted); font-weight: 500;
+  padding: 4px 0; border: none; border-bottom: 2px solid transparent;
+  background: none; font-family: var(--font);
+  transition: color 0.15s, border-color 0.15s; cursor: pointer;
+  text-decoration: none; display: flex; align-items: center; gap: 4px;
+}
+.nav-dropdown-trigger:hover { color: var(--brand); }
+.nav-dropdown .nav-arrow { font-size: 0.7em; }
+.nav-dropdown-menu {
+  display: none; position: absolute; top: calc(100% + 12px); right: 0;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); min-width: 160px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5); z-index: 300;
+  padding: 6px 0;
+}
+.nav-dropdown:hover .nav-dropdown-menu { display: block; }
+.nav-dropdown-menu a {
+  display: block; padding: 8px 20px; color: var(--muted);
+  text-decoration: none; font-size: 0.85rem; font-weight: 500;
+  transition: color 0.15s, background 0.15s;
+}
+.nav-dropdown-menu a:hover { color: var(--brand); background: rgba(74,222,128,0.06); }
+
 /* ── Bottom nav (mobile only) ──────────────────────────────────────────────── */
 .nav-bottom {
   display: none !important;
 }
+/* Mobile tools popover */
+.tools-popover-backdrop {
+  display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 299;
+}
+.tools-popover-backdrop.open { display: block; }
+.tools-popover {
+  display: none; position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%);
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 6px 0; min-width: 170px;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.5); z-index: 350;
+}
+.tools-popover.open { display: block; }
+.tools-popover a {
+  display: flex; align-items: center; gap: 10px; padding: 10px 22px; color: var(--muted);
+  text-decoration: none; font-size: 0.85rem; font-weight: 500;
+  transition: color 0.15s, background 0.15s;
+}
+.tools-popover a .nb-icon { width: 18px; height: 18px; stroke-width: 1.8; }
+.tools-popover a:hover { color: var(--brand); background: rgba(74,222,128,0.06); }
+
 @media (max-width: 768px) {
   .nav-bottom {
     display: flex !important; position: fixed; bottom: 0; left: 0; right: 0; z-index: 300;
@@ -135,7 +181,7 @@ input, select { font-family: var(--font); }
     display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
     text-decoration: none; color: var(--muted); font-size: 0.58rem;
     font-weight: 500; padding: 0.2rem 0.4rem; transition: color 0.15s;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: transparent; cursor: pointer;
   }
   .nav-bottom a .nb-icon { width: 20px; height: 20px; stroke-width: 1.8; }
   .nav-bottom a.active { color: var(--brand); }
