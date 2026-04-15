@@ -5,19 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StockPanda — Your Entry to Investing</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
 <style>
 :root {
   --bg-primary: #0a0f0a;
   --bg-card: #111a11;
   --bg-card-hover: #162016;
-  --green-primary: #2ecc71;
+  --green-primary: #4ADE80;
   --green-dim: #1a7a42;
-  --green-glow: rgba(46, 204, 113, 0.15);
+  --green-glow: rgba(74, 222, 128, 0.15);
   --text-primary: #e8f0e8;
   --text-secondary: #8a9f8a;
   --text-dim: #5a6f5a;
-  --border: rgba(46, 204, 113, 0.12);
-  --border-bright: rgba(46, 204, 113, 0.25);
+  --border: rgba(74, 222, 128, 0.12);
+  --border-bright: rgba(74, 222, 128, 0.25);
   --orange-warning: #e67e22;
   --red-danger: #e74c3c;
 }
@@ -50,176 +51,7 @@ body::before {
   z-index: 1;
 }
 
-/* ─── NAV ─── */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  background: rgba(10, 15, 10, 0.85);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  padding: 16px 0;
-}
-
-nav .container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  font-family: 'Space Mono', monospace;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text-primary);
-  text-decoration: none;
-  letter-spacing: -0.5px;
-}
-
-.logo span { color: var(--green-primary); }
-
-.nav-links { display: flex; gap: 28px; align-items: center; }
-
-.nav-links a {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: color 0.3s;
-}
-
-.nav-links a:hover { color: var(--green-primary); }
-
-/* ─── DESKTOP DROPDOWN ─── */
-.nav-dropdown { position: relative; }
-
-.nav-dropdown-trigger {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.nav-dropdown-trigger:hover { color: var(--green-primary); }
-.nav-arrow { font-size: 10px; margin-left: 2px; }
-
-.nav-dropdown-menu {
-  display: none;
-  position: absolute;
-  top: calc(100% + 12px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--bg-card);
-  border: 1px solid var(--border-bright);
-  border-radius: 10px;
-  padding: 8px 0;
-  min-width: 160px;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
-  z-index: 200;
-}
-
-.nav-dropdown-menu a {
-  display: block;
-  padding: 10px 20px;
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.nav-dropdown-menu a:hover {
-  color: var(--green-primary);
-  background: var(--bg-card-hover);
-}
-
-.nav-dropdown:hover .nav-dropdown-menu { display: block; }
-
-/* ─── MOBILE BOTTOM NAV ─── */
-.mobile-nav {
-  display: none;
-  position: fixed;
-  top: auto; bottom: 0; left: 0; right: 0;
-  z-index: 100;
-  background: rgba(10, 15, 10, 0.95);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border);
-  border-bottom: none;
-  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
-}
-
-.mobile-nav-links {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-}
-
-.mobile-nav-links > a,
-.mobile-nav-links > .mobile-tools-trigger {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  color: var(--text-dim);
-  text-decoration: none;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 4px 12px;
-  transition: color 0.2s;
-  cursor: pointer;
-  background: none;
-  border: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.mobile-nav-links > a:hover,
-.mobile-nav-links > .mobile-tools-trigger:hover { color: var(--green-primary); }
-
-.mobile-nav-links .mn-icon { font-size: 20px; line-height: 1; }
-
-/* Mobile tools popover */
-.mobile-tools-popover {
-  display: none;
-  position: fixed;
-  bottom: 64px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--bg-card);
-  border: 1px solid var(--border-bright);
-  border-radius: 12px;
-  padding: 8px 0;
-  min-width: 180px;
-  box-shadow: 0 -8px 32px rgba(0,0,0,0.5);
-  z-index: 200;
-}
-
-.mobile-tools-popover.open { display: block; }
-
-.mobile-tools-popover a {
-  display: block;
-  padding: 12px 24px;
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 15px;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.mobile-tools-popover a:hover {
-  color: var(--green-primary);
-  background: var(--bg-card-hover);
-}
-
-.mobile-tools-backdrop {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 199;
-}
-
-.mobile-tools-backdrop.open { display: block; }
+/* Nav handled by styles.css */
 
 /* ─── HERO ─── */
 .hero {
@@ -843,8 +675,8 @@ footer a:hover { color: var(--green-primary); }
   .hunt-intro-grid { grid-template-columns: 1fr; }
   .simple-grid { grid-template-columns: 1fr; }
   .pro-grid { grid-template-columns: 1fr; }
-  .nav-links { display: none; }
-  .mobile-nav { display: block; }
+  .nav { display: none; }
+  .nav-bottom { display: flex !important; }
   body { padding-bottom: 72px; }
 }
 
@@ -860,24 +692,41 @@ footer a:hover { color: var(--green-primary); }
 <body>
 
 <!-- NAV -->
-<nav>
-  <div class="container">
-    <a href="index.html" class="logo"><span>Stock</span>Panda</a>
-    <div class="nav-links">
-      <a href="index.html" class="active">Home</a>
-      <a href="finder.html">Hunt</a>
-      <a href="watchlist.html">Catch</a>
-      <div class="nav-dropdown">
-        <a href="#" class="nav-dropdown-trigger">Tools <span class="nav-arrow">▾</span></a>
-        <div class="nav-dropdown-menu">
-          <a href="stocks.html">Search</a>
-          <a href="quiz.html">Pro Hunt</a>
-          <a href="stocks.html">Scan</a>
-          <a href="summary.html">Brief</a>
-        </div>
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-sp">Stock</span><span class="nav-logo-rest">Panda</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link active" href="index.html">Home</a>
+    <a class="nav-link" href="finder.html">Hunt</a>
+    <a class="nav-link" href="watchlist.html">Catch</a>
+    <div class="nav-dropdown">
+      <button class="nav-link nav-dropdown-trigger">Tools <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
+      <div class="nav-dropdown-menu">
+        <a class="nav-dropdown-item" href="quiz.html">Pro Hunt</a>
+        <a class="nav-dropdown-item" href="stocks.html">Scan</a>
+        <a class="nav-dropdown-item" href="summary.html">Brief</a>
       </div>
     </div>
   </div>
+  <div class="nav-right">
+    <a href="manifesto.html" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;">Manifesto</a>
+    <a href="#" onclick="event.preventDefault();openProModal()" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;color:var(--brand);font-weight:600;">StockPanda Pro</a>
+    <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;" title="Contact"><i data-lucide="mail" style="width:18px;height:18px;"></i></a>
+    <div class="nav-stamp">Data: <span>&mdash;</span></div>
+  </div>
+</nav>
+<div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
+<div class="tools-popover" id="toolsPopover">
+  <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
+  <a href="stocks.html" class="tools-popover-item"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
+  <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
+</div>
+<nav class="nav-bottom">
+  <a href="index.html" class="active"><i data-lucide="house" class="nb-icon"></i>Home</a>
+  <a href="finder.html"><i data-lucide="eye" class="nb-icon"></i>Hunt</a>
+  <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Catch</a>
+  <a href="#" onclick="event.preventDefault();toggleToolsPopover()"><i data-lucide="wrench" class="nb-icon"></i>Tools</a>
 </nav>
 
 <!-- ═══════════════════════════════════════ -->
@@ -1023,17 +872,7 @@ footer a:hover { color: var(--green-primary); }
         <div class="scroll-row">
           <div class="level-card level-1">
             <div class="panda-face">
-              <svg class="panda-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="32" cy="32" r="28" fill="#1a1a1a" stroke="#333" stroke-width="2"/>
-                <circle cx="18" cy="18" r="8" fill="#111"/>
-                <circle cx="46" cy="18" r="8" fill="#111"/>
-                <circle cx="20" cy="26" r="7" fill="#e8f0e8"/>
-                <circle cx="44" cy="26" r="7" fill="#e8f0e8"/>
-                <circle cx="20" cy="26" r="3.5" fill="#2ecc71"/>
-                <circle cx="44" cy="26" r="3.5" fill="#2ecc71"/>
-                <ellipse cx="32" cy="38" rx="5" ry="3" fill="#333"/>
-                <path d="M24 44 Q32 50 40 44" stroke="#2ecc71" stroke-width="2" fill="none" stroke-linecap="round"/>
-              </svg>
+              <img src="assets/img/panda-vcalm.png" alt="Very Calm Panda" class="panda-svg">
             </div>
             <span class="level-badge">Level 1</span>
             <h4>Very Calm</h4>
@@ -1041,17 +880,7 @@ footer a:hover { color: var(--green-primary); }
           </div>
           <div class="level-card level-2">
             <div class="panda-face">
-              <svg class="panda-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="32" cy="32" r="28" fill="#1a1a1a" stroke="#333" stroke-width="2"/>
-                <circle cx="18" cy="18" r="8" fill="#111"/>
-                <circle cx="46" cy="18" r="8" fill="#111"/>
-                <circle cx="20" cy="26" r="7" fill="#e8f0e8"/>
-                <circle cx="44" cy="26" r="7" fill="#e8f0e8"/>
-                <circle cx="20" cy="26" r="3.5" fill="#7ec89f"/>
-                <circle cx="44" cy="26" r="3.5" fill="#7ec89f"/>
-                <ellipse cx="32" cy="38" rx="5" ry="3" fill="#333"/>
-                <path d="M26 44 Q32 48 38 44" stroke="#7ec89f" stroke-width="2" fill="none" stroke-linecap="round"/>
-              </svg>
+              <img src="assets/img/panda-calm.png" alt="Calm Panda" class="panda-svg">
             </div>
             <span class="level-badge">Level 2</span>
             <h4>Calm</h4>
@@ -1059,17 +888,7 @@ footer a:hover { color: var(--green-primary); }
           </div>
           <div class="level-card level-3">
             <div class="panda-face">
-              <svg class="panda-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="32" cy="32" r="28" fill="#1a1a1a" stroke="#333" stroke-width="2"/>
-                <circle cx="18" cy="18" r="8" fill="#111"/>
-                <circle cx="46" cy="18" r="8" fill="#111"/>
-                <circle cx="20" cy="26" r="7" fill="#e8f0e8"/>
-                <circle cx="44" cy="26" r="7" fill="#e8f0e8"/>
-                <circle cx="20" cy="26" r="3.5" fill="#e67e22"/>
-                <circle cx="44" cy="26" r="3.5" fill="#e67e22"/>
-                <ellipse cx="32" cy="38" rx="5" ry="3" fill="#333"/>
-                <path d="M26 45 L38 45" stroke="#e67e22" stroke-width="2" stroke-linecap="round"/>
-              </svg>
+              <img src="assets/img/panda-unsettled.png" alt="Unsettled Panda" class="panda-svg">
             </div>
             <span class="level-badge">Level 3</span>
             <h4>Unsettled</h4>
@@ -1077,17 +896,7 @@ footer a:hover { color: var(--green-primary); }
           </div>
           <div class="level-card level-4">
             <div class="panda-face">
-              <svg class="panda-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="32" cy="32" r="28" fill="#1a1a1a" stroke="#333" stroke-width="2"/>
-                <circle cx="18" cy="18" r="8" fill="#111"/>
-                <circle cx="46" cy="18" r="8" fill="#111"/>
-                <circle cx="20" cy="26" r="7" fill="#e8f0e8"/>
-                <circle cx="44" cy="26" r="7" fill="#e8f0e8"/>
-                <circle cx="20" cy="26" r="3.5" fill="#e08070"/>
-                <circle cx="44" cy="26" r="3.5" fill="#e08070"/>
-                <ellipse cx="32" cy="38" rx="5" ry="3" fill="#333"/>
-                <path d="M26 46 Q32 42 38 46" stroke="#e08070" stroke-width="2" fill="none" stroke-linecap="round"/>
-              </svg>
+              <img src="assets/img/panda-stressed.png" alt="Stressed Panda" class="panda-svg">
             </div>
             <span class="level-badge">Level 4</span>
             <h4>Stressed</h4>
@@ -1095,19 +904,7 @@ footer a:hover { color: var(--green-primary); }
           </div>
           <div class="level-card level-5">
             <div class="panda-face">
-              <svg class="panda-svg" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="32" cy="32" r="28" fill="#1a1a1a" stroke="#333" stroke-width="2"/>
-                <circle cx="18" cy="18" r="8" fill="#111"/>
-                <circle cx="46" cy="18" r="8" fill="#111"/>
-                <circle cx="20" cy="26" r="7" fill="#e8f0e8"/>
-                <circle cx="44" cy="26" r="7" fill="#e8f0e8"/>
-                <circle cx="20" cy="26" r="3.5" fill="#e74c3c"/>
-                <circle cx="44" cy="26" r="3.5" fill="#e74c3c"/>
-                <ellipse cx="32" cy="38" rx="5" ry="3" fill="#333"/>
-                <path d="M24 47 Q32 41 40 47" stroke="#e74c3c" stroke-width="2" fill="none" stroke-linecap="round"/>
-                <line x1="16" y1="19" x2="24" y2="22" stroke="#e74c3c" stroke-width="1.5" stroke-linecap="round"/>
-                <line x1="48" y1="19" x2="40" y2="22" stroke="#e74c3c" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
+              <img src="assets/img/panda-danger.png" alt="Danger Panda" class="panda-svg">
             </div>
             <span class="level-badge">Level 5</span>
             <h4>Danger</h4>
@@ -1298,31 +1095,15 @@ footer a:hover { color: var(--green-primary); }
   </div>
 </footer>
 
-<!-- MOBILE BOTTOM NAV -->
-<div class="mobile-tools-backdrop" id="tools-backdrop" onclick="closeToolsPopover()"></div>
-<div class="mobile-tools-popover" id="tools-popover">
-  <a href="stocks.html">Search</a>
-  <a href="quiz.html">Pro Hunt</a>
-  <a href="stocks.html">Scan</a>
-  <a href="summary.html">Brief</a>
-</div>
-<nav class="mobile-nav">
-  <div class="mobile-nav-links">
-    <a href="index.html"><span class="mn-icon">🏠</span>Home</a>
-    <a href="finder.html"><span class="mn-icon">🔍</span>Hunt</a>
-    <a href="watchlist.html"><span class="mn-icon">❤️</span>Catch</a>
-    <div class="mobile-tools-trigger" onclick="toggleToolsPopover()"><span class="mn-icon">⚙️</span>Tools</div>
-  </div>
-</nav>
-
 <script>
-function toggleToolsPopover() {
-  document.getElementById('tools-popover').classList.toggle('open');
-  document.getElementById('tools-backdrop').classList.toggle('open');
+function toggleToolsPopover(){
+  var p=document.getElementById('toolsPopover'),b=document.getElementById('toolsBackdrop');
+  if(p.classList.contains('open')){p.classList.remove('open');b.classList.remove('open');}
+  else{p.classList.add('open');b.classList.add('open');}
 }
-function closeToolsPopover() {
-  document.getElementById('tools-popover').classList.remove('open');
-  document.getElementById('tools-backdrop').classList.remove('open');
+function closeToolsPopover(){
+  document.getElementById('toolsPopover').classList.remove('open');
+  document.getElementById('toolsBackdrop').classList.remove('open');
 }
 </script>
 
@@ -1340,6 +1121,10 @@ const observer = new IntersectionObserver((entries) => {
 
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
+
+<script src="assets/js/mood.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
 
 </body>
 </html>

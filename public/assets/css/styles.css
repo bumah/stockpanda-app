@@ -67,7 +67,7 @@ input, select { font-family: var(--font); }
 .nav-logo { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0; }
 .nav-logo-sp   { color: var(--brand); }
 .nav-logo-rest { color: var(--text); }
-.nav-links { display: flex; gap: 1.75rem; flex: 1; }
+.nav-links { display: flex; gap: 1.75rem; margin-left: auto; }
 .nav-link {
   font-size: 0.85rem; color: var(--muted); font-weight: 500;
   padding: 4px 0; border-bottom: 2px solid transparent;
@@ -136,6 +136,9 @@ button.nav-dropdown-trigger {
   border-radius: var(--radius); min-width: 160px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.5); z-index: 300;
   padding: 6px 0;
+}
+.nav-dropdown-menu::before {
+  content: ''; position: absolute; top: -12px; left: 0; right: 0; height: 12px;
 }
 .nav-dropdown:hover .nav-dropdown-menu { display: block; }
 .nav-dropdown-menu a {
