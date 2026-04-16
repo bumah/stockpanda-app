@@ -235,42 +235,6 @@ const aboveMA = (maField)   => e => e.p != null && e[maField] != null && e.p > e
 
 const HUNTING_STYLES = [
   {
-    key:'optimistic', icon:'🐇', label:'Optimistic',
-    sub:'Turnaround stocks starting to recover after a rough patch.',
-    filters: [ gt('m1', 0), lt('r52', 40), gt('vcm', 0) ],
-    sort: (a, b) => (b.m1 ?? 0) - (a.m1 ?? 0),
-  },
-  {
-    key:'nimble', icon:'⚡', label:'Nimble',
-    sub:'Targets early breakouts with strong participation before they become overextended.',
-    filters: [ gt('m1', 0), aboveMA('ma50'), gt('vcw', 0) ],
-    sort: (a, b) => (b.m1 ?? 0) - (a.m1 ?? 0),
-  },
-  {
-    key:'momentum', icon:'🚀', label:'Momentum',
-    sub:'Identifies stocks in sustained uptrends across multiple timeframes.',
-    filters: [ gt('m1', 0), gt('m3', 0), gt('y1', 10), aboveMA('ma50') ],
-    sort: (a, b) => (b.y1 ?? 0) - (a.y1 ?? 0),
-  },
-  {
-    key:'pack', icon:'🐺', label:'Pack',
-    sub:'Follows institutional flows and consensus sentiment backed by strong participation.',
-    filters: [ gt('r52', 85), gt('rv', 1.5), gt('av90', 500000) ],
-    sort: (a, b) => (b.rv ?? 0) - (a.rv ?? 0),
-  },
-  {
-    key:'patient', icon:'🧘', label:'Patient',
-    sub:'Screens for high-quality stocks consolidating before a potential breakout.',
-    filters: [ gt('y5', 20), aboveMA('ma200'), lt('r52', 30) ],
-    sort: (a, b) => (b.y5 ?? 0) - (a.y5 ?? 0),
-  },
-  {
-    key:'safe', icon:'🛡️', label:'Careful',
-    sub:'Targets stable, low-risk companies with strong balance sheets and low sensitivity.',
-    filters: [ nn('vol'), lt('vol', 25), gt('ni', 0), nn('dte'), lt('dte', 100), gt('div', 0) ],
-    sort: (a, b) => (a.vol ?? 999) - (b.vol ?? 999),
-  },
-  {
     key:'trophy', icon:'🏆', label:'Trophy',
     sub:'Focuses on proven long-term winners with strong earnings and dominant positioning.',
     filters: [ gt('mc', 10000000000), gt('y1', 10), gt('y5', 50), gt('eps', 0) ],
@@ -283,10 +247,22 @@ const HUNTING_STYLES = [
     sort: (a, b) => (b.vol ?? 0) - (a.vol ?? 0),
   },
   {
-    key:'zombie', icon:'🧟', label:'Zombie',
-    sub:'Finds heavily beaten-down stocks showing early signs of revival and accumulation.',
-    filters: [ lt('m1', -5), lt('r52', 25), gt('vcm', 20) ],
-    sort: (a, b) => (b.vcm ?? 0) - (a.vcm ?? 0),
+    key:'scavenger', icon:'🦅', label:'Scavenger',
+    sub:'Finds high-quality stocks that have been beaten down — real bargains with proven fundamentals.',
+    filters: [ gt('ni', 0), gt('y5', 20), lt('r52', 40), gt('mc', 2000000000) ],
+    sort: (a, b) => (b.y5 ?? 0) - (a.y5 ?? 0),
+  },
+  {
+    key:'momentum', icon:'🚀', label:'Momentum',
+    sub:'Identifies stocks in sustained uptrends across multiple timeframes.',
+    filters: [ gt('m1', 0), gt('m3', 0), gt('y1', 10), aboveMA('ma50') ],
+    sort: (a, b) => (b.y1 ?? 0) - (a.y1 ?? 0),
+  },
+  {
+    key:'rebound', icon:'🐇', label:'Rebound',
+    sub:'Stocks that had a rough patch and are now climbing back — V-shape recoveries in motion.',
+    filters: [ lt('r52', 60), gt('r52', 20), gt('m1', 0), aboveMA('ma50') ],
+    sort: (a, b) => (b.m1 ?? 0) - (a.m1 ?? 0),
   },
 ];
 

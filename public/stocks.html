@@ -142,15 +142,11 @@ function closeToolsPopover(){
     <div class="bubble-row">
       <span class="bubble-label">Style</span>
       <div class="bubble-chips" id="style-chips">
-        <span class="bubble-chip" data-style="optimistic">🐇 Optimistic</span>
-        <span class="bubble-chip" data-style="nimble">⚡ Nimble</span>
-        <span class="bubble-chip" data-style="momentum">🚀 Momentum</span>
-        <span class="bubble-chip" data-style="pack">🐺 Pack</span>
-        <span class="bubble-chip" data-style="patient">🧘 Patient</span>
-        <span class="bubble-chip" data-style="safe">🛡️ Careful</span>
         <span class="bubble-chip" data-style="trophy">🏆 Trophy</span>
         <span class="bubble-chip" data-style="wild_beast">🧬 Wild Beast</span>
-        <span class="bubble-chip" data-style="zombie">🧟 Zombie</span>
+        <span class="bubble-chip" data-style="scavenger">🦅 Scavenger</span>
+        <span class="bubble-chip" data-style="momentum">🚀 Momentum</span>
+        <span class="bubble-chip" data-style="rebound">🐇 Rebound</span>
       </div>
     </div>
     <!-- Level -->
@@ -209,15 +205,11 @@ function closeToolsPopover(){
           <th class="center"><span data-tip="Warning signals">🔴</span></th>
           <th class="center"><span data-tip="1-month price change">1M</span></th>
           <th class="center"><span data-tip="1-year price change">1Y</span></th>
-          <th class="center"><span data-tip="Optimistic — Turnaround recovery">🐇</span></th>
-          <th class="center"><span data-tip="Nimble — Early breakouts">⚡</span></th>
-          <th class="center"><span data-tip="Momentum — Sustained uptrends">🚀</span></th>
-          <th class="center"><span data-tip="Pack — Institutional flows">🐺</span></th>
-          <th class="center"><span data-tip="Patient — Consolidating">🧘</span></th>
-          <th class="center"><span data-tip="Careful — Stable, low-risk">🛡️</span></th>
           <th class="center"><span data-tip="Trophy — Proven winners">🏆</span></th>
           <th class="center"><span data-tip="Wild Beast — High-volatility">🧬</span></th>
-          <th class="center"><span data-tip="Zombie — Beaten-down revival">🧟</span></th>
+          <th class="center"><span data-tip="Scavenger — Quality bargains">🦅</span></th>
+          <th class="center"><span data-tip="Momentum — Sustained uptrends">🚀</span></th>
+          <th class="center"><span data-tip="Rebound — V-shape recovery">🐇</span></th>
         </tr>
       </thead>
       <tbody id="stocks-tbody">
@@ -246,7 +238,7 @@ initNavStamp();
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const PAGE_SIZE    = 50;
-const PRESET_ORDER = ['optimistic','nimble','momentum','pack','patient','safe','trophy','wild_beast','zombie'];
+const PRESET_ORDER = ['trophy','wild_beast','scavenger','momentum','rebound'];
 
 const CURRENCY_SYMS = {
   USD:'$', EUR:'€', GBP:'£', JPY:'¥', CNY:'¥', HKD:'HK$', KRW:'₩', INR:'₹',
@@ -278,7 +270,7 @@ if (legacyExchange) {
 }
 
 // Read URL param for style
-if (urlParams.get('style') && ['optimistic','nimble','momentum','pack','patient','safe','trophy','wild_beast','zombie'].includes(urlParams.get('style'))) {
+if (urlParams.get('style') && ['trophy','wild_beast','scavenger','momentum','rebound'].includes(urlParams.get('style'))) {
   activeStyle = urlParams.get('style');
 }
 

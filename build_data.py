@@ -65,75 +65,7 @@ COLOR_MAP = {"green": "g", "amber": "a", "red": "r"}
 # Score = (weighted sum of active criteria) / (max possible weighted sum) × 100
 
 PRESETS = {
-    # 🐇 Optimistic — Turnaround stocks starting to recover
-    # Suggestion applied: range52w changed from "lows" to "middle" to differentiate from Zombie
-    "optimistic": {
-        "criteria": [
-            {"key": "return1m",  "expect": "positive",  "weight": 2},   # core — the bounce is the whole point
-            {"key": "range52w",  "expect": "middle",    "weight": 2},   # core — bounced off bottom, now mid-range
-            {"key": "drawdown",  "expect": "deep",      "weight": 1},   # supporting — confirms it has fallen
-            {"key": "momentum",  "expect": "positive",  "weight": 1},   # supporting — bounce is real
-            {"key": "matrend",   "expect": "above_50",  "weight": 1},   # supporting — trend shift
-        ],
-    },
-    # ⚡ Nimble — Early breakouts with strong participation
-    "nimble": {
-        "criteria": [
-            {"key": "momentum",  "expect": "positive",  "weight": 2},   # core — breakout needs momentum
-            {"key": "matrend",   "expect": "above_50",  "weight": 2},   # core — price breaking above short-term MA
-            {"key": "return1m",  "expect": "positive",  "weight": 1},   # supporting — recent price confirms
-            {"key": "range52w",  "expect": "middle",    "weight": 1},   # supporting — mid-range, not extended
-            {"key": "vol",       "expect": "moderate",  "weight": 1},   # supporting — some volatility for breakout
-        ],
-    },
-    # 🚀 Momentum — Sustained uptrends across multiple timeframes
-    "momentum": {
-        "criteria": [
-            {"key": "momentum",  "expect": "positive",   "weight": 2},  # core — core identity
-            {"key": "matrend",   "expect": "above_both", "weight": 2},  # core — confirmed sustained uptrend
-            {"key": "return1m",  "expect": "positive",   "weight": 1},  # supporting — short-term confirms
-            {"key": "growth5y",  "expect": "strong",     "weight": 1},  # supporting — not just a spike
-            {"key": "range52w",  "expect": "highs",      "weight": 1},  # supporting — confirms strength
-            {"key": "drawdown",  "expect": "near_peak",  "weight": 1},  # supporting — hasn't pulled back
-        ],
-    },
-    # 🐺 Pack — Institutional flows and consensus sentiment
-    "pack": {
-        "criteria": [
-            {"key": "analyst",   "expect": "buy",        "weight": 2},  # core — institutional consensus
-            {"key": "size",      "expect": "large",      "weight": 2},  # core — institutions trade large caps
-            {"key": "matrend",   "expect": "above_50",   "weight": 1},  # supporting — price confirms buying
-            {"key": "return1m",  "expect": "positive",   "weight": 1},  # supporting — recent price supports
-            {"key": "momentum",  "expect": "positive",   "weight": 1},  # supporting — broad momentum
-            {"key": "range52w",  "expect": "highs",      "weight": 1},  # supporting — pushed toward highs
-        ],
-    },
-    # 🧘 Patient — Quality stocks consolidating before breakout
-    # Suggestion applied: dropped range52w (redundant with drawdown), added analyst
-    # Suggestion applied: momentum "neutral" now treats green=1 (not 0.5)
-    "patient": {
-        "criteria": [
-            {"key": "growth5y",  "expect": "strong",     "weight": 2},  # core — proven quality grower
-            {"key": "profit",    "expect": "profitable",  "weight": 2},  # core — real earnings
-            {"key": "drawdown",  "expect": "moderate",   "weight": 1},  # supporting — pulled back but not cratering
-            {"key": "momentum",  "expect": "neutral",    "weight": 1},  # supporting — consolidating
-            {"key": "analyst",   "expect": "buy",        "weight": 1},  # supporting — quality backing
-            {"key": "vol",       "expect": "low",        "weight": 1},  # supporting — quiet consolidation
-        ],
-    },
-    # 🛡️ Careful — Stable, low-risk with strong balance sheets
-    "safe": {
-        "criteria": [
-            {"key": "vol",       "expect": "low",        "weight": 2},  # core — risk management
-            {"key": "profit",    "expect": "profitable",  "weight": 2},  # core — real earnings
-            {"key": "size",      "expect": "large",      "weight": 1},  # supporting — large caps more stable
-            {"key": "growth5y",  "expect": "strong",     "weight": 1},  # supporting — growing, not stagnant
-            {"key": "matrend",   "expect": "above_both", "weight": 1},  # supporting — healthy trend
-            {"key": "drawdown",  "expect": "near_peak",  "weight": 1},  # supporting — not in a hole
-        ],
-    },
     # 🏆 Trophy — Proven long-term winners with strong earnings
-    # Suggestion applied: dropped return1m and range52w (timing criteria, not quality)
     "trophy": {
         "criteria": [
             {"key": "growth5y",  "expect": "strong",      "weight": 2},  # core — proven compounder
@@ -156,23 +88,43 @@ PRESETS = {
             {"key": "range52w",  "expect": "lows",       "weight": 1},  # supporting — coiled spring
         ],
     },
-    # 🧟 Zombie — Beaten-down stocks showing early signs of revival
-    "zombie": {
+    # 🦅 Scavenger — Quality stocks that have been beaten down
+    "scavenger": {
         "criteria": [
-            {"key": "range52w",  "expect": "lows",       "weight": 2},  # core — must be near 52W low
-            {"key": "drawdown",  "expect": "deep",       "weight": 2},  # core — must have fallen substantially
-            {"key": "return1m",  "expect": "recovery",   "weight": 1},  # supporting — showing revival
-            {"key": "growth5y",  "expect": "recovery",   "weight": 1},  # supporting — growth was negative
-            {"key": "momentum",  "expect": "positive",   "weight": 1},  # supporting — early momentum shift
-            {"key": "matrend",   "expect": "above_50",   "weight": 1},  # supporting — crossing back above 50D
+            {"key": "profit",    "expect": "profitable", "weight": 2},  # core — real earnings
+            {"key": "growth5y",  "expect": "strong",     "weight": 2},  # core — proven quality
+            {"key": "drawdown",  "expect": "deep",       "weight": 2},  # core — beaten down
+            {"key": "range52w",  "expect": "lows",       "weight": 1},  # supporting — near 52W lows
+            {"key": "analyst",   "expect": "buy",        "weight": 1},  # supporting — analysts still believe
+            {"key": "size",      "expect": "large",      "weight": 1},  # supporting — established company
+        ],
+    },
+    # 🚀 Momentum — Sustained uptrends across multiple timeframes
+    "momentum": {
+        "criteria": [
+            {"key": "momentum",  "expect": "positive",   "weight": 2},  # core — core identity
+            {"key": "matrend",   "expect": "above_both", "weight": 2},  # core — confirmed sustained uptrend
+            {"key": "return1m",  "expect": "positive",   "weight": 1},  # supporting — short-term confirms
+            {"key": "growth5y",  "expect": "strong",     "weight": 1},  # supporting — not just a spike
+            {"key": "range52w",  "expect": "highs",      "weight": 1},  # supporting — confirms strength
+            {"key": "drawdown",  "expect": "near_peak",  "weight": 1},  # supporting — hasn't pulled back
+        ],
+    },
+    # 🐇 Rebound — Stocks recovering after a rough patch (V-shape)
+    "rebound": {
+        "criteria": [
+            {"key": "drawdown",  "expect": "deep",       "weight": 2},  # core — had significant fall
+            {"key": "matrend",   "expect": "above_50",   "weight": 2},  # core — price now above 50-day MA (recovering)
+            {"key": "return1m",  "expect": "positive",   "weight": 2},  # core — bouncing back
+            {"key": "momentum",  "expect": "positive",   "weight": 1},  # supporting — momentum turning up
+            {"key": "range52w",  "expect": "middle",     "weight": 1},  # supporting — off lows, not at highs
         ],
     },
 }
 
 PRESET_LABELS = {
-    "optimistic": "Optimistic", "nimble": "Nimble", "momentum": "Momentum",
-    "pack": "Pack", "patient": "Patient", "safe": "Careful",
-    "trophy": "Trophy", "wild_beast": "Wild Beast", "zombie": "Zombie",
+    "trophy": "Trophy", "wild_beast": "Wild Beast", "scavenger": "Scavenger",
+    "momentum": "Momentum", "rebound": "Rebound",
 }
 
 BUY_SET  = {"Strong buy", "Buy"}
@@ -271,7 +223,7 @@ def score_preset(inds, preset_def, mc, r52, eps, ar):
 
 
 def score_all_presets(inds, mc, r52, eps, ar):
-    """Score a stock against all 9 presets. Returns dict of { key: {scores, pct} }."""
+    """Score a stock against all 5 presets. Returns dict of { key: {scores, pct} }."""
     result = {}
     for key, preset_def in PRESETS.items():
         result[key] = score_preset(inds, preset_def, mc, r52, eps, ar)
@@ -682,7 +634,7 @@ def parse_row(row):
     if vol_m1 is not None:
         ann_vol = _round(vol_m1 * math.sqrt(252), 1)
 
-    # Pre-compute hunting style scores for all 9 presets
+    # Pre-compute hunting style scores for all 5 presets
     preset_scores = score_all_presets(inds, mktcap, range52w_pct, epsbasic, row.get("Analyst Rating", ""))
 
     return {

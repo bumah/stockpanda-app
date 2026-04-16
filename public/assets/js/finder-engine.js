@@ -13,64 +13,6 @@ const MOOD_COLOR_LABELS = {'mc-blue':'Level 1','mc-green':'Level 2','mc-amber':'
 // Each criterion: core (×2) or supporting (×1). Only active criteria count.
 // score = (weighted sum) / (max weighted sum) × 100
 const PRESETS = {
-  optimistic: { label: 'Optimistic', sub: 'Turnaround stocks starting to recover after a rough patch.',
-    criteria: [
-      { key:'return1m', expect:'positive', weight:2 },
-      { key:'range52w', expect:'middle',   weight:2 },
-      { key:'drawdown', expect:'deep',     weight:1 },
-      { key:'momentum', expect:'positive', weight:1 },
-      { key:'matrend',  expect:'above_50', weight:1 },
-    ],
-  },
-  nimble: { label: 'Nimble', sub: 'Targets early breakouts with strong participation before they become overextended.',
-    criteria: [
-      { key:'momentum', expect:'positive', weight:2 },
-      { key:'matrend',  expect:'above_50', weight:2 },
-      { key:'return1m', expect:'positive', weight:1 },
-      { key:'range52w', expect:'middle',   weight:1 },
-      { key:'vol',      expect:'moderate', weight:1 },
-    ],
-  },
-  momentum: { label: 'Momentum', sub: 'Identifies stocks in sustained uptrends across multiple timeframes.',
-    criteria: [
-      { key:'momentum', expect:'positive',   weight:2 },
-      { key:'matrend',  expect:'above_both', weight:2 },
-      { key:'return1m', expect:'positive',   weight:1 },
-      { key:'growth5y', expect:'strong',     weight:1 },
-      { key:'range52w', expect:'highs',      weight:1 },
-      { key:'drawdown', expect:'near_peak',  weight:1 },
-    ],
-  },
-  pack: { label: 'Pack', sub: 'Follows institutional flows and consensus sentiment backed by strong participation.',
-    criteria: [
-      { key:'analyst',  expect:'buy',      weight:2 },
-      { key:'size',     expect:'large',    weight:2 },
-      { key:'matrend',  expect:'above_50', weight:1 },
-      { key:'return1m', expect:'positive', weight:1 },
-      { key:'momentum', expect:'positive', weight:1 },
-      { key:'range52w', expect:'highs',    weight:1 },
-    ],
-  },
-  patient: { label: 'Patient', sub: 'Screens for high-quality stocks consolidating before a potential breakout.',
-    criteria: [
-      { key:'growth5y', expect:'strong',     weight:2 },
-      { key:'profit',   expect:'profitable', weight:2 },
-      { key:'drawdown', expect:'moderate',   weight:1 },
-      { key:'momentum', expect:'neutral',    weight:1 },
-      { key:'analyst',  expect:'buy',        weight:1 },
-      { key:'vol',      expect:'low',        weight:1 },
-    ],
-  },
-  safe: { label: 'Careful', sub: 'Targets stable, low-risk companies with strong balance sheets and low sensitivity.',
-    criteria: [
-      { key:'vol',      expect:'low',        weight:2 },
-      { key:'profit',   expect:'profitable', weight:2 },
-      { key:'size',     expect:'large',      weight:1 },
-      { key:'growth5y', expect:'strong',     weight:1 },
-      { key:'matrend',  expect:'above_both', weight:1 },
-      { key:'drawdown', expect:'near_peak',  weight:1 },
-    ],
-  },
   trophy: { label: 'Trophy', sub: 'Focuses on proven long-term winners with strong earnings and dominant positioning.',
     criteria: [
       { key:'growth5y', expect:'strong',      weight:2 },
@@ -92,21 +34,40 @@ const PRESETS = {
       { key:'range52w', expect:'lows',     weight:1 },
     ],
   },
-  zombie: { label: 'Zombie', sub: 'Finds heavily beaten-down stocks showing early signs of revival and accumulation.',
+  scavenger: { label: 'Scavenger', sub: 'Finds high-quality stocks that have been beaten down — real bargains with proven fundamentals.',
     criteria: [
-      { key:'range52w', expect:'lows',     weight:2 },
+      { key:'profit',   expect:'profitable', weight:2 },
+      { key:'growth5y', expect:'strong',     weight:2 },
+      { key:'drawdown', expect:'deep',       weight:2 },
+      { key:'range52w', expect:'lows',       weight:1 },
+      { key:'analyst',  expect:'buy',        weight:1 },
+      { key:'size',     expect:'large',      weight:1 },
+    ],
+  },
+  momentum: { label: 'Momentum', sub: 'Identifies stocks in sustained uptrends across multiple timeframes.',
+    criteria: [
+      { key:'momentum', expect:'positive',   weight:2 },
+      { key:'matrend',  expect:'above_both', weight:2 },
+      { key:'return1m', expect:'positive',   weight:1 },
+      { key:'growth5y', expect:'strong',     weight:1 },
+      { key:'range52w', expect:'highs',      weight:1 },
+      { key:'drawdown', expect:'near_peak',  weight:1 },
+    ],
+  },
+  rebound: { label: 'Rebound', sub: 'Stocks that had a rough patch and are now climbing back — V-shape recoveries in motion.',
+    criteria: [
       { key:'drawdown', expect:'deep',     weight:2 },
-      { key:'return1m', expect:'recovery', weight:1 },
-      { key:'growth5y', expect:'recovery', weight:1 },
+      { key:'matrend',  expect:'above_50', weight:2 },
+      { key:'return1m', expect:'positive', weight:2 },
       { key:'momentum', expect:'positive', weight:1 },
-      { key:'matrend',  expect:'above_50', weight:1 },
+      { key:'range52w', expect:'middle',   weight:1 },
     ],
   },
 };
 
-const STYLE_ICONS = { optimistic:'🐇', nimble:'⚡', momentum:'🚀', pack:'🐺', patient:'🧘', safe:'🛡️', trophy:'🏆', wild_beast:'🧬', zombie:'🧟' };
-const STYLE_NAMES = { optimistic:'Optimistic', nimble:'Nimble', momentum:'Momentum', pack:'Pack', patient:'Patient', safe:'Careful', trophy:'Trophy', wild_beast:'Wild Beast', zombie:'Zombie' };
-const STYLE_DESCS = { optimistic:'Turnaround recovery', nimble:'Early breakouts', momentum:'Sustained uptrends', pack:'Institutional flows', patient:'Consolidating', safe:'Stable, low-risk', trophy:'Proven winners', wild_beast:'High-volatility', zombie:'Beaten-down revival' };
+const STYLE_ICONS = { trophy:'🏆', wild_beast:'🧬', scavenger:'🦅', momentum:'🚀', rebound:'🐇' };
+const STYLE_NAMES = { trophy:'Trophy', wild_beast:'Wild Beast', scavenger:'Scavenger', momentum:'Momentum', rebound:'Rebound' };
+const STYLE_DESCS = { trophy:'Proven winners', wild_beast:'High-volatility', scavenger:'Quality bargains', momentum:'Sustained uptrends', rebound:'V-shape recovery' };
 
 // ── Region / sector config ───────────────────────────────────────────────────
 const EUROPE_COUNTRIES = new Set(['United Kingdom','Ireland','Sweden','France','Germany','Italy','Switzerland','Poland','Norway','Spain','Russian Federation','Finland','Denmark','Netherlands','Belgium','Greece','Austria','Luxembourg','Portugal','Bulgaria','Croatia','Romania','Hungary','Iceland','Slovenia','Lithuania','Estonia','Malta','Latvia','Slovakia','Czech Republic','Liechtenstein','Monaco','Serbia','Cyprus']);
@@ -335,7 +296,7 @@ let _renderedSubset = [];
 let _currentScoredCache = [];
 let _currentPresetMode = false;
 const RENDER_CAP = 200;
-const _PRESET_ORDER = ['optimistic','nimble','momentum','pack','patient','safe','trophy','wild_beast','zombie'];
+const _PRESET_ORDER = ['trophy','wild_beast','scavenger','momentum','rebound'];
 
 function _countSignals(s) {
   let r = 0, a = 0, g = 0;
