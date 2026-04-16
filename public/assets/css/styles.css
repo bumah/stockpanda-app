@@ -1,5 +1,5 @@
 /* ── StockPanda Global Styles ─────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
   --brand:        #4ADE80;
@@ -19,9 +19,8 @@
   --orange:       #FB923C;
   --red:          #F87171;
   --blue:         #60A5FA;
-  --font:         'Instrument Sans', system-ui, sans-serif;
-  --mono:         'DM Mono', 'Fira Mono', monospace;
-  --serif:        'Instrument Serif', Georgia, serif;
+  --font:         'DM Sans', system-ui, sans-serif;
+  --mono:         'Space Mono', monospace;
   --radius:       8px;
   --radius-lg:    12px;
 }
@@ -202,8 +201,8 @@ button.nav-dropdown-trigger {
   letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 0.3rem;
 }
 .page-title {
-  font-family: var(--serif); font-size: 1.8rem; color: var(--parchment);
-  font-style: italic; margin-bottom: 0.2rem;
+  font-family: var(--font); font-size: 1.8rem; color: var(--parchment);
+  font-weight: 700; margin-bottom: 0.2rem;
 }
 .page-sub { font-size: 0.82rem; color: var(--muted); }
 
@@ -506,9 +505,9 @@ button.nav-dropdown-trigger {
   border-radius: 20px; padding: 4px 14px;
 }
 .hero-h1 {
-  font-family: var(--serif); font-size: 3.6rem; font-weight: 700;
-  color: var(--parchment); line-height: 1.1; margin-bottom: 1rem;
-  font-style: italic; letter-spacing: -0.02em;
+  font-family: var(--font); font-size: 2.6rem; font-weight: 700;
+  color: var(--parchment); line-height: 1.15; margin-bottom: 1rem;
+  letter-spacing: -0.02em;
 }
 .hero-sub {
   color: var(--muted); font-size: 1rem; line-height: 1.6;
@@ -806,13 +805,13 @@ button.nav-dropdown-trigger {
 /* ── Finder hero ──────────────────────────────────────────────────────────── */
 .finder-wrap { max-width: 720px; margin: 0 auto; padding-bottom: 3rem; }
 .finder-hero {
-  text-align: center; padding: 3rem 1rem 2rem;
+  text-align: center; padding: 4rem 1.5rem 2.5rem;
   border-bottom: 1px solid var(--border); margin-bottom: 2rem;
 }
 .finder-hero-h1 {
-  font-family: var(--serif); font-size: 3.7rem; font-weight: 700;
-  color: var(--parchment); line-height: 1.05; margin-bottom: 0.6rem;
-  font-style: italic; letter-spacing: -0.02em;
+  font-family: var(--font); font-size: 2.6rem; font-weight: 700;
+  color: var(--parchment); line-height: 1.15; margin-bottom: 0.6rem;
+  letter-spacing: -0.02em;
 }
 @media (max-width: 600px) { .finder-hero-h1 { font-size: 2.5rem; } }
 #finder-word {
@@ -822,8 +821,8 @@ button.nav-dropdown-trigger {
 #finder-word.fade-out { opacity: 0; transform: translateY(-8px); }
 #finder-word.fade-in  { opacity: 1; transform: translateY(0); }
 .finder-hero-sub {
-  color: var(--muted); font-size: 0.95rem; line-height: 1.65;
-  margin-bottom: 0.75rem; max-width: 520px; margin-left: auto; margin-right: auto;
+  color: var(--muted); font-size: 0.95rem; line-height: 1.7;
+  margin-top: 0.75rem; margin-bottom: 0.75rem; max-width: 520px; margin-left: auto; margin-right: auto;
 }
 .finder-cta-btn {
   display: inline-block; background: var(--green); color: #000;
@@ -836,8 +835,8 @@ button.nav-dropdown-trigger {
 /* ── Pillars section ──────────────────────────────────────────────────────── */
 .finder-pillars { padding: 1.5rem 0 1.5rem; text-align: center; }
 .pillars-headline {
-  font-family: var(--serif); font-size: 1.6rem; font-weight: 700;
-  font-style: italic; color: var(--parchment); letter-spacing: -0.01em;
+  font-family: var(--font); font-size: 1.6rem; font-weight: 700;
+  color: var(--parchment); letter-spacing: -0.01em;
   margin: 0.4rem 0 1.8rem;
 }
 @media (max-width: 600px) { .pillars-headline { font-size: 1.25rem; } }
@@ -851,7 +850,7 @@ button.nav-dropdown-trigger {
 
 /* ── Quick filter sections (territory, style, level) ──────────────────────── */
 .qf-wrap { margin-top: 1.75rem; display: flex; flex-direction: column; align-items: center; gap: 0.75rem; width: 100%; }
-.qf-label { font-family: var(--serif); font-size: 1.75rem; font-weight: 700; font-style: italic; color: var(--parchment); letter-spacing: -0.01em; }
+.qf-label { font-family: var(--font); font-size: 1.75rem; font-weight: 700; color: var(--parchment); letter-spacing: -0.01em; }
 .qf-sub { font-size: 0.82rem; color: var(--muted); line-height: 1.5; text-align: center; max-width: 520px; margin: -0.25rem auto 0.5rem; }
 .territory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.7rem; width: 100%; }
 @media (max-width: 700px) { .territory-grid { grid-template-columns: repeat(2, 1fr); } }

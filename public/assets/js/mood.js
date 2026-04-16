@@ -581,7 +581,7 @@ function injectSidebarHTML() {
   proModal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);z-index:1200;align-items:center;justify-content:center;';
   proModal.innerHTML =
     '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:2rem;width:min(400px,92vw);text-align:center;">' +
-      '<div style="font-family:var(--serif);font-size:1.3rem;font-weight:700;font-style:italic;color:var(--parchment);margin-bottom:1rem;">Get StockPanda Pro</div>' +
+      '<div style="font-family:var(--font);font-size:1.3rem;font-weight:700;color:var(--parchment);margin-bottom:1rem;">Get StockPanda Pro</div>' +
       '<div style="display:flex;flex-direction:column;gap:0.5rem;text-align:left;margin-bottom:1.5rem;">' +
         '<div style="display:flex;align-items:center;gap:0.5rem;font-size:0.82rem;color:var(--text);"><span style="color:var(--green);">&#10003;</span> Save Scans and Traps</div>' +
         '<div style="display:flex;align-items:center;gap:0.5rem;font-size:0.82rem;color:var(--text);"><span style="color:var(--green);">&#10003;</span> Historical Trends</div>' +
