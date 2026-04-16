@@ -78,6 +78,7 @@
     <div class="nav-dropdown">
       <button class="nav-link nav-dropdown-trigger active">Tools <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
       <div class="nav-dropdown-menu">
+        <a class="nav-dropdown-item" href="#" onclick="event.preventDefault();openGlobalSearch();">Search</a>
         <a class="nav-dropdown-item" href="quiz.html">Pro Hunt</a>
         <a class="nav-dropdown-item" href="stocks.html">Scan</a>
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
@@ -91,6 +92,7 @@
 </nav>
 <div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
 <div class="tools-popover" id="toolsPopover">
+  <a href="#" onclick="event.preventDefault();closeToolsPopover();openGlobalSearch();" class="tools-popover-item"><i data-lucide="search" class="nb-icon"></i>Search</a>
   <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
   <a href="stocks.html" class="tools-popover-item"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
   <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
@@ -126,8 +128,7 @@ function closeToolsPopover(){
     <div class="bubble-row">
       <span class="bubble-label">Territory</span>
       <div class="bubble-chips" id="territory-chips">
-        <span class="bubble-chip active" data-territory="global">🌍 All</span>
-        <span class="bubble-chip" data-territory="us">🇺🇸 US</span>
+        <span class="bubble-chip active" data-territory="us">🇺🇸 US</span>
         <span class="bubble-chip" data-territory="uk">🇬🇧 UK</span>
         <span class="bubble-chip" data-territory="germany">🇩🇪 Germany</span>
         <span class="bubble-chip" data-territory="france">🇫🇷 France</span>
@@ -151,7 +152,7 @@ function closeToolsPopover(){
     </div>
     <!-- Level -->
     <div class="bubble-row">
-      <span class="bubble-label">Max Level</span>
+      <span class="bubble-label">Difficulty level</span>
       <div class="bubble-chips" id="level-chips">
         <span class="bubble-chip" data-level="Level 1">Level 1</span>
         <span class="bubble-chip" data-level="Level 2">Level 2</span>
@@ -226,8 +227,8 @@ function closeToolsPopover(){
   </div>
 </div>
 
-<script src="assets/js/mood.js"></script>
-<script src="assets/js/finder-engine.js"></script>
+<script src="assets/js/mood.js?v=20260416a"></script>
+<script src="assets/js/finder-engine.js?v=20260416a"></script>
 <script>
 'use strict';
 
@@ -254,7 +255,7 @@ let allSearchData  = [];   // raw search.json entries
 let filtered       = [];   // after all filters applied
 let currentPage    = 1;
 
-let activeTerritory = 'global';
+let activeTerritory = 'us';
 let activeStyle     = '';   // '' = none
 let activeLevel     = '';   // '' = none
 

@@ -258,6 +258,7 @@
     <div class="nav-dropdown">
       <button class="nav-link nav-dropdown-trigger">Tools <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
       <div class="nav-dropdown-menu">
+        <a class="nav-dropdown-item" href="#" onclick="event.preventDefault();openGlobalSearch();">Search</a>
         <a class="nav-dropdown-item" href="quiz.html">Pro Hunt</a>
         <a class="nav-dropdown-item" href="stocks.html">Scan</a>
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
@@ -271,6 +272,7 @@
 </nav>
 <div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
 <div class="tools-popover" id="toolsPopover">
+  <a href="#" onclick="event.preventDefault();closeToolsPopover();openGlobalSearch();" class="tools-popover-item"><i data-lucide="search" class="nb-icon"></i>Search</a>
   <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
   <a href="stocks.html" class="tools-popover-item"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
   <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
@@ -353,38 +355,27 @@ function closeToolsPopover(){
     </div>
     <div id="tw-page1">
       <div class="tw-title">Mark your hunting territory</div>
-      <div class="tw-sub">Where do you want to hunt? Choose your market and narrow your ground.</div>
-      <div class="tw-section-label">Geography</div>
+      <div class="tw-sub">Where do you want to hunt? Pick up to 3 markets.</div>
+      <div style="text-align:center;margin-bottom:0.6rem;" class="tw-sel-count" id="tw-geo-count">0 / 3 selected</div>
       <div class="tw-chip-grid" id="tw-geo-chips"></div>
-      <div class="tw-section-label">Sectors</div>
-      <div class="tw-chip-grid" id="tw-sec-chips"></div>
     </div>
     <div id="tw-page2" style="display:none;">
+      <div class="tw-title">Choose your sectors</div>
+      <div class="tw-sub">Which industries do you want to hunt in? Pick up to 3 sectors.</div>
+      <div style="text-align:center;margin-bottom:0.6rem;" class="tw-sel-count" id="tw-sec-count">0 / 3 selected</div>
+      <div class="tw-chip-grid" id="tw-sec-chips"></div>
+    </div>
+    <div id="tw-page3" style="display:none;">
       <div class="tw-title">Choose your hunting style</div>
       <div class="tw-sub">How do you hunt? Pick up to 3 styles that match how you find opportunities.</div>
       <div style="text-align:center;margin-bottom:0.6rem;" class="tw-sel-count" id="tw-style-count">0 / 3 selected</div>
       <div class="tw-style-grid" id="tw-style-grid"></div>
     </div>
-    <div id="tw-page3" style="display:none;">
-      <div class="tw-title">Set your hunting level</div>
-      <div class="tw-sub">What level of risk can you handle? Choose the hunt that matches your experience and skill.</div>
-      <div class="tw-level-grid" id="tw-level-grid"></div>
-    </div>
     <div id="tw-page4" style="display:none;">
-      <div class="tw-title">Choose your hunting mode</div>
-      <div class="tw-sub">How precise should your hunt be?</div>
-      <div class="tw-hunt-grid" id="tw-hunt-grid">
-        <div class="tw-hunt-card" data-key="strict" onclick="twSelectHuntMode(this,'strict')">
-          <span class="tw-hunt-icon">🎯</span>
-          <div class="tw-hunt-name">Strict Hunt</div>
-          <div class="tw-hunt-desc">Precise results. Hard filter on region, sector, and level. Only strong style matches.</div>
-        </div>
-        <div class="tw-hunt-card" data-key="open" onclick="twSelectHuntMode(this,'open')">
-          <span class="tw-hunt-icon">🌍</span>
-          <div class="tw-hunt-name">Open Hunt</div>
-          <div class="tw-hunt-desc">Cast a wider net. Flexible on sector and level. Easier style thresholds.</div>
-        </div>
-      </div>
+      <div class="tw-title">Set your hunting level</div>
+      <div class="tw-sub">What level of risk can you handle? Pick up to 3 levels.</div>
+      <div style="text-align:center;margin-bottom:0.6rem;" class="tw-sel-count" id="tw-level-count">0 / 3 selected</div>
+      <div class="tw-level-grid" id="tw-level-grid"></div>
     </div>
     <div class="tw-nav">
       <button class="tw-btn tw-btn-back" id="tw-back" onclick="twBack()" style="visibility:hidden;">← Back</button>
@@ -452,8 +443,8 @@ function closeToolsPopover(){
   </div>
 </div>
 
-<script src="assets/js/mood.js"></script>
-<script src="assets/js/finder-engine.js"></script>
+<script src="assets/js/mood.js?v=20260416a"></script>
+<script src="assets/js/finder-engine.js?v=20260416a"></script>
 <script>
 'use strict';
 
@@ -486,7 +477,6 @@ const TW_GEO = [
   { key: 'india', label: '🇮🇳 India' },
 ];
 const TW_SEC = [
-  { key: 'all', label: 'All Sectors' },
   { key: 'tech', label: 'Technology' },
   { key: 'health', label: 'Healthcare' },
   { key: 'finance', label: 'Finance' },
@@ -515,11 +505,10 @@ let twStep = 1;
 let twGeo = new Set();
 let twSec = new Set();
 let twStyles = new Set();
-let twLevel = null;
-let twHuntMode = null;
+let twLevels = new Set();
 
 function openTrapWizard() {
-  twStep = 1; twGeo.clear(); twSec.clear(); twStyles.clear(); twLevel = null; twHuntMode = null;
+  twStep = 1; twGeo.clear(); twSec.clear(); twStyles.clear(); twLevels.clear();
   twRenderStep();
   twBuildChips();
   document.getElementById('tw-overlay').style.display = 'flex';
@@ -541,21 +530,24 @@ function twBuildChips() {
   const styleG = document.getElementById('tw-style-grid');
   styleG.innerHTML = TW_STYLES.map(s => `<div class="tw-style-card" data-key="${s.key}" onclick="twToggleStyle(this,'${s.key}')"><div class="qfc-top"><span class="qfc-icon">${s.icon}</span><span class="qfc-name">${s.name}</span></div><div class="qfc-desc">${s.desc}</div></div>`).join('');
   const lvlG = document.getElementById('tw-level-grid');
-  lvlG.innerHTML = TW_LEVELS.map(l => `<div class="tw-level-card" data-key="${l.label}" onclick="twSelectLevel(this,'${l.label}')"><img src="assets/img/${l.img}" alt="${l.label}"/><div class="level-card-name" style="color:${l.color};">${l.label}</div><div class="level-card-desc">${l.desc}</div></div>`).join('');
+  lvlG.innerHTML = TW_LEVELS.map(l => `<div class="tw-level-card" data-key="${l.label}" onclick="twToggleLevel(this,'${l.label}')"><img src="assets/img/${l.img}" alt="${l.label}"/><div class="level-card-name" style="color:${l.color};">${l.label}</div><div class="level-card-desc">${l.desc}</div></div>`).join('');
 }
 
 function twToggleGeo(el, key) {
-  if (key === 'global') { twGeo.clear(); twGeo.add('global'); }
-  else { twGeo.delete('global'); twGeo.has(key) ? twGeo.delete(key) : twGeo.add(key); }
+  if (twGeo.has(key)) { twGeo.delete(key); }
+  else if (twGeo.size < 3) { twGeo.add(key); }
   document.querySelectorAll('#tw-geo-chips .tw-chip').forEach(c => c.classList.toggle('selected', twGeo.has(c.dataset.key)));
+  document.getElementById('tw-geo-count').textContent = `${twGeo.size} / 3 selected`;
   twUpdateNav();
 }
 window.twToggleGeo = twToggleGeo;
 
 function twToggleSec(el, key) {
-  if (key === 'all') { twSec.clear(); twSec.add('all'); }
-  else { twSec.delete('all'); twSec.has(key) ? twSec.delete(key) : twSec.add(key); }
+  if (twSec.has(key)) { twSec.delete(key); }
+  else if (twSec.size < 3) { twSec.add(key); }
   document.querySelectorAll('#tw-sec-chips .tw-chip').forEach(c => c.classList.toggle('selected', twSec.has(c.dataset.key)));
+  document.getElementById('tw-sec-count').textContent = `${twSec.size} / 3 selected`;
+  twUpdateNav();
 }
 window.twToggleSec = twToggleSec;
 
@@ -568,19 +560,14 @@ function twToggleStyle(el, key) {
 }
 window.twToggleStyle = twToggleStyle;
 
-function twSelectLevel(el, label) {
-  twLevel = label;
-  document.querySelectorAll('#tw-level-grid .tw-level-card').forEach(c => c.classList.toggle('selected', c.dataset.key === label));
+function twToggleLevel(el, label) {
+  if (twLevels.has(label)) { twLevels.delete(label); }
+  else if (twLevels.size < 3) { twLevels.add(label); }
+  document.querySelectorAll('#tw-level-grid .tw-level-card').forEach(c => c.classList.toggle('selected', twLevels.has(c.dataset.key)));
+  document.getElementById('tw-level-count').textContent = `${twLevels.size} / 3 selected`;
   twUpdateNav();
 }
-window.twSelectLevel = twSelectLevel;
-
-function twSelectHuntMode(el, mode) {
-  twHuntMode = mode;
-  document.querySelectorAll('#tw-hunt-grid .tw-hunt-card').forEach(c => c.classList.toggle('selected', c.dataset.key === mode));
-  twUpdateNav();
-}
-window.twSelectHuntMode = twSelectHuntMode;
+window.twToggleLevel = twToggleLevel;
 
 function twRenderStep() {
   document.getElementById('tw-page1').style.display = twStep === 1 ? '' : 'none';
@@ -602,9 +589,9 @@ function twRenderStep() {
 function twUpdateNav() {
   const btn = document.getElementById('tw-next');
   if (twStep === 1) { btn.textContent = 'Next \u2192'; btn.disabled = twGeo.size === 0; }
-  else if (twStep === 2) { btn.textContent = 'Next \u2192'; btn.disabled = twStyles.size === 0; }
-  else if (twStep === 3) { btn.textContent = 'Next \u2192'; btn.disabled = !twLevel; }
-  else { btn.textContent = 'Hunt \u2192'; btn.disabled = !twHuntMode; }
+  else if (twStep === 2) { btn.textContent = 'Next \u2192'; btn.disabled = twSec.size === 0; }
+  else if (twStep === 3) { btn.textContent = 'Next \u2192'; btn.disabled = twStyles.size === 0; }
+  else { btn.textContent = 'Hunt \u2192'; btn.disabled = twLevels.size === 0; }
 }
 
 function twBack() { if (twStep > 1) { twStep--; twRenderStep(); } }
@@ -622,9 +609,10 @@ function _criteriaToFlat(criteria) {
 function twNext() {
   if (twStep < 4) { twStep++; twRenderStep(); return; }
   closeTrapWizard();
-  const region = twGeo.size === 0 || twGeo.has('global') ? 'global' : Array.from(twGeo);
-  const sectors = twSec.size === 0 || twSec.has('all') ? 'all' : Array.from(twSec);
+  const region = twGeo.size === 0 ? 'global' : Array.from(twGeo);
+  const sectors = twSec.size === 0 ? 'all' : Array.from(twSec);
   const styleKeys = Array.from(twStyles);
+  const levels = Array.from(twLevels);
   const basePreset = PRESETS[styleKeys[0]];
   const merged = _criteriaToFlat(basePreset.criteria);
   if (sectors !== 'all') merged.sector = sectors;
@@ -646,13 +634,13 @@ function twNext() {
   _lastPresetKey = styleKeys[0];
   scoredCache = [];
 
-  // Store trap criteria for 4-criteria scoring
+  // Store trap criteria for 4-criteria scoring (default to strict Hunt)
   _trapCriteria = {
     region: region,
     sectors: sectors,
     styles: styleKeys,
-    level: twLevel,
-    huntMode: twHuntMode || 'open'
+    levels: levels,
+    huntMode: 'strict'
   };
 
   findStocks();
@@ -689,8 +677,8 @@ function runPreset(region) {
     region: _trapCriteria.region || region,
     sectors: _trapCriteria.sectors || 'all',
     styles: [_activePreset],
-    level: _trapCriteria.level,
-    huntMode: _trapCriteria.huntMode || 'open'
+    levels: Array.isArray(_trapCriteria.levels) ? _trapCriteria.levels : (_trapCriteria.level ? [_trapCriteria.level] : []),
+    huntMode: _trapCriteria.huntMode || 'strict'
   };
 
   document.getElementById('region-picker-overlay').style.display = 'none';
@@ -781,7 +769,7 @@ document.addEventListener('click', e => {
 // Quick presets strip removed — discover-only mode
 
 // ── Trap criteria (stored from wizard for scoring) ──────────
-let _trapCriteria = { region: 'global', sectors: 'all', styles: [], level: null, huntMode: 'open' };
+let _trapCriteria = { region: 'global', sectors: 'all', styles: [], levels: [], huntMode: 'strict' };
 
 // ── 3-criteria scoring for Scan (territory is pre-filtered via loadAllStocks) ──
 function scoreTrapCriteria(stock, criteria) {
@@ -811,15 +799,18 @@ function scoreTrapCriteria(stock, criteria) {
   }
   checks.push({ label: 'Style', match: styleMatch });
 
-  // 3. Level: Strict=at or below chosen, Open=±1 from selected
+  // 3. Level: support both multi-level (levels array) and legacy single level
   let levelMatch = true;
-  if (criteria.level) {
-    const chosenLvl = parseInt(criteria.level.replace(/\D/g, '')) || 99;
+  const levelsArr = Array.isArray(criteria.levels) && criteria.levels.length > 0
+    ? criteria.levels
+    : (criteria.level ? [criteria.level] : []);
+  if (levelsArr.length > 0) {
+    const chosenNums = levelsArr.map(l => parseInt(String(l).replace(/\D/g, '')) || 99);
     const stockLvl = parseInt((stock.mood?.label || '').replace(/\D/g, '')) || 99;
     if (isStrict) {
-      levelMatch = stockLvl <= chosenLvl;
+      levelMatch = chosenNums.includes(stockLvl);
     } else {
-      levelMatch = Math.abs(stockLvl - chosenLvl) <= 1;
+      levelMatch = chosenNums.some(n => Math.abs(stockLvl - n) <= 1);
     }
   }
   checks.push({ label: 'Level', match: levelMatch });
@@ -1102,7 +1093,7 @@ document.addEventListener('click', e => {
     _presetMode = true;
     _lastPresetKey = style;
     scoredCache = [];
-    _trapCriteria = { region: r, sectors: 'all', styles: [style], level: level ? 'Level ' + level : null, huntMode: 'open' };
+    _trapCriteria = { region: r, sectors: 'all', styles: [style], levels: level ? ['Level ' + level] : [], huntMode: 'strict' };
     findStocks();
   } else if (level) {
     document.getElementById('scan-welcome').style.display = 'none';
@@ -1112,7 +1103,7 @@ document.addEventListener('click', e => {
     _presetMode = true;
     _lastPresetKey = 'momentum';
     scoredCache = [];
-    _trapCriteria = { region: region || 'global', sectors: 'all', styles: ['momentum'], level: 'Level ' + level, huntMode: 'open' };
+    _trapCriteria = { region: region || 'global', sectors: 'all', styles: ['momentum'], levels: ['Level ' + level], huntMode: 'strict' };
     findStocks();
   } else if (region) {
     document.getElementById('scan-welcome').style.display = 'none';
@@ -1122,7 +1113,7 @@ document.addEventListener('click', e => {
     _presetMode = true;
     _lastPresetKey = 'momentum';
     scoredCache = [];
-    _trapCriteria = { region: region, sectors: 'all', styles: ['momentum'], level: level ? 'Level ' + level : null, huntMode: 'open' };
+    _trapCriteria = { region: region, sectors: 'all', styles: ['momentum'], levels: level ? ['Level ' + level] : [], huntMode: 'strict' };
     findStocks();
   } else if (sessionStorage.getItem('sp_hasResults')) {
     // Restore previous scan from session
@@ -1189,7 +1180,6 @@ function showFinderCard() {
 
 function switchToOpenHunt() {
   _trapCriteria.huntMode = 'open';
-  twHuntMode = 'open';
   findStocks();
 }
 window.switchToOpenHunt = switchToOpenHunt;
@@ -1248,7 +1238,7 @@ function buildFinderDiscoverCard(item) {
     '</div></div>' +
     '<div class="dc-match-row"><div><div class="dc-match-label">Match</div><div class="dc-match-word" style="color:' + matchCol + ';">' + matchWord + '</div></div>' +
       '<div class="dc-match-bar"><div class="dc-match-fill" style="width:' + item.pct + '%;background:' + matchCol + ';"></div></div></div>' +
-    '<div class="dc-returns">' + ret('1M', s._m1) + ret('3M', s._m3) + ret('1Y', s._y5 != null ? null : null) + ret('5Y', s._y5) + '</div>' +
+    '<div class="dc-returns">' + ret('1M', s._m1) + ret('3M', s._m3) + ret('1Y', s._y1) + ret('5Y', s._y5) + '</div>' +
     '<div class="dc-section"><div class="dc-section-label">Signals</div><div class="dc-sig-list">' +
       (sig.g > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot green"></span><span class="dc-sig-count green">' + sig.g + '</span> Positive</div>' : '') +
       (sig.a > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot amber"></span><span class="dc-sig-count amber">' + sig.a + '</span> Cautionary</div>' : '') +
@@ -1258,7 +1248,7 @@ function buildFinderDiscoverCard(item) {
     '<div class="discover-nav" style="border-top:1px solid var(--border);margin-top:1.2rem;padding-top:1rem;">' +
       '<div class="dc-nav-item"><button class="dc-btn-back" onclick="finderPrevCard()" title="Back"><i data-lucide="arrow-left"></i></button><div class="dc-label">Back</div></div>' +
       '<div class="dc-nav-item"><button class="dc-btn-heart' + (hearted ? ' hearted' : '') + '" onclick="finderToggleHeart()" title="' + (hearted ? 'Remove from watchlist' : 'Save to watchlist') + '"><i data-lucide="heart"></i></button><div class="dc-label">Save</div></div>' +
-      '<div class="dc-nav-item"><button class="dc-btn-open" onclick="finderOpenStock()" title="View details"><i data-lucide="external-link"></i></button><div class="dc-label">Open</div></div>' +
+      '<div class="dc-nav-item"><button class="dc-btn-open" onclick="finderOpenStock()" title="View details"><i data-lucide="external-link"></i></button><div class="dc-label">View</div></div>' +
       '<div class="dc-nav-item"><button class="dc-btn-next" onclick="finderNextCard()" title="Next"><i data-lucide="arrow-right"></i></button><div class="dc-label">Next</div></div>' +
     '</div>' +
   '</div>';
@@ -1284,8 +1274,9 @@ function showTrapSummary() {
   else rows.push('<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:var(--muted);">Sector</span><span style="color:var(--text);">' + (sectorLabels[sec]||sec||'All') + '</span></div>');
   // Style
   if (c.styles && c.styles.length) rows.push('<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:var(--muted);">Style</span><span style="color:var(--text);">' + c.styles.map(function(k){ return (STYLE_ICONS[k]||'') + ' ' + (STYLE_NAMES[k]||k); }).join(', ') + '</span></div>');
-  // Level
-  if (c.level) rows.push('<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:var(--muted);">Max Level</span><span style="color:var(--text);">' + c.level + '</span></div>');
+  // Level (multi)
+  var lvlArr = Array.isArray(c.levels) && c.levels.length ? c.levels : (c.level ? [c.level] : []);
+  if (lvlArr.length) rows.push('<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:var(--muted);">Level</span><span style="color:var(--text);">' + lvlArr.join(', ') + '</span></div>');
 
   content.innerHTML = rows.join('');
   panel.style.display = 'block';

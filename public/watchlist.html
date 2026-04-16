@@ -21,6 +21,7 @@
     <div class="nav-dropdown">
       <button class="nav-link nav-dropdown-trigger">Tools <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
       <div class="nav-dropdown-menu">
+        <a class="nav-dropdown-item" href="#" onclick="event.preventDefault();openGlobalSearch();">Search</a>
         <a class="nav-dropdown-item" href="quiz.html">Pro Hunt</a>
         <a class="nav-dropdown-item" href="stocks.html">Scan</a>
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
@@ -34,6 +35,7 @@
 </nav>
 <div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
 <div class="tools-popover" id="toolsPopover">
+  <a href="#" onclick="event.preventDefault();closeToolsPopover();openGlobalSearch();" class="tools-popover-item"><i data-lucide="search" class="nb-icon"></i>Search</a>
   <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
   <a href="stocks.html" class="tools-popover-item"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
   <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
@@ -61,13 +63,14 @@ function closeToolsPopover(){
     <div style="text-align:center;margin-bottom:2rem;">
       <div style="display:inline-block;font-family:var(--mono);font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--green);border:1px solid var(--border2);padding:0.3rem 1rem;border-radius:99px;margin-bottom:1rem;">CATCH</div>
       <h1 style="font-family:var(--font);font-size:2rem;font-weight:400;line-height:1.2;margin-bottom:0.5rem;">Your catch.</h1>
-      <p style="color:var(--muted);font-size:0.92rem;">Stocks you've saved from Hunt and Pro Hunt.</p>
+      <p style="color:var(--muted);font-size:0.92rem;">Stocks you've saved from your hunt.</p>
     </div>
 
     <div id="wl-list"></div>
     <div id="wl-empty" style="display:none;text-align:center;padding:3rem 1rem;">
       <div style="font-size:2.5rem;margin-bottom:1rem;">♡</div>
-      <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;">No saved stocks yet.<br>Use the <span style="color:var(--red);">♥</span> Save button on Hunt or Pro Hunt cards to save stocks here.</p>
+      <p style="color:var(--muted);font-size:0.95rem;line-height:1.7;margin-bottom:1.5rem;"><strong style="color:var(--fg);">First time?</strong><br>Use the <span style="color:var(--red);">♥</span> Save button to save stocks here.</p>
+      <a href="/finder.html" style="display:inline-block;padding:0.7rem 1.4rem;border:1px solid var(--green);color:var(--green);border-radius:99px;font-family:var(--mono);font-size:0.8rem;letter-spacing:0.06em;text-transform:uppercase;text-decoration:none;">Start your hunt</a>
     </div>
   </div>
 </div>
@@ -82,7 +85,7 @@ function closeToolsPopover(){
   </div>
 </footer>
 
-<script src="assets/js/mood.js"></script>
+<script src="assets/js/mood.js?v=20260416a"></script>
 <script>
 'use strict';
 injectSidebarHTML();

@@ -144,6 +144,7 @@ function normalizeSearchEntry(e, exchLabels) {
     _ar:           e.ar,
     _m1:           e.m1,
     _m3:           e.m3,
+    _y1:           e.y1,
     _y5:           e.y5,
     _ma50:         e.ma50,
     _ma200:        e.ma200,

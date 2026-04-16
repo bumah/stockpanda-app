@@ -171,6 +171,7 @@
     <div class="nav-dropdown">
       <button class="nav-link nav-dropdown-trigger">Tools <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
       <div class="nav-dropdown-menu">
+        <a class="nav-dropdown-item" href="#" onclick="event.preventDefault();openGlobalSearch();">Search</a>
         <a class="nav-dropdown-item" href="quiz.html">Pro Hunt</a>
         <a class="nav-dropdown-item" href="stocks.html">Scan</a>
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
@@ -184,6 +185,7 @@
 </nav>
 <div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
 <div class="tools-popover" id="toolsPopover">
+  <a href="#" onclick="event.preventDefault();closeToolsPopover();openGlobalSearch();" class="tools-popover-item"><i data-lucide="search" class="nb-icon"></i>Search</a>
   <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
   <a href="stocks.html" class="tools-popover-item"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
   <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
@@ -231,6 +233,7 @@ function closeToolsPopover(){
 
   <!-- Action bar -->
   <div class="action-bar">
+    <button class="share-btn" style="margin-top:0;" id="catch-btn" onclick="toggleStockCatch()"><i data-lucide="heart" style="width:14px;height:14px;" id="catch-icon"></i> <span id="catch-label">Catch</span></button>
     <button class="share-btn" style="margin-top:0;" id="share-btn" onclick="openShareModal()"><i data-lucide="share-2" style="width:14px;height:14px;"></i> Share</button>
     <button class="share-btn" style="margin-top:0;" id="preview-btn" onclick="openPreviewCard()"><i data-lucide="search" style="width:14px;height:14px;"></i> Preview</button>
     <button class="share-btn" style="margin-top:0;" id="pdf-btn" onclick="exportPDF()"><i data-lucide="file-text" style="width:14px;height:14px;"></i> PDF</button>
@@ -280,7 +283,7 @@ function closeToolsPopover(){
   </div>
 </div>
 
-<script src="assets/js/mood.js"></script>
+<script src="assets/js/mood.js?v=20260416a"></script>
 <script>
 'use strict';
 
@@ -383,6 +386,35 @@ function renderAll() {
   renderFinancials();
   renderRawTable();
   renderStyleBreakdown();
+  updateCatchBtn();
+}
+
+// ── Catch (watchlist) ─────────────────────────────────────────
+function _wlGet() { try { return JSON.parse(localStorage.getItem('sp_watchlist') || '[]'); } catch(e) { return []; } }
+function _wlSet(wl) { localStorage.setItem('sp_watchlist', JSON.stringify(wl)); }
+function _wlHas(t, c) { return _wlGet().some(function(w){ return w.ticker === t && w.country === (c||''); }); }
+function toggleStockCatch() {
+  if (!stockData) return;
+  var t = stockData.ticker, c = stockData.country || '', n = stockData.company || '';
+  var wl = _wlGet();
+  if (_wlHas(t, c)) {
+    wl = wl.filter(function(w){ return !(w.ticker === t && w.country === c); });
+  } else {
+    wl.push({ ticker: t, country: c, company: n, addedAt: Date.now() });
+  }
+  _wlSet(wl);
+  updateCatchBtn();
+}
+function updateCatchBtn() {
+  if (!stockData) return;
+  var btn = document.getElementById('catch-btn');
+  var lbl = document.getElementById('catch-label');
+  if (!btn || !lbl) return;
+  var has = _wlHas(stockData.ticker, stockData.country || '');
+  lbl.textContent = has ? 'Caught' : 'Catch';
+  btn.style.background = has ? 'rgba(248,113,113,0.16)' : '';
+  btn.style.borderColor = has ? 'rgba(248,113,113,0.45)' : '';
+  btn.style.color = has ? '#F87171' : '';
 }
 
 function renderHeader() {

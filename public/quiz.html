@@ -182,6 +182,7 @@
     <div class="nav-dropdown">
       <button class="nav-link nav-dropdown-trigger active">Tools <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
       <div class="nav-dropdown-menu">
+        <a class="nav-dropdown-item" href="#" onclick="event.preventDefault();openGlobalSearch();">Search</a>
         <a class="nav-dropdown-item" href="quiz.html">Pro Hunt</a>
         <a class="nav-dropdown-item" href="stocks.html">Scan</a>
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
@@ -195,6 +196,7 @@
 </nav>
 <div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
 <div class="tools-popover" id="toolsPopover">
+  <a href="#" onclick="event.preventDefault();closeToolsPopover();openGlobalSearch();" class="tools-popover-item"><i data-lucide="search" class="nb-icon"></i>Search</a>
   <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
   <a href="stocks.html" class="tools-popover-item"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
   <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
@@ -273,7 +275,7 @@ function closeToolsPopover(){
 
       <!-- Step 1: Region -->
       <div class="quiz-step active" id="step-1">
-        <div class="q-label">Question 1 of 13 &middot; Market Region</div>
+        <div class="q-label">Question 1 of 12 &middot; Market Region</div>
         <div class="q-title">Which markets would you like to explore?</div>
         <div class="q-sub">Select one or more &mdash; tap to toggle</div>
         <div class="choices">
@@ -344,14 +346,14 @@ function closeToolsPopover(){
         </div>
         <div class="quiz-nav">
           <button class="btn-next" id="next-1" onclick="tryNext(1)">Next &rarr;</button>
-          <span class="step-counter">1 / 13</span>
+          <span class="step-counter">1 / 12</span>
         </div>
         <div class="select-hint" id="hint-1">Please select at least one market to continue</div>
       </div>
 
       <!-- Step 2: Sector -->
       <div class="quiz-step" id="step-2">
-        <div class="q-label">Question 2 of 13 &middot; Sector</div>
+        <div class="q-label">Question 2 of 12 &middot; Sector</div>
         <div class="q-title">Which sectors interest you?</div>
         <div class="q-sub">Select one or more &mdash; tap to toggle</div>
         <div class="choices">
@@ -423,14 +425,14 @@ function closeToolsPopover(){
         <div class="quiz-nav">
           <button class="btn-back" onclick="prevStep(2)">&larr; Back</button>
           <button class="btn-next" id="next-2" onclick="tryNext(2)">Next &rarr;</button>
-          <span class="step-counter">2 / 13</span>
+          <span class="step-counter">2 / 12</span>
         </div>
         <div class="select-hint" id="hint-2">Please select at least one sector to continue</div>
       </div>
 
       <!-- Step 3: Size -->
       <div class="quiz-step" id="step-3">
-        <div class="q-label">Question 3 of 13 &middot; Company Size</div>
+        <div class="q-label">Question 3 of 12 &middot; Company Size</div>
         <div class="q-title">How big should the company be?</div>
         <div class="q-sub">Bigger companies tend to be more stable. Smaller ones can grow faster but carry more risk.</div>
         <div class="choices">
@@ -470,14 +472,14 @@ function closeToolsPopover(){
         <div class="quiz-nav">
           <button class="btn-back" onclick="prevStep(3)">&larr; Back</button>
           <button class="btn-next" id="next-3" onclick="tryNext(3)">Next &rarr;</button>
-          <span class="step-counter">3 / 13</span>
+          <span class="step-counter">3 / 12</span>
         </div>
         <div class="select-hint" id="hint-3">Please select an option above to continue</div>
       </div>
 
       <!-- Step 4: Recent Returns -->
       <div class="quiz-step" id="step-4">
-        <div class="q-label">Question 4 of 13 &middot; Recent Performance</div>
+        <div class="q-label">Question 4 of 12 &middot; Recent Performance</div>
         <div class="q-title">How has the stock been doing recently?</div>
         <div class="q-sub">This looks at how the price has moved in the last month.</div>
         <div class="choices">
@@ -509,14 +511,14 @@ function closeToolsPopover(){
         <div class="quiz-nav">
           <button class="btn-back" onclick="prevStep(4)">&larr; Back</button>
           <button class="btn-next" id="next-4" onclick="tryNext(4)">Next &rarr;</button>
-          <span class="step-counter">4 / 13</span>
+          <span class="step-counter">4 / 12</span>
         </div>
         <div class="select-hint" id="hint-4">Please select an option above to continue</div>
       </div>
 
       <!-- Step 5: 5Y Growth -->
       <div class="quiz-step" id="step-5">
-        <div class="q-label">Question 5 of 13 &middot; Long-Term Track Record</div>
+        <div class="q-label">Question 5 of 12 &middot; Long-Term Track Record</div>
         <div class="q-title">Do you care about long-term growth?</div>
         <div class="q-sub">This looks at how the stock has performed over the past 5 years.</div>
         <div class="choices">
@@ -548,14 +550,14 @@ function closeToolsPopover(){
         <div class="quiz-nav">
           <button class="btn-back" onclick="prevStep(5)">&larr; Back</button>
           <button class="btn-next" id="next-5" onclick="tryNext(5)">Next &rarr;</button>
-          <span class="step-counter">5 / 13</span>
+          <span class="step-counter">5 / 12</span>
         </div>
         <div class="select-hint" id="hint-5">Please select an option above to continue</div>
       </div>
 
       <!-- Step 6: Momentum -->
       <div class="quiz-step" id="step-6">
-        <div class="q-label">Question 6 of 13 &middot; Price Direction</div>
+        <div class="q-label">Question 6 of 12 &middot; Price Direction</div>
         <div class="q-title">Should the stock price be trending upward?</div>
         <div class="q-sub">Stocks moving upward often continue to rise. But not always.</div>
         <div class="choices">
@@ -587,14 +589,14 @@ function closeToolsPopover(){
         <div class="quiz-nav">
           <button class="btn-back" onclick="prevStep(6)">&larr; Back</button>
           <button class="btn-next" id="next-6" onclick="tryNext(6)">Next &rarr;</button>
-          <span class="step-counter">6 / 13</span>
+          <span class="step-counter">6 / 12</span>
         </div>
         <div class="select-hint" id="hint-6">Please select an option above to continue</div>
       </div>
 
       <!-- Step 7: MA Trends -->
       <div class="quiz-step" id="step-7">
-        <div class="q-label">Question 7 of 13 &middot; Price Trend</div>
+        <div class="q-label">Question 7 of 12 &middot; Price Trend</div>
         <div class="q-title">Is the stock in an uptrend or downtrend?</div>
         <div class="q-sub">We compare the current price to its recent and long-term averages to spot the trend.</div>
         <div class="choices">
@@ -634,14 +636,14 @@ function closeToolsPopover(){
         <div class="quiz-nav">
           <button class="btn-back" onclick="prevStep(7)">&larr; Back</button>
           <button class="btn-next" id="next-7" onclick="tryNext(7)">Next &rarr;</button>
-          <span class="step-counter">7 / 13</span>
+          <span class="step-counter">7 / 12</span>
         </div>
         <div class="select-hint" id="hint-7">Please select an option above to continue</div>
       </div>
 
       <!-- Step 8: 52-Week Position -->
       <div class="quiz-step" id="step-8">
-        <div class="q-label">Question 8 of 13 &middot; Price Position</div>
+        <div class="q-label">Question 8 of 12 &middot; Price Position</div>
         <div class="q-title">Where is the price compared to its past year?</div>
         <div class="q-sub">Is it near its highest point, lowest point, or somewhere in between?</div>
         <div class="choices">
@@ -673,14 +675,14 @@ function closeToolsPopover(){
         <div class="quiz-nav">
           <button class="btn-back" onclick="prevStep(8)">&larr; Back</button>
           <button class="btn-next" id="next-8" onclick="tryNext(8)">Next &rarr;</button>
-          <span class="step-counter">8 / 13</span>
+          <span class="step-counter">8 / 12</span>
         </div>
         <div class="select-hint" id="hint-8">Please select an option above to continue</div>
       </div>
 
       <!-- Step 9: Drawdown from Peak -->
       <div class="quiz-step" id="step-9">
-        <div class="q-label">Question 9 of 13 &middot; How Far Has It Fallen?</div>
+        <div class="q-label">Question 9 of 12 &middot; How Far Has It Fallen?</div>
         <div class="q-title">How much can the stock have dropped from its peak?</div>
         <div class="q-sub">Some investors look for stocks near their highs. Others hunt for big discounts.</div>
         <div class="choices">
@@ -720,14 +722,14 @@ function closeToolsPopover(){
         <div class="quiz-nav">
           <button class="btn-back" onclick="prevStep(9)">&larr; Back</button>
           <button class="btn-next" id="next-9" onclick="tryNext(9)">Next &rarr;</button>
-          <span class="step-counter">9 / 13</span>
+          <span class="step-counter">9 / 12</span>
         </div>
         <div class="select-hint" id="hint-9">Please select an option above to continue</div>
       </div>
 
       <!-- Step 10: Volatility -->
       <div class="quiz-step" id="step-10">
-        <div class="q-label">Question 10 of 13 &middot; Price Swings</div>
+        <div class="q-label">Question 10 of 12 &middot; Price Swings</div>
         <div class="q-title">How much price movement can you handle?</div>
         <div class="q-sub">Some stocks move calmly. Others swing wildly day to day.</div>
         <div class="choices">
@@ -759,14 +761,14 @@ function closeToolsPopover(){
         <div class="quiz-nav">
           <button class="btn-back" onclick="prevStep(10)">&larr; Back</button>
           <button class="btn-next" id="next-10" onclick="tryNext(10)">Next &rarr;</button>
-          <span class="step-counter">10 / 13</span>
+          <span class="step-counter">10 / 12</span>
         </div>
         <div class="select-hint" id="hint-10">Please select an option above to continue</div>
       </div>
 
       <!-- Step 11: Analyst Sentiment -->
       <div class="quiz-step" id="step-11">
-        <div class="q-label">Question 11 of 13 &middot; Expert Opinions</div>
+        <div class="q-label">Question 11 of 12 &middot; Expert Opinions</div>
         <div class="q-title">Do you care what stock analysts think?</div>
         <div class="q-sub">Professional analysts rate stocks as Buy, Sell, or Hold.</div>
         <div class="choices">
@@ -798,14 +800,14 @@ function closeToolsPopover(){
         <div class="quiz-nav">
           <button class="btn-back" onclick="prevStep(11)">&larr; Back</button>
           <button class="btn-next" id="next-11" onclick="tryNext(11)">Next &rarr;</button>
-          <span class="step-counter">11 / 13</span>
+          <span class="step-counter">11 / 12</span>
         </div>
         <div class="select-hint" id="hint-11">Please select an option above to continue</div>
       </div>
 
       <!-- Step 12: Profitability -->
       <div class="quiz-step" id="step-12">
-        <div class="q-label">Question 12 of 13 &middot; Making Money</div>
+        <div class="q-label">Question 12 of 12 &middot; Making Money</div>
         <div class="q-title">Should the company already be making a profit?</div>
         <div class="q-sub">Some companies are profitable now. Others are still investing to grow.</div>
         <div class="choices">
@@ -828,48 +830,17 @@ function closeToolsPopover(){
         </div>
         <div class="quiz-nav">
           <button class="btn-back" onclick="prevStep(12)">&larr; Back</button>
-          <button class="btn-next" id="next-12" onclick="tryNext(12)">Next &rarr;</button>
-          <span class="step-counter">12 / 13</span>
+          <button class="btn-next" id="next-12" onclick="tryNext(12)">Find Stocks &rarr;</button>
+          <span class="step-counter">12 / 12</span>
         </div>
         <div class="select-hint" id="hint-12">Please select an option above to continue</div>
-      </div>
-
-      <!-- Step 13: Hunting Mode -->
-      <div class="quiz-step" id="step-13">
-        <div class="q-label">Question 13 of 13 &middot; Hunting Mode</div>
-        <div class="q-title">How precise should your hunt be?</div>
-        <div class="q-sub">Choose how tightly we filter your results</div>
-        <div class="choices" style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;">
-          <div class="choice" data-step="13" data-val="strict" style="flex-direction:column;align-items:center;text-align:center;padding:1.2rem 0.8rem;">
-            <div class="choice-icon" style="font-size:2rem;">&#x1F3AF;</div>
-            <div class="choice-body" style="text-align:center;">
-              <div class="choice-title">Strict Hunt</div>
-              <div class="choice-desc">Precise results. Hard filter on region, sector, and level. Only strong style matches.</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="13" data-val="open" style="flex-direction:column;align-items:center;text-align:center;padding:1.2rem 0.8rem;">
-            <div class="choice-icon" style="font-size:2rem;">&#x1F30D;</div>
-            <div class="choice-body" style="text-align:center;">
-              <div class="choice-title">Open Hunt</div>
-              <div class="choice-desc">Cast a wider net. Flexible on sector and level. Easier style thresholds.</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-        </div>
-        <div class="quiz-nav">
-          <button class="btn-back" onclick="prevStep(13)">&larr; Back</button>
-          <button class="btn-next" id="next-13" onclick="tryNext(13)">Find Stocks &rarr;</button>
-          <span class="step-counter">13 / 13</span>
-        </div>
-        <div class="select-hint" id="hint-13">Please choose a hunting mode to continue</div>
       </div>
 
   </div><!-- /quiz-modal-box -->
 </div><!-- /quiz-modal-overlay -->
 
-<script src="assets/js/mood.js"></script>
-<script src="assets/js/finder-engine.js"></script>
+<script src="assets/js/mood.js?v=20260416a"></script>
+<script src="assets/js/finder-engine.js?v=20260416a"></script>
 <script>
 'use strict';
 
@@ -878,10 +849,10 @@ initTooltip();
 initNavStamp();
 
 // ── State ─────────────────────────────────────────────────────
-const answers = { region:null, sector:null, size:null, return1m:null, growth5y:null, momentum:null, matrend:null, range52w:null, drawdown:null, vol:null, analyst:null, profit:null, huntmode:null };
+const answers = { region:null, sector:null, size:null, return1m:null, growth5y:null, momentum:null, matrend:null, range52w:null, drawdown:null, vol:null, analyst:null, profit:null, huntmode:'strict' };
 let currentStep = 1;
-const TOTAL_STEPS = 13;
-const STEP_KEYS = ['region','sector','size','return1m','growth5y','momentum','matrend','range52w','drawdown','vol','analyst','profit','huntmode'];
+const TOTAL_STEPS = 12;
+const STEP_KEYS = ['region','sector','size','return1m','growth5y','momentum','matrend','range52w','drawdown','vol','analyst','profit'];
 
 let _queue = [];  // sorted scored stocks
 let _idx = 0;     // current card index
@@ -1014,7 +985,7 @@ async function findStocks(opts) {
 
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-  const huntmode = answers.huntmode || 'open';
+  const huntmode = answers.huntmode || 'strict';
   // Open hunt: skip sector hard-filter in loadAllStocks
   if (huntmode === 'open') answers._skipSectorFilter = true;
   const stocks = await loadAllStocks(answers);
@@ -1149,8 +1120,7 @@ function buildDiscoverCard(item) {
     // Returns
     '<div class="dc-returns">' +
       ret('1M', s._m1) + ret('3M', s._m3) +
-      ret('YTD', s._ps ? null : null) +  // YTD not in search data yet
-      ret('1Y', s._y5 != null ? null : null) +  // placeholder
+      ret('1Y', s._y1) +
       ret('5Y', s._y5) +
     '</div>' +
     // Signals
@@ -1171,7 +1141,7 @@ function buildDiscoverCard(item) {
     '<div class="discover-nav" style="border-top:1px solid var(--border);margin-top:1.2rem;padding-top:1rem;">' +
       '<div class="dc-nav-item"><button class="dc-btn-back" onclick="prevCard()" title="Back"><i data-lucide="arrow-left"></i></button><div class="dc-label">Back</div></div>' +
       '<div class="dc-nav-item"><button class="dc-btn-heart' + (hearted ? ' hearted' : '') + '" onclick="toggleHeart()" title="' + (hearted ? 'Remove from watchlist' : 'Save to watchlist') + '"><i data-lucide="heart"></i></button><div class="dc-label">Save</div></div>' +
-      '<div class="dc-nav-item"><button class="dc-btn-open" onclick="openStock()" title="View details"><i data-lucide="external-link"></i></button><div class="dc-label">Open</div></div>' +
+      '<div class="dc-nav-item"><button class="dc-btn-open" onclick="openStock()" title="View details"><i data-lucide="external-link"></i></button><div class="dc-label">View</div></div>' +
       '<div class="dc-nav-item"><button class="dc-btn-next" onclick="nextCard()" title="Next"><i data-lucide="arrow-right"></i></button><div class="dc-label">Next</div></div>' +
     '</div>' +
   '</div>';
