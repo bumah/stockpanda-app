@@ -65,7 +65,7 @@ const PRESETS = {
   },
 };
 
-const STYLE_ICONS = { trophy:'🏆', wild_beast:'🧬', scavenger:'🦅', momentum:'🚀', rebound:'🐇' };
+const STYLE_ICONS = { trophy:'🏆', wild_beast:'🐂', scavenger:'🦅', momentum:'🚀', rebound:'🐇' };
 const STYLE_NAMES = { trophy:'Trophy', wild_beast:'Wild Beast', scavenger:'Scavenger', momentum:'Momentum', rebound:'Rebound' };
 const STYLE_DESCS = { trophy:'Proven winners', wild_beast:'High-volatility', scavenger:'Quality bargains', momentum:'Sustained uptrends', rebound:'V-shape recovery' };
 

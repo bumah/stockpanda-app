@@ -193,6 +193,15 @@ function closeToolsPopover(){
     <button class="qb-tab" data-region="india">🇮🇳 India</button>
   </div>
 
+  <div class="qb-controls" id="level-controls" style="margin-top:0.5rem;">
+    <button class="qb-tab active" data-level="all">All levels</button>
+    <button class="qb-tab" data-level="Level 1">L1</button>
+    <button class="qb-tab" data-level="Level 2">L2</button>
+    <button class="qb-tab" data-level="Level 3">L3</button>
+    <button class="qb-tab" data-level="Level 4">L4</button>
+    <button class="qb-tab" data-level="Level 5">L5</button>
+  </div>
+
   <div id="content">
     <div class="qb-loading"><div class="qb-spinner"></div>Loading market data…</div>
   </div>
@@ -243,7 +252,7 @@ const HUNTING_STYLES = [
     sort: (a, b) => (b.y5 ?? 0) - (a.y5 ?? 0),
   },
   {
-    key:'wild_beast', icon:'🧬', label:'Wild Beast',
+    key:'wild_beast', icon:'🐂', label:'Wild Beast',
     sub:'Captures high-volatility assets with extreme upside (and downside) potential.',
     filters: [ gt('vol', 50), gt('beta', 1.5), nn('gap'), gt('gap', 3) ],
     sort: (a, b) => (b.vol ?? 0) - (a.vol ?? 0),
@@ -284,10 +293,13 @@ function fmtPrice(price, currency) {
 
 let allSearchData = [];
 let currentRegion = 'us';
+let currentLevel = 'all';
 function getRegionStocks() {
   const cfg = REGION_CONFIG[currentRegion];
   if (!cfg) return [];
-  return allSearchData.filter(e => cfg.countries.has(e.co));
+  let stocks = allSearchData.filter(e => cfg.countries.has(e.co));
+  if (currentLevel !== 'all') stocks = stocks.filter(e => e.m === currentLevel);
+  return stocks;
 }
 
 function renderAll() {
@@ -369,9 +381,18 @@ function renderAll() {
   document.getElementById('controls').addEventListener('click', e => {
     const tab = e.target.closest('.qb-tab');
     if (!tab) return;
-    document.querySelectorAll('.qb-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('#controls .qb-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     currentRegion = tab.dataset.region;
+    renderAll();
+  });
+
+  document.getElementById('level-controls').addEventListener('click', e => {
+    const tab = e.target.closest('.qb-tab');
+    if (!tab) return;
+    document.querySelectorAll('#level-controls .qb-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentLevel = tab.dataset.level;
     renderAll();
   });
 
