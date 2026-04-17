@@ -261,7 +261,8 @@ const HUNTING_STYLES = [
     key:'scavenger', icon:'🦅', label:'Scavenger',
     sub:'Finds high-quality stocks that have been beaten down — real bargains with proven fundamentals.',
     filters: [ gt('ni', 0), gt('y5', 20), lt('r52', 40), gt('mc', 2000000000) ],
-    sort: (a, b) => (b.y5 ?? 0) - (a.y5 ?? 0),
+    // Quality-to-discount ratio: strong 5Y track record per unit of discount (lower r52 = bigger discount)
+    sort: (a, b) => ((b.y5 ?? 0) / Math.max(b.r52 ?? 100, 1)) - ((a.y5 ?? 0) / Math.max(a.r52 ?? 100, 1)),
   },
   {
     key:'momentum', icon:'🚀', label:'Momentum',
