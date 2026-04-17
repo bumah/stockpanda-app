@@ -124,6 +124,13 @@
       .qb-hero h1 { font-size: 2rem; }
     }
   </style>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0E100F" />
+  <link rel="apple-touch-icon" href="/assets/img/icon-180.png" />
+  <link rel="icon" type="image/png" href="/assets/img/favicon-32.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="StockPanda" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 </head>
 <body>
 
@@ -143,6 +150,7 @@
         <a class="nav-dropdown-item" href="stocks.html">Scan</a>
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
         <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
+        <a class="nav-dropdown-item sp-install-btn" href="#" onclick="event.preventDefault();spInstallApp();" style="display:none;">Install app</a>
       </div>
     </div>
   </div>
@@ -158,6 +166,7 @@
   <a href="stocks.html" class="tools-popover-item"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
   <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
   <a href="handbook.html" class="tools-popover-item"><i data-lucide="book-open" class="nb-icon"></i>Handbook</a>
+  <a href="#" class="tools-popover-item sp-install-btn" onclick="event.preventDefault();closeToolsPopover();spInstallApp();" style="display:none;"><i data-lucide="download" class="nb-icon"></i>Install app</a>
 </div>
 <nav class="nav-bottom">
   <a href="index.html"><i data-lucide="house" class="nb-icon"></i>Home</a>

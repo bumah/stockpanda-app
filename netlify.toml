@@ -33,3 +33,17 @@
   for = "/*.html"
   [headers.values]
     Cache-Control = "public, max-age=300"
+
+# Service worker — never cache so new versions roll out on deploy
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+    Service-Worker-Allowed = "/"
+
+# Web app manifest
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+    Cache-Control = "public, max-age=3600"

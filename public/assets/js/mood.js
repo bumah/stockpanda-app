@@ -671,3 +671,53 @@ function openProModal() {
 function closeProModal() {
   document.getElementById('pro-modal').style.display = 'none';
 }
+
+/* ── PWA: register service worker + expose install prompt ───────── */
+(function sp_pwa() {
+  // Register service worker once the page is idle
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(err => {
+        console.warn('[pwa] sw register failed', err);
+      });
+    });
+  }
+
+  // Capture the install prompt event so we can trigger it later
+  let _deferredPrompt = null;
+
+  function _showInstallButtons(show) {
+    document.querySelectorAll('.sp-install-btn').forEach(el => {
+      el.style.display = show ? '' : 'none';
+    });
+  }
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    _deferredPrompt = e;
+    _showInstallButtons(true);
+  });
+
+  window.addEventListener('appinstalled', () => {
+    _deferredPrompt = null;
+    _showInstallButtons(false);
+    try { localStorage.setItem('sp_installed', '1'); } catch (_) {}
+  });
+
+  // Initial state: hide buttons unless the prompt has already fired
+  document.addEventListener('DOMContentLoaded', () => {
+    _showInstallButtons(!!_deferredPrompt);
+  });
+
+  window.spInstallApp = async function spInstallApp() {
+    if (!_deferredPrompt) {
+      // Fallback: show a brief hint for browsers that don't fire the event (iOS, Firefox)
+      alert('To install StockPanda, use your browser\'s menu → "Add to Home Screen".');
+      return;
+    }
+    _deferredPrompt.prompt();
+    try { await _deferredPrompt.userChoice; } catch (_) {}
+    _deferredPrompt = null;
+    _showInstallButtons(false);
+  };
+})();
