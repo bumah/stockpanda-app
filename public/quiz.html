@@ -64,7 +64,9 @@
       background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px;
       padding: 0.7rem 0.9rem; cursor: pointer; transition: all 0.15s; user-select: none;
     }
-    .choice:hover { border-color: var(--green); background: rgba(74,222,128,0.04); }
+    @media (hover: hover) {
+      .choice:hover { border-color: var(--green); background: rgba(74,222,128,0.04); }
+    }
     .choice.selected { border-color: var(--green); background: rgba(74,222,128,0.1); }
     .choice-icon { font-size: 1.1rem; flex-shrink: 0; line-height: 1; width: 1.4rem; text-align: center; }
     .choice-body { flex: 1; min-width: 0; }

@@ -46,7 +46,9 @@
       border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text);
       cursor: pointer; transition: all 0.15s; user-select: none;
     }
-    .tw-chip:hover { border-color: var(--green); background: rgba(74,222,128,0.05); }
+    @media (hover: hover) {
+      .tw-chip:hover { border-color: var(--green); background: rgba(74,222,128,0.05); }
+    }
     .tw-chip.selected { border-color: var(--green); background: rgba(74,222,128,0.12); color: var(--green); font-weight: 600; }
     .tw-style-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
     @media (max-width: 540px) { .tw-style-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -54,7 +56,9 @@
       background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px;
       padding: 0.75rem 0.85rem; cursor: pointer; transition: all 0.15s; text-align: left;
     }
-    .tw-style-card:hover { border-color: var(--green); background: rgba(74,222,128,0.05); }
+    @media (hover: hover) {
+      .tw-style-card:hover { border-color: var(--green); background: rgba(74,222,128,0.05); }
+    }
     .tw-style-card.selected { border-color: var(--green); background: rgba(74,222,128,0.12); }
     .tw-style-card .qfc-name { font-size: 0.78rem; }
     .tw-style-card .qfc-desc { font-size: 0.68rem; }
@@ -66,7 +70,9 @@
       padding: 0.9rem 0.6rem 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
       text-align: center; cursor: pointer; transition: all 0.15s;
     }
-    .tw-level-card:hover { border-color: var(--green); background: rgba(74,222,128,0.05); }
+    @media (hover: hover) {
+      .tw-level-card:hover { border-color: var(--green); background: rgba(74,222,128,0.05); }
+    }
     .tw-level-card.selected { border-color: var(--green); background: rgba(74,222,128,0.12); }
     .tw-level-card img { width: 48px; height: 48px; }
     .tw-hunt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
@@ -367,8 +373,8 @@ function closeToolsPopover(){
       <div class="tw-style-grid" id="tw-style-grid"></div>
     </div>
     <div id="tw-page4" style="display:none;">
-      <div class="tw-title">Set your hunting level</div>
-      <div class="tw-sub">What level of risk can you handle? Pick up to 3 levels.</div>
+      <div class="tw-title">Choose your stock difficulty level</div>
+      <div class="tw-sub">What level of unpredictability can you handle? Pick up to 3.</div>
       <div style="text-align:center;margin-bottom:0.6rem;" class="tw-sel-count" id="tw-level-count">0 / 3 selected</div>
       <div class="tw-level-grid" id="tw-level-grid"></div>
     </div>
@@ -488,11 +494,11 @@ const TW_STYLES = [
   { key: 'rebound', icon: '🐇', name: 'Rebound', desc: 'Stocks recovering after a rough patch — V-shape recoveries in motion.' },
 ];
 const TW_LEVELS = [
-  { label: 'Level 1', img: 'panda-vcalm.png', color: '#60A5FA', desc: 'I\u2019m comfortable with steady, stable stocks.' },
-  { label: 'Level 2', img: 'panda-calm.png', color: '#4ADE80', desc: 'I\u2019m comfortable with stable stocks that have mild movement.' },
-  { label: 'Level 3', img: 'panda-unsettled.png', color: '#FBBF24', desc: 'I can handle faster\u2011moving stocks that require timing.' },
-  { label: 'Level 4', img: 'panda-stressed.png', color: '#FB923C', desc: 'I can handle higher\u2011risk stocks that are unpredictable.' },
-  { label: 'Level 5', img: 'panda-danger.png', color: '#F87171', desc: 'I can handle highly volatile stocks that can turn sharply at any moment.' },
+  { label: 'Level 1', img: 'panda-vcalm.png', color: '#60A5FA', desc: 'Stable stocks with minimal price movement.' },
+  { label: 'Level 2', img: 'panda-calm.png', color: '#4ADE80', desc: 'Mostly steady, with occasional mild swings.' },
+  { label: 'Level 3', img: 'panda-unsettled.png', color: '#FBBF24', desc: 'Faster-moving stocks that require timing.' },
+  { label: 'Level 4', img: 'panda-stressed.png', color: '#FB923C', desc: 'Unpredictable stocks that can move sharply.' },
+  { label: 'Level 5', img: 'panda-danger.png', color: '#F87171', desc: 'Extreme volatility. Not for the faint-hearted.' },
 ];
 
 // ── Trap Wizard state ────────────────────────────────────────

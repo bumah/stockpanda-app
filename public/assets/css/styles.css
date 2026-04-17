@@ -806,7 +806,7 @@ button.nav-dropdown-trigger {
 .finder-wrap { max-width: 720px; margin: 0 auto; padding-bottom: 3rem; }
 .finder-hero {
   text-align: center; padding: 4rem 1.5rem 2.5rem;
-  border-bottom: 1px solid var(--border); margin-bottom: 2rem;
+  margin-bottom: 2rem;
 }
 .finder-hero-h1 {
   font-family: var(--font); font-size: 2.6rem; font-weight: 700;
