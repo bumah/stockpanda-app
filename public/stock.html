@@ -1426,18 +1426,13 @@ window.openPreviewCard = function openPreviewCard() {
     return '<span class="dc-style-hearts">' + h + '</span>';
   }
 
-  // Styles — top 3 + worst
+  // Styles — all 5 types
   const STYLE_ICONS = { trophy:'\u{1F3C6}', wild_beast:'\u{1F9EC}', scavenger:'\u{1F985}', momentum:'\u{1F680}', rebound:'\u{1F407}' };
   const STYLE_NAMES = { trophy:'Trophy', wild_beast:'Wild Beast', scavenger:'Scavenger', momentum:'Momentum', rebound:'Rebound' };
   const sorted = Object.entries(ps).map(([k, v]) => [k, v?.pct ?? 0]).sort((a, b) => b[1] - a[1]);
-  const top3 = sorted.slice(0, 3);
-  const worst = sorted[sorted.length - 1];
-  let styleRows = top3.map(e =>
+  const styleRows = sorted.map(e =>
     '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[e[0]] || '') + '</span><span class="dc-style-name">' + (STYLE_NAMES[e[0]] || e[0]) + '</span>' + hearts(e[1]) + '</div>'
   ).join('');
-  if (worst && worst[0] !== top3[top3.length - 1]?.[0]) {
-    styleRows += '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[worst[0]] || '') + '</span><span class="dc-style-name">' + (STYLE_NAMES[worst[0]] || worst[0]) + '</span>' + hearts(worst[1]) + '</div>';
-  }
 
   // Escape helper
   function esc(t) { const d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
