@@ -6,6 +6,6 @@
  * localStorage-only mode).
  * ───────────────────────────────────────────────────────────── */
 window.SP_SUPABASE = {
-  url:      '',  // e.g. 'https://abcdefghij.supabase.co'
-  anonKey:  '',  // e.g. 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9....'
+  url:      'https://yxtyotpvtgocavnopbdt.supabase.co',
+  anonKey:  'sb_publishable_R1_ZO2ayPSvLdjCkLylygQ_M5oL4XjF',
 };
