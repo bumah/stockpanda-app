@@ -94,10 +94,10 @@
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
         <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
         <a class="nav-dropdown-item sp-install-btn" href="#" onclick="event.preventDefault();spInstallApp();" style="display:none;">Get StockPanda App</a>
-        <a class="nav-dropdown-item sp-auth-signin" href="#" onclick="event.preventDefault();spSignInGoogle();">Sign in with Google</a>
-        <a class="nav-dropdown-item sp-auth-signout" href="#" onclick="event.preventDefault();spSignOut();" style="display:none;">Sign out <span class="sp-auth-email" style="color:var(--muted);font-size:0.85em;margin-left:4px;"></span></a>
       </div>
     </div>
+    <a class="nav-link sp-auth-signin" href="#" onclick="event.preventDefault();spSignInGoogle();">Sign in</a>
+    <a class="nav-link sp-auth-signout sp-auth-email-title" href="#" onclick="event.preventDefault();spSignOut();" style="display:none;">Sign out</a>
   </div>
   <div class="nav-right">
     <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;" title="Contact"><i data-lucide="mail" style="width:18px;height:18px;"></i></a>
@@ -118,6 +118,8 @@
   <a href="finder.html"><i data-lucide="eye" class="nb-icon"></i>Hunt</a>
   <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Catch</a>
   <a href="#" onclick="event.preventDefault();toggleToolsPopover()" class="active"><i data-lucide="wrench" class="nb-icon"></i>Tools</a>
+  <a href="#" class="sp-auth-signin" onclick="event.preventDefault();spSignInGoogle();"><i data-lucide="user" class="nb-icon"></i>Sign in</a>
+  <a href="#" class="sp-auth-signout sp-auth-email-title" onclick="event.preventDefault();spSignOut();" style="display:none;"><i data-lucide="user" class="nb-icon"></i>Sign out</a>
 </nav>
 <script>
 function toggleToolsPopover(){

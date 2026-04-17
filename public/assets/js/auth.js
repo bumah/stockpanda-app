@@ -50,6 +50,7 @@
     $$('.sp-auth-signin').forEach(el => el.style.display = signedIn ? 'none' : '');
     $$('.sp-auth-signout').forEach(el => el.style.display = signedIn ? '' : 'none');
     $$('.sp-auth-email').forEach(el => el.textContent = email);
+    $$('.sp-auth-email-title').forEach(el => { if (email) el.title = email; else el.removeAttribute('title'); });
     $$('.sp-auth-name').forEach(el => el.textContent = nameOrEmail);
     $$('.sp-auth-only-in').forEach(el => el.style.display = signedIn ? '' : 'none');
     $$('.sp-auth-only-out').forEach(el => el.style.display = signedIn ? 'none' : '');
