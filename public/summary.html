@@ -249,13 +249,15 @@ const HUNTING_STYLES = [
     key:'trophy', icon:'🏆', label:'Trophy',
     sub:'Focuses on proven long-term winners with strong earnings and dominant positioning.',
     filters: [ gt('mc', 10000000000), gt('y1', 10), gt('y5', 50), gt('eps', 0) ],
-    sort: (a, b) => (b.y5 ?? 0) - (a.y5 ?? 0),
+    // Durable compounder × current trend — proven AND still rising
+    sort: (a, b) => ((b.y5 ?? 0) * (b.y1 ?? 0)) - ((a.y5 ?? 0) * (a.y1 ?? 0)),
   },
   {
     key:'wild_beast', icon:'🐂', label:'Wild Beast',
     sub:'Captures high-volatility assets with extreme upside (and downside) potential.',
     filters: [ gt('vol', 50), gt('beta', 1.5), nn('gap'), gt('gap', 3) ],
-    sort: (a, b) => (b.vol ?? 0) - (a.vol ?? 0),
+    // Volatility × realised upside — explosive moves that actually paid off
+    sort: (a, b) => ((b.vol ?? 0) * (b.y1 ?? 0)) - ((a.vol ?? 0) * (a.y1 ?? 0)),
   },
   {
     key:'scavenger', icon:'🦅', label:'Scavenger',
@@ -268,13 +270,15 @@ const HUNTING_STYLES = [
     key:'momentum', icon:'🚀', label:'Momentum',
     sub:'Identifies stocks in sustained uptrends across multiple timeframes.',
     filters: [ gt('m1', 0), gt('m3', 0), gt('y1', 10), aboveMA('ma50') ],
-    sort: (a, b) => (b.y1 ?? 0) - (a.y1 ?? 0),
+    // Medium × long-term — trend still running across timeframes
+    sort: (a, b) => ((b.m3 ?? 0) * (b.y1 ?? 0)) - ((a.m3 ?? 0) * (a.y1 ?? 0)),
   },
   {
     key:'rebound', icon:'🐇', label:'Rebound',
     sub:'Stocks that had a rough patch and are now climbing back — V-shape recoveries in motion.',
     filters: [ lt('r52', 60), gt('r52', 20), gt('m1', 0), aboveMA('ma50') ],
-    sort: (a, b) => (b.m1 ?? 0) - (a.m1 ?? 0),
+    // Recent snap-back × depth of prior drawdown — sharpest V-shape
+    sort: (a, b) => ((b.m1 ?? 0) * (100 - (b.r52 ?? 100))) - ((a.m1 ?? 0) * (100 - (a.r52 ?? 100))),
   },
 ];
 
