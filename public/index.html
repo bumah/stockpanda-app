@@ -58,6 +58,8 @@ body::before {
   padding: 180px 0 120px;
   text-align: center;
   position: relative;
+  border-bottom: none;
+  margin-bottom: 0;
 }
 
 .hero::before {
@@ -675,13 +677,16 @@ footer a:hover { color: var(--green-primary); }
   .hunt-intro-grid { grid-template-columns: 1fr; }
   .simple-grid { grid-template-columns: 1fr; }
   .pro-grid { grid-template-columns: 1fr; }
-  .nav { display: none; }
+  /* Show just the logo on mobile — navigation lives in nav-bottom */
+  .nav { padding: 0 1rem; justify-content: flex-start; }
+  .nav .nav-links,
+  .nav .nav-right { display: none; }
   .nav-bottom { display: flex !important; }
   body { padding-bottom: 72px; }
 }
 
 @media (max-width: 600px) {
-  .hero { padding: 140px 0 80px; }
+  .hero { padding: 90px 0 60px; }
   section { padding: 72px 0; }
   .style-card { flex: 0 0 170px; }
   .level-card { flex: 0 0 155px; }
