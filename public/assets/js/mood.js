@@ -711,7 +711,11 @@ function closeProModal() {
 
   window.spInstallApp = async function spInstallApp() {
     if (!_deferredPrompt) {
-      // Fallback: show a brief hint for browsers that don't fire the event (iOS, Firefox)
+      // iOS Safari has no install prompt API — surface the dedicated banner instead
+      if (_isIosSafari() && !_isStandalone()) {
+        _showIosInstallBanner(true);
+        return;
+      }
       alert('To get the StockPanda app, use your browser\'s menu → "Add to Home Screen".');
       return;
     }
@@ -720,4 +724,81 @@ function closeProModal() {
     _deferredPrompt = null;
     _showInstallButtons(false);
   };
+
+  // ── iOS-only: inline instructional banner (iOS Safari has no install API) ──
+  function _isIosSafari() {
+    const ua = navigator.userAgent || '';
+    const isIos = /iPad|iPhone|iPod/.test(ua) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); // iPadOS
+    if (!isIos) return false;
+    // Exclude in-app browsers + Chrome/Firefox on iOS (they can't Add-to-Home-Screen reliably)
+    const isInApp = /FBAN|FBAV|Instagram|Line|Twitter|TikTok|Pinterest|Snapchat/i.test(ua);
+    const isNonSafari = /CriOS|FxiOS|EdgiOS|OPiOS/i.test(ua);
+    return !isInApp && !isNonSafari;
+  }
+  function _isStandalone() {
+    return (window.navigator.standalone === true) ||
+           (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  }
+
+  function _showIosInstallBanner(force) {
+    if (!_isIosSafari() || _isStandalone()) return;
+    try {
+      if (!force && localStorage.getItem('sp_ios_install_dismissed') === '1') return;
+    } catch (_) {}
+    if (document.getElementById('sp-ios-install-banner')) return;
+
+    const bar = document.createElement('div');
+    bar.id = 'sp-ios-install-banner';
+    bar.setAttribute('role', 'dialog');
+    bar.setAttribute('aria-label', 'Install StockPanda');
+    bar.innerHTML =
+      '<div class="sp-ios-ib-inner">' +
+        '<span class="sp-ios-ib-icon" aria-hidden="true">\ud83d\udcf2</span>' +
+        '<span class="sp-ios-ib-text">' +
+          '<b>Install StockPanda</b> — tap ' +
+          '<span class="sp-ios-ib-share" aria-hidden="true">' +
+            '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">' +
+              '<path d="M8 10V1.5"/><path d="M5 4.5L8 1.5l3 3"/><path d="M3 7.5v6a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-6"/>' +
+            '</svg>' +
+          '</span> Share, then <b>Add to Home Screen</b>.' +
+        '</span>' +
+        '<button type="button" class="sp-ios-ib-close" aria-label="Dismiss">\u2715</button>' +
+      '</div>';
+
+    document.body.appendChild(bar);
+    document.body.classList.add('sp-ios-ib-open');
+    bar.querySelector('.sp-ios-ib-close').addEventListener('click', () => {
+      bar.remove();
+      document.body.classList.remove('sp-ios-ib-open');
+      try { localStorage.setItem('sp_ios_install_dismissed', '1'); } catch (_) {}
+    });
+  }
+
+  // Inject the banner's styles once (scoped)
+  (function _injectIosInstallStyles() {
+    if (document.getElementById('sp-ios-ib-style')) return;
+    const s = document.createElement('style');
+    s.id = 'sp-ios-ib-style';
+    s.textContent =
+      '#sp-ios-install-banner{position:fixed;top:0;left:0;right:0;z-index:9999;' +
+      'background:#0E100F;border-bottom:1px solid rgba(74,222,128,0.25);' +
+      'color:#e8f0e8;font-family:var(--font, "DM Sans", system-ui, sans-serif);' +
+      'font-size:0.82rem;line-height:1.35;padding:0.55rem 0.75rem;box-shadow:0 2px 12px rgba(0,0,0,0.4);}' +
+      '#sp-ios-install-banner .sp-ios-ib-inner{display:flex;align-items:center;gap:0.6rem;max-width:720px;margin:0 auto;}' +
+      '#sp-ios-install-banner .sp-ios-ib-icon{font-size:1.1rem;flex-shrink:0;}' +
+      '#sp-ios-install-banner .sp-ios-ib-text{flex:1;min-width:0;}' +
+      '#sp-ios-install-banner .sp-ios-ib-text b{color:#4ADE80;font-weight:600;}' +
+      '#sp-ios-install-banner .sp-ios-ib-share{display:inline-flex;align-items:center;justify-content:center;' +
+      'vertical-align:middle;padding:1px 4px;border:1px solid rgba(74,222,128,0.4);border-radius:4px;' +
+      'color:#4ADE80;margin:0 1px;}' +
+      '#sp-ios-install-banner .sp-ios-ib-close{background:none;border:none;color:#8a9f8a;font-size:1rem;' +
+      'line-height:1;padding:4px 6px;cursor:pointer;flex-shrink:0;border-radius:4px;}' +
+      '#sp-ios-install-banner .sp-ios-ib-close:hover{color:#e8f0e8;background:rgba(255,255,255,0.06);}' +
+      /* Push page content down so the fixed banner doesn't cover the nav */
+      'body.sp-ios-ib-open{padding-top:56px;}';
+    document.head.appendChild(s);
+  })();
+
+  document.addEventListener('DOMContentLoaded', () => { _showIosInstallBanner(false); });
 })();
