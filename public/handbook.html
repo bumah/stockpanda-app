@@ -236,6 +236,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="StockPanda" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <script src="/assets/js/supabase-config.js?v=20260418a"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="/assets/js/auth.js?v=20260418a" defer></script>
 </head>
 <body>
 
@@ -256,6 +259,8 @@
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
         <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
         <a class="nav-dropdown-item sp-install-btn" href="#" onclick="event.preventDefault();spInstallApp();" style="display:none;">Get StockPanda App</a>
+        <a class="nav-dropdown-item sp-auth-signin" href="#" onclick="event.preventDefault();spSignInGoogle();">Sign in with Google</a>
+        <a class="nav-dropdown-item sp-auth-signout" href="#" onclick="event.preventDefault();spSignOut();" style="display:none;">Sign out <span class="sp-auth-email" style="color:var(--muted);font-size:0.85em;margin-left:4px;"></span></a>
       </div>
     </div>
   </div>
