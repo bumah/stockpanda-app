@@ -712,7 +712,7 @@ function closeProModal() {
   window.spInstallApp = async function spInstallApp() {
     if (!_deferredPrompt) {
       // Fallback: show a brief hint for browsers that don't fire the event (iOS, Firefox)
-      alert('To install StockPanda, use your browser\'s menu → "Add to Home Screen".');
+      alert('To get the StockPanda app, use your browser\'s menu → "Add to Home Screen".');
       return;
     }
     _deferredPrompt.prompt();
