@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockPanda — Handbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    .hb-wrap { max-width: 880px; margin: 0 auto; padding: 2rem 1.2rem 5rem; }
+
+    /* ── Hero ─────────────────────────────────────────────────── */
+    .hb-hero { text-align: center; padding: 3rem 1rem 2rem; margin-bottom: 1.5rem; }
+    .hb-badge {
+      display: inline-block; font-family: var(--mono); font-size: 0.65rem;
+      letter-spacing: 0.12em; color: var(--green); border: 1px solid var(--green);
+      border-radius: 20px; padding: 0.3rem 0.9rem; margin-bottom: 1rem;
+    }
+    .hb-hero h1 {
+      font-family: var(--font); font-size: 2.6rem; font-weight: 700;
+      color: var(--parchment); letter-spacing: -0.02em; margin: 0 0 0.6rem;
+    }
+    .hb-hero p {
+      font-size: 0.95rem; color: var(--muted); max-width: 520px; margin: 0 auto 1.5rem;
+      line-height: 1.6;
+    }
+    .hb-search-wrap {
+      max-width: 440px; margin: 0 auto; position: relative;
+    }
+    .hb-search {
+      width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.7rem 2.6rem 0.7rem 2.4rem; font-size: 0.85rem;
+      color: var(--text); font-family: var(--font); outline: none; transition: all 0.15s;
+      box-sizing: border-box;
+    }
+    .hb-search::placeholder { color: var(--muted); }
+    .hb-search:focus { border-color: var(--green); background: rgba(74,222,128,0.04); }
+    .hb-search-icon {
+      position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%);
+      color: var(--muted); pointer-events: none;
+    }
+    .hb-search-clear {
+      position: absolute; right: 0.6rem; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      width: 24px; height: 24px; border-radius: 4px; font-size: 1rem;
+      display: none; align-items: center; justify-content: center;
+    }
+    .hb-search-clear.visible { display: inline-flex; }
+    .hb-search-clear:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+
+    /* ── Sticky section nav ───────────────────────────────────── */
+    .hb-nav {
+      position: sticky; top: 0; z-index: 30;
+      background: rgba(14,16,15,0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 0; margin: 0 -1.2rem 2rem;
+    }
+    .hb-nav-scroll {
+      display: flex; gap: 0.4rem; overflow-x: auto; -webkit-overflow-scrolling: touch;
+      padding: 0 1.2rem; scrollbar-width: none;
+    }
+    .hb-nav-scroll::-webkit-scrollbar { display: none; }
+    .hb-chip {
+      flex-shrink: 0; background: none; border: 1px solid var(--border); color: var(--muted);
+      padding: 0.35rem 0.85rem; border-radius: 20px; font-size: 0.7rem; cursor: pointer;
+      font-family: var(--font); transition: all 0.15s; white-space: nowrap;
+      text-decoration: none;
+    }
+    @media (hover: hover) {
+      .hb-chip:hover { border-color: var(--muted); color: var(--text); }
+    }
+    .hb-chip.active { border-color: var(--green); color: var(--green); background: rgba(74,222,128,0.07); }
+
+    /* ── Sections ─────────────────────────────────────────────── */
+    .hb-section { margin-bottom: 3rem; scroll-margin-top: 80px; }
+    .hb-section h2 {
+      font-family: var(--mono); font-size: 1.15rem; font-weight: 700;
+      color: var(--parchment); letter-spacing: -0.005em;
+      margin: 0 0 0.4rem; display: flex; align-items: baseline; gap: 0.5rem;
+    }
+    .hb-section-num {
+      font-family: var(--mono); font-size: 0.7rem; color: var(--green); font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+    .hb-section-intro {
+      font-size: 0.85rem; color: var(--muted); line-height: 1.65; margin: 0 0 1.2rem;
+    }
+    .hb-subsection-label {
+      font-family: var(--mono); font-size: 0.6rem; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.12em;
+      margin: 1.5rem 0 0.6rem;
+    }
+
+    /* ── Term cards ───────────────────────────────────────────── */
+    .hb-term {
+      background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.75rem 0.9rem; margin-bottom: 0.55rem;
+      transition: border-color 0.15s;
+      scroll-margin-top: 80px;
+    }
+    .hb-term:hover { border-color: rgba(74,222,128,0.3); }
+    .hb-term-name {
+      font-family: var(--mono); font-size: 0.82rem; font-weight: 700;
+      color: var(--parchment); margin-bottom: 0.25rem;
+    }
+    .hb-term-def {
+      font-size: 0.82rem; color: var(--muted); line-height: 1.6;
+    }
+    .hb-term.hb-hidden { display: none; }
+    .hb-subsection.hb-hidden { display: none; }
+
+    /* ── Type cards (horizontal row) ──────────────────────────── */
+    .hb-type-row {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.6rem; margin-bottom: 1rem;
+    }
+    @media (max-width: 680px) { .hb-type-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 380px) { .hb-type-row { grid-template-columns: 1fr; } }
+    .hb-type-card {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 12px; padding: 0.9rem 0.7rem; text-align: center;
+      transition: border-color 0.15s;
+    }
+    .hb-type-card:hover { border-color: rgba(74,222,128,0.3); }
+    .hb-type-icon { font-size: 1.6rem; display: block; margin-bottom: 0.35rem; }
+    .hb-type-name { font-weight: 700; font-size: 0.82rem; color: var(--parchment); margin-bottom: 0.2rem; }
+    .hb-type-hook { font-size: 0.68rem; color: var(--muted); line-height: 1.4; }
+
+    /* ── Level cards ──────────────────────────────────────────── */
+    .hb-level-row {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.55rem; margin-bottom: 1rem;
+    }
+    @media (max-width: 680px) { .hb-level-row { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 380px) { .hb-level-row { grid-template-columns: repeat(2, 1fr); } }
+    .hb-level-card {
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 12px; padding: 0.85rem 0.5rem; text-align: center;
+    }
+    .hb-level-card img { width: 42px; height: 42px; margin-bottom: 0.3rem; }
+    .hb-level-badge {
+      font-family: var(--mono); font-weight: 700; font-size: 0.85rem; margin-bottom: 0.15rem;
+    }
+    .hb-level-mood { font-size: 0.65rem; color: var(--muted); margin-bottom: 0.35rem; text-transform: lowercase; }
+    .hb-level-desc { font-size: 0.68rem; color: var(--muted); line-height: 1.45; }
+
+    /* ── Caveat blockquote ────────────────────────────────────── */
+    .hb-caveat {
+      border-left: 3px solid var(--green); background: rgba(74,222,128,0.04);
+      padding: 0.75rem 1rem; border-radius: 0 10px 10px 0;
+      font-size: 0.78rem; color: var(--muted); line-height: 1.6; margin: 1.25rem 0;
+    }
+
+    /* ── Signals legend ───────────────────────────────────────── */
+    .hb-signal-legend {
+      display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.2rem;
+    }
+    .hb-signal-dot {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      font-size: 0.72rem; color: var(--muted);
+      border: 1px solid var(--border); padding: 0.3rem 0.7rem; border-radius: 20px;
+    }
+    .hb-sd-green  { border-color: rgba(74,222,128,0.4); color: #4ADE80; }
+    .hb-sd-amber  { border-color: rgba(251,191,36,0.4); color: #FBBF24; }
+    .hb-sd-red    { border-color: rgba(248,113,113,0.4); color: #F87171; }
+
+    /* ── Match score rows ─────────────────────────────────────── */
+    .hb-match-list { margin: 0.5rem 0 1rem; }
+    .hb-match-row {
+      display: grid; grid-template-columns: auto 70px 1fr; align-items: center; gap: 0.75rem;
+      padding: 0.55rem 0.85rem; border: 1px solid var(--border); border-radius: 10px;
+      margin-bottom: 0.45rem; font-size: 0.82rem;
+      box-shadow: inset 3px 0 0 var(--match-col);
+    }
+    .hb-match-label { color: var(--parchment); font-weight: 600; font-family: var(--mono); font-size: 0.78rem; }
+    .hb-match-range { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); }
+    .hb-match-desc { color: var(--muted); font-size: 0.78rem; }
+    .hb-match-vs  { --match-col: #4ADE80; }
+    .hb-match-s   { --match-col: #4ADE80; }
+    .hb-match-f   { --match-col: #FBBF24; }
+    .hb-match-p   { --match-col: #F87171; }
+    .hb-match-vp  { --match-col: #F87171; }
+
+    /* ── Field notes grid ─────────────────────────────────────── */
+    .hb-notes-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin: 0.5rem 0 1rem;
+    }
+    @media (max-width: 600px) { .hb-notes-grid { grid-template-columns: 1fr; } }
+    .hb-note-card {
+      background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+      border-radius: 12px; padding: 0.85rem;
+    }
+    .hb-note-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem; }
+    .hb-note-icon { font-size: 1rem; }
+    .hb-note-title { font-weight: 700; font-size: 0.82rem; color: var(--parchment); font-family: var(--mono); }
+    .hb-note-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.55; }
+
+    /* ── Final note ───────────────────────────────────────────── */
+    .hb-final {
+      background: rgba(74,222,128,0.05); border: 1px solid rgba(74,222,128,0.22);
+      border-radius: 16px; padding: 2rem 1.6rem; text-align: center; margin-top: 3rem;
+      position: relative; overflow: hidden;
+    }
+    .hb-final-panda {
+      position: absolute; right: -20px; bottom: -20px; font-size: 7rem; opacity: 0.09;
+      pointer-events: none;
+    }
+    .hb-final p {
+      font-size: 0.95rem; color: var(--text); line-height: 1.65; max-width: 540px; margin: 0 auto 1.2rem;
+    }
+    .hb-final a {
+      display: inline-block; background: var(--brand); color: #0B0F0D;
+      padding: 0.7rem 1.4rem; border-radius: 8px; text-decoration: none;
+      font-weight: 700; font-size: 0.85rem; font-family: var(--font);
+      transition: filter 0.15s;
+    }
+    .hb-final a:hover { filter: brightness(1.08); }
+
+    /* ── No results ───────────────────────────────────────────── */
+    .hb-no-results {
+      text-align: center; padding: 3rem 1rem; color: var(--muted); font-size: 0.9rem;
+      display: none;
+    }
+    .hb-no-results.visible { display: block; }
+
+    /* ── Responsive ───────────────────────────────────────────── */
+    @media (max-width: 680px) {
+      .hb-hero h1 { font-size: 2rem; }
+      .hb-hero { padding: 2rem 0.5rem 1.5rem; }
+      .hb-section h2 { font-size: 1.05rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-sp">Stock</span><span class="nav-logo-rest">Panda</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="finder.html">Hunt</a>
+    <a class="nav-link" href="watchlist.html">Catch</a>
+    <div class="nav-dropdown">
+      <button class="nav-link nav-dropdown-trigger active">Tools <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
+      <div class="nav-dropdown-menu">
+        <a class="nav-dropdown-item" href="#" onclick="event.preventDefault();openGlobalSearch();">Search</a>
+        <a class="nav-dropdown-item" href="quiz.html">Pro Hunt</a>
+        <a class="nav-dropdown-item" href="stocks.html">Scan</a>
+        <a class="nav-dropdown-item" href="summary.html">Brief</a>
+        <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
+      </div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;" title="Contact"><i data-lucide="mail" style="width:18px;height:18px;"></i></a>
+    <div class="nav-stamp">Data: <span id="nav-asof-span">—</span></div>
+  </div>
+</nav>
+<div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
+<div class="tools-popover" id="toolsPopover">
+  <a href="#" onclick="event.preventDefault();closeToolsPopover();openGlobalSearch();" class="tools-popover-item"><i data-lucide="search" class="nb-icon"></i>Search</a>
+  <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
+  <a href="stocks.html" class="tools-popover-item"><i data-lucide="scan-search" class="nb-icon"></i>Scan</a>
+  <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
+  <a href="handbook.html" class="tools-popover-item"><i data-lucide="book-open" class="nb-icon"></i>Handbook</a>
+</div>
+<nav class="nav-bottom">
+  <a href="index.html"><i data-lucide="house" class="nb-icon"></i>Home</a>
+  <a href="finder.html"><i data-lucide="eye" class="nb-icon"></i>Hunt</a>
+  <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Catch</a>
+  <a href="#" onclick="event.preventDefault();toggleToolsPopover()" class="active"><i data-lucide="wrench" class="nb-icon"></i>Tools</a>
+</nav>
+<script>
+function toggleToolsPopover(){
+  var p=document.getElementById('toolsPopover'),b=document.getElementById('toolsBackdrop');
+  if(p.classList.contains('open')){p.classList.remove('open');b.classList.remove('open');}
+  else{p.classList.add('open');b.classList.add('open');}
+}
+function closeToolsPopover(){
+  document.getElementById('toolsPopover').classList.remove('open');
+  document.getElementById('toolsBackdrop').classList.remove('open');
+}
+</script>
+
+<div class="hb-wrap">
+
+  <!-- Hero -->
+  <div class="hb-hero">
+    <div class="hb-badge">FIELD GUIDE</div>
+    <h1>Handbook</h1>
+    <p>The language, signals, and craft of finding great stocks. Open it any time you see a term you don't recognise.</p>
+    <div class="hb-search-wrap">
+      <i data-lucide="search" class="hb-search-icon" style="width:16px;height:16px;"></i>
+      <input class="hb-search" id="hb-search" type="search" placeholder="Search the guide…" autocomplete="off" />
+      <button class="hb-search-clear" id="hb-search-clear" onclick="hbClearSearch()" aria-label="Clear search">×</button>
+    </div>
+  </div>
+
+  <!-- Sticky section nav -->
+  <nav class="hb-nav" id="hb-nav">
+    <div class="hb-nav-scroll">
+      <a class="hb-chip" href="#basics">Basics</a>
+      <a class="hb-chip" href="#types">Types</a>
+      <a class="hb-chip" href="#difficulty">Difficulty</a>
+      <a class="hb-chip" href="#signals">Signals</a>
+      <a class="hb-chip" href="#match">Match</a>
+      <a class="hb-chip" href="#notes">Notes</a>
+      <a class="hb-chip" href="#performance">Performance</a>
+      <a class="hb-chip" href="#financial">Financial</a>
+      <a class="hb-chip" href="#technical">Technical</a>
+      <a class="hb-chip" href="#data">Data</a>
+    </div>
+  </nav>
+
+  <!-- No-results message -->
+  <div class="hb-no-results" id="hb-no-results">No matches. Try another term.</div>
+
+  <!-- 1. Basics -->
+  <section class="hb-section" id="basics">
+    <h2><span class="hb-section-num">01</span> The Basics</h2>
+    <div class="hb-term" id="term-stock"><div class="hb-term-name">Stock</div><div class="hb-term-def">A share of ownership in a company. When you buy a stock, you own a tiny piece of the business.</div></div>
+    <div class="hb-term" id="term-ticker"><div class="hb-term-name">Ticker</div><div class="hb-term-def">The short code used to identify a stock (e.g., <code>UAL</code> for United Airlines). Think of it as the stock's nickname.</div></div>
+    <div class="hb-term" id="term-market-cap"><div class="hb-term-name">Market Cap</div><div class="hb-term-def">The total value of a company. Share price × total shares. A quick way to size up whether a company is small, medium, or massive.</div></div>
+    <div class="hb-term" id="term-sector"><div class="hb-term-name">Sector</div><div class="hb-term-def">The broad category of business (Transportation, Technology, Finance). Stocks in the same sector often move together.</div></div>
+    <div class="hb-term" id="term-industry"><div class="hb-term-name">Industry</div><div class="hb-term-def">A more specific grouping within a sector (e.g., Airlines within Transportation).</div></div>
+    <div class="hb-term" id="term-analyst-rating"><div class="hb-term-name">Analyst Rating</div><div class="hb-term-def">What professional analysts think of the stock. Ranges from Strong Sell to Strong Buy.</div></div>
+    <div class="hb-term" id="term-index"><div class="hb-term-name">Index</div><div class="hb-term-def">A membership list of stocks based on certain criteria (S&amp;P 500, NASDAQ, FTSE 100). Being in a major index usually means higher visibility and liquidity.</div></div>
+  </section>
+
+  <!-- 2. Types -->
+  <section class="hb-section" id="types">
+    <h2><span class="hb-section-num">02</span> Hunting Types</h2>
+    <p class="hb-section-intro">Every hunter has a preferred type. Pick the one that matches how you invest.</p>
+    <div class="hb-type-row">
+      <a class="hb-type-card" href="#term-trophy"><span class="hb-type-icon">🏆</span><div class="hb-type-name">Trophy</div><div class="hb-type-hook">Proven champions</div></a>
+      <a class="hb-type-card" href="#term-wild-beast"><span class="hb-type-icon">🐂</span><div class="hb-type-name">Wild Beast</div><div class="hb-type-hook">Big swings</div></a>
+      <a class="hb-type-card" href="#term-scavenger"><span class="hb-type-icon">🦅</span><div class="hb-type-name">Scavenger</div><div class="hb-type-hook">Quality bargains</div></a>
+      <a class="hb-type-card" href="#term-momentum"><span class="hb-type-icon">🚀</span><div class="hb-type-name">Momentum</div><div class="hb-type-hook">Ride the trend</div></a>
+      <a class="hb-type-card" href="#term-rebound"><span class="hb-type-icon">🐇</span><div class="hb-type-name">Rebound</div><div class="hb-type-hook">V-shape recoveries</div></a>
+    </div>
+
+    <div class="hb-term" id="term-trophy"><div class="hb-term-name">🏆 Trophy</div><div class="hb-term-def">Proven long-term winners with strong earnings. You collect champions. Companies with a track record of delivering.</div></div>
+    <div class="hb-term" id="term-wild-beast"><div class="hb-term-name">🐂 Wild Beast</div><div class="hb-term-def">High-volatility assets with extreme upside (and downside) potential. Big swings, big risks, big potential rewards.</div></div>
+    <div class="hb-term" id="term-scavenger"><div class="hb-term-name">🦅 Scavenger</div><div class="hb-term-def">Quality stocks that have been beaten down. You hunt bargains with proven fundamentals.</div></div>
+    <div class="hb-term" id="term-momentum"><div class="hb-term-name">🚀 Momentum</div><div class="hb-term-def">Stocks in sustained uptrends across multiple timeframes. You ride the wave. If it's going up and keeps going up, you want in.</div></div>
+    <div class="hb-term" id="term-rebound"><div class="hb-term-name">🐇 Rebound</div><div class="hb-term-def">Turnaround stocks starting to recover after a rough patch. You believe in second chances. Look for stocks that have been beaten down but are showing early signs of life.</div></div>
+
+    <div class="hb-caveat">Every stock gets a <strong>heart score (1–5)</strong> for each style. More hearts = stronger match.</div>
+  </section>
+
+  <!-- 3. Difficulty -->
+  <section class="hb-section" id="difficulty">
+    <h2><span class="hb-section-num">03</span> Difficulty Level</h2>
+    <p class="hb-section-intro">Difficulty measures a stock's <strong>unpredictability</strong> — how hard the price is to handle. The higher the level, the larger the potential swings (both profits and losses). Every stock gets a proprietary Difficulty Level based on volatility, drawdown history, and price behaviour.</p>
+    <div class="hb-level-row">
+      <div class="hb-level-card"><img src="assets/img/panda-vcalm.png" alt="Level 1" /><div class="hb-level-badge" style="color:#60A5FA;">L1</div><div class="hb-level-mood">very calm</div><div class="hb-level-desc">Stable stocks with minimal price movement.</div></div>
+      <div class="hb-level-card"><img src="assets/img/panda-calm.png" alt="Level 2" /><div class="hb-level-badge" style="color:#4ADE80;">L2</div><div class="hb-level-mood">calm</div><div class="hb-level-desc">Mostly steady, with occasional mild swings.</div></div>
+      <div class="hb-level-card"><img src="assets/img/panda-unsettled.png" alt="Level 3" /><div class="hb-level-badge" style="color:#FBBF24;">L3</div><div class="hb-level-mood">unsettled</div><div class="hb-level-desc">Faster-moving stocks that require timing.</div></div>
+      <div class="hb-level-card"><img src="assets/img/panda-stressed.png" alt="Level 4" /><div class="hb-level-badge" style="color:#FB923C;">L4</div><div class="hb-level-mood">wild</div><div class="hb-level-desc">Unpredictable stocks that can move sharply.</div></div>
+      <div class="hb-level-card"><img src="assets/img/panda-danger.png" alt="Level 5" /><div class="hb-level-badge" style="color:#F87171;">L5</div><div class="hb-level-mood">very wild</div><div class="hb-level-desc">Extreme volatility. Not for the faint-hearted.</div></div>
+    </div>
+    <div class="hb-caveat">Difficulty is not a measure of total risk. It's a guide to how hard a stock is to handle — not a guarantee of safety or reward. No single score captures every risk factor. Always do your own research.</div>
+  </section>
+
+  <!-- 4. Signals -->
+  <section class="hb-section" id="signals">
+    <h2><span class="hb-section-num">04</span> The Signals</h2>
+    <p class="hb-section-intro">Every stock is scored across <strong>11 signals</strong>. Each lands in one of three buckets:</p>
+    <div class="hb-signal-legend">
+      <span class="hb-signal-dot hb-sd-green">🟢 Positive</span>
+      <span class="hb-signal-dot hb-sd-amber">🟡 Cautionary</span>
+      <span class="hb-signal-dot hb-sd-red">🔴 Warning</span>
+    </div>
+
+    <div class="hb-subsection">
+      <div class="hb-subsection-label">Trend &amp; Momentum</div>
+      <div class="hb-term" id="term-short-trend"><div class="hb-term-name">Short-Term Trend</div><div class="hb-term-def">Direction over the past few weeks. Rising is positive, falling is worrying.</div></div>
+      <div class="hb-term" id="term-long-trend"><div class="hb-term-name">Long-Term Trend</div><div class="hb-term-def">Direction over the past year or more. The bigger picture.</div></div>
+      <div class="hb-term" id="term-ma-cross"><div class="hb-term-name">MA Cross</div><div class="hb-term-def">When the 50-day moving average crosses the 200-day. Golden Cross (50 above 200) is bullish; Death Cross (50 below 200) is bearish.</div></div>
+      <div class="hb-term" id="term-momentum-signal"><div class="hb-term-name">Momentum</div><div class="hb-term-def">How strongly the stock is moving in its current direction. Positive means accelerating up.</div></div>
+    </div>
+
+    <div class="hb-subsection">
+      <div class="hb-subsection-label">Performance</div>
+      <div class="hb-term" id="term-1m-return"><div class="hb-term-name">1M Return</div><div class="hb-term-def">Price change over the past month.</div></div>
+      <div class="hb-term" id="term-1y-return"><div class="hb-term-name">1Y Return</div><div class="hb-term-def">Price change over the past year.</div></div>
+      <div class="hb-term" id="term-5y-cagr"><div class="hb-term-name">5Y CAGR</div><div class="hb-term-def">Compound annual growth rate over five years. The true long-term return, annualised.</div></div>
+      <div class="hb-term" id="term-52w-range"><div class="hb-term-name">52-Week Range</div><div class="hb-term-def">Where the current price sits between its 52-week low and high. 0% = at the low, 100% = at the high.</div></div>
+    </div>
+
+    <div class="hb-subsection">
+      <div class="hb-subsection-label">Volatility &amp; Activity</div>
+      <div class="hb-term" id="term-volatility"><div class="hb-term-name">Volatility</div><div class="hb-term-def">How much the price swings. Higher = bigger moves in both directions. A major input into Difficulty Level.</div></div>
+      <div class="hb-term" id="term-unusual-activity"><div class="hb-term-name">Unusual Activity</div><div class="hb-term-def">Whether trading volume is spiking vs. normal. Can indicate news, big moves, or shifting interest.</div></div>
+      <div class="hb-term" id="term-distance-peak"><div class="hb-term-name">Distance from Peak</div><div class="hb-term-def">How far the stock has fallen from its recent high. A large drop can signal danger or opportunity depending on context.</div></div>
+    </div>
+  </section>
+
+  <!-- 5. Match Score -->
+  <section class="hb-section" id="match">
+    <h2><span class="hb-section-num">05</span> Match Score</h2>
+    <p class="hb-section-intro">When you set your Hunt rules, we score every stock against them and show a Match Score.</p>
+    <div class="hb-match-list">
+      <div class="hb-match-row hb-match-vs"><span class="hb-match-label">🟢 Very Strong</span><span class="hb-match-range">90–100</span><span class="hb-match-desc">Fits your rules closely.</span></div>
+      <div class="hb-match-row hb-match-s"><span class="hb-match-label">🟢 Strong</span><span class="hb-match-range">75–89</span><span class="hb-match-desc">Good match. Meets most criteria.</span></div>
+      <div class="hb-match-row hb-match-f"><span class="hb-match-label">🟡 Fair</span><span class="hb-match-range">60–74</span><span class="hb-match-desc">Partial match. Worth a look but not a perfect fit.</span></div>
+      <div class="hb-match-row hb-match-p"><span class="hb-match-label">🔴 Poor</span><span class="hb-match-range">45–59</span><span class="hb-match-desc">Weak fit for your current rules.</span></div>
+      <div class="hb-match-row hb-match-vp"><span class="hb-match-label">🔴 Very Poor</span><span class="hb-match-range">&lt;45</span><span class="hb-match-desc">Mismatch. Adjust your rules or skip.</span></div>
+    </div>
+  </section>
+
+  <!-- 6. Field Notes -->
+  <section class="hb-section" id="notes">
+    <h2><span class="hb-section-num">06</span> Field Notes</h2>
+    <p class="hb-section-intro">Every stock gets five plain-language notes. Written to save you from digging through the numbers.</p>
+    <div class="hb-notes-grid">
+      <div class="hb-note-card" id="term-note-recent"><div class="hb-note-head"><span class="hb-note-icon">📈</span><span class="hb-note-title">Recent Performance</span></div><div class="hb-note-desc">Short summary of how the stock has moved recently.</div></div>
+      <div class="hb-note-card" id="term-note-trend"><div class="hb-note-head"><span class="hb-note-icon">📊</span><span class="hb-note-title">Trend</span></div><div class="hb-note-desc">What the short-term and long-term trends are telling us.</div></div>
+      <div class="hb-note-card" id="term-note-watch"><div class="hb-note-head"><span class="hb-note-icon">⚠️</span><span class="hb-note-title">Watch Out</span></div><div class="hb-note-desc">The main things worth knowing before acting — volatility, warnings, anything notable.</div></div>
+      <div class="hb-note-card" id="term-note-style"><div class="hb-note-head"><span class="hb-note-icon">🎯</span><span class="hb-note-title">Style Fit</span></div><div class="hb-note-desc">Which hunting styles this stock matches strongly, and which it doesn't.</div></div>
+      <div class="hb-note-card" id="term-note-panda"><div class="hb-note-head"><span class="hb-note-icon">🐼</span><span class="hb-note-title">Panda Level</span></div><div class="hb-note-desc">A plain-language read of the stock's Difficulty Level.</div></div>
+    </div>
+  </section>
+
+  <!-- 7. Performance Terms -->
+  <section class="hb-section" id="performance">
+    <h2><span class="hb-section-num">07</span> Performance Terms</h2>
+    <div class="hb-term" id="term-returns"><div class="hb-term-name">1W / 1M / 3M / 6M / YTD / 1Y / 5Y / 10Y Return</div><div class="hb-term-def">Price change over that period. YTD = year-to-date (since January 1st).</div></div>
+    <div class="hb-term" id="term-all-time"><div class="hb-term-name">All-Time Return</div><div class="hb-term-def">Total price change since the stock started trading.</div></div>
+    <div class="hb-term" id="term-beta"><div class="hb-term-name">Beta (5Y)</div><div class="hb-term-def">How much the stock moves relative to the market. 1.0 = moves with the market. &gt; 1.0 = moves more. &lt; 1.0 = moves less.</div></div>
+    <div class="hb-term" id="term-volatility-period"><div class="hb-term-name">Volatility (1W / 1M)</div><div class="hb-term-def">The average size of daily price swings over that period. Higher = wilder ride.</div></div>
+    <div class="hb-term" id="term-ma-50"><div class="hb-term-name">50-Day Moving Average (50D MA)</div><div class="hb-term-def">Average closing price over the last 50 days. Smooths out short-term noise.</div></div>
+    <div class="hb-term" id="term-ma-200"><div class="hb-term-name">200-Day Moving Average (200D MA)</div><div class="hb-term-def">Average closing price over the last 200 days. Shows the long-term trend.</div></div>
+  </section>
+
+  <!-- 8. Financial Terms -->
+  <section class="hb-section" id="financial">
+    <h2><span class="hb-section-num">08</span> Financial Terms</h2>
+    <div class="hb-term" id="term-eps"><div class="hb-term-name">EPS (Earnings Per Share)</div><div class="hb-term-def">Profit per share. Higher is better.</div></div>
+    <div class="hb-term" id="term-net-income"><div class="hb-term-name">Net Income</div><div class="hb-term-def">The company's profit after all expenses and taxes. The bottom line.</div></div>
+    <div class="hb-term" id="term-gross-profit"><div class="hb-term-name">Gross Profit</div><div class="hb-term-def">Revenue minus the direct cost of making products. Before overhead and other expenses.</div></div>
+    <div class="hb-term" id="term-ebitda"><div class="hb-term-name">EBITDA</div><div class="hb-term-def">Earnings Before Interest, Taxes, Depreciation, and Amortization. A measure of operational profit.</div></div>
+    <div class="hb-term" id="term-fcf"><div class="hb-term-name">Free Cash Flow (FCF)</div><div class="hb-term-def">Cash left over after operating and capital expenses. What's available to reward shareholders or reinvest.</div></div>
+    <div class="hb-term" id="term-debt-equity"><div class="hb-term-name">Debt / Equity</div><div class="hb-term-def">How much the company owes vs. what shareholders own. Higher = more leveraged and more risky.</div></div>
+    <div class="hb-term" id="term-fiscal-year"><div class="hb-term-name">Fiscal Year</div><div class="hb-term-def">The 12-month period a company uses for accounting. May or may not match the calendar year.</div></div>
+  </section>
+
+  <!-- 9. Technical -->
+  <section class="hb-section" id="technical">
+    <h2><span class="hb-section-num">09</span> Technical Terms</h2>
+    <p class="hb-section-intro">Reference terms — the language you'll hear. Not all are surfaced in StockPanda, but they're here so you're fluent.</p>
+    <div class="hb-term" id="term-golden-cross"><div class="hb-term-name">Golden Cross</div><div class="hb-term-def">50-day MA crosses above the 200-day MA. Historically bullish.</div></div>
+    <div class="hb-term" id="term-death-cross"><div class="hb-term-name">Death Cross</div><div class="hb-term-def">50-day MA crosses below the 200-day MA. Historically bearish.</div></div>
+    <div class="hb-term" id="term-breakout"><div class="hb-term-name">Breakout</div><div class="hb-term-def">Stock moves above a key resistance level with strong volume. Often a sign of a new trend starting.</div></div>
+    <div class="hb-term" id="term-consolidation"><div class="hb-term-name">Consolidation</div><div class="hb-term-def">Stock trades sideways in a tight range. Often precedes a big move.</div></div>
+    <div class="hb-term" id="term-support"><div class="hb-term-name">Support</div><div class="hb-term-def">Price level where the stock has historically found buyers.</div></div>
+    <div class="hb-term" id="term-resistance"><div class="hb-term-name">Resistance</div><div class="hb-term-def">Price level where the stock has historically found sellers.</div></div>
+    <div class="hb-term" id="term-volume"><div class="hb-term-name">Volume</div><div class="hb-term-def">How many shares traded. High volume confirms moves; low volume questions them.</div></div>
+  </section>
+
+  <!-- 10. Data -->
+  <section class="hb-section" id="data">
+    <h2><span class="hb-section-num">10</span> Where the Data Comes From</h2>
+    <p class="hb-section-intro">StockPanda is powered by stock market data sourced from <strong>TradingView</strong> and refreshed daily. Every signal, score, and field note is derived from that live data — nothing is made up.</p>
+    <div class="hb-caveat">No data is perfect. Always do your own research before making investment decisions.</div>
+  </section>
+
+  <!-- Final note -->
+  <div class="hb-final">
+    <div class="hb-final-panda">🐼</div>
+    <p>The Handbook is your reference. Open it any time you see a term you don't recognise. The more you hunt, the more of this becomes second nature.</p>
+    <a href="finder.html">Start hunting →</a>
+  </div>
+
+</div>
+
+<footer style="border-top:1px solid var(--border);padding:40px 1.5rem;text-align:center;max-width:1400px;margin:4rem auto 0;">
+  <p style="margin:0;"><a href="index.html" style="font-family:var(--mono);font-weight:700;font-size:16px;color:var(--text);text-decoration:none;"><span style="color:var(--brand);">Stock</span>Panda</a></p>
+  <p style="font-size:12px;color:var(--muted);margin-top:12px;">StockPanda is a free stock research and education tool. Nothing on this site constitutes financial advice. Always do your own research.</p>
+</footer>
+
+<script src="assets/js/mood.js?v=20260416a"></script>
+<script>
+'use strict';
+
+// ── Live search / filter ─────────────────────────────────────
+const searchInput = document.getElementById('hb-search');
+const clearBtn = document.getElementById('hb-search-clear');
+const noResults = document.getElementById('hb-no-results');
+
+function hbFilter() {
+  const q = (searchInput.value || '').trim().toLowerCase();
+  clearBtn.classList.toggle('visible', q.length > 0);
+
+  // Term cards
+  let anyVisible = false;
+  document.querySelectorAll('.hb-term, .hb-note-card').forEach(el => {
+    const text = el.textContent.toLowerCase();
+    const match = !q || text.includes(q);
+    el.classList.toggle('hb-hidden', !match);
+    if (match) anyVisible = true;
+  });
+
+  // Hide subsections whose children are all hidden
+  document.querySelectorAll('.hb-subsection').forEach(sub => {
+    const visible = sub.querySelectorAll('.hb-term:not(.hb-hidden)').length;
+    sub.classList.toggle('hb-hidden', !visible);
+  });
+
+  // Hide sections whose children are all hidden (when searching)
+  document.querySelectorAll('.hb-section').forEach(sec => {
+    if (!q) { sec.style.display = ''; return; }
+    const hasTerms = sec.querySelectorAll('.hb-term:not(.hb-hidden), .hb-note-card:not(.hb-hidden)').length > 0;
+    sec.style.display = hasTerms ? '' : 'none';
+  });
+
+  noResults.classList.toggle('visible', !anyVisible && q.length > 0);
+}
+
+function hbClearSearch() {
+  searchInput.value = '';
+  hbFilter();
+  searchInput.focus();
+}
+window.hbClearSearch = hbClearSearch;
+
+searchInput.addEventListener('input', hbFilter);
+
+// ── Section chip: active-on-scroll ───────────────────────────
+const chips = document.querySelectorAll('.hb-chip');
+const sections = document.querySelectorAll('.hb-section');
+const chipById = {};
+chips.forEach(c => { chipById[c.getAttribute('href').slice(1)] = c; });
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      chips.forEach(c => c.classList.remove('active'));
+      const id = entry.target.id;
+      if (chipById[id]) chipById[id].classList.add('active');
+    }
+  });
+}, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+sections.forEach(s => observer.observe(s));
+
+// ── Smooth scroll on chip click + ensure active chip is visible ─
+chips.forEach(c => {
+  c.addEventListener('click', e => {
+    e.preventDefault();
+    const id = c.getAttribute('href').slice(1);
+    const target = document.getElementById(id);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+
+</script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>
