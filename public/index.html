@@ -288,7 +288,7 @@ section + section { border-top: 1px solid var(--border); }
   transform: translateY(-4px);
 }
 
-.hunt-intro-icon { font-size: 28px; margin-bottom: 14px; display: block; }
+.hunt-intro-icon { display: block; margin-bottom: 14px; width: 28px; height: 28px; color: var(--green-primary); stroke-width: 1.75; }
 
 .hunt-intro-card h3 {
   font-family: 'Space Mono', monospace;
@@ -315,7 +315,7 @@ section + section { border-top: 1px solid var(--border); }
   margin-bottom: 12px;
 }
 
-.detail-icon { font-size: 24px; }
+.detail-icon { width: 24px; height: 24px; color: var(--green-primary); stroke-width: 1.75; flex-shrink: 0; }
 
 .detail-title {
   font-family: 'Space Mono', monospace;
@@ -575,7 +575,7 @@ section + section { border-top: 1px solid var(--border); }
   background: var(--bg-card-hover);
 }
 
-.pro-feature-icon { font-size: 22px; flex-shrink: 0; width: 28px; text-align: center; }
+.pro-feature-icon { flex-shrink: 0; width: 24px; height: 24px; color: var(--green-primary); stroke-width: 1.75; }
 
 .pro-feature h4 {
   font-family: 'Space Mono', monospace;
@@ -773,23 +773,23 @@ footer a:hover { color: var(--green-primary); }
 <section>
   <div class="container">
     <div class="section-label reveal">Three choices</div>
-    <h2 class="section-title reveal">Every great hunt starts with a plan</h2>
+    <h2 class="section-title reveal">Every investment journey is personal</h2>
     <p class="section-subtitle reveal">Set your rules. We'll do the heavy lifting.</p>
 
     <!-- Overview cards -->
     <div class="hunt-intro-grid">
       <div class="hunt-intro-card reveal">
-        <span class="hunt-intro-icon">🎯</span>
+        <i data-lucide="target" class="hunt-intro-icon"></i>
         <h3>Your Type</h3>
         <p>Five hunter profiles. Pick the one that matches how you invest.</p>
       </div>
       <div class="hunt-intro-card reveal">
-        <span class="hunt-intro-icon">🌍</span>
+        <i data-lucide="globe" class="hunt-intro-icon"></i>
         <h3>Your Place</h3>
         <p>8+ global markets. 30,000+ stocks. The world is yours.</p>
       </div>
       <div class="hunt-intro-card reveal">
-        <span class="hunt-intro-icon">📊</span>
+        <i data-lucide="bar-chart-3" class="hunt-intro-icon"></i>
         <h3>Your Difficulty</h3>
         <p>Five levels, L1–L5. Hunt within your comfort zone.</p>
       </div>
@@ -798,7 +798,7 @@ footer a:hover { color: var(--green-primary); }
     <!-- ─── TYPE DETAIL ─── -->
     <div class="detail-section reveal">
       <div class="detail-header">
-        <span class="detail-icon">🎯</span>
+        <i data-lucide="target" class="detail-icon"></i>
         <span class="detail-title">Five types to choose</span>
       </div>
       <p class="detail-desc">Every investor thinks differently. Your type defines the opportunities you seek. Pick the ones that match your style.</p>
@@ -836,7 +836,7 @@ footer a:hover { color: var(--green-primary); }
     <!-- ─── PLACE DETAIL ─── -->
     <div class="detail-section reveal">
       <div class="detail-header">
-        <span class="detail-icon">🌍</span>
+        <i data-lucide="globe" class="detail-icon"></i>
         <span class="detail-title">The world is your oyster</span>
       </div>
       <p class="detail-desc">Opportunities are everywhere — not just in your backyard. Explore globally to find the right fits.</p>
@@ -889,7 +889,7 @@ footer a:hover { color: var(--green-primary); }
     <!-- ─── DIFFICULTY DETAIL ─── -->
     <div class="detail-section reveal">
       <div class="detail-header">
-        <span class="detail-icon">📊</span>
+        <i data-lucide="bar-chart-3" class="detail-icon"></i>
         <span class="detail-title">Stay in your zone</span>
       </div>
       <p class="detail-desc">Every stock gets a difficulty level — so you never take on more than you can handle.</p>
@@ -976,28 +976,28 @@ footer a:hover { color: var(--green-primary); }
     <p class="section-subtitle reveal">Extra tools for investors who want to go deeper.</p>
     <div class="pro-grid">
       <div class="pro-feature reveal">
-        <span class="pro-feature-icon">🔭</span>
+        <i data-lucide="search" class="pro-feature-icon"></i>
         <div>
           <h4>Search</h4>
           <p>Jump straight to a stock you already know.</p>
         </div>
       </div>
       <div class="pro-feature reveal">
-        <span class="pro-feature-icon">📡</span>
+        <i data-lucide="scan-search" class="pro-feature-icon"></i>
         <div>
           <h4>Scan</h4>
           <p>Filter, sort, and explore 30,000+ stocks across every market.</p>
         </div>
       </div>
       <div class="pro-feature reveal">
-        <span class="pro-feature-icon">🎯</span>
+        <i data-lucide="crosshair" class="pro-feature-icon"></i>
         <div>
           <h4>Pro Hunt</h4>
           <p>Sharper filters, tighter rules, bigger catches.</p>
         </div>
       </div>
       <div class="pro-feature reveal">
-        <span class="pro-feature-icon">📋</span>
+        <i data-lucide="bar-chart-3" class="pro-feature-icon"></i>
         <div>
           <h4>Brief</h4>
           <p>Daily top catches and weekly reports, on your dashboard.</p>
