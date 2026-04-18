@@ -754,7 +754,6 @@ function closeProModal() {
     bar.setAttribute('aria-label', 'Install StockPanda');
     bar.innerHTML =
       '<div class="sp-ios-ib-inner">' +
-        '<span class="sp-ios-ib-icon" aria-hidden="true">\ud83d\udcf2</span>' +
         '<span class="sp-ios-ib-text">' +
           '<b>Install StockPanda</b> — tap ' +
           '<span class="sp-ios-ib-share" aria-hidden="true">' +
