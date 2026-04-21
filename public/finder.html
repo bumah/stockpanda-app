@@ -271,11 +271,11 @@
     <a class="nav-link" href="index.html">Home</a>
     <a class="nav-link active" href="finder.html">Hunt</a>
     <a class="nav-link" href="watchlist.html">Catch</a>
+    <a class="nav-link" href="stocks.html">Search</a>
     <div class="nav-dropdown">
-      <button class="nav-link nav-dropdown-trigger">Tools <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
+      <button class="nav-link nav-dropdown-trigger">More <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
       <div class="nav-dropdown-menu">
         <a class="nav-dropdown-item" href="quiz.html">Pro Hunt</a>
-        <a class="nav-dropdown-item" href="stocks.html">Search</a>
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
         <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
         <a class="nav-dropdown-item sp-install-btn" href="#" onclick="event.preventDefault();spInstallApp();" style="display:none;">Get StockPanda App</a>
@@ -285,6 +285,8 @@
     <a class="nav-link sp-auth-signout sp-auth-email-title" href="#" onclick="event.preventDefault();spSignOut();" style="display:none;">Sign out</a>
   </div>
   <div class="nav-right">
+    <a href="#" class="nav-link nav-right-auth sp-auth-signin" onclick="event.preventDefault();spSignInGoogle();" style="white-space:nowrap;border-bottom:none;flex-shrink:0;" title="Sign in"><i data-lucide="log-in" style="width:18px;height:18px;"></i></a>
+    <a href="#" class="nav-link nav-right-auth sp-auth-signout sp-auth-email-title" onclick="event.preventDefault();spSignOut();" style="white-space:nowrap;border-bottom:none;flex-shrink:0;display:none;" title="Sign out"><i data-lucide="log-out" style="width:18px;height:18px;"></i></a>
     <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;" title="Contact"><i data-lucide="mail" style="width:18px;height:18px;"></i></a>
     <div class="nav-stamp">Data: <span>—</span></div>
   </div>
@@ -292,7 +294,6 @@
 <div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
 <div class="tools-popover" id="toolsPopover">
   <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
-  <a href="stocks.html" class="tools-popover-item"><i data-lucide="search" class="nb-icon"></i>Search</a>
   <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
   <a href="handbook.html" class="tools-popover-item"><i data-lucide="book-open" class="nb-icon"></i>Handbook</a>
   <a href="#" class="tools-popover-item sp-install-btn" onclick="event.preventDefault();closeToolsPopover();spInstallApp();" style="display:none;"><i data-lucide="download" class="nb-icon"></i>Get StockPanda App</a>
@@ -301,9 +302,8 @@
   <a href="index.html"><i data-lucide="house" class="nb-icon"></i>Home</a>
   <a href="finder.html" class="active"><i data-lucide="eye" class="nb-icon"></i>Hunt</a>
   <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Catch</a>
-  <a href="#" onclick="event.preventDefault();toggleToolsPopover()"><i data-lucide="compass" class="nb-icon"></i>Tools</a>
-  <a href="#" class="sp-auth-signin" onclick="event.preventDefault();spSignInGoogle();"><i data-lucide="user" class="nb-icon"></i>Sign in</a>
-  <a href="#" class="sp-auth-signout sp-auth-email-title" onclick="event.preventDefault();spSignOut();" style="display:none;"><i data-lucide="user" class="nb-icon"></i>Sign out</a>
+  <a href="stocks.html"><i data-lucide="search" class="nb-icon"></i>Search</a>
+  <a href="#" onclick="event.preventDefault();toggleToolsPopover()"><i data-lucide="compass" class="nb-icon"></i>More</a>
 </nav>
 <script>
 function toggleToolsPopover(){

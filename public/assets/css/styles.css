@@ -171,6 +171,9 @@ button.nav-dropdown-trigger {
 .tools-popover a .nb-icon { width: 18px; height: 18px; stroke-width: 1.8; }
 .tools-popover a:hover { color: var(--brand); background: rgba(74,222,128,0.06); }
 
+/* Mobile-only auth icons in top-right — hidden on desktop (auth is already in .nav-links) */
+.nav-right-auth { display: none; }
+
 @media (max-width: 768px) {
   .nav-bottom {
     display: flex !important; position: fixed; bottom: 0; left: 0; right: 0; z-index: 300;
@@ -189,6 +192,7 @@ button.nav-dropdown-trigger {
   .nav-bottom a.active { color: var(--brand); }
   .nav-links { display: none !important; }
   body { padding-bottom: 64px; }
+  .nav-right-auth { display: inline-flex; align-items: center; }
 }
 
 /* ── Layout ──────────────────────────────────────────────────────────────── */
