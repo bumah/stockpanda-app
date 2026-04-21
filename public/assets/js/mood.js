@@ -594,76 +594,8 @@ function injectSidebarHTML() {
     '</div>';
   proModal.addEventListener('click', function(e) { if (e.target === proModal) closeProModal(); });
 
-  /* Global Search modal (shared across all pages) */
-  const searchModal = document.createElement('div');
-  searchModal.id = 'global-search-modal';
-  searchModal.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);z-index:1200;align-items:flex-start;justify-content:center;padding-top:15vh;';
-  searchModal.innerHTML =
-    '<div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:1.5rem;width:min(440px,92vw);">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">' +
-        '<div style="font-family:var(--font);font-size:1.1rem;font-weight:700;color:var(--parchment);">Search stock</div>' +
-        '<button onclick="closeGlobalSearch()" style="background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer;padding:0 4px;">✕</button>' +
-      '</div>' +
-      '<input id="global-search-input" type="text" placeholder="Type a ticker or company name…" autocomplete="off" ' +
-        'style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:0.65rem 0.9rem;border-radius:8px;font-size:0.88rem;font-family:var(--font);outline:none;box-sizing:border-box;" />' +
-      '<div id="global-search-res" style="margin-top:0.5rem;max-height:300px;overflow-y:auto;"></div>' +
-    '</div>';
-  searchModal.addEventListener('click', function(e) { if (e.target === searchModal) closeGlobalSearch(); });
-
-  document.body.append(sidebarOverlay, sidebarPanel, tooltip, searchResults, proModal, searchModal);
-
-  /* Wire up global search modal */
-  (function() {
-    const inp = document.getElementById('global-search-input');
-    const res = document.getElementById('global-search-res');
-    if (!inp || !res) return;
-    let timer;
-    inp.addEventListener('input', function() {
-      clearTimeout(timer);
-      const q = inp.value.trim();
-      if (q.length < 1) { res.innerHTML = ''; return; }
-      res.innerHTML = '<div style="padding:0.6rem;color:var(--muted);font-size:0.82rem;">Searching…</div>';
-      timer = setTimeout(async function() {
-        const hits = await DataCache.searchAll(q);
-        if (inp.value.trim() !== q) return;
-        if (!hits.length) {
-          res.innerHTML = '<div style="padding:0.6rem;color:var(--muted);font-size:0.82rem;">No results found</div>';
-        } else {
-          res.innerHTML = hits.slice(0, 8).map(function(s) {
-            const b = MOOD.band(s.mood?.label || 'Level 3');
-            return '<a href="stock.html?ticker=' + encodeURIComponent(s.ticker) + '&country=' + encodeURIComponent(s.country || '') +
-              '" style="display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.6rem;text-decoration:none;border-bottom:1px solid var(--border);transition:background 0.1s;">' +
-              '<div style="width:28px;height:28px;flex-shrink:0;" class="panda-wrap"><img class="panda-img" src="assets/img/' + b.img + '" alt="' + b.label + '" style="width:100%;height:100%;" /></div>' +
-              '<div style="flex:1;min-width:0;">' +
-                '<div style="font-family:var(--mono);font-weight:700;font-size:0.82rem;color:var(--green);">' + esc(s.ticker) + '</div>' +
-                '<div style="font-size:0.72rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(s.company || '') + '</div>' +
-              '</div>' +
-              '<div style="font-size:0.65rem;color:var(--muted);flex-shrink:0;">' + esc(s.exchangeLabel || '') + '</div>' +
-            '</a>';
-          }).join('');
-        }
-      }, 200);
-    });
-    inp.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeGlobalSearch(); });
-  })();
+  document.body.append(sidebarOverlay, sidebarPanel, tooltip, searchResults, proModal);
 }
-
-function openGlobalSearch() {
-  const m = document.getElementById('global-search-modal');
-  if (!m) return;
-  m.style.display = 'flex';
-  const inp = document.getElementById('global-search-input');
-  if (inp) { inp.value = ''; setTimeout(function(){ inp.focus(); }, 50); }
-  const res = document.getElementById('global-search-res');
-  if (res) res.innerHTML = '';
-}
-window.openGlobalSearch = openGlobalSearch;
-
-function closeGlobalSearch() {
-  const m = document.getElementById('global-search-modal');
-  if (m) m.style.display = 'none';
-}
-window.closeGlobalSearch = closeGlobalSearch;
 
 function openProModal() {
   document.getElementById('pro-modal').style.display = 'flex';
