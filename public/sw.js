@@ -1,6 +1,6 @@
 // StockPanda service worker
 // Bump VERSION on each deploy to invalidate old caches.
-const VERSION = '2026-04-21-a';
+const VERSION = '2026-04-21-b';
 const SHELL_CACHE = `sp-shell-${VERSION}`;
 const DATA_CACHE  = `sp-data-${VERSION}`;
 const IMG_CACHE   = `sp-img-${VERSION}`;
@@ -16,6 +16,7 @@ const SHELL_URLS = [
   '/summary.html',
   '/handbook.html',
   '/manifesto.html',
+  '/etfs.html',
   '/assets/css/styles.css',
   '/assets/js/mood.js',
   '/assets/js/finder-engine.js',

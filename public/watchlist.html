@@ -33,6 +33,7 @@
       <button class="nav-link nav-dropdown-trigger">More <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
       <div class="nav-dropdown-menu">
         <a class="nav-dropdown-item" href="quiz.html">Pro Hunt</a>
+        <a class="nav-dropdown-item" href="etfs.html">ETFs</a>
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
         <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
         <a class="nav-dropdown-item sp-install-btn" href="#" onclick="event.preventDefault();spInstallApp();" style="display:none;">Get StockPanda App</a>
@@ -51,6 +52,7 @@
 <div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
 <div class="tools-popover" id="toolsPopover">
   <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
+  <a href="etfs.html" class="tools-popover-item"><i data-lucide="layers" class="nb-icon"></i>ETFs</a>
   <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
   <a href="handbook.html" class="tools-popover-item"><i data-lucide="book-open" class="nb-icon"></i>Handbook</a>
   <a href="#" class="tools-popover-item sp-install-btn" onclick="event.preventDefault();closeToolsPopover();spInstallApp();" style="display:none;"><i data-lucide="download" class="nb-icon"></i>Get StockPanda App</a>
@@ -164,6 +166,27 @@ async function loadSearchData() {
   return _searchData;
 }
 
+// ── ETF index (for showing ETF badges on saved funds) ──────────
+var _etfIndex = null;
+async function loadEtfIndex() {
+  if (_etfIndex) return _etfIndex;
+  try {
+    var res = await fetch('/data/etfs.json');
+    if (!res.ok) throw new Error('etfs.json ' + res.status);
+    var data = await res.json();
+    _etfIndex = {};
+    (data.etfs || []).forEach(function(e) {
+      _etfIndex[e.ticker + '|' + (e.country || '')] = e;
+      if (!_etfIndex[e.ticker]) _etfIndex[e.ticker] = e; // ticker-only fallback
+    });
+  } catch(e) { _etfIndex = {}; }
+  return _etfIndex;
+}
+function lookupEtf(idx, ticker, country) {
+  var uc = (country || '').toLowerCase();
+  return idx[ticker + '|' + uc] || idx[ticker] || null;
+}
+
 function lookupStock(searchData, ticker, country) {
   for (var i = 0; i < searchData.length; i++) {
     var e = searchData[i];
@@ -188,9 +211,10 @@ async function renderWatchlist() {
   }
 
   emptyEl.style.display = 'none';
-  listEl.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-size:0.85rem;">Loading stock data...</div>';
+  listEl.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-size:0.85rem;">Loading data...</div>';
 
   var searchData = await loadSearchData();
+  var etfIndex = await loadEtfIndex();
 
   // Sort by most recently added
   wl.sort(function(a, b) { return (b.addedAt || 0) - (a.addedAt || 0); });
@@ -198,11 +222,14 @@ async function renderWatchlist() {
   var html = '';
   wl.forEach(function(item) {
     var flag = COUNTRY_FLAGS[item.country] || '';
-    var href = 'stock.html?ticker=' + encodeURIComponent(item.ticker) + '&country=' + encodeURIComponent(item.country || '');
     var e = lookupStock(searchData, item.ticker, item.country);
+    var etf = e ? null : lookupEtf(etfIndex, item.ticker, item.country);
+    var href = etf
+      ? 'etfs.html'
+      : 'stock.html?ticker=' + encodeURIComponent(item.ticker) + '&country=' + encodeURIComponent(item.country || '');
 
     // Extract data from search entry
-    var sector = e ? (e.sec || '') : '';
+    var sector = e ? (e.sec || '') : (etf ? etf.assetClass + (etf.focus ? ' · ' + etf.focus : '') : '');
     var level = e ? (e.m || '') : '';
     var levelCol = e ? (MOOD_COLORS[e.m] || '#FBBF24') : '#FBBF24';
     var sig = e ? countSignals(e.ic || '') : { g: 0, a: 0, r: 0 };
@@ -217,6 +244,7 @@ async function renderWatchlist() {
           '<div style="flex:1;min-width:0;">' +
             '<div style="display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">' +
               '<span style="font-family:var(--mono);font-weight:600;font-size:1.05rem;color:var(--green);">' + esc(item.ticker) + '</span>' +
+              (etf ? '<span style="font-family:var(--mono);font-size:0.6rem;font-weight:700;letter-spacing:0.08em;padding:0.12rem 0.45rem;border-radius:4px;background:rgba(74,222,128,0.12);color:var(--green);border:1px solid rgba(74,222,128,0.35);">ETF</span>' : '') +
               '<span style="font-size:0.78rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(item.company || '') + '</span>' +
             '</div>' +
             '<div style="display:flex;align-items:center;gap:0.5rem;margin-top:0.3rem;flex-wrap:wrap;">' +
@@ -229,22 +257,37 @@ async function renderWatchlist() {
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="#F87171" stroke="#F87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>' +
           '</button>' +
         '</div>' +
-        // Row 2: Signals + Returns
+        // Row 2: Signals/ETF-sigs + Returns/ETF-stats
         '<div style="display:flex;align-items:center;gap:1rem;margin-top:0.6rem;flex-wrap:wrap;">' +
-          // Signals
-          '<div style="display:flex;align-items:center;gap:0.5rem;">' +
-            (sig.g > 0 ? '<span style="display:flex;align-items:center;gap:0.2rem;font-size:0.72rem;"><span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;"></span><span style="color:var(--green);font-weight:600;">' + sig.g + '</span></span>' : '') +
-            (sig.a > 0 ? '<span style="display:flex;align-items:center;gap:0.2rem;font-size:0.72rem;"><span style="width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block;"></span><span style="color:var(--amber);font-weight:600;">' + sig.a + '</span></span>' : '') +
-            (sig.r > 0 ? '<span style="display:flex;align-items:center;gap:0.2rem;font-size:0.72rem;"><span style="width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;"></span><span style="color:var(--red);font-weight:600;">' + sig.r + '</span></span>' : '') +
-          '</div>' +
-          // Spacer
+          (etf
+            ? // ETF: 5 signal dots
+              '<div style="display:flex;align-items:center;gap:4px;">' +
+                ['cost','size','demand','momentum','tracking'].map(function(k){
+                  var v = (etf.signals || {})[k] || 'grey';
+                  var col = v==='green' ? 'var(--green)' : v==='amber' ? 'var(--amber)' : v==='red' ? 'var(--red)' : '#3a4a3a';
+                  return '<span title="' + k + ': ' + v + '" style="width:8px;height:8px;border-radius:50%;background:' + col + ';display:inline-block;"></span>';
+                }).join('') +
+              '</div>'
+            : // Stock: compact signal tally
+              '<div style="display:flex;align-items:center;gap:0.5rem;">' +
+                (sig.g > 0 ? '<span style="display:flex;align-items:center;gap:0.2rem;font-size:0.72rem;"><span style="width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;"></span><span style="color:var(--green);font-weight:600;">' + sig.g + '</span></span>' : '') +
+                (sig.a > 0 ? '<span style="display:flex;align-items:center;gap:0.2rem;font-size:0.72rem;"><span style="width:7px;height:7px;border-radius:50%;background:var(--amber);display:inline-block;"></span><span style="color:var(--amber);font-weight:600;">' + sig.a + '</span></span>' : '') +
+                (sig.r > 0 ? '<span style="display:flex;align-items:center;gap:0.2rem;font-size:0.72rem;"><span style="width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;"></span><span style="color:var(--red);font-weight:600;">' + sig.r + '</span></span>' : '') +
+              '</div>'
+          ) +
           '<span style="flex:1;"></span>' +
-          // Returns
-          '<div style="display:flex;align-items:center;gap:0.8rem;font-size:0.75rem;">' +
-            '<span><span style="color:var(--muted);font-family:var(--mono);font-size:0.65rem;">1M</span> ' + fmtRet(m1) + '</span>' +
-            '<span><span style="color:var(--muted);font-family:var(--mono);font-size:0.65rem;">3M</span> ' + fmtRet(m3) + '</span>' +
-            '<span><span style="color:var(--muted);font-family:var(--mono);font-size:0.65rem;">5Y</span> ' + fmtRet(y5) + '</span>' +
-          '</div>' +
+          (etf
+            ? '<div style="display:flex;align-items:center;gap:0.8rem;font-size:0.75rem;">' +
+                '<span><span style="color:var(--muted);font-family:var(--mono);font-size:0.65rem;">YTD</span> ' + fmtRet(etf.performance && etf.performance.ytd) + '</span>' +
+                '<span><span style="color:var(--muted);font-family:var(--mono);font-size:0.65rem;">1Y</span> ' + fmtRet(etf.performance && etf.performance.y1) + '</span>' +
+                '<span><span style="color:var(--muted);font-family:var(--mono);font-size:0.65rem;">EXP</span> ' + (etf.expense == null ? '—' : '<span style="color:var(--text);">' + etf.expense.toFixed(2) + '%</span>') + '</span>' +
+              '</div>'
+            : '<div style="display:flex;align-items:center;gap:0.8rem;font-size:0.75rem;">' +
+                '<span><span style="color:var(--muted);font-family:var(--mono);font-size:0.65rem;">1M</span> ' + fmtRet(m1) + '</span>' +
+                '<span><span style="color:var(--muted);font-family:var(--mono);font-size:0.65rem;">3M</span> ' + fmtRet(m3) + '</span>' +
+                '<span><span style="color:var(--muted);font-family:var(--mono);font-size:0.65rem;">5Y</span> ' + fmtRet(y5) + '</span>' +
+              '</div>'
+          ) +
         '</div>' +
       '</a>';
   });

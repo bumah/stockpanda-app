@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockPanda — ETFs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260421a" />
+  <style>
+    /* ── ETF-specific bits (match stocks.html chip/sub-filter style) ────── */
+    .bubble-row { display:flex; align-items:center; gap:0.5rem; margin-bottom:0.6rem; overflow-x:auto; padding-bottom:2px; }
+    .bubble-row::-webkit-scrollbar { height:0; }
+    .bubble-label {
+      font-family:var(--mono); font-size:0.6rem; color:var(--muted);
+      text-transform:uppercase; letter-spacing:0.08em; white-space:nowrap;
+      min-width:62px; flex-shrink:0;
+    }
+    .bubble-chips { display:flex; gap:0.4rem; flex-wrap:nowrap; }
+    .bubble-chip {
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:20px; padding:0.3rem 0.75rem;
+      font-size:0.72rem; color:var(--muted); font-weight:500;
+      cursor:pointer; transition:all 0.15s; white-space:nowrap;
+    }
+    .bubble-chip:hover { border-color:var(--green); color:var(--text); }
+    .bubble-chip.active { background:var(--brand-dim); border-color:var(--green); color:var(--green); }
+
+    .search-hero { margin-bottom:1.25rem; }
+    .search-hero .sh-input {
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:12px; padding:14px 18px;
+      color:var(--text); font-size:0.95rem; outline:none; width:100%;
+      box-sizing:border-box; transition:border-color 0.15s; font-family:var(--font);
+    }
+    .search-hero .sh-input:focus { border-color:var(--brand); }
+
+    .sub-filters {
+      display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;
+      margin-bottom:1rem; padding-top:0.5rem; border-top:1px solid var(--border);
+    }
+    .sub-filters select {
+      background:var(--bg2); border:1px solid var(--border);
+      border-radius:var(--radius); padding:7px 10px;
+      color:var(--muted); font-size:0.78rem; outline:none; cursor:pointer;
+      font-family:var(--font);
+    }
+    .sub-filters .count { font-family:var(--mono); font-size:0.65rem; color:var(--muted); margin-left:auto; white-space:nowrap; }
+
+    /* ── ETF list (card per row on mobile, table-ish on desktop) ───────── */
+    .etf-list { display:flex; flex-direction:column; gap:0.5rem; }
+    .etf-row {
+      background:var(--bg2); border:1px solid var(--border); border-radius:12px;
+      padding:0.8rem 0.95rem; display:grid;
+      grid-template-columns: 1fr auto; gap:0.4rem 0.8rem;
+      transition:border-color 0.15s, background 0.15s;
+    }
+    .etf-row:hover { border-color:rgba(74,222,128,0.3); }
+    .etf-top { display:flex; align-items:baseline; gap:0.5rem; flex-wrap:wrap; }
+    .etf-ticker { font-family:var(--mono); font-weight:700; color:var(--green); font-size:0.9rem; }
+    .etf-name { color:var(--text); font-size:0.82rem; flex:1; min-width:120px;
+                overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .etf-sub { font-size:0.66rem; color:var(--muted); display:flex; gap:0.5rem; flex-wrap:wrap; }
+    .etf-sub .flag { font-size:0.9rem; }
+    .etf-stats {
+      display:grid; grid-template-columns: repeat(4, 1fr); gap:0.35rem 0.9rem;
+      font-size:0.72rem; color:var(--text); margin-top:0.25rem;
+    }
+    .etf-stats .lbl { font-family:var(--mono); font-size:0.58rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; display:block; }
+    .etf-stats .val { font-family:var(--mono); font-size:0.78rem; }
+    .pct-pos { color:#4ADE80; } .pct-neg { color:#F87171; } .pct-flat { color:var(--muted); }
+
+    /* Signal dots */
+    .etf-sigs { display:flex; gap:4px; margin-top:0.3rem; align-items:center; }
+    .sig-dot {
+      width:8px; height:8px; border-radius:50%;
+      background:var(--muted); display:inline-block;
+      cursor:help; transition:transform 0.1s;
+    }
+    .sig-dot.green  { background:#4ADE80; }
+    .sig-dot.amber  { background:#FBBF24; }
+    .sig-dot.red    { background:#F87171; }
+    .sig-dot.grey   { background:#3a4a3a; }
+    .sig-dot:hover  { transform:scale(1.35); }
+    .sig-legend { font-family:var(--mono); font-size:0.56rem; color:var(--muted); margin-left:auto; text-transform:uppercase; letter-spacing:0.04em; }
+
+    /* Save (heart) button */
+    .etf-save {
+      grid-column:2; grid-row:1 / span 4;
+      align-self:flex-start;
+      background:none; border:none; cursor:pointer; color:var(--muted);
+      padding:4px 6px; display:flex; align-items:center; justify-content:center;
+      transition:color 0.15s, transform 0.1s;
+    }
+    .etf-save:hover { color:#F87171; transform:scale(1.1); }
+    .etf-save.hearted { color:#F87171; }
+    .etf-save svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2; }
+    .etf-save.hearted svg { fill:currentColor; }
+
+    @media (min-width: 900px) {
+      .etf-row { grid-template-columns: 1.6fr 2.2fr auto; align-items:center; }
+      .etf-top { flex-direction:column; gap:0.15rem; align-items:flex-start; }
+      .etf-stats { grid-template-columns: repeat(5, auto); }
+    }
+
+    .empty-state { text-align:center; padding:3rem 1rem; color:var(--muted); font-size:0.9rem; }
+    .loading { text-align:center; padding:2rem 1rem; color:var(--muted); font-size:0.82rem; }
+  </style>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0E100F" />
+  <link rel="apple-touch-icon" href="/assets/img/icon-180.png" />
+  <link rel="icon" type="image/png" href="/assets/img/favicon-32.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="StockPanda" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <script src="/assets/js/supabase-config.js?v=20260418a"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="/assets/js/auth.js?v=20260418a" defer></script>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-sp">Stock</span><span class="nav-logo-rest">Panda</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="finder.html">Hunt</a>
+    <a class="nav-link" href="watchlist.html">Catch</a>
+    <a class="nav-link" href="stocks.html">Search</a>
+    <div class="nav-dropdown">
+      <button class="nav-link nav-dropdown-trigger active">More <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
+      <div class="nav-dropdown-menu">
+        <a class="nav-dropdown-item" href="quiz.html">Pro Hunt</a>
+        <a class="nav-dropdown-item" href="etfs.html">ETFs</a>
+        <a class="nav-dropdown-item" href="summary.html">Brief</a>
+        <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
+        <a class="nav-dropdown-item sp-install-btn" href="#" onclick="event.preventDefault();spInstallApp();" style="display:none;">Get StockPanda App</a>
+      </div>
+    </div>
+    <a class="nav-link sp-auth-signin" href="#" onclick="event.preventDefault();spSignInGoogle();">Sign in</a>
+    <a class="nav-link sp-auth-signout sp-auth-email-title" href="#" onclick="event.preventDefault();spSignOut();" style="display:none;">Sign out</a>
+  </div>
+  <div class="nav-right">
+    <a href="#" class="nav-link nav-right-auth sp-auth-signin" onclick="event.preventDefault();spSignInGoogle();" style="white-space:nowrap;border-bottom:none;flex-shrink:0;" title="Sign in"><i data-lucide="log-in" style="width:18px;height:18px;"></i></a>
+    <a href="#" class="nav-link nav-right-auth sp-auth-signout sp-auth-email-title" onclick="event.preventDefault();spSignOut();" style="white-space:nowrap;border-bottom:none;flex-shrink:0;display:none;" title="Sign out"><i data-lucide="log-out" style="width:18px;height:18px;"></i></a>
+    <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;" title="Contact"><i data-lucide="mail" style="width:18px;height:18px;"></i></a>
+    <div class="nav-stamp">Data: <span>—</span></div>
+  </div>
+</nav>
+<div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
+<div class="tools-popover" id="toolsPopover">
+  <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
+  <a href="etfs.html" class="tools-popover-item"><i data-lucide="layers" class="nb-icon"></i>ETFs</a>
+  <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
+  <a href="handbook.html" class="tools-popover-item"><i data-lucide="book-open" class="nb-icon"></i>Handbook</a>
+  <a href="#" class="tools-popover-item sp-install-btn" onclick="event.preventDefault();closeToolsPopover();spInstallApp();" style="display:none;"><i data-lucide="download" class="nb-icon"></i>Get StockPanda App</a>
+</div>
+<nav class="nav-bottom">
+  <a href="index.html"><i data-lucide="house" class="nb-icon"></i>Home</a>
+  <a href="finder.html"><i data-lucide="eye" class="nb-icon"></i>Hunt</a>
+  <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Catch</a>
+  <a href="stocks.html"><i data-lucide="search" class="nb-icon"></i>Search</a>
+  <a href="#" onclick="event.preventDefault();toggleToolsPopover()" class="active"><i data-lucide="compass" class="nb-icon"></i>More</a>
+</nav>
+<script>
+function toggleToolsPopover(){
+  var p=document.getElementById('toolsPopover'),b=document.getElementById('toolsBackdrop');
+  if(p.classList.contains('open')){p.classList.remove('open');b.classList.remove('open');}
+  else{p.classList.add('open');b.classList.add('open');}
+}
+function closeToolsPopover(){
+  document.getElementById('toolsPopover').classList.remove('open');
+  document.getElementById('toolsBackdrop').classList.remove('open');
+}
+</script>
+
+<div class="main">
+  <div class="page-hd">
+    <div class="page-eyebrow">Find a fund</div>
+    <div class="page-title">ETFs</div>
+    <div class="page-sub">Browse thousands of funds by class, region, and cost.</div>
+  </div>
+
+  <div class="search-hero">
+    <input class="sh-input" id="etf-search" type="search" placeholder="Search ticker or fund name…" autocomplete="off" autofocus />
+  </div>
+
+  <div id="filters">
+    <div class="bubble-row">
+      <span class="bubble-label">Class</span>
+      <div class="bubble-chips" id="class-chips">
+        <span class="bubble-chip active" data-class="">All</span>
+        <span class="bubble-chip" data-class="Equity">Equity</span>
+        <span class="bubble-chip" data-class="Fixed income">Bond</span>
+        <span class="bubble-chip" data-class="Commodities">Commodity</span>
+        <span class="bubble-chip" data-class="Asset allocation">Multi-asset</span>
+        <span class="bubble-chip" data-class="Currency">Currency</span>
+        <span class="bubble-chip" data-class="Alternatives">Alternatives</span>
+      </div>
+    </div>
+    <div class="bubble-row">
+      <span class="bubble-label">Region</span>
+      <div class="bubble-chips" id="region-chips">
+        <span class="bubble-chip active" data-region="">All</span>
+        <span class="bubble-chip" data-region="us">🇺🇸 US</span>
+        <span class="bubble-chip" data-region="uk">🇬🇧 UK</span>
+        <span class="bubble-chip" data-region="japan">🇯🇵 Japan</span>
+      </div>
+    </div>
+    <div class="bubble-row">
+      <span class="bubble-label">Quick</span>
+      <div class="bubble-chips" id="quick-chips">
+        <span class="bubble-chip" data-quick="low-exp">Low expense</span>
+        <span class="bubble-chip" data-quick="div">Dividend payers</span>
+        <span class="bubble-chip" data-quick="big">$1B+ AUM</span>
+        <span class="bubble-chip" data-quick="hedged">Hedged</span>
+      </div>
+    </div>
+    <div class="bubble-row" id="focus-row" style="display:none;">
+      <span class="bubble-label">Focus</span>
+      <div class="bubble-chips" id="focus-chips"></div>
+    </div>
+  </div>
+
+  <div class="sub-filters">
+    <select id="sort-select">
+      <option value="aum-desc" selected>Sort: AUM ↓</option>
+      <option value="ytd-desc">Sort: YTD ↓</option>
+      <option value="ytd-asc">Sort: YTD ↑</option>
+      <option value="y1-desc">Sort: 1Y return ↓</option>
+      <option value="flow-desc">Sort: 1Y flows ↓</option>
+      <option value="exp-asc">Sort: Expense ↑</option>
+      <option value="yield-desc">Sort: Yield ↓</option>
+    </select>
+    <span class="count" id="etf-count">— funds</span>
+  </div>
+
+  <div id="etf-list" class="etf-list">
+    <div class="loading">Loading ETFs…</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── State ────────────────────────────────────────────────────────────
+  let ALL = [];                          // all ETFs from json
+  let FOCUS_BY_CLASS = {};               // assetClass → Counter of Focus
+  let state = {
+    search: '',
+    class: '',
+    region: '',
+    quick: new Set(),
+    focus: '',
+    sort: 'aum-desc',
+  };
+
+  // ── Watchlist (Catch) helpers ────────────────────────────────────────
+  function wlGet()  { try { return JSON.parse(localStorage.getItem('sp_watchlist') || '[]'); } catch(e) { return []; } }
+  function wlSet(wl){ localStorage.setItem('sp_watchlist', JSON.stringify(wl)); }
+  function wlHas(t, c) { return wlGet().some(function(w){ return w.ticker === t && w.country === (c||''); }); }
+  function toggleSave(t, c, n) {
+    const wl = wlGet();
+    if (wlHas(t, c)) {
+      wlSet(wl.filter(function(w){ return !(w.ticker === t && w.country === c); }));
+    } else {
+      wl.push({ ticker: t, country: c, company: n, addedAt: Date.now() });
+      wlSet(wl);
+    }
+  }
+
+  // ── Formatters ───────────────────────────────────────────────────────
+  function fmtPct(v)     { return v == null ? '—' : (v > 0 ? '+' : '') + v.toFixed(2) + '%'; }
+  function pctClass(v)   { return v == null ? 'pct-flat' : (v > 0.05 ? 'pct-pos' : (v < -0.05 ? 'pct-neg' : 'pct-flat')); }
+  function fmtExp(v)     { return v == null ? '—' : v.toFixed(2) + '%'; }
+  function flag(c)       { return c === 'us' ? '🇺🇸' : c === 'uk' ? '🇬🇧' : c === 'japan' ? '🇯🇵' : '🏳️'; }
+
+  // ── Filter & sort ────────────────────────────────────────────────────
+  const SIGNAL_TITLES = {
+    cost:     'Cost — expense ratio tier',
+    size:     'Size — fund AUM tier',
+    demand:   'Demand — 1y fund flows vs AUM',
+    momentum: 'Momentum — AUM % change over 1y',
+    tracking: 'Tracking — NAV vs price gap (3m)',
+  };
+  const SIGNAL_VERDICT = { green: 'healthy', amber: 'watch', red: 'caution', grey: 'n/a' };
+
+  function matches(e) {
+    if (state.class  && e.assetClass !== state.class) return false;
+    if (state.region && e.country !== state.region) return false;
+    if (state.focus  && e.focus !== state.focus) return false;
+    if (state.quick.has('low-exp') && !(e.expense != null && e.expense <= 0.20)) return false;
+    if (state.quick.has('div')     && !(e.divYield != null && e.divYield > 0)) return false;
+    if (state.quick.has('big')     && !(e.aumTier === '1b' || e.aumTier === '10b' || e.aumTier === '100b')) return false;
+    if (state.quick.has('hedged')  && !/yes/i.test(e.hedged || '')) return false;
+    if (state.search) {
+      const q = state.search.toLowerCase();
+      if (!e.ticker.toLowerCase().includes(q) && !e.name.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  }
+
+  function sorted(list) {
+    const g = (e, path) => path.split('.').reduce((x, k) => x && x[k], e);
+    const cmp = {
+      'aum-desc':  (a,b) => (b.aumUsd||0) - (a.aumUsd||0),
+      'ytd-desc':  (a,b) => (g(b,'performance.ytd')??-1e9) - (g(a,'performance.ytd')??-1e9),
+      'ytd-asc':   (a,b) => (g(a,'performance.ytd')??1e9) - (g(b,'performance.ytd')??1e9),
+      'y1-desc':   (a,b) => (g(b,'performance.y1')??-1e9)  - (g(a,'performance.y1')??-1e9),
+      'flow-desc': (a,b) => (g(b,'flow.y1.pctAum')??-1e9)  - (g(a,'flow.y1.pctAum')??-1e9),
+      'exp-asc':   (a,b) => (a.expense??1e9) - (b.expense??1e9),
+      'yield-desc':(a,b) => (b.divYield??-1e9) - (a.divYield??-1e9),
+    }[state.sort] || cmp['aum-desc'];
+    return list.slice().sort(cmp);
+  }
+
+  function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  // ── Render ──────────────────────────────────────────────────────────
+  function renderList() {
+    const filtered = sorted(ALL.filter(matches));
+    document.getElementById('etf-count').textContent = filtered.length.toLocaleString() + ' fund' + (filtered.length === 1 ? '' : 's');
+
+    const list = document.getElementById('etf-list');
+    if (!filtered.length) {
+      list.innerHTML = '<div class="empty-state">No funds match. Try clearing a filter.</div>';
+      return;
+    }
+
+    // Cap initial render for perf; real-world use shows top ~200
+    const shown = filtered.slice(0, 200);
+    const html = shown.map(function(e){
+      const hearted = wlHas(e.ticker, e.country);
+      const sigs = ['cost','size','demand','momentum','tracking'].map(function(k){
+        const v = (e.signals || {})[k] || 'grey';
+        return '<span class="sig-dot ' + v + '" title="' + esc(SIGNAL_TITLES[k]) + ' — ' + SIGNAL_VERDICT[v] + '"></span>';
+      }).join('');
+      const ytd = e.performance && e.performance.ytd;
+      const y1  = e.performance && e.performance.y1;
+      const f1y = e.flow && e.flow.y1 && e.flow.y1.pctAum;
+
+      return (
+        '<div class="etf-row">' +
+          '<div class="etf-top">' +
+            '<span class="etf-ticker">' + esc(e.ticker) + '</span>' +
+            '<span class="etf-name">' + esc(e.name) + '</span>' +
+          '</div>' +
+          '<div class="etf-stats">' +
+            '<div><span class="lbl">AUM</span><span class="val">' + esc(e.aumLabel || '—') + '</span></div>' +
+            '<div><span class="lbl">Expense</span><span class="val">' + fmtExp(e.expense) + '</span></div>' +
+            '<div><span class="lbl">YTD</span><span class="val ' + pctClass(ytd) + '">' + fmtPct(ytd) + '</span></div>' +
+            '<div><span class="lbl">1Y</span><span class="val ' + pctClass(y1) + '">' + fmtPct(y1) + '</span></div>' +
+            '<div><span class="lbl">1Y flow</span><span class="val ' + pctClass(f1y) + '">' + (f1y == null ? '—' : fmtPct(f1y)) + '</span></div>' +
+            '<div><span class="lbl">Yield</span><span class="val">' + (e.divYield == null ? '—' : e.divYield.toFixed(2) + '%') + '</span></div>' +
+          '</div>' +
+          '<div class="etf-sub">' +
+            '<span class="flag">' + flag(e.country) + '</span>' +
+            '<span>' + esc(e.assetClass) + (e.focus ? ' · ' + esc(e.focus) : '') + '</span>' +
+          '</div>' +
+          '<div class="etf-sigs">' + sigs + '<span class="sig-legend">cost · size · demand · momentum · tracking</span></div>' +
+          '<button class="etf-save ' + (hearted ? 'hearted' : '') + '" aria-label="' + (hearted ? 'Caught' : 'Catch') + '" ' +
+                  'data-ticker="' + esc(e.ticker) + '" data-country="' + esc(e.country) + '" data-name="' + esc(e.name) + '">' +
+            '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' +
+          '</button>' +
+        '</div>'
+      );
+    }).join('');
+
+    if (filtered.length > 200) {
+      list.innerHTML = html + '<div class="empty-state" style="padding:1.5rem 1rem;font-size:0.78rem;">Showing first 200 of ' + filtered.length.toLocaleString() + '. Narrow filters to see more.</div>';
+    } else {
+      list.innerHTML = html;
+    }
+
+    // Wire up save buttons
+    list.querySelectorAll('.etf-save').forEach(function(btn){
+      btn.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        const t = btn.getAttribute('data-ticker');
+        const c = btn.getAttribute('data-country');
+        const n = btn.getAttribute('data-name');
+        toggleSave(t, c, n);
+        btn.classList.toggle('hearted');
+      });
+    });
+  }
+
+  // ── Focus chips cascade from Class selection ─────────────────────────
+  function renderFocusChips() {
+    const row = document.getElementById('focus-row');
+    const chips = document.getElementById('focus-chips');
+    if (!state.class) { row.style.display = 'none'; state.focus = ''; return; }
+    const top = Object.entries(FOCUS_BY_CLASS[state.class] || {}).sort((a,b) => b[1] - a[1]).slice(0, 10);
+    if (!top.length) { row.style.display = 'none'; state.focus = ''; return; }
+    chips.innerHTML = '<span class="bubble-chip ' + (state.focus === '' ? 'active' : '') + '" data-focus="">All</span>' +
+      top.map(function(e){
+        const focus = e[0];
+        return '<span class="bubble-chip ' + (state.focus === focus ? 'active' : '') + '" data-focus="' + esc(focus) + '">' + esc(focus) + '</span>';
+      }).join('');
+    row.style.display = '';
+    chips.querySelectorAll('.bubble-chip').forEach(function(chip){
+      chip.addEventListener('click', function(){
+        state.focus = chip.getAttribute('data-focus');
+        chips.querySelectorAll('.bubble-chip').forEach(function(c){ c.classList.toggle('active', c === chip); });
+        renderList();
+      });
+    });
+  }
+
+  // ── Wire up filter chips ─────────────────────────────────────────────
+  function wireChips(containerId, attr, onChange) {
+    const chips = document.querySelectorAll('#' + containerId + ' .bubble-chip');
+    chips.forEach(function(chip){
+      chip.addEventListener('click', function(){
+        if (attr === 'quick') {
+          const v = chip.getAttribute('data-quick');
+          if (state.quick.has(v)) state.quick.delete(v); else state.quick.add(v);
+          chip.classList.toggle('active');
+        } else {
+          const v = chip.getAttribute('data-' + attr);
+          state[attr] = v;
+          chips.forEach(function(c){ c.classList.toggle('active', c === chip); });
+        }
+        onChange && onChange();
+        renderList();
+      });
+    });
+  }
+
+  // ── Init ────────────────────────────────────────────────────────────
+  async function init() {
+    try {
+      const res = await fetch('/data/etfs.json');
+      if (!res.ok) throw new Error('Failed to load ETFs');
+      const data = await res.json();
+      ALL = data.etfs || [];
+
+      // Nav stamp
+      if (data.generatedAt) {
+        const d = new Date(data.generatedAt);
+        const stamp = document.querySelector('.nav-stamp span');
+        if (stamp) stamp.textContent = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+      }
+
+      // Index focus values by asset class for cascading chips
+      ALL.forEach(function(e){
+        if (!e.assetClass || !e.focus) return;
+        if (!FOCUS_BY_CLASS[e.assetClass]) FOCUS_BY_CLASS[e.assetClass] = {};
+        FOCUS_BY_CLASS[e.assetClass][e.focus] = (FOCUS_BY_CLASS[e.assetClass][e.focus] || 0) + 1;
+      });
+
+      wireChips('class-chips',  'class',  renderFocusChips);
+      wireChips('region-chips', 'region');
+      wireChips('quick-chips',  'quick');
+
+      document.getElementById('etf-search').addEventListener('input', function(e){
+        state.search = e.target.value.trim();
+        renderList();
+      });
+      document.getElementById('sort-select').addEventListener('change', function(e){
+        state.sort = e.target.value;
+        renderList();
+      });
+
+      renderList();
+    } catch (e) {
+      console.error('[etfs] init failed', e);
+      document.getElementById('etf-list').innerHTML =
+        '<div class="empty-state">Sorry, failed to load funds. Please refresh.</div>';
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
+<script src="assets/js/mood.js?v=20260421a"></script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 [build]
-  command = "python3 build_data.py"
+  command = "python3 build_data.py && python3 build_etfs.py"
   publish = "public"
 
 [build.environment]
