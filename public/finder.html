@@ -269,8 +269,8 @@
   </a>
   <div class="nav-links">
     <a class="nav-link" href="index.html">Home</a>
-    <a class="nav-link active" href="finder.html">Hunt</a>
-    <a class="nav-link" href="watchlist.html">Catch</a>
+    <a class="nav-link active" href="finder.html">Ideas</a>
+    <a class="nav-link" href="watchlist.html">Saved</a>
     <a class="nav-link" href="stocks.html">Search</a>
     <div class="nav-dropdown">
       <button class="nav-link nav-dropdown-trigger">More <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
@@ -302,8 +302,8 @@
 </div>
 <nav class="nav-bottom">
   <a href="index.html"><i data-lucide="house" class="nb-icon"></i>Home</a>
-  <a href="finder.html" class="active"><i data-lucide="eye" class="nb-icon"></i>Hunt</a>
-  <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Catch</a>
+  <a href="finder.html" class="active"><i data-lucide="sparkles" class="nb-icon"></i>Ideas</a>
+  <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Saved</a>
   <a href="stocks.html"><i data-lucide="search" class="nb-icon"></i>Search</a>
   <a href="#" onclick="event.preventDefault();toggleToolsPopover()"><i data-lucide="compass" class="nb-icon"></i>More</a>
 </nav>
@@ -356,7 +356,7 @@ function closeToolsPopover(){
 
 <footer style="border-top:1px solid var(--border);padding:40px 1.5rem;text-align:center;max-width:1400px;margin:4rem auto 0;">
   <p style="margin:0;"><a href="index.html" style="font-family:var(--mono);font-weight:700;font-size:16px;color:var(--text);text-decoration:none;"><span style="color:var(--brand);">Stock</span>Panda</a></p>
-  <p style="font-size:12px;color:var(--muted);margin-top:12px;">StockPanda is a free stock discovery app. Nothing on this site constitutes financial advice. Always do your own research.</p>
+  <p style="font-size:12px;color:var(--muted);margin-top:12px;">StockPanda is a free stock ideas app. Ideas shown are starting points for your own research — not investment advice or recommendations to buy any security. Always do your own research and consider speaking to a regulated adviser. Your capital is at risk.</p>
 </footer>
 
 <!-- ── Trap Wizard Modal ────────────────────────────────────────── -->
@@ -1234,11 +1234,46 @@ function buildFinderDiscoverCard(item) {
     return '<span class="dc-style-hearts">' + h + '</span>';
   }
 
+  // Compute primary style from ps scores (matches build_data.py classify logic).
+  // The full 5-style breakdown + secondaries shows on the stock detail page, not here.
   var ps = s._ps || {};
-  var sorted = Object.entries(ps).sort(function(a,b){ return b[1]-a[1]; });
-  var styleRows = sorted.map(function(e) {
-    return '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[e[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[e[0]]||e[0]) + '</span>' + hearts(e[1]) + '</div>';
-  }).join('');
+  var primaryStyle = (function() {
+    var SAFETY_ORDER = ['trophy','scavenger','rebound','momentum','wild_beast','moonshot'];
+    var bestKey = null, bestPct = -1;
+    for (var i = 0; i < SAFETY_ORDER.length; i++) {
+      var key = SAFETY_ORDER[i];
+      var pct = ps[key] || 0;
+      if (pct < 75) continue;
+      if (bestKey === null || pct > bestPct + 0.01) { bestKey = key; bestPct = pct; }
+      else if (Math.abs(pct - bestPct) < 5 && SAFETY_ORDER.indexOf(key) < SAFETY_ORDER.indexOf(bestKey)) {
+        bestKey = key; bestPct = pct;
+      }
+    }
+    return bestKey;
+  })();
+  // Short plain-English description of what each style means — serves as a reminder on the card.
+  var STYLE_SUBS = {
+    trophy:     'Big, long-profitable companies with a steady track record.',
+    scavenger:  'Proven companies trading well below their recent highs.',
+    rebound:    'Stocks recovering after a sharp drop, with momentum turning up.',
+    momentum:   'Stocks on extended upward runs.',
+    wild_beast: 'High-volatility big winners. Volatile, not for the faint-hearted.',
+    moonshot:   'Micro-cap lottery tickets. Big upside, big downside. Advanced.',
+  };
+  var primaryChipHtml = primaryStyle
+    ? ('<div class="dc-primary-chip"><span class="dc-primary-icon">' + (STYLE_ICONS[primaryStyle] || '') + '</span><span class="dc-primary-name">' + (STYLE_NAMES[primaryStyle] || primaryStyle) + '</span></div>'
+       + '<p class="dc-primary-sub">' + esc(STYLE_SUBS[primaryStyle] || '') + '</p>')
+    : '<div class="dc-primary-chip dc-primary-none">Unclassified</div>';
+
+  // Short 3-4-word descriptor for the volatility level (Panda level).
+  var LEVEL_SUBS = {
+    'Level 1': 'Tiny price swings',
+    'Level 2': 'Mild price swings',
+    'Level 3': 'Moderate price swings',
+    'Level 4': 'Big price swings',
+    'Level 5': 'Massive price swings',
+  };
+  var levelSub = LEVEL_SUBS[b.label] || '';
 
   return '<div class="discover-card">' +
     '<div class="dc-split"><div class="dc-split-left">' +
@@ -1249,6 +1284,7 @@ function buildFinderDiscoverCard(item) {
       '<img class="dc-panda" src="assets/img/' + b.img + '" alt="' + esc(b.label) + '" />' +
       '<span class="dc-level-label">Panda Level</span>' +
       '<span class="mood-chip ' + b.cls + '">' + b.label + '</span>' +
+      (levelSub ? '<span class="dc-level-sub">' + esc(levelSub) + '</span>' : '') +
     '</div></div>' +
     '<div class="dc-match-row"><div><div class="dc-match-label">Match</div><div class="dc-match-word" style="color:' + matchCol + ';">' + matchWord + '</div></div>' +
       '<div class="dc-match-bar"><div class="dc-match-fill" style="width:' + item.pct + '%;background:' + matchCol + ';"></div></div></div>' +
@@ -1258,11 +1294,11 @@ function buildFinderDiscoverCard(item) {
       (sig.a > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot amber"></span><span class="dc-sig-count amber">' + sig.a + '</span> Cautionary</div>' : '') +
       (sig.r > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot red"></span><span class="dc-sig-count red">' + sig.r + '</span> Warning</div>' : '') +
     '</div></div>' +
-    '<div class="dc-section"><div class="dc-section-label">Styles</div><div class="dc-style-list">' + styleRows + '</div></div>' +
+    '<div class="dc-section"><div class="dc-section-label">Best match</div>' + primaryChipHtml + '</div>' +
     '<div class="discover-nav" style="border-top:1px solid var(--border);margin-top:1.2rem;padding-top:1rem;">' +
       '<div class="dc-nav-item"><button class="dc-btn-back" onclick="finderPrevCard()" title="Back"><i data-lucide="arrow-left"></i></button><div class="dc-label">Back</div></div>' +
-      '<div class="dc-nav-item"><button class="dc-btn-heart' + (hearted ? ' hearted' : '') + '" onclick="finderToggleHeart()" title="' + (hearted ? 'Remove from Catch' : 'Catch this stock') + '"><i data-lucide="heart"></i></button><div class="dc-label">Catch</div></div>' +
-      '<div class="dc-nav-item"><button class="dc-btn-open" onclick="finderOpenStock()" title="View details"><i data-lucide="external-link"></i></button><div class="dc-label">View</div></div>' +
+      '<div class="dc-nav-item"><button class="dc-btn-heart' + (hearted ? ' hearted' : '') + '" onclick="finderToggleHeart()" title="' + (hearted ? 'Remove from Saved' : 'Save this stock') + '"><i data-lucide="heart"></i></button><div class="dc-label">Save</div></div>' +
+      '<div class="dc-nav-item"><button class="dc-btn-open" onclick="finderOpenStock()" title="View details"><i data-lucide="eye"></i></button><div class="dc-label">View</div></div>' +
       '<div class="dc-nav-item"><button class="dc-btn-next" onclick="finderNextCard()" title="Next"><i data-lucide="arrow-right"></i></button><div class="dc-label">Next</div></div>' +
     '</div>' +
   '</div>';

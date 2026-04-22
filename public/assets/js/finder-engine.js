@@ -24,14 +24,14 @@ const PRESETS = {
       { key:'drawdown', expect:'near_peak',   weight:1 },
     ],
   },
-  wild_beast: { label: 'Wild Beast', sub: 'Captures high-volatility assets with extreme upside (and downside) potential.',
+  wild_beast: { label: 'Wild Beast', sub: 'High-volatility large/mid caps with strong recent gains. Volatile big winners — not for the faint-hearted.',
     criteria: [
-      { key:'vol',      expect:'high',     weight:2 },
-      { key:'size',     expect:'small',    weight:2 },
-      { key:'momentum', expect:'positive', weight:1 },
-      { key:'return1m', expect:'positive', weight:1 },
-      { key:'drawdown', expect:'deep',     weight:1 },
-      { key:'range52w', expect:'lows',     weight:1 },
+      { key:'vol',      expect:'high',            weight:2 },
+      { key:'return1y', expect:'strong_positive', weight:2 },
+      { key:'momentum', expect:'positive',        weight:1 },
+      { key:'return1m', expect:'positive',        weight:1 },
+      { key:'size',     expect:'mid_or_small',    weight:1 },
+      { key:'range52w', expect:'highs',           weight:1 },
     ],
   },
   scavenger: { label: 'Scavenger', sub: 'Finds high-quality stocks that have been beaten down — real bargains with proven fundamentals.',
@@ -63,11 +63,22 @@ const PRESETS = {
       { key:'range52w', expect:'middle',   weight:1 },
     ],
   },
+  moonshot: { label: 'Moonshot', sub: 'Small, volatile companies running hot. Micro-cap lottery tickets — big upside, big downside. Advanced.',
+    advanced: true,  // surface with "advanced" copy in the style picker
+    criteria: [
+      { key:'size',     expect:'micro',         weight:2 },
+      { key:'vol',      expect:'high',          weight:2 },
+      { key:'return1y', expect:'very_positive', weight:2 },
+      { key:'momentum', expect:'positive',      weight:1 },
+      { key:'return1m', expect:'positive',      weight:1 },
+      { key:'range52w', expect:'highs',         weight:1 },
+    ],
+  },
 };
 
-const STYLE_ICONS = { trophy:'🏆', wild_beast:'🐂', scavenger:'🦅', momentum:'🚀', rebound:'🐇' };
-const STYLE_NAMES = { trophy:'Trophy', wild_beast:'Wild Beast', scavenger:'Scavenger', momentum:'Momentum', rebound:'Rebound' };
-const STYLE_DESCS = { trophy:'Proven winners', wild_beast:'High-volatility', scavenger:'Quality bargains', momentum:'Sustained uptrends', rebound:'V-shape recovery' };
+const STYLE_ICONS = { trophy:'🏆', wild_beast:'🐂', scavenger:'🦅', momentum:'🚀', rebound:'🐇', moonshot:'🦄' };
+const STYLE_NAMES = { trophy:'Trophy', wild_beast:'Wild Beast', scavenger:'Scavenger', momentum:'Momentum', rebound:'Rebound', moonshot:'Moonshot' };
+const STYLE_DESCS = { trophy:'Proven winners', wild_beast:'High-volatility winners', scavenger:'Quality bargains', momentum:'Sustained uptrends', rebound:'V-shape recovery', moonshot:'Micro-cap high-upside' };
 
 // ── Region / sector config ───────────────────────────────────────────────────
 const EUROPE_COUNTRIES = new Set(['United Kingdom','Ireland','Sweden','France','Germany','Italy','Switzerland','Poland','Norway','Spain','Russian Federation','Finland','Denmark','Netherlands','Belgium','Greece','Austria','Luxembourg','Portugal','Bulgaria','Croatia','Romania','Hungary','Iceland','Slovenia','Lithuania','Estonia','Malta','Latvia','Slovakia','Czech Republic','Liechtenstein','Monaco','Serbia','Cyprus']);
@@ -297,7 +308,7 @@ let _renderedSubset = [];
 let _currentScoredCache = [];
 let _currentPresetMode = false;
 const RENDER_CAP = 200;
-const _PRESET_ORDER = ['trophy','wild_beast','scavenger','momentum','rebound'];
+const _PRESET_ORDER = ['trophy','scavenger','rebound','momentum','wild_beast','moonshot'];
 
 function _countSignals(s) {
   let r = 0, a = 0, g = 0;

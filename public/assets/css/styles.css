@@ -973,6 +973,43 @@ button.nav-dropdown-trigger {
 .dc-style-hearts { display: flex; gap: 2px; flex-shrink: 0; }
 .dc-style-sep { font-size: 0.5rem; color: var(--muted); margin: 0.15rem 0; padding-left: 1.6rem; }
 
+/* Primary style chip — shown on the finder discover card (single best-match style).
+   Full per-style breakdown moves to the stock detail page. */
+.dc-primary-chip {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  background: rgba(74,222,128,0.08);
+  border: 1px solid rgba(74,222,128,0.22);
+  border-radius: 22px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.78rem; font-weight: 700;
+}
+.dc-primary-icon { font-size: 1rem; line-height: 1; }
+.dc-primary-name { color: var(--green); letter-spacing: 0.02em; }
+.dc-primary-chip.dc-primary-none {
+  background: rgba(138,158,143,0.08);
+  border-color: rgba(138,158,143,0.22);
+  color: var(--muted);
+  font-weight: 500;
+}
+/* Style reminder under the primary chip (what does "Trophy" mean?) */
+.dc-primary-sub {
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.45;
+  margin: 0.5rem 0 0;
+}
+/* 3-4 word volatility descriptor under the Panda level chip */
+.dc-level-sub {
+  display: block;
+  margin-top: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 /* Actions */
 .dc-actions { display: flex; gap: 0.6rem; margin-top: 1.2rem; padding-top: 0.8rem; border-top: 1px solid var(--border); flex-wrap: wrap; }
 .dc-btn-primary { flex: 1; background: var(--green); color: #000; font-weight: 700; padding: 0.6rem; border-radius: 8px; border: none; font-size: 0.82rem; cursor: pointer; font-family: var(--font); text-align: center; text-decoration: none; }

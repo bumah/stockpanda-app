@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StockPanda — A simpler way to find stocks</title>
+<title>StockPanda — Fresh stock ideas every day</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/styles.css?v=20260421a">
 <style>
@@ -597,6 +597,108 @@ section + section { border-top: 1px solid var(--border); }
   margin-bottom: 28px;
 }
 
+/* ─── SAMPLE CARDS (below hero) ─── */
+.sample-section {
+  padding: 40px 0 80px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+}
+.sample-section .container { max-width: 1200px; }
+.sample-head { text-align: center; margin-bottom: 28px; padding: 0 24px; }
+.sample-sublabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--green-primary); margin-bottom: 14px;
+}
+.sample-title {
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 700; letter-spacing: -0.5px; margin-bottom: 10px;
+}
+.sample-sub {
+  font-size: 14px; color: var(--text-secondary); max-width: 520px; margin: 0 auto;
+}
+.sample-scroll-wrap { position: relative; }
+.sample-scroll {
+  display: flex; gap: 14px;
+  overflow-x: auto; overflow-y: visible;
+  padding: 8px 24px 20px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+.sample-scroll::-webkit-scrollbar { height: 4px; }
+.sample-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.sample-loading, .sample-empty {
+  text-align: center; padding: 40px 20px; color: var(--text-dim);
+  font-size: 14px; font-family: 'Space Mono', monospace;
+}
+/* Card — 260px wide, horizontal scroll */
+.sc-card {
+  flex: 0 0 260px; scroll-snap-align: start;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+  padding: 14px 14px 12px;
+  display: flex; flex-direction: column; gap: 10px;
+  text-decoration: none; color: inherit;
+  transition: border-color 0.2s, transform 0.2s, background 0.2s;
+}
+.sc-card:hover { border-color: var(--border-bright); transform: translateY(-3px); background: var(--bg-card-hover); }
+.sc-style-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.22);
+  color: var(--green-primary);
+  padding: 3px 9px; border-radius: 20px;
+  font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  align-self: flex-start;
+}
+.sc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.sc-top-left { min-width: 0; flex: 1; }
+.sc-ticker {
+  font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700;
+  color: var(--green-primary); line-height: 1; letter-spacing: -0.01em;
+}
+.sc-company {
+  font-size: 12px; color: var(--text-primary); margin-top: 4px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sc-meta {
+  font-size: 10.5px; color: var(--text-dim); margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sc-panda-wrap { flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.sc-panda { width: 34px; height: 34px; object-fit: contain; }
+.sc-level {
+  font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 700;
+  color: var(--text-dim); letter-spacing: 0.05em;
+}
+.sc-price {
+  display: flex; align-items: baseline; gap: 6px;
+  padding: 6px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+.sc-price-val {
+  font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700;
+  color: var(--text-primary);
+}
+.sc-price-ccy { font-size: 10px; color: var(--text-dim); font-family: 'Space Mono', monospace; }
+.sc-returns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.sc-ret { text-align: center; }
+.sc-ret-lbl {
+  display: block; font-size: 9px; color: var(--text-dim); font-family: 'Space Mono', monospace;
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px;
+}
+.sc-ret-val { font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; }
+.sc-ret-val.pos { color: #4ADE80; } .sc-ret-val.neg { color: #F87171; } .sc-ret-val.flat { color: var(--text-dim); }
+.sc-signals { display: flex; gap: 8px; align-items: center; font-size: 10px; color: var(--text-dim); font-family: 'Space Mono', monospace; }
+.sc-sig-group { display: inline-flex; align-items: center; gap: 3px; }
+.sc-sig-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.sc-sig-dot.g { background: #4ADE80; } .sc-sig-dot.a { background: #FBBF24; } .sc-sig-dot.r { background: #F87171; }
+.sample-disclaimer {
+  text-align: center; padding: 10px 20px 0; margin: 0;
+  font-size: 11px; color: var(--text-dim); font-family: 'Space Mono', monospace;
+  letter-spacing: 0.05em;
+}
+
 /* ─── FINAL CTA ─── */
 .final-cta {
   text-align: center;
@@ -713,8 +815,8 @@ footer a:hover { color: var(--green-primary); }
   </a>
   <div class="nav-links">
     <a class="nav-link active" href="index.html">Home</a>
-    <a class="nav-link" href="finder.html">Hunt</a>
-    <a class="nav-link" href="watchlist.html">Catch</a>
+    <a class="nav-link" href="finder.html">Ideas</a>
+    <a class="nav-link" href="watchlist.html">Saved</a>
     <a class="nav-link" href="stocks.html">Search</a>
     <div class="nav-dropdown">
       <button class="nav-link nav-dropdown-trigger">More <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
@@ -746,8 +848,8 @@ footer a:hover { color: var(--green-primary); }
 </div>
 <nav class="nav-bottom">
   <a href="index.html" class="active"><i data-lucide="house" class="nb-icon"></i>Home</a>
-  <a href="finder.html"><i data-lucide="eye" class="nb-icon"></i>Hunt</a>
-  <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Catch</a>
+  <a href="finder.html"><i data-lucide="sparkles" class="nb-icon"></i>Ideas</a>
+  <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Saved</a>
   <a href="stocks.html"><i data-lucide="search" class="nb-icon"></i>Search</a>
   <a href="#" onclick="event.preventDefault();toggleToolsPopover()"><i data-lucide="compass" class="nb-icon"></i>More</a>
 </nav>
@@ -757,14 +859,34 @@ footer a:hover { color: var(--green-primary); }
 <!-- ═══════════════════════════════════════ -->
 <section class="hero">
   <div class="container">
-    <div class="hero-label">The Stock Hunting App</div>
-    <h1>A simpler way to find stocks</h1>
-    <p class="hero-promise">Not sure which stocks are right for you? Don't guess. Pick your investment style, market, and risk level — find what fits.</p>
+    <div class="hero-label">Stock ideas, for busy people</div>
+    <h1>Find stocks that <em>match your taste</em></h1>
+    <p class="hero-promise">Save hours on research. Set your rules, see your matches. No hype. No stress.</p>
     <div class="hero-ctas">
-      <a href="finder.html" class="btn-primary">Start Hunting</a>
-      <a href="#" class="btn-secondary sp-install-btn" onclick="event.preventDefault();spInstallApp();" style="display:none;">Get StockPanda App</a>
+      <a href="finder.html" class="btn-primary">Find my matches</a>
+      <a href="#how-it-works" class="btn-secondary">How it works</a>
+    </div>
+    <p style="font-size:13px;color:var(--text-dim);margin-top:24px;font-family:'Space Mono',monospace;letter-spacing:1px;">Free. No account needed to start.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SAMPLE CARDS — 2 per style, daily rotation -->
+<!-- ═══════════════════════════════════════ -->
+<section class="sample-section">
+  <div class="container">
+    <div class="sample-head">
+      <div class="sample-sublabel reveal">Featured</div>
+      <h2 class="sample-title reveal">Stocks from around the world</h2>
+      <p class="sample-sub reveal">Stocks refreshed daily. Tap any card to see the full detail page.</p>
     </div>
   </div>
+  <div class="sample-scroll-wrap">
+    <div class="sample-scroll" id="sample-scroll">
+      <div class="sample-loading">Loading today's sample…</div>
+    </div>
+  </div>
+  <p class="sample-disclaimer">Ideas only — not advice. Do your own research.</p>
 </section>
 
 <!-- ═══════════════════════════════════════ -->
@@ -772,26 +894,26 @@ footer a:hover { color: var(--green-primary); }
 <!-- ═══════════════════════════════════════ -->
 <section>
   <div class="container">
-    <div class="section-label reveal">Three choices</div>
-    <h2 class="section-title reveal">Every investment journey is personal</h2>
-    <p class="section-subtitle reveal">Set your rules. We'll do the heavy lifting.</p>
+    <div class="section-label reveal">The setup</div>
+    <h2 class="section-title reveal">Your stocks. Your rules.</h2>
+    <p class="section-subtitle reveal">Define your taste — investment style, country, and risk comfort. We'll show stocks that match. Do your research before you act.</p>
 
     <!-- Overview cards -->
     <div class="hunt-intro-grid">
       <div class="hunt-intro-card reveal">
         <i data-lucide="target" class="hunt-intro-icon"></i>
-        <h3>Your Type</h3>
-        <p>Five hunter profiles. Pick the one that matches how you invest.</p>
+        <h3>Your style</h3>
+        <p>Six investing styles. Pick the one that sounds like how you'd like to invest today.</p>
       </div>
       <div class="hunt-intro-card reveal">
         <i data-lucide="globe" class="hunt-intro-icon"></i>
-        <h3>Your Place</h3>
-        <p>8+ global markets. 30,000+ stocks. The world is yours.</p>
+        <h3>Your market</h3>
+        <p>8+ markets to browse. Start local, go wider whenever you want.</p>
       </div>
       <div class="hunt-intro-card reveal">
         <i data-lucide="bar-chart-3" class="hunt-intro-icon"></i>
-        <h3>Your Difficulty</h3>
-        <p>Five levels, L1–L5. Hunt within your comfort zone.</p>
+        <h3>Your comfort</h3>
+        <p>Five volatility levels, L1–L5. Browse within your comfort zone.</p>
       </div>
     </div>
 
@@ -799,35 +921,40 @@ footer a:hover { color: var(--green-primary); }
     <div class="detail-section reveal">
       <div class="detail-header">
         <i data-lucide="target" class="detail-icon"></i>
-        <span class="detail-title">Five types to choose</span>
+        <span class="detail-title">Six styles to explore</span>
       </div>
-      <p class="detail-desc">Every investor thinks differently. Your type defines the opportunities you seek. Pick the ones that match your style.</p>
+      <p class="detail-desc">Each style has its own rules. Pick one — or try them all. We'll show you the stocks matching that style today.</p>
       <div class="scroll-wrapper">
         <div class="scroll-row">
           <div class="style-card">
             <span class="style-emoji">🏆</span>
             <h4>Trophy</h4>
-            <p>Proven long-term winners with strong earnings.</p>
+            <p>Big, long-profitable companies with a steady track record.</p>
           </div>
           <div class="style-card">
             <span class="style-emoji">🐂</span>
             <h4>Wild Beast</h4>
-            <p>High-volatility stocks with extreme upside — and downside.</p>
+            <p>High-volatility stocks with big recent moves. Advanced.</p>
           </div>
           <div class="style-card">
             <span class="style-emoji">🦅</span>
             <h4>Scavenger</h4>
-            <p>Quality stocks that have been beaten down — bargains with proven fundamentals.</p>
+            <p>Proven companies trading well below their recent highs.</p>
           </div>
           <div class="style-card">
             <span class="style-emoji">🚀</span>
             <h4>Momentum</h4>
-            <p>Stocks in sustained uptrends across multiple timeframes.</p>
+            <p>Stocks on extended upward runs.</p>
           </div>
           <div class="style-card">
             <span class="style-emoji">🐇</span>
             <h4>Rebound</h4>
-            <p>Stocks recovering after a rough patch — V-shape recoveries in motion.</p>
+            <p>Stocks recovering after a sharp drop, with momentum turning up.</p>
+          </div>
+          <div class="style-card">
+            <span class="style-emoji">🦄</span>
+            <h4>Moonshot</h4>
+            <p>Small, volatile companies running hot. Big upside, big downside. Advanced.</p>
           </div>
         </div>
       </div>
@@ -837,9 +964,9 @@ footer a:hover { color: var(--green-primary); }
     <div class="detail-section reveal">
       <div class="detail-header">
         <i data-lucide="globe" class="detail-icon"></i>
-        <span class="detail-title">The world is your oyster</span>
+        <span class="detail-title">Start local. Go global when you want.</span>
       </div>
-      <p class="detail-desc">Opportunities are everywhere — not just in your backyard. Explore globally to find the right fits.</p>
+      <p class="detail-desc">Browse stock ideas from 8+ markets. Pick one to keep things simple, or turn on more whenever you want a wider view.</p>
       <div class="scroll-wrapper">
         <div class="scroll-row">
           <div class="territory-card">
@@ -890,45 +1017,45 @@ footer a:hover { color: var(--green-primary); }
     <div class="detail-section reveal">
       <div class="detail-header">
         <i data-lucide="bar-chart-3" class="detail-icon"></i>
-        <span class="detail-title">Stay in your zone</span>
+        <span class="detail-title">Every idea shows how volatile it is</span>
       </div>
-      <p class="detail-desc">Every stock gets a difficulty level — so you never take on more than you can handle.</p>
+      <p class="detail-desc">So you always know what you're getting into. New to investing? The calmer styles (L1–L2) are a gentler place to start looking.</p>
       <div class="scroll-wrapper">
         <div class="scroll-row">
           <div class="level-card level-1">
             <div class="panda-face">
               <img src="assets/img/panda-vcalm.png" alt="Level 1" class="panda-svg">
             </div>
-            <span class="level-badge">L1</span>
-            <p>Stable stocks with minimal price movement.</p>
+            <span class="level-badge">L1 · Very calm</span>
+            <p>Could swing roughly ±10% in a typical year. Big, stable names.</p>
           </div>
           <div class="level-card level-2">
             <div class="panda-face">
               <img src="assets/img/panda-calm.png" alt="Level 2" class="panda-svg">
             </div>
-            <span class="level-badge">L2</span>
-            <p>Mostly steady, with occasional mild swings.</p>
+            <span class="level-badge">L2 · Calm</span>
+            <p>Could swing roughly ±15%. Mostly steady, occasional bumps.</p>
           </div>
           <div class="level-card level-3">
             <div class="panda-face">
               <img src="assets/img/panda-unsettled.png" alt="Level 3" class="panda-svg">
             </div>
-            <span class="level-badge">L3</span>
-            <p>Faster-moving stocks that require timing.</p>
+            <span class="level-badge">L3 · Unsettled</span>
+            <p>Could swing ±25%. Faster-moving — timing starts to matter.</p>
           </div>
           <div class="level-card level-4">
             <div class="panda-face">
               <img src="assets/img/panda-stressed.png" alt="Level 4" class="panda-svg">
             </div>
-            <span class="level-badge">L4</span>
-            <p>Unpredictable stocks that can move sharply.</p>
+            <span class="level-badge">L4 · Stressed</span>
+            <p>Could swing ±40%. Sharp moves are normal here.</p>
           </div>
           <div class="level-card level-5">
             <div class="panda-face">
               <img src="assets/img/panda-danger.png" alt="Level 5" class="panda-svg">
             </div>
-            <span class="level-badge">L5</span>
-            <p>Extreme volatility. Not for the faint-hearted.</p>
+            <span class="level-badge">L5 · Danger</span>
+            <p>Anything goes. For experienced investors only.</p>
           </div>
         </div>
       </div>
@@ -939,28 +1066,28 @@ footer a:hover { color: var(--green-primary); }
 <!-- ═══════════════════════════════════════ -->
 <!-- HOW IT WORKS — 3 STEPS -->
 <!-- ═══════════════════════════════════════ -->
-<section class="steps-section">
+<section class="steps-section" id="how-it-works">
   <div class="container">
-    <div class="section-label reveal">The basics</div>
-    <h2 class="section-title reveal" style="text-align:center;">How it works</h2>
-    <p class="section-subtitle reveal" style="text-align:center; margin-left:auto; margin-right:auto;">No complex setup. Get the ball rolling in just three steps.</p>
+    <div class="section-label reveal">How it works</div>
+    <h2 class="section-title reveal" style="text-align:center;">Three steps. Two minutes.</h2>
+    <p class="section-subtitle reveal" style="text-align:center; margin-left:auto; margin-right:auto;">You do the choosing. We do the filtering. You do the research before buying.</p>
     <div class="steps">
       <div class="step reveal">
         <div class="step-number">01</div>
-        <h3>Set your rules</h3>
-        <p>Choose your type, place, and difficulty. Or create custom rules.</p>
+        <h3>Pick a style</h3>
+        <p>Choose how you'd like to invest today. Change it any time, or browse all five.</p>
         <span class="step-arrow">→</span>
       </div>
       <div class="step reveal">
         <div class="step-number">02</div>
-        <h3>Review your catches</h3>
-        <p>Compare, inspect, and decide what's worth your attention.</p>
+        <h3>See today's list</h3>
+        <p>The stocks matching that style right now, each with a plain-English reason why.</p>
         <span class="step-arrow">→</span>
       </div>
       <div class="step reveal">
         <div class="step-number">03</div>
-        <h3>Move when ready</h3>
-        <p>Use your favourite broker when the timing feels right.</p>
+        <h3>Save and research</h3>
+        <p>Bookmark the ones that catch your eye. Buy through your usual broker when you're ready — not us.</p>
       </div>
     </div>
   </div>
@@ -971,29 +1098,29 @@ footer a:hover { color: var(--green-primary); }
 <!-- ═══════════════════════════════════════ -->
 <section class="pro-section">
   <div class="container">
-    <div class="section-label reveal">Advanced gear</div>
-    <h2 class="section-title reveal">Level up your hunt</h2>
-    <p class="section-subtitle reveal">Extra tools for investors who want to go deeper.</p>
+    <div class="section-label reveal">When you want to dig deeper</div>
+    <h2 class="section-title reveal">Extra tools for later</h2>
+    <p class="section-subtitle reveal">Go beyond today's list when you're ready.</p>
     <div class="pro-grid">
       <div class="pro-feature reveal">
         <i data-lucide="search" class="pro-feature-icon"></i>
         <div>
           <h4>Search</h4>
-          <p>Filter, sort, and explore 30,000+ stocks across every market.</p>
+          <p>Browse every stock in our universe — filter, sort, and inspect on your own terms.</p>
         </div>
       </div>
       <div class="pro-feature reveal">
         <i data-lucide="crosshair" class="pro-feature-icon"></i>
         <div>
           <h4>Pro Hunt</h4>
-          <p>Sharper filters, tighter rules, bigger catches.</p>
+          <p>Build your own rules. Tighter filters for custom lists.</p>
         </div>
       </div>
       <div class="pro-feature reveal">
         <i data-lucide="bar-chart-3" class="pro-feature-icon"></i>
         <div>
           <h4>Brief</h4>
-          <p>Daily top catches and weekly reports, on your dashboard.</p>
+          <p>Daily highlights and weekly digests in one place.</p>
         </div>
       </div>
     </div>
@@ -1007,48 +1134,48 @@ footer a:hover { color: var(--green-primary); }
   <div class="container">
     <div class="section-label reveal">Our philosophy</div>
     <h2 class="section-title reveal">Investing should be accessible to everyone</h2>
-    <p class="simple-intro reveal">The market is full of opportunity. Our goal is to make finding it <strong style="color: var(--green-primary);">SIMPLE</strong>.</p>
+    <p class="simple-intro reveal">The market is full of opportunity. Our job is to make finding ideas <strong style="color: var(--green-primary);">SIMPLE</strong>.</p>
     <div class="simple-grid">
       <div class="simple-card reveal">
         <div class="simple-letter">S</div>
         <div>
           <h3>Safety first</h3>
-          <p>Know the difficulty before you jump in.</p>
+          <p>Every idea shows how volatile the stock has been, before you read anything else.</p>
         </div>
       </div>
       <div class="simple-card reveal">
         <div class="simple-letter">I</div>
         <div>
           <h3>International</h3>
-          <p>The best opportunities might be outside your home market.</p>
+          <p>Start at home, explore the world later.</p>
         </div>
       </div>
       <div class="simple-card reveal">
         <div class="simple-letter">M</div>
         <div>
           <h3>Mobile</h3>
-          <p>Hunt from anywhere, on any device.</p>
+          <p>Browse ideas wherever you are.</p>
         </div>
       </div>
       <div class="simple-card reveal">
         <div class="simple-letter">P</div>
         <div>
           <h3>Personal</h3>
-          <p>Your rules. Your hunt. Your way.</p>
+          <p>You choose the style. We show what fits.</p>
         </div>
       </div>
       <div class="simple-card reveal">
         <div class="simple-letter">L</div>
         <div>
           <h3>Learn</h3>
-          <p>Leave smarter than you arrived. Build wealth over time.</p>
+          <p>Every idea explains, in plain English, why it matched. Pick things up as you go.</p>
         </div>
       </div>
       <div class="simple-card reveal">
         <div class="simple-letter">E</div>
         <div>
           <h3>Enjoyable</h3>
-          <p>Finding stocks should feel alive, not dull.</p>
+          <p>Finding ideas should feel like browsing, not homework.</p>
         </div>
       </div>
     </div>
@@ -1060,10 +1187,9 @@ footer a:hover { color: var(--green-primary); }
 <!-- ═══════════════════════════════════════ -->
 <section class="final-cta">
   <div class="container">
-    <h2 class="reveal">Your next hunt starts here</h2>
-    <p class="reveal">The market is full of opportunities. Most people never find them because they don't know where or how to look.</p>
-    <p class="punch reveal">StockPanda helps you spot the ones worth chasing.</p>
-    <a href="finder.html" class="btn-primary reveal">Start Hunting</a>
+    <h2 class="reveal">Ready to find your matches?</h2>
+    <p class="punch reveal">Set your rules. Save what catches your eye. Do your own research before you act.</p>
+    <a href="finder.html" class="btn-primary reveal">Find my matches</a>
   </div>
 </section>
 
@@ -1071,7 +1197,7 @@ footer a:hover { color: var(--green-primary); }
 <footer>
   <div class="container">
     <p><a href="index.html" class="logo" style="font-size:16px;"><span>Stock</span>Panda</a></p>
-    <p class="disclaimer">StockPanda is a free stock discovery app. Nothing on this site constitutes financial advice. Always do your own research.</p>
+    <p class="disclaimer">StockPanda is a free stock ideas app. Ideas shown are starting points for your own research — not investment advice or recommendations to buy any security. Always do your own research and consider speaking to a regulated adviser. Your capital is at risk.</p>
   </div>
 </footer>
 
@@ -1103,6 +1229,163 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
 
 <script src="assets/js/mood.js?v=20260421a"></script>
+
+<!-- ── Sample-cards loader ── -->
+<script>
+(function(){
+  'use strict';
+  const STYLE_ORDER = ['trophy','scavenger','rebound','momentum','wild_beast','moonshot'];
+  const STYLE_META = {
+    trophy:     { icon:'🏆', label:'Trophy' },
+    scavenger:  { icon:'🦅', label:'Scavenger' },
+    rebound:    { icon:'🐇', label:'Rebound' },
+    momentum:   { icon:'🚀', label:'Momentum' },
+    wild_beast: { icon:'🐂', label:'Wild Beast' },
+    moonshot:   { icon:'🦄', label:'Moonshot' },
+  };
+  const LEVEL_TO_PANDA = {
+    'Level 1':{img:'panda-vcalm.png',    lbl:'L1'},
+    'Level 2':{img:'panda-calm.png',     lbl:'L2'},
+    'Level 3':{img:'panda-unsettled.png',lbl:'L3'},
+    'Level 4':{img:'panda-stressed.png', lbl:'L4'},
+    'Level 5':{img:'panda-danger.png',   lbl:'L5'},
+  };
+  const FLAGS = {
+    'United States':'🇺🇸','Canada':'🇨🇦','United Kingdom':'🇬🇧','Ireland':'🇮🇪','France':'🇫🇷','Germany':'🇩🇪',
+    'Italy':'🇮🇹','Switzerland':'🇨🇭','Spain':'🇪🇸','Netherlands':'🇳🇱','Sweden':'🇸🇪','Norway':'🇳🇴','Denmark':'🇩🇰',
+    'Japan':'🇯🇵','China':'🇨🇳','Hong Kong':'🇭🇰','Taiwan':'🇹🇼','South Korea':'🇰🇷','India':'🇮🇳',
+    'Australia':'🇦🇺','Brazil':'🇧🇷','Mexico':'🇲🇽','Saudi Arabia':'🇸🇦','Israel':'🇮🇱','South Africa':'🇿🇦',
+  };
+
+  // Currency formatting — match stock.html style
+  const CCY_SYM = { USD:'$', GBP:'£', EUR:'€', JPY:'¥', HKD:'HK$', CNY:'¥', KRW:'₩', INR:'₹', CAD:'C$', AUD:'A$', CHF:'CHF ', GBX:'', ZAC:'' };
+  const CCY_SUFFIX = { GBX:'p', ZAC:'c' };
+
+  function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function pctCls(v){ return v == null ? 'flat' : (v > 0.05 ? 'pos' : (v < -0.05 ? 'neg' : 'flat')); }
+  function fmtPct(v){ if (v == null) return '—'; const sign = v > 0 ? '+' : ''; return sign + v.toFixed(1) + '%'; }
+  function fmtPrice(p, ccy) {
+    if (p == null) return '—';
+    const dp = ['JPY','KRW','TWD'].includes(ccy) ? 0 : 2;
+    const sym = CCY_SYM[ccy] == null ? (ccy + ' ') : CCY_SYM[ccy];
+    const sfx = CCY_SUFFIX[ccy] || '';
+    return sym + p.toLocaleString(undefined,{minimumFractionDigits:dp,maximumFractionDigits:dp}) + sfx;
+  }
+
+  // Deterministic seeded shuffle (Mulberry32)
+  function hashStr(s) { let h = 2166136261; for (let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619);} return h >>> 0; }
+  function mulberry32(seed) {
+    return function() {
+      let t = seed += 0x6D2B79F5;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function seededShuffle(arr, rng) {
+    const out = arr.slice();
+    for (let i = out.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [out[i], out[j]] = [out[j], out[i]];
+    }
+    return out;
+  }
+
+  function countSignals(ic) {
+    let g=0, a=0, r=0;
+    if (!ic) return {g,a,r};
+    for (const c of ic) { if (c==='g') g++; else if (c==='a') a++; else if (c==='r') r++; }
+    return {g,a,r};
+  }
+
+  function buildCard(s, styleKey) {
+    const meta = STYLE_META[styleKey];
+    const pandaInfo = LEVEL_TO_PANDA[s.m] || LEVEL_TO_PANDA['Level 3'];
+    const flag = FLAGS[s.co] || '🏳️';
+    const sig = countSignals(s.ic);
+    const href = 'stock.html?ticker=' + encodeURIComponent(s.t) + '&country=' + encodeURIComponent(s.co || '');
+
+    return (
+      '<a class="sc-card" href="' + href + '">' +
+        '<span class="sc-style-chip">' + meta.icon + ' ' + esc(meta.label) + '</span>' +
+        '<div class="sc-top">' +
+          '<div class="sc-top-left">' +
+            '<div class="sc-ticker">' + esc(s.t) + '</div>' +
+            '<div class="sc-company">' + esc(s.n || '') + '</div>' +
+            '<div class="sc-meta">' + flag + ' ' + esc(s.sec || s.co || '') + '</div>' +
+          '</div>' +
+          '<div class="sc-panda-wrap">' +
+            '<img class="sc-panda" src="assets/img/' + pandaInfo.img + '" alt="' + pandaInfo.lbl + '" />' +
+            '<span class="sc-level">' + pandaInfo.lbl + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="sc-price">' +
+          '<span class="sc-price-val">' + esc(fmtPrice(s.p, s.c)) + '</span>' +
+          '<span class="sc-price-ccy">' + esc(s.c || '') + '</span>' +
+        '</div>' +
+        '<div class="sc-returns">' +
+          '<div class="sc-ret"><span class="sc-ret-lbl">1M</span><span class="sc-ret-val ' + pctCls(s.m1) + '">' + fmtPct(s.m1) + '</span></div>' +
+          '<div class="sc-ret"><span class="sc-ret-lbl">1Y</span><span class="sc-ret-val ' + pctCls(s.y1) + '">' + fmtPct(s.y1) + '</span></div>' +
+          '<div class="sc-ret"><span class="sc-ret-lbl">5Y</span><span class="sc-ret-val ' + pctCls(s.y5) + '">' + fmtPct(s.y5) + '</span></div>' +
+        '</div>' +
+        '<div class="sc-signals">' +
+          (sig.g ? '<span class="sc-sig-group"><span class="sc-sig-dot g"></span>' + sig.g + '</span>' : '') +
+          (sig.a ? '<span class="sc-sig-group"><span class="sc-sig-dot a"></span>' + sig.a + '</span>' : '') +
+          (sig.r ? '<span class="sc-sig-group"><span class="sc-sig-dot r"></span>' + sig.r + '</span>' : '') +
+        '</div>' +
+      '</a>'
+    );
+  }
+
+  async function init() {
+    const container = document.getElementById('sample-scroll');
+    if (!container) return;
+    try {
+      const stocks = await DataCache.getSearchIndex();
+      if (!stocks || !stocks.length) throw new Error('empty');
+
+      // Seed RNG with today's date — same visitor sees same cards on refresh, new cards tomorrow
+      const seedStr = new Date().toISOString().slice(0,10);
+      const rng = mulberry32(hashStr(seedStr));
+
+      const picked = [];
+      for (const styleKey of STYLE_ORDER) {
+        // Primary classification: only pick stocks whose dominant style is this one.
+        // Falls back to ps[styleKey] >= 75 when pri is missing (backwards-compatible with old data).
+        const candidates = stocks.filter(s => {
+          if (s.p == null || !s.m || !LEVEL_TO_PANDA[s.m]) return false;
+          if (s.pri !== undefined) {
+            return s.pri === styleKey;  // classified using the new 6-style system
+          }
+          return s.ps && s.ps[styleKey] != null && s.ps[styleKey] >= 75;  // fallback
+        });
+        if (!candidates.length) continue;
+        // Rank by fit strength (highest-scoring example of this style first), take top 30, seeded shuffle, take 2
+        candidates.sort((a,b) => ((b.ps && b.ps[styleKey]) || 0) - ((a.ps && a.ps[styleKey]) || 0));
+        const pool = candidates.slice(0, 30);
+        const shuffled = seededShuffle(pool, rng);
+        for (const pick of shuffled.slice(0, 2)) {
+          picked.push({ stock: pick, style: styleKey });
+        }
+      }
+
+      if (!picked.length) {
+        container.innerHTML = '<div class="sample-empty">Couldn\'t load today\'s sample. Try refreshing.</div>';
+        return;
+      }
+
+      container.innerHTML = picked.map(p => buildCard(p.stock, p.style)).join('');
+    } catch (err) {
+      console.error('[sample] load failed', err);
+      container.innerHTML = '<div class="sample-empty">Couldn\'t load today\'s sample. Try refreshing.</div>';
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
+</script>
+
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>lucide.createIcons();</script>
 

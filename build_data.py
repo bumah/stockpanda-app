@@ -65,8 +65,9 @@ COLOR_MAP = {"green": "g", "amber": "a", "red": "r"}
 # Score = (weighted sum of active criteria) / (max possible weighted sum) × 100
 
 PRESETS = {
-    # 🏆 Trophy — Proven long-term winners with strong earnings
+    # 🏆 Trophy — Proven long-term winners with strong earnings.  Big-cap band ($500M+).
     "trophy": {
+        "universe": {"mc_min": 500e6},
         "criteria": [
             {"key": "growth5y",  "expect": "strong",      "weight": 2},  # core — proven compounder
             {"key": "profit",    "expect": "profitable",   "weight": 2},  # core — sustained earnings
@@ -77,19 +78,22 @@ PRESETS = {
             {"key": "drawdown",  "expect": "near_peak",   "weight": 1},  # supporting — hasn't pulled back
         ],
     },
-    # 🧬 Wild Beast — High-volatility with extreme upside potential
+    # 🐂 Wild Beast — High-volatility large/mid caps with strong recent gains.  Big-cap band ($500M+).
+    # Reframed: "volatile big winner" (NVDA/TSLA-type), not "any small volatile stock".
     "wild_beast": {
+        "universe": {"mc_min": 500e6},
         "criteria": [
-            {"key": "vol",       "expect": "high",       "weight": 2},  # core — must be volatile
-            {"key": "size",      "expect": "small",      "weight": 2},  # core — small caps have explosive potential
-            {"key": "momentum",  "expect": "positive",   "weight": 1},  # supporting — momentum behind the move
-            {"key": "return1m",  "expect": "positive",   "weight": 1},  # supporting — recent positive action
-            {"key": "drawdown",  "expect": "deep",       "weight": 1},  # supporting — more upside room
-            {"key": "range52w",  "expect": "lows",       "weight": 1},  # supporting — coiled spring
+            {"key": "vol",       "expect": "high",            "weight": 2},  # core — must be volatile
+            {"key": "return1y",  "expect": "strong_positive", "weight": 2},  # core — >30% y1, a real winner
+            {"key": "momentum",  "expect": "positive",        "weight": 1},  # supporting — momentum behind the move
+            {"key": "return1m",  "expect": "positive",        "weight": 1},  # supporting — recent positive action
+            {"key": "size",      "expect": "mid_or_small",    "weight": 1},  # supporting — smaller end is more volatile
+            {"key": "range52w",  "expect": "highs",           "weight": 1},  # supporting — near highs (winners, not falling knives)
         ],
     },
-    # 🦅 Scavenger — Quality stocks that have been beaten down
+    # 🦅 Scavenger — Quality stocks that have been beaten down.  Big-cap band ($500M+).
     "scavenger": {
+        "universe": {"mc_min": 500e6},
         "criteria": [
             {"key": "profit",    "expect": "profitable", "weight": 2},  # core — real earnings
             {"key": "growth5y",  "expect": "strong",     "weight": 2},  # core — proven quality
@@ -99,8 +103,9 @@ PRESETS = {
             {"key": "size",      "expect": "large",      "weight": 1},  # supporting — established company
         ],
     },
-    # 🚀 Momentum — Sustained uptrends across multiple timeframes
+    # 🚀 Momentum — Sustained uptrends across multiple timeframes.  Big-cap band ($500M+).
     "momentum": {
+        "universe": {"mc_min": 500e6},
         "criteria": [
             {"key": "momentum",  "expect": "positive",   "weight": 2},  # core — core identity
             {"key": "matrend",   "expect": "above_both", "weight": 2},  # core — confirmed sustained uptrend
@@ -110,8 +115,9 @@ PRESETS = {
             {"key": "drawdown",  "expect": "near_peak",  "weight": 1},  # supporting — hasn't pulled back
         ],
     },
-    # 🐇 Rebound — Stocks recovering after a rough patch (V-shape)
+    # 🐇 Rebound — Stocks recovering after a rough patch (V-shape).  Big-cap band ($500M+).
     "rebound": {
+        "universe": {"mc_min": 500e6},
         "criteria": [
             {"key": "drawdown",  "expect": "deep",       "weight": 2},  # core — had significant fall
             {"key": "matrend",   "expect": "above_50",   "weight": 2},  # core — price now above 50-day MA (recovering)
@@ -120,12 +126,33 @@ PRESETS = {
             {"key": "range52w",  "expect": "middle",     "weight": 1},  # supporting — off lows, not at highs
         ],
     },
+    # 🦄 Moonshot — Micro-cap volatile winners.  Advanced / speculative.  Band: $100M–$500M.
+    # Disjoint from the 5 big styles by market cap so categories don't overlap.
+    "moonshot": {
+        "universe": {"mc_min": 100e6, "mc_max": 500e6},
+        "criteria": [
+            {"key": "size",      "expect": "micro",         "weight": 2},  # core — truly micro-cap (<$500M)
+            {"key": "vol",       "expect": "high",          "weight": 2},  # core — must be volatile
+            {"key": "return1y",  "expect": "very_positive", "weight": 2},  # core — >50% y1, real firework
+            {"key": "momentum",  "expect": "positive",      "weight": 1},  # supporting
+            {"key": "return1m",  "expect": "positive",      "weight": 1},  # supporting
+            {"key": "range52w",  "expect": "highs",         "weight": 1},  # supporting — still running
+        ],
+    },
 }
 
 PRESET_LABELS = {
     "trophy": "Trophy", "wild_beast": "Wild Beast", "scavenger": "Scavenger",
-    "momentum": "Momentum", "rebound": "Rebound",
+    "momentum": "Momentum", "rebound": "Rebound", "moonshot": "Moonshot",
 }
+
+# Safety order (safer styles first) — used as tie-breaker for dominant-style classification.
+STYLE_SAFETY_ORDER = ["trophy", "scavenger", "rebound", "momentum", "wild_beast", "moonshot"]
+
+# Classification thresholds
+PRIMARY_MIN_PCT   = 75   # a stock must score ≥ this on its best style to be classified
+SECONDARY_MIN_PCT = 75   # other styles scoring ≥ this become secondaries
+MAX_SECONDARIES   = 2    # cap secondaries shown
 
 BUY_SET  = {"Strong buy", "Buy"}
 NEUT_SET = {"Strong buy", "Buy", "Neutral"}
@@ -147,7 +174,7 @@ def _red_score(inds, key):
     c = _ind_color(inds, key)
     return 1 if c == "red" else (0.5 if c == "amber" else 0)
 
-def _score_criterion(key, expect, inds, mc, r52, eps, ar):
+def _score_criterion(key, expect, inds, mc, r52, eps, ar, y1=None):
     """Score a single criterion. Returns 0, 0.5, or 1."""
     if key == "size":
         if expect == "large":
@@ -156,9 +183,25 @@ def _score_criterion(key, expect, inds, mc, r52, eps, ar):
             return 1 if mc is not None and 2e9 <= mc < 10e9 else (0.5 if mc is not None and mc >= 500e6 else 0)
         elif expect == "small":
             return 1 if mc is not None and mc < 2e9 else (0.5 if mc is not None and mc < 10e9 else 0)
+        elif expect == "mid_or_small":
+            # Mid-or-small means <$10B. Used by Wild Beast (prefers sub-$10B but doesn't exclude bigger).
+            return 1 if mc is not None and mc < 10e9 else (0.5 if mc is not None and mc < 50e9 else 0)
+        elif expect == "micro":
+            # Strict micro-cap: <$500M only. No partial credit — this is a universe gate.
+            return 1 if mc is not None and mc < 500e6 else 0
     elif key == "return1m":
         if expect == "positive":  return _green_score(inds, "return1M")
         if expect == "recovery":  return _red_score(inds, "return1M")
+    elif key == "return1y":
+        # Uses raw y1 (percent) for stricter thresholds than the green/amber/red indicator.
+        if expect == "positive":
+            return 1 if y1 is not None and y1 > 10 else (0.5 if y1 is not None and y1 > 0 else 0)
+        if expect == "strong_positive":
+            # Wild Beast core — genuinely strong 1Y return (>30%)
+            return 1 if y1 is not None and y1 > 30 else (0.5 if y1 is not None and y1 > 15 else 0)
+        if expect == "very_positive":
+            # Moonshot core — firework 1Y return (>50%)
+            return 1 if y1 is not None and y1 > 50 else (0.5 if y1 is not None and y1 > 25 else 0)
     elif key == "growth5y":
         if expect == "strong":    return _green_score(inds, "cagr5Y")
         if expect == "recovery":  return _red_score(inds, "cagr5Y")
@@ -204,15 +247,27 @@ def _score_criterion(key, expect, inds, mc, r52, eps, ar):
     return 1  # fallback (should not reach here for valid presets)
 
 
-def score_preset(inds, preset_def, mc, r52, eps, ar):
-    """Score a stock against one preset (v2 weighted). Returns { scores: [...], pct: int }."""
+def score_preset(inds, preset_def, mc, r52, eps, ar, y1=None):
+    """Score a stock against one preset (v2 weighted). Returns { scores: [...], pct: int }.
+
+    Market-cap universe gate: if the preset declares a `universe` band (mc_min / mc_max)
+    and the stock falls outside it, score is 0 (stock is not eligible for this preset at all).
+    """
+    universe = preset_def.get("universe") or {}
+    mc_min = universe.get("mc_min")
+    mc_max = universe.get("mc_max")
+    if mc_min is not None and (mc is None or mc < mc_min):
+        return {"scores": [], "pct": 0}
+    if mc_max is not None and (mc is not None and mc >= mc_max):
+        return {"scores": [], "pct": 0}
+
     criteria = preset_def["criteria"]
     weighted_sum = 0
     max_weighted = 0
     scores = []
 
     for c in criteria:
-        raw = _score_criterion(c["key"], c["expect"], inds, mc, r52, eps, ar)
+        raw = _score_criterion(c["key"], c["expect"], inds, mc, r52, eps, ar, y1)
         w = c["weight"]
         weighted_sum += raw * w
         max_weighted += w
@@ -222,12 +277,60 @@ def score_preset(inds, preset_def, mc, r52, eps, ar):
     return {"scores": scores, "pct": pct}
 
 
-def score_all_presets(inds, mc, r52, eps, ar):
-    """Score a stock against all 5 presets. Returns dict of { key: {scores, pct} }."""
+def score_all_presets(inds, mc, r52, eps, ar, y1=None):
+    """Score a stock against all presets. Returns dict of { key: {scores, pct} }."""
     result = {}
     for key, preset_def in PRESETS.items():
-        result[key] = score_preset(inds, preset_def, mc, r52, eps, ar)
+        result[key] = score_preset(inds, preset_def, mc, r52, eps, ar, y1)
     return result
+
+
+def classify_stock(preset_scores):
+    """Assign a dominant (primary) style and up to MAX_SECONDARIES qualifying secondaries.
+
+    Returns (primary, secondaries):
+        primary     — style key or None if no style scores >= PRIMARY_MIN_PCT
+        secondaries — list of style keys (other than primary) scoring >= SECONDARY_MIN_PCT
+                      ordered by score desc, capped at MAX_SECONDARIES
+    """
+    # Find highest-scoring qualifying style, with safety tie-breaker on close scores
+    best_key = None
+    best_pct = -1
+    for key in STYLE_SAFETY_ORDER:
+        entry = preset_scores.get(key)
+        if not entry:
+            continue
+        pct = entry.get("pct", 0)
+        if pct < PRIMARY_MIN_PCT:
+            continue
+        if best_key is None:
+            best_key = key
+            best_pct = pct
+        elif pct > best_pct + 0.01:
+            # Clear winner
+            best_key = key
+            best_pct = pct
+        elif abs(pct - best_pct) < 5:
+            # Close call — keep safer (earlier in STYLE_SAFETY_ORDER)
+            if STYLE_SAFETY_ORDER.index(key) < STYLE_SAFETY_ORDER.index(best_key):
+                best_key = key
+                best_pct = pct
+
+    if best_key is None:
+        return None, []
+
+    # Collect secondaries: other styles >= SECONDARY_MIN_PCT, sorted by score desc
+    secs = []
+    for key, entry in preset_scores.items():
+        if key == best_key or not entry:
+            continue
+        pct = entry.get("pct", 0)
+        if pct >= SECONDARY_MIN_PCT:
+            secs.append((key, pct))
+    secs.sort(key=lambda x: -x[1])
+    secondaries = [k for k, _ in secs[:MAX_SECONDARIES]]
+
+    return best_key, secondaries
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -634,8 +737,19 @@ def parse_row(row):
     if vol_m1 is not None:
         ann_vol = _round(vol_m1 * math.sqrt(252), 1)
 
-    # Pre-compute hunting style scores for all 5 presets
-    preset_scores = score_all_presets(inds, mktcap, range52w_pct, epsbasic, row.get("Analyst Rating", ""))
+    # Pre-compute hunting style scores for all presets (6-style system — see PRESETS).
+    preset_scores = score_all_presets(inds, mktcap, range52w_pct, epsbasic, row.get("Analyst Rating", ""), perf_y1)
+    primary_style, secondary_styles = classify_stock(preset_scores)
+
+    # Moonshot floor: all Moonshots are surfaced at difficulty Level 4 minimum.
+    # These are micro-cap, high-vol, speculative picks — they should never present
+    # as a calm (L1/L2) or unsettled (L3) stock regardless of what the indicators say.
+    if primary_style == "moonshot":
+        _LEVEL_NUM = {"Level 1": 1, "Level 2": 2, "Level 3": 3, "Level 4": 4, "Level 5": 5}
+        current_level = _LEVEL_NUM.get(mood.get("label", ""), 3)
+        if current_level < 4:
+            floored = mood_from_risk(65)  # any value in L4 band (60-80)
+            mood = {**floored, "pct": max(mood.get("pct", 0) or 0, 65.0), "score": mood.get("score")}
 
     return {
         "ticker":        row["Symbol"],
@@ -675,6 +789,8 @@ def parse_row(row):
         "_indices":      {i.strip() for i in row.get("Index", "").split(",") if i.strip()},
         "_mood_score":   mood,
         "_preset_scores": preset_scores,
+        "_primary_style":    primary_style,
+        "_secondary_styles": secondary_styles,
     }
 
 # ── Exchange tagging ──────────────────────────────────────────────────────────
@@ -837,6 +953,8 @@ def main():
             "mc":    s["financials"].get("marketCap"),
             "ar":    s.get("analystRating", ""),
             "ps":    {k: v["pct"] for k, v in s["_preset_scores"].items()},
+            "pri":   s.get("_primary_style"),            # dominant style (or None if unclassified)
+            "ss":    s.get("_secondary_styles") or [],   # up to 2 qualifying secondaries
         }
         for s in stocks
     ]
