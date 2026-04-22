@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockPanda — ETF Detail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260421a" />
+  <style>
+    /* ── Back nav ── */
+    .back-nav{display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;}
+    .back-btn{display:inline-flex;align-items:center;gap:4px;font-size:0.78rem;color:var(--muted);text-decoration:none;transition:color 0.15s;}
+    .back-btn:hover{color:var(--brand);}
+
+    /* ── Hero card ── */
+    .etf-hero{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1.25rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1.5rem;}
+    .hero-left{min-width:0;flex:1;}
+    .hero-ticker{font-family:var(--mono);font-size:2rem;font-weight:700;color:var(--brand);line-height:1;letter-spacing:-0.01em;}
+    .hero-name{font-size:0.88rem;color:var(--parchment);margin-top:8px;line-height:1.35;}
+    .hero-badges{display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:10px;align-items:center;}
+    .hero-badge{font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(74,222,128,0.10);color:var(--brand);}
+    .hero-badge.warn{background:rgba(251,191,36,0.14);color:#FBBF24;}
+    .hero-right{text-align:right;flex-shrink:0;}
+    .hero-price{font-family:var(--mono);font-size:2rem;font-weight:700;color:var(--parchment);line-height:1;letter-spacing:-0.01em;}
+    .hero-change{font-size:0.8rem;margin-top:6px;font-family:var(--mono);}
+    .hero-date{font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-top:6px;}
+    .action-bar{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:1rem;}
+    @media(max-width:580px){
+      .etf-hero{flex-direction:column;gap:1.1rem;}
+      .hero-right{text-align:left;width:100%;}
+      .hero-ticker,.hero-price{font-size:1.6rem;}
+      .action-bar{justify-content:flex-start;}
+    }
+    /* Action buttons */
+    .ab-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:rgba(74,222,128,0.10);border:1px solid rgba(74,222,128,0.30);border-radius:8px;color:var(--brand);cursor:pointer;font-family:var(--font);transition:all 0.15s;padding:0;}
+    .ab-btn:hover{background:rgba(74,222,128,0.18);border-color:var(--brand);}
+    .ab-btn i{width:16px;height:16px;}
+    .catch-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:var(--brand);border:1px solid var(--brand);border-radius:8px;color:#0B0F0D;cursor:pointer;font-family:var(--font);transition:all 0.15s;padding:0;box-shadow:0 0 0 2px rgba(74,222,128,0.18);}
+    .catch-btn:hover{filter:brightness(1.08);box-shadow:0 0 0 3px rgba(74,222,128,0.28);}
+    .catch-btn i{width:16px;height:16px;}
+    .catch-btn.hearted{background:#F87171;border-color:#F87171;color:#fff;box-shadow:0 0 0 2px rgba(248,113,113,0.22);}
+    .catch-btn.hearted i{fill:currentColor;}
+
+    /* ── Section cards ── */
+    .section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.1rem 1.25rem;margin-bottom:1.25rem;}
+    .section-label{font-size:0.65rem;font-weight:700;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.75rem;}
+    .section-body{font-size:0.88rem;color:var(--text);line-height:1.55;}
+
+    /* ── At-a-glance tiles ── */
+    .ag-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;}
+    @media(max-width:600px){.ag-grid{grid-template-columns:repeat(2,1fr);}}
+    .ag-cell{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:0.7rem 0.75rem;position:relative;}
+    .ag-cell-label{display:flex;align-items:center;gap:4px;font-size:0.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.3rem;}
+    .ag-info{width:11px;height:11px;border-radius:50%;border:1px solid var(--muted);color:var(--muted);font-size:0.52rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:help;font-family:var(--mono);line-height:1;}
+    .ag-info:hover{border-color:var(--brand);color:var(--brand);}
+    .ag-cell-value{font-family:var(--mono);font-size:0.95rem;font-weight:700;color:var(--parchment);}
+    .ag-cell-value.green{color:#4ADE80;}
+    .ag-cell-value.red{color:#F87171;}
+    .ag-cell-value.flat{color:var(--muted);}
+
+    /* ── Performance bar chart ── */
+    .perf-toggle{display:inline-flex;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:3px;margin-bottom:0.9rem;}
+    .perf-toggle button{background:none;border:none;padding:4px 12px;font-size:0.68rem;color:var(--muted);cursor:pointer;border-radius:16px;font-family:var(--font);font-weight:600;transition:all 0.15s;}
+    .perf-toggle button.active{background:var(--brand-dim);color:var(--green);}
+
+    .rc-chart{display:flex;gap:4px;padding-bottom:2px;}
+    .rc-bcol{display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;}
+    .rc-bval{font-family:var(--mono);font-size:0.6rem;font-weight:700;height:14px;line-height:14px;text-align:center;width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .rc-upper-slot{height:80px;width:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;}
+    .rc-lower-slot{height:80px;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;}
+    .rc-bar-p{width:72%;border-radius:3px 3px 0 0;flex-shrink:0;}
+    .rc-bar-n{width:72%;border-radius:0 0 3px 3px;flex-shrink:0;}
+    .rc-zeroline-bar{border-top:1px solid var(--border);width:100%;flex-shrink:0;}
+    .rc-blabel{font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-top:4px;}
+
+    /* ── Compare sentences ── */
+    .cmp-list{display:flex;flex-direction:column;gap:0.55rem;}
+    .cmp-item{font-size:0.82rem;color:var(--text);line-height:1.5;padding:0.5rem 0;border-bottom:1px solid var(--border);}
+    .cmp-item:last-child{border-bottom:none;}
+    .cmp-lead{font-size:0.55rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.2rem;display:block;}
+
+    /* ── Good-to-know chips ── */
+    .gtk-chips{display:flex;flex-wrap:wrap;gap:0.4rem;}
+    .gtk-chip{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:0.35rem 0.8rem;font-size:0.72rem;color:var(--text);display:inline-flex;align-items:center;gap:6px;}
+    .gtk-chip-lbl{color:var(--muted);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.06em;}
+
+    /* ── Empty/loading ── */
+    .loading{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:0.82rem;}
+  </style>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0E100F" />
+  <link rel="apple-touch-icon" href="/assets/img/icon-180.png" />
+  <link rel="icon" type="image/png" href="/assets/img/favicon-32.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="StockPanda" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <script src="/assets/js/supabase-config.js?v=20260418a"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="/assets/js/auth.js?v=20260418a" defer></script>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-sp">Stock</span><span class="nav-logo-rest">Panda</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">Home</a>
+    <a class="nav-link" href="finder.html">Hunt</a>
+    <a class="nav-link" href="watchlist.html">Catch</a>
+    <a class="nav-link" href="stocks.html">Search</a>
+    <div class="nav-dropdown">
+      <button class="nav-link nav-dropdown-trigger active">More <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
+      <div class="nav-dropdown-menu">
+        <a class="nav-dropdown-item" href="quiz.html">Pro Hunt</a>
+        <a class="nav-dropdown-item" href="etfs.html">ETFs</a>
+        <a class="nav-dropdown-item" href="summary.html">Brief</a>
+        <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
+        <a class="nav-dropdown-item sp-install-btn" href="#" onclick="event.preventDefault();spInstallApp();" style="display:none;">Get StockPanda App</a>
+      </div>
+    </div>
+    <a class="nav-link sp-auth-signin" href="#" onclick="event.preventDefault();spSignInGoogle();">Sign in</a>
+    <a class="nav-link sp-auth-signout sp-auth-email-title" href="#" onclick="event.preventDefault();spSignOut();" style="display:none;">Sign out</a>
+  </div>
+  <div class="nav-right">
+    <a href="#" class="nav-link nav-right-auth sp-auth-signin" onclick="event.preventDefault();spSignInGoogle();" style="white-space:nowrap;border-bottom:none;flex-shrink:0;" title="Sign in"><i data-lucide="log-in" style="width:18px;height:18px;"></i></a>
+    <a href="#" class="nav-link nav-right-auth sp-auth-signout sp-auth-email-title" onclick="event.preventDefault();spSignOut();" style="white-space:nowrap;border-bottom:none;flex-shrink:0;display:none;" title="Sign out"><i data-lucide="log-out" style="width:18px;height:18px;"></i></a>
+    <a href="https://tally.so/r/dWqE4D" target="_blank" class="nav-link" style="white-space:nowrap;border-bottom:none;flex-shrink:0;" title="Contact"><i data-lucide="mail" style="width:18px;height:18px;"></i></a>
+    <div class="nav-stamp">Data: <span>—</span></div>
+  </div>
+</nav>
+<div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
+<div class="tools-popover" id="toolsPopover">
+  <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
+  <a href="etfs.html" class="tools-popover-item"><i data-lucide="layers" class="nb-icon"></i>ETFs</a>
+  <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
+  <a href="handbook.html" class="tools-popover-item"><i data-lucide="book-open" class="nb-icon"></i>Handbook</a>
+  <a href="#" class="tools-popover-item sp-install-btn" onclick="event.preventDefault();closeToolsPopover();spInstallApp();" style="display:none;"><i data-lucide="download" class="nb-icon"></i>Get StockPanda App</a>
+</div>
+<nav class="nav-bottom">
+  <a href="index.html"><i data-lucide="house" class="nb-icon"></i>Home</a>
+  <a href="finder.html"><i data-lucide="eye" class="nb-icon"></i>Hunt</a>
+  <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Catch</a>
+  <a href="stocks.html"><i data-lucide="search" class="nb-icon"></i>Search</a>
+  <a href="#" onclick="event.preventDefault();toggleToolsPopover()" class="active"><i data-lucide="compass" class="nb-icon"></i>More</a>
+</nav>
+<script>
+function toggleToolsPopover(){
+  var p=document.getElementById('toolsPopover'),b=document.getElementById('toolsBackdrop');
+  if(p.classList.contains('open')){p.classList.remove('open');b.classList.remove('open');}
+  else{p.classList.add('open');b.classList.add('open');}
+}
+function closeToolsPopover(){
+  document.getElementById('toolsPopover').classList.remove('open');
+  document.getElementById('toolsBackdrop').classList.remove('open');
+}
+</script>
+
+<div class="main">
+  <div class="back-nav">
+    <a class="back-btn" id="back-btn" href="etfs.html">← ETFs</a>
+  </div>
+
+  <div id="root">
+    <div class="loading">Loading fund…</div>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+const params  = new URLSearchParams(window.location.search);
+const TICKER  = params.get('ticker');
+const COUNTRY = params.get('country') || '';
+
+if (!TICKER) { window.location.href = 'etfs.html'; return; }
+
+// Back button: if came from an internal page, go back
+const _backBtn = document.getElementById('back-btn');
+const _referrer = document.referrer || '';
+try {
+  const _isInternal = _referrer && new URL(_referrer).origin === location.origin;
+  if (_isInternal) {
+    _backBtn.addEventListener('click', (e) => { e.preventDefault(); history.back(); });
+  }
+} catch(e) {}
+
+// ── Helpers ──────────────────────────────────────────────────────────
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtPct(v){ return v == null ? '—' : (v > 0 ? '+' : '') + v.toFixed(2) + '%'; }
+function pctCls(v){ return v == null ? 'flat' : (v > 0.05 ? 'green' : (v < -0.05 ? 'red' : 'flat')); }
+function flag(c){ return c === 'us' ? '🇺🇸 US' : c === 'uk' ? '🇬🇧 UK' : c === 'japan' ? '🇯🇵 Japan' : c || ''; }
+
+// ── Watchlist (Catch) ───────────────────────────────────────────────
+function wlGet(){ try { return JSON.parse(localStorage.getItem('sp_watchlist') || '[]'); } catch(e){ return []; } }
+function wlSet(wl){ localStorage.setItem('sp_watchlist', JSON.stringify(wl)); }
+function wlHas(t,c){ return wlGet().some(w => w.ticker === t && w.country === (c||'')); }
+
+let ETF = null;
+
+// ── What this fund does (sentence) ──────────────────────────────────
+function whatItDoes(e){
+  const parts = [];
+  const ac = e.assetClass || '';
+  const focus = e.focus || '';
+  const idx = e.indexTracked && e.indexTracked !== 'No Underlying Index' ? e.indexTracked : null;
+  const strat = (e.strategy || '').toLowerCase();
+
+  // Build main sentence
+  let lead = 'This fund holds';
+  const classLower = ac.toLowerCase();
+  if (classLower === 'equity')        lead = 'This fund holds stocks';
+  else if (classLower === 'fixed income') lead = 'This fund holds bonds';
+  else if (classLower === 'commodities')  lead = 'This fund tracks commodities';
+  else if (classLower === 'asset allocation') lead = 'This fund holds a mix of assets';
+  else if (classLower === 'currency')     lead = 'This fund tracks currency exposure';
+  else if (classLower === 'alternatives') lead = 'This fund holds alternative assets';
+  else if (ac)                            lead = 'This fund covers ' + ac.toLowerCase();
+
+  let sentence = lead;
+  if (focus && focus !== ac) sentence += ' in the ' + focus.toLowerCase() + ' segment';
+  if (idx) sentence += ', tracking the ' + idx;
+  else if (strat === 'active') sentence += ', with an active manager picking holdings';
+  sentence += '.';
+  parts.push(sentence);
+
+  // Leverage/inverse warning from name
+  const name = (e.name || '').toLowerCase();
+  const lev = /\b(2x|3x|-2x|-3x|ultra|leveraged)\b/i.test(e.name || '');
+  const inv = /\b(inverse|short|bear|-1x)\b/i.test(e.name || '');
+  if (lev || inv) {
+    let warn = '⚠ This is a ';
+    if (lev && inv)      warn += 'leveraged inverse fund — it moves in the opposite direction of its benchmark and amplifies moves. These are typically held for a single day.';
+    else if (lev)        warn += 'leveraged fund — it amplifies daily moves in its benchmark. Returns over longer periods can differ significantly from simple multiples.';
+    else                 warn += 'inverse fund — it moves in the opposite direction of its benchmark. Typically held for a single day.';
+    parts.push(warn);
+  }
+
+  return parts;
+}
+
+// ── At-a-glance tiles ───────────────────────────────────────────────
+function atAGlance(e){
+  const tiles = [
+    {
+      label: 'Yearly cost',
+      tip:   'The expense ratio — the fee the fund charges each year, as a percent of what you hold. Lower is better.',
+      value: e.expense != null ? e.expense.toFixed(2) + '%' : '—',
+      cls:   '',
+    },
+    {
+      label: 'Fund size',
+      tip:   'Assets under management — the total money invested in the fund. Bigger funds tend to have tighter trading spreads.',
+      value: e.aumLabel || '—',
+      cls:   '',
+    },
+    {
+      label: 'Income',
+      tip:   'Trailing 12-month dividend yield — what the fund has paid out in distributions, as a percent of price.',
+      value: e.divYield != null ? e.divYield.toFixed(2) + '%' : '—',
+      cls:   '',
+    },
+    {
+      label: 'Today',
+      tip:   'Price change today, in percent.',
+      value: e.change1d != null ? (e.change1d > 0 ? '+' : '') + e.change1d.toFixed(2) + '%' : '—',
+      cls:   pctCls(e.change1d),
+    },
+  ];
+  return '<div class="ag-grid">' + tiles.map(t =>
+    '<div class="ag-cell">' +
+      '<div class="ag-cell-label">' + esc(t.label) +
+        ' <span class="ag-info" title="' + esc(t.tip) + '">i</span>' +
+      '</div>' +
+      '<div class="ag-cell-value ' + t.cls + '">' + esc(t.value) + '</div>' +
+    '</div>'
+  ).join('') + '</div>';
+}
+
+// ── Performance bar chart ───────────────────────────────────────────
+const PERF_LONG  = [
+  { key:'ytd', label:'YTD', tip:'Return so far this year.' },
+  { key:'y1',  label:'1Y',  tip:'Return over the past 12 months.' },
+  { key:'y5',  label:'5Y',  tip:'Total return over the past 5 years.' },
+  { key:'y10', label:'10Y', tip:'Total return over the past 10 years.' },
+];
+const PERF_SHORT = [
+  { key:'w1', label:'1W', tip:'Return over the past week.' },
+  { key:'m1', label:'1M', tip:'Return over the past month.' },
+  { key:'m3', label:'3M', tip:'Return over the past 3 months.' },
+  { key:'m6', label:'6M', tip:'Return over the past 6 months.' },
+];
+
+function perfBars(perf, which){
+  const defs = which === 'short' ? PERF_SHORT : PERF_LONG;
+  const bars = defs.map(d => ({ ...d, val: perf ? perf[d.key] : null })).filter(b => b.val != null);
+  if (!bars.length) return '<div style="font-size:0.78rem;color:var(--muted);">No return data available.</div>';
+  const maxAbs = Math.max.apply(null, bars.map(b => Math.abs(b.val)).concat([0.01]));
+  const MAX_H = 80;
+  return '<div class="rc-chart">' + bars.map(b => {
+    const isPos = b.val >= 0;
+    const h = (Math.abs(b.val) / maxAbs) * MAX_H;
+    const clr = isPos ? '#4ADE80' : '#F87171';
+    const val = (isPos ? '+' : '') + b.val.toFixed(1) + '%';
+    return '<div class="rc-bcol" title="' + esc(b.tip) + '">' +
+      '<div class="rc-bval" style="color:' + (isPos ? clr : 'transparent') + '">' + val + '</div>' +
+      '<div class="rc-upper-slot"><div class="rc-bar-p" style="height:' + (isPos ? h.toFixed(1) : 0) + 'px;background:' + clr + ';"></div></div>' +
+      '<div class="rc-zeroline-bar"></div>' +
+      '<div class="rc-lower-slot"><div class="rc-bar-n" style="height:' + (!isPos ? h.toFixed(1) : 0) + 'px;background:' + clr + ';"></div></div>' +
+      '<div class="rc-bval" style="color:' + (!isPos ? clr : 'transparent') + '">' + val + '</div>' +
+      '<div class="rc-blabel">' + b.label + '</div>' +
+    '</div>';
+  }).join('') + '</div>';
+}
+
+function renderPerf(which){
+  document.getElementById('perf-chart').innerHTML = perfBars(ETF.performance, which);
+  document.querySelectorAll('.perf-toggle button').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-range') === which);
+  });
+}
+
+// ── How this fund compares ──────────────────────────────────────────
+function comparisonSentences(e){
+  const s = (e.signals || {});
+  const out = [];
+
+  // Cost — expense ratio
+  const exp = e.expense;
+  if (s.cost === 'green')      out.push({ lead:'Yearly cost', text:'The fee is low for this type of fund — ' + (exp != null ? exp.toFixed(2) + '% per year' : 'below typical levels') + '. More of what the fund earns stays with you.' });
+  else if (s.cost === 'amber') out.push({ lead:'Yearly cost', text:'The fee is around average for this type of fund' + (exp != null ? ' (' + exp.toFixed(2) + '% per year)' : '') + '.' });
+  else if (s.cost === 'red')   out.push({ lead:'Yearly cost', text:'The fee is on the higher side for this type of fund' + (exp != null ? ' (' + exp.toFixed(2) + '% per year)' : '') + '. Costs compound over time.' });
+
+  // Size — AUM
+  if (s.size === 'green')      out.push({ lead:'Fund size', text:'This is a large fund (' + (e.aumLabel || 'significant AUM') + '). Bigger funds tend to trade with tighter spreads and close down less often.' });
+  else if (s.size === 'amber') out.push({ lead:'Fund size', text:'This is a mid-sized fund (' + (e.aumLabel || 'moderate AUM') + ').' });
+  else if (s.size === 'red')   out.push({ lead:'Fund size', text:'This is a small fund (' + (e.aumLabel || 'modest AUM') + '). Smaller funds can have wider spreads and a higher chance of being wound down.' });
+
+  // Demand — flows vs AUM
+  const flowPct = e.flow && e.flow.y1 && e.flow.y1.pctAum;
+  if (s.demand === 'green')      out.push({ lead:'Investor demand', text:'Investors have been adding money over the past year' + (flowPct != null ? ' (net flows equal to about ' + flowPct.toFixed(1) + '% of fund size)' : '') + '.' });
+  else if (s.demand === 'amber') out.push({ lead:'Investor demand', text:'Net flows have been roughly steady over the past year.' });
+  else if (s.demand === 'red')   out.push({ lead:'Investor demand', text:'Investors have been pulling money out over the past year' + (flowPct != null ? ' (net outflows of about ' + Math.abs(flowPct).toFixed(1) + '% of fund size)' : '') + '.' });
+
+  if (!out.length) return '<div style="font-size:0.78rem;color:var(--muted);">Not enough data to compare this fund.</div>';
+  return '<div class="cmp-list">' + out.map(o =>
+    '<div class="cmp-item"><span class="cmp-lead">' + esc(o.lead) + '</span>' + esc(o.text) + '</div>'
+  ).join('') + '</div>';
+}
+
+// ── Good to know chips ─────────────────────────────────────────────
+function goodToKnow(e){
+  const chips = [];
+  if (e.divFreq && e.divFreq !== 'None' && e.divFreq !== 'Other') {
+    chips.push({ lbl:'Pays', val: e.divFreq });
+  } else if (e.divFreq === 'None') {
+    chips.push({ lbl:'Pays', val: 'No distributions' });
+  }
+  if (e.priceCurrency) chips.push({ lbl:'Trades in', val: e.priceCurrency });
+  if (e.hedged) chips.push({ lbl:'FX', val: e.hedged });
+
+  // 52w range
+  if (e.low52w != null && e.high52w != null) {
+    const dp = e.priceCurrency && ['JPY','KRW'].includes(e.priceCurrency) ? 0 : 2;
+    const lo = e.low52w.toLocaleString(undefined,{minimumFractionDigits:dp,maximumFractionDigits:dp});
+    const hi = e.high52w.toLocaleString(undefined,{minimumFractionDigits:dp,maximumFractionDigits:dp});
+    chips.push({ lbl:'Past-year range', val: lo + ' – ' + hi });
+  }
+
+  if (!chips.length) return '<div style="font-size:0.78rem;color:var(--muted);">—</div>';
+  return '<div class="gtk-chips">' + chips.map(c =>
+    '<span class="gtk-chip"><span class="gtk-chip-lbl">' + esc(c.lbl) + '</span>' + esc(c.val) + '</span>'
+  ).join('') + '</div>';
+}
+
+// ── Render ─────────────────────────────────────────────────────────
+function renderAll(){
+  const e = ETF;
+  document.title = 'StockPanda — ' + e.ticker;
+
+  // Price with currency
+  const ccyMap = { USD:'$', GBP:'£', EUR:'€', JPY:'¥', HKD:'HK$', CNY:'¥', KRW:'₩', INR:'₹', CAD:'C$', AUD:'A$', CHF:'CHF ' };
+  const sym = ccyMap[e.priceCurrency] || (e.priceCurrency ? e.priceCurrency + ' ' : '');
+  const dp  = ['JPY','KRW'].includes(e.priceCurrency) ? 0 : 2;
+  const priceStr = e.price != null ? sym + e.price.toLocaleString(undefined,{minimumFractionDigits:dp,maximumFractionDigits:dp}) : '—';
+
+  // Change today
+  const ch = e.change1d;
+  const chHtml = ch != null
+    ? '<span style="color:' + (ch >= 0 ? 'var(--green)' : 'var(--red)') + ';">' + (ch > 0 ? '+' : '') + ch.toFixed(2) + '%</span>' +
+      '<span style="color:var(--muted);font-size:0.75rem;margin-left:4px;">today</span>'
+    : '';
+
+  // Leverage/inverse warning badge
+  const name = (e.name || '');
+  const lev = /\b(2x|3x|-2x|-3x|ultra|leveraged)\b/i.test(name);
+  const inv = /\b(inverse|short|bear|-1x)\b/i.test(name);
+
+  const caught = wlHas(e.ticker, e.country || '');
+
+  const whatHtml = whatItDoes(e).map(p => '<p style="margin:0 0 0.5rem;">' + esc(p) + '</p>').join('');
+
+  const root = document.getElementById('root');
+  root.innerHTML =
+    '<div class="etf-hero">' +
+      '<div class="hero-left">' +
+        '<div class="hero-ticker">' + esc(e.ticker) + '</div>' +
+        '<div class="hero-name">' + esc(e.name || '') + '</div>' +
+        '<div class="hero-badges">' +
+          (e.country ? '<span class="hero-badge">' + esc(flag(e.country)) + '</span>' : '') +
+          (e.assetClass ? '<span class="hero-badge">' + esc(e.assetClass) + '</span>' : '') +
+          (lev ? '<span class="hero-badge warn">Leveraged</span>' : '') +
+          (inv ? '<span class="hero-badge warn">Inverse</span>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div class="hero-right">' +
+        '<div class="hero-price">' + priceStr + '</div>' +
+        '<div class="hero-change">' + chHtml + '</div>' +
+        '<div class="hero-date"></div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="action-bar">' +
+      '<button class="catch-btn ' + (caught ? 'hearted' : '') + '" id="catch-btn" title="Catch" aria-label="Catch"><i data-lucide="heart"></i></button>' +
+    '</div>' +
+    '<div class="section">' +
+      '<div class="section-label">What this fund does</div>' +
+      '<div class="section-body">' + whatHtml + '</div>' +
+    '</div>' +
+    '<div class="section">' +
+      '<div class="section-label">At a glance</div>' +
+      atAGlance(e) +
+    '</div>' +
+    '<div class="section">' +
+      '<div class="section-label">Performance</div>' +
+      '<div class="perf-toggle">' +
+        '<button data-range="long"  class="active">Long term</button>' +
+        '<button data-range="short">Short term</button>' +
+      '</div>' +
+      '<div id="perf-chart"></div>' +
+    '</div>' +
+    '<div class="section">' +
+      '<div class="section-label">How this fund compares</div>' +
+      comparisonSentences(e) +
+    '</div>' +
+    '<div class="section">' +
+      '<div class="section-label">Good to know</div>' +
+      goodToKnow(e) +
+    '</div>';
+
+  // Wire up perf toggle
+  document.querySelectorAll('.perf-toggle button').forEach(b => {
+    b.addEventListener('click', () => renderPerf(b.getAttribute('data-range')));
+  });
+  renderPerf('long');
+
+  // Wire up catch button
+  const cBtn = document.getElementById('catch-btn');
+  cBtn.addEventListener('click', () => {
+    const wl = wlGet();
+    if (wlHas(e.ticker, e.country || '')) {
+      wlSet(wl.filter(w => !(w.ticker === e.ticker && w.country === (e.country || ''))));
+      cBtn.classList.remove('hearted');
+    } else {
+      wl.push({ ticker: e.ticker, country: e.country || '', company: e.name || '', addedAt: Date.now() });
+      wlSet(wl);
+      cBtn.classList.add('hearted');
+    }
+  });
+
+  if (window.lucide) lucide.createIcons();
+}
+
+// ── Init ───────────────────────────────────────────────────────────
+async function init(){
+  try {
+    const res = await fetch('/data/etfs.json');
+    if (!res.ok) throw new Error('Failed to load ETFs');
+    const data = await res.json();
+    const ALL = data.etfs || [];
+
+    // Nav stamp
+    if (data.generatedAt) {
+      const d = new Date(data.generatedAt);
+      const stamp = document.querySelector('.nav-stamp span');
+      if (stamp) stamp.textContent = d.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+    }
+
+    // Match by ticker + country
+    ETF = ALL.find(e => e.ticker === TICKER && (e.country || '') === COUNTRY);
+    if (!ETF) {
+      // Fallback: ticker only
+      ETF = ALL.find(e => e.ticker === TICKER);
+    }
+    if (!ETF) {
+      document.getElementById('root').innerHTML = '<div class="loading">Fund not found. <a href="etfs.html" style="color:var(--brand);">← Back to ETFs</a></div>';
+      return;
+    }
+
+    renderAll();
+  } catch (err) {
+    console.error('[etf] init failed', err);
+    document.getElementById('root').innerHTML = '<div class="loading">Sorry, failed to load. Please refresh.</div>';
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+})();
+</script>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>

@@ -47,61 +47,46 @@
     }
     .sub-filters .count { font-family:var(--mono); font-size:0.65rem; color:var(--muted); margin-left:auto; white-space:nowrap; }
 
-    /* ── ETF list (card per row on mobile, table-ish on desktop) ───────── */
+    /* ── ETF list — simplified row: ticker + name + one-liner + 1Y + heart ── */
     .etf-list { display:flex; flex-direction:column; gap:0.5rem; }
     .etf-row {
       background:var(--bg2); border:1px solid var(--border); border-radius:12px;
-      padding:0.8rem 0.95rem; display:grid;
-      grid-template-columns: 1fr auto; gap:0.4rem 0.8rem;
+      padding:0.85rem 0.95rem;
+      display:grid;
+      grid-template-columns: 1fr auto auto;
+      column-gap:0.85rem; row-gap:0.25rem;
+      align-items:center;
       transition:border-color 0.15s, background 0.15s;
+      text-decoration:none; color:inherit; cursor:pointer;
     }
-    .etf-row:hover { border-color:rgba(74,222,128,0.3); }
-    .etf-top { display:flex; align-items:baseline; gap:0.5rem; flex-wrap:wrap; }
-    .etf-ticker { font-family:var(--mono); font-weight:700; color:var(--green); font-size:0.9rem; }
-    .etf-name { color:var(--text); font-size:0.82rem; flex:1; min-width:120px;
+    .etf-row:hover { border-color:rgba(74,222,128,0.3); background:var(--bg3); }
+    .etf-main { min-width:0; display:flex; flex-direction:column; gap:0.18rem; grid-column:1; }
+    .etf-top { display:flex; align-items:baseline; gap:0.55rem; min-width:0; }
+    .etf-ticker { font-family:var(--mono); font-weight:700; color:var(--green); font-size:0.92rem; flex-shrink:0; }
+    .etf-flag { font-size:0.85rem; flex-shrink:0; }
+    .etf-name { color:var(--text); font-size:0.82rem; min-width:0;
                 overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .etf-sub { font-size:0.66rem; color:var(--muted); display:flex; gap:0.5rem; flex-wrap:wrap; }
-    .etf-sub .flag { font-size:0.9rem; }
-    .etf-stats {
-      display:grid; grid-template-columns: repeat(4, 1fr); gap:0.35rem 0.9rem;
-      font-size:0.72rem; color:var(--text); margin-top:0.25rem;
-    }
-    .etf-stats .lbl { font-family:var(--mono); font-size:0.58rem; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; display:block; }
-    .etf-stats .val { font-family:var(--mono); font-size:0.78rem; }
-    .pct-pos { color:#4ADE80; } .pct-neg { color:#F87171; } .pct-flat { color:var(--muted); }
+    .etf-oneliner { font-size:0.7rem; color:var(--muted);
+                    overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-    /* Signal dots */
-    .etf-sigs { display:flex; gap:4px; margin-top:0.3rem; align-items:center; }
-    .sig-dot {
-      width:8px; height:8px; border-radius:50%;
-      background:var(--muted); display:inline-block;
-      cursor:help; transition:transform 0.1s;
-    }
-    .sig-dot.green  { background:#4ADE80; }
-    .sig-dot.amber  { background:#FBBF24; }
-    .sig-dot.red    { background:#F87171; }
-    .sig-dot.grey   { background:#3a4a3a; }
-    .sig-dot:hover  { transform:scale(1.35); }
-    .sig-legend { font-family:var(--mono); font-size:0.56rem; color:var(--muted); margin-left:auto; text-transform:uppercase; letter-spacing:0.04em; }
+    .etf-y1 { grid-column:2; text-align:right; font-family:var(--mono);
+              font-size:0.85rem; font-weight:700; white-space:nowrap; }
+    .etf-y1-lbl { display:block; font-size:0.55rem; color:var(--muted);
+                  text-transform:uppercase; letter-spacing:0.07em; font-weight:500;
+                  margin-bottom:1px; font-family:var(--mono); }
+    .pct-pos { color:#4ADE80; } .pct-neg { color:#F87171; } .pct-flat { color:var(--muted); }
 
     /* Save (heart) button */
     .etf-save {
-      grid-column:2; grid-row:1 / span 4;
-      align-self:flex-start;
+      grid-column:3;
       background:none; border:none; cursor:pointer; color:var(--muted);
       padding:4px 6px; display:flex; align-items:center; justify-content:center;
-      transition:color 0.15s, transform 0.1s;
+      transition:color 0.15s, transform 0.1s; flex-shrink:0;
     }
     .etf-save:hover { color:#F87171; transform:scale(1.1); }
     .etf-save.hearted { color:#F87171; }
-    .etf-save svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2; }
+    .etf-save svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; }
     .etf-save.hearted svg { fill:currentColor; }
-
-    @media (min-width: 900px) {
-      .etf-row { grid-template-columns: 1.6fr 2.2fr auto; align-items:center; }
-      .etf-top { flex-direction:column; gap:0.15rem; align-items:flex-start; }
-      .etf-stats { grid-template-columns: repeat(5, auto); }
-    }
 
     .empty-state { text-align:center; padding:3rem 1rem; color:var(--muted); font-size:0.9rem; }
     .loading { text-align:center; padding:2rem 1rem; color:var(--muted); font-size:0.82rem; }
@@ -211,9 +196,9 @@ function closeToolsPopover(){
     <div class="bubble-row">
       <span class="bubble-label">Quick</span>
       <div class="bubble-chips" id="quick-chips">
-        <span class="bubble-chip" data-quick="low-exp">Low expense</span>
+        <span class="bubble-chip" data-quick="low-exp">Low yearly cost</span>
         <span class="bubble-chip" data-quick="div">Dividend payers</span>
-        <span class="bubble-chip" data-quick="big">$1B+ AUM</span>
+        <span class="bubble-chip" data-quick="big">Big funds</span>
         <span class="bubble-chip" data-quick="hedged">Hedged</span>
       </div>
     </div>
@@ -225,13 +210,12 @@ function closeToolsPopover(){
 
   <div class="sub-filters">
     <select id="sort-select">
-      <option value="aum-desc" selected>Sort: AUM ↓</option>
+      <option value="aum-desc" selected>Sort: Fund size ↓</option>
       <option value="ytd-desc">Sort: YTD ↓</option>
       <option value="ytd-asc">Sort: YTD ↑</option>
       <option value="y1-desc">Sort: 1Y return ↓</option>
-      <option value="flow-desc">Sort: 1Y flows ↓</option>
-      <option value="exp-asc">Sort: Expense ↑</option>
-      <option value="yield-desc">Sort: Yield ↓</option>
+      <option value="exp-asc">Sort: Yearly cost ↑</option>
+      <option value="yield-desc">Sort: Income ↓</option>
     </select>
     <span class="count" id="etf-count">— funds</span>
   </div>
@@ -274,19 +258,17 @@ function closeToolsPopover(){
   // ── Formatters ───────────────────────────────────────────────────────
   function fmtPct(v)     { return v == null ? '—' : (v > 0 ? '+' : '') + v.toFixed(2) + '%'; }
   function pctClass(v)   { return v == null ? 'pct-flat' : (v > 0.05 ? 'pct-pos' : (v < -0.05 ? 'pct-neg' : 'pct-flat')); }
-  function fmtExp(v)     { return v == null ? '—' : v.toFixed(2) + '%'; }
   function flag(c)       { return c === 'us' ? '🇺🇸' : c === 'uk' ? '🇬🇧' : c === 'japan' ? '🇯🇵' : '🏳️'; }
 
-  // ── Filter & sort ────────────────────────────────────────────────────
-  const SIGNAL_TITLES = {
-    cost:     'Cost — expense ratio tier',
-    size:     'Size — fund AUM tier',
-    demand:   'Demand — 1y fund flows vs AUM',
-    momentum: 'Momentum — AUM % change over 1y',
-    tracking: 'Tracking — NAV vs price gap (3m)',
-  };
-  const SIGNAL_VERDICT = { green: 'healthy', amber: 'watch', red: 'caution', grey: 'n/a' };
+  // ── One-liner: assetClass + focus ───────────────────────────────────
+  function oneLiner(e) {
+    const parts = [];
+    if (e.assetClass) parts.push(e.assetClass);
+    if (e.focus && e.focus !== e.assetClass) parts.push(e.focus);
+    return parts.join(' · ') || '—';
+  }
 
+  // ── Filter & sort ────────────────────────────────────────────────────
   function matches(e) {
     if (state.class  && e.assetClass !== state.class) return false;
     if (state.region && e.country !== state.region) return false;
@@ -309,7 +291,6 @@ function closeToolsPopover(){
       'ytd-desc':  (a,b) => (g(b,'performance.ytd')??-1e9) - (g(a,'performance.ytd')??-1e9),
       'ytd-asc':   (a,b) => (g(a,'performance.ytd')??1e9) - (g(b,'performance.ytd')??1e9),
       'y1-desc':   (a,b) => (g(b,'performance.y1')??-1e9)  - (g(a,'performance.y1')??-1e9),
-      'flow-desc': (a,b) => (g(b,'flow.y1.pctAum')??-1e9)  - (g(a,'flow.y1.pctAum')??-1e9),
       'exp-asc':   (a,b) => (a.expense??1e9) - (b.expense??1e9),
       'yield-desc':(a,b) => (b.divYield??-1e9) - (a.divYield??-1e9),
     }[state.sort] || cmp['aum-desc'];
@@ -329,42 +310,32 @@ function closeToolsPopover(){
       return;
     }
 
-    // Cap initial render for perf; real-world use shows top ~200
+    // Cap initial render for perf
     const shown = filtered.slice(0, 200);
     const html = shown.map(function(e){
       const hearted = wlHas(e.ticker, e.country);
-      const sigs = ['cost','size','demand','momentum','tracking'].map(function(k){
-        const v = (e.signals || {})[k] || 'grey';
-        return '<span class="sig-dot ' + v + '" title="' + esc(SIGNAL_TITLES[k]) + ' — ' + SIGNAL_VERDICT[v] + '"></span>';
-      }).join('');
-      const ytd = e.performance && e.performance.ytd;
-      const y1  = e.performance && e.performance.y1;
-      const f1y = e.flow && e.flow.y1 && e.flow.y1.pctAum;
+      const y1 = e.performance && e.performance.y1;
+      const href = 'etf.html?ticker=' + encodeURIComponent(e.ticker) + '&country=' + encodeURIComponent(e.country || '');
 
       return (
-        '<div class="etf-row">' +
-          '<div class="etf-top">' +
-            '<span class="etf-ticker">' + esc(e.ticker) + '</span>' +
-            '<span class="etf-name">' + esc(e.name) + '</span>' +
+        '<a class="etf-row" href="' + href + '">' +
+          '<div class="etf-main">' +
+            '<div class="etf-top">' +
+              '<span class="etf-ticker">' + esc(e.ticker) + '</span>' +
+              '<span class="etf-flag">' + flag(e.country) + '</span>' +
+              '<span class="etf-name">' + esc(e.name) + '</span>' +
+            '</div>' +
+            '<div class="etf-oneliner">' + esc(oneLiner(e)) + '</div>' +
           '</div>' +
-          '<div class="etf-stats">' +
-            '<div><span class="lbl">AUM</span><span class="val">' + esc(e.aumLabel || '—') + '</span></div>' +
-            '<div><span class="lbl">Expense</span><span class="val">' + fmtExp(e.expense) + '</span></div>' +
-            '<div><span class="lbl">YTD</span><span class="val ' + pctClass(ytd) + '">' + fmtPct(ytd) + '</span></div>' +
-            '<div><span class="lbl">1Y</span><span class="val ' + pctClass(y1) + '">' + fmtPct(y1) + '</span></div>' +
-            '<div><span class="lbl">1Y flow</span><span class="val ' + pctClass(f1y) + '">' + (f1y == null ? '—' : fmtPct(f1y)) + '</span></div>' +
-            '<div><span class="lbl">Yield</span><span class="val">' + (e.divYield == null ? '—' : e.divYield.toFixed(2) + '%') + '</span></div>' +
+          '<div class="etf-y1">' +
+            '<span class="etf-y1-lbl">1Y</span>' +
+            '<span class="' + pctClass(y1) + '">' + fmtPct(y1) + '</span>' +
           '</div>' +
-          '<div class="etf-sub">' +
-            '<span class="flag">' + flag(e.country) + '</span>' +
-            '<span>' + esc(e.assetClass) + (e.focus ? ' · ' + esc(e.focus) : '') + '</span>' +
-          '</div>' +
-          '<div class="etf-sigs">' + sigs + '<span class="sig-legend">cost · size · demand · momentum · tracking</span></div>' +
           '<button class="etf-save ' + (hearted ? 'hearted' : '') + '" aria-label="' + (hearted ? 'Caught' : 'Catch') + '" ' +
                   'data-ticker="' + esc(e.ticker) + '" data-country="' + esc(e.country) + '" data-name="' + esc(e.name) + '">' +
             '<svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' +
           '</button>' +
-        '</div>'
+        '</a>'
       );
     }).join('');
 
@@ -374,9 +345,10 @@ function closeToolsPopover(){
       list.innerHTML = html;
     }
 
-    // Wire up save buttons
+    // Wire up save buttons (stop propagation so row link doesn't fire)
     list.querySelectorAll('.etf-save').forEach(function(btn){
       btn.addEventListener('click', function(ev){
+        ev.preventDefault();
         ev.stopPropagation();
         const t = btn.getAttribute('data-ticker');
         const c = btn.getAttribute('data-country');
