@@ -643,6 +643,8 @@ section + section { border-top: 1px solid var(--border); }
   transition: border-color 0.2s, transform 0.2s, background 0.2s;
 }
 .sc-card:hover { border-color: var(--border-bright); transform: translateY(-3px); background: var(--bg-card-hover); }
+/* Multi-chip wrap — matches discover card behaviour */
+.sc-chips { display: flex; flex-wrap: wrap; gap: 4px; }
 .sc-style-chip {
   display: inline-flex; align-items: center; gap: 5px;
   background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.22);
@@ -650,7 +652,6 @@ section + section { border-top: 1px solid var(--border); }
   padding: 3px 9px; border-radius: 20px;
   font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
   letter-spacing: 0.08em; text-transform: uppercase;
-  align-self: flex-start;
 }
 .sc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
 .sc-top-left { min-width: 0; flex: 1; }
@@ -859,7 +860,7 @@ footer a:hover { color: var(--green-primary); }
 <!-- ═══════════════════════════════════════ -->
 <section class="hero">
   <div class="container">
-    <div class="hero-label">Stock ideas, for busy people</div>
+    <div class="hero-label">Stock ideas for busy investors</div>
     <h1>Find stocks that <em>match your taste</em></h1>
     <p class="hero-promise">Save hours on research. Set your rules, see your matches. No hype. No stress.</p>
     <div class="hero-ctas">
@@ -928,33 +929,33 @@ footer a:hover { color: var(--green-primary); }
         <div class="scroll-row">
           <div class="style-card">
             <span class="style-emoji">🏆</span>
-            <h4>Trophy</h4>
-            <p>Big, long-profitable companies with a steady track record.</p>
+            <h4>Pack Leader</h4>
+            <p>Big, proven, long-term compounders. Solid companies that keep winning.</p>
           </div>
           <div class="style-card">
-            <span class="style-emoji">🐂</span>
-            <h4>Wild Beast</h4>
-            <p>High-volatility stocks with big recent moves. Advanced.</p>
-          </div>
-          <div class="style-card">
-            <span class="style-emoji">🦅</span>
-            <h4>Scavenger</h4>
-            <p>Proven companies trading well below their recent highs.</p>
-          </div>
-          <div class="style-card">
-            <span class="style-emoji">🚀</span>
-            <h4>Momentum</h4>
-            <p>Stocks on extended upward runs.</p>
+            <span class="style-emoji">🐘</span>
+            <h4>Sleeping Giant</h4>
+            <p>Big companies that have fallen well below their peak and aren't recovering yet.</p>
           </div>
           <div class="style-card">
             <span class="style-emoji">🐇</span>
-            <h4>Rebound</h4>
-            <p>Stocks recovering after a sharp drop, with momentum turning up.</p>
+            <h4>Recovery</h4>
+            <p>Stocks bouncing back after a deep drawdown — turn is underway, not yet on a roll.</p>
+          </div>
+          <div class="style-card">
+            <span class="style-emoji">🚀</span>
+            <h4>High Flyer</h4>
+            <p>On a sustained roll — strong performance and solid fundamentals.</p>
+          </div>
+          <div class="style-card">
+            <span class="style-emoji">🎢</span>
+            <h4>Rollercoaster</h4>
+            <p>Big quality companies that swing hard. High volatility either way. Advanced.</p>
           </div>
           <div class="style-card">
             <span class="style-emoji">🦄</span>
             <h4>Moonshot</h4>
-            <p>Small, volatile companies running hot. Big upside, big downside. Advanced.</p>
+            <p>Small-cap companies doing well — high upside, high risk. Advanced.</p>
           </div>
         </div>
       </div>
@@ -1017,45 +1018,45 @@ footer a:hover { color: var(--green-primary); }
     <div class="detail-section reveal">
       <div class="detail-header">
         <i data-lucide="bar-chart-3" class="detail-icon"></i>
-        <span class="detail-title">Every idea shows how volatile it is</span>
+        <span class="detail-title">Every stock has a comfort level</span>
       </div>
-      <p class="detail-desc">So you always know what you're getting into. New to investing? The calmer styles (L1–L2) are a gentler place to start looking.</p>
+      <p class="detail-desc">Higher levels move more — and need a stronger stomach. New to investing? The calmer levels (L1–L2) are a gentler place to start looking.</p>
       <div class="scroll-wrapper">
         <div class="scroll-row">
           <div class="level-card level-1">
             <div class="panda-face">
               <img src="assets/img/panda-vcalm.png" alt="Level 1" class="panda-svg">
             </div>
-            <span class="level-badge">L1 · Very calm</span>
-            <p>Could swing roughly ±10% in a typical year. Big, stable names.</p>
+            <span class="level-badge">Level 1</span>
+            <p>Mostly steady with some minor moves.</p>
           </div>
           <div class="level-card level-2">
             <div class="panda-face">
               <img src="assets/img/panda-calm.png" alt="Level 2" class="panda-svg">
             </div>
-            <span class="level-badge">L2 · Calm</span>
-            <p>Could swing roughly ±15%. Mostly steady, occasional bumps.</p>
+            <span class="level-badge">Level 2</span>
+            <p>Occasional small dips, keep an eye.</p>
           </div>
           <div class="level-card level-3">
             <div class="panda-face">
               <img src="assets/img/panda-unsettled.png" alt="Level 3" class="panda-svg">
             </div>
-            <span class="level-badge">L3 · Unsettled</span>
-            <p>Could swing ±25%. Faster-moving — timing starts to matter.</p>
+            <span class="level-badge">Level 3</span>
+            <p>Notable swings — worth watching.</p>
           </div>
           <div class="level-card level-4">
             <div class="panda-face">
               <img src="assets/img/panda-stressed.png" alt="Level 4" class="panda-svg">
             </div>
-            <span class="level-badge">L4 · Stressed</span>
-            <p>Could swing ±40%. Sharp moves are normal here.</p>
+            <span class="level-badge">Level 4</span>
+            <p>Big moves often. Bumpy ride.</p>
           </div>
           <div class="level-card level-5">
             <div class="panda-face">
               <img src="assets/img/panda-danger.png" alt="Level 5" class="panda-svg">
             </div>
-            <span class="level-badge">L5 · Danger</span>
-            <p>Anything goes. For experienced investors only.</p>
+            <span class="level-badge">Level 5</span>
+            <p>Wild and unpredictable. Could go either way.</p>
           </div>
         </div>
       </div>
@@ -1074,20 +1075,20 @@ footer a:hover { color: var(--green-primary); }
     <div class="steps">
       <div class="step reveal">
         <div class="step-number">01</div>
-        <h3>Pick a style</h3>
-        <p>Choose how you'd like to invest today. Change it any time, or browse all five.</p>
+        <h3>Set your rules</h3>
+        <p>Choose your style, market, and comfort level. Change any time.</p>
         <span class="step-arrow">→</span>
       </div>
       <div class="step reveal">
         <div class="step-number">02</div>
-        <h3>See today's list</h3>
-        <p>The stocks matching that style right now, each with a plain-English reason why.</p>
+        <h3>See your matches</h3>
+        <p>Stocks matching your rules, each with a plain-English reason why.</p>
         <span class="step-arrow">→</span>
       </div>
       <div class="step reveal">
         <div class="step-number">03</div>
-        <h3>Save and research</h3>
-        <p>Bookmark the ones that catch your eye. Buy through your usual broker when you're ready — not us.</p>
+        <h3>Make your move</h3>
+        <p>Save to monitor, or do more research before you act.</p>
       </div>
     </div>
   </div>
@@ -1098,31 +1099,38 @@ footer a:hover { color: var(--green-primary); }
 <!-- ═══════════════════════════════════════ -->
 <section class="pro-section">
   <div class="container">
-    <div class="section-label reveal">When you want to dig deeper</div>
-    <h2 class="section-title reveal">Extra tools for later</h2>
-    <p class="section-subtitle reveal">Go beyond today's list when you're ready.</p>
+    <div class="section-label reveal">When you want more</div>
+    <h2 class="section-title reveal">Other ways to explore</h2>
+    <p class="section-subtitle reveal">Beyond stock ideas — for when you want to dig deeper or look elsewhere.</p>
     <div class="pro-grid">
-      <div class="pro-feature reveal">
+      <a class="pro-feature reveal" href="stocks.html" style="text-decoration:none;color:inherit;">
         <i data-lucide="search" class="pro-feature-icon"></i>
         <div>
           <h4>Search</h4>
-          <p>Browse every stock in our universe — filter, sort, and inspect on your own terms.</p>
+          <p>Every stock in our universe. Filter, sort, and inspect on your own terms.</p>
         </div>
-      </div>
-      <div class="pro-feature reveal">
+      </a>
+      <a class="pro-feature reveal" href="quiz.html" style="text-decoration:none;color:inherit;">
         <i data-lucide="crosshair" class="pro-feature-icon"></i>
         <div>
           <h4>Pro Hunt</h4>
-          <p>Build your own rules. Tighter filters for custom lists.</p>
+          <p>Build your own rules. Custom filters for power users.</p>
         </div>
-      </div>
-      <div class="pro-feature reveal">
+      </a>
+      <a class="pro-feature reveal" href="summary.html" style="text-decoration:none;color:inherit;">
         <i data-lucide="bar-chart-3" class="pro-feature-icon"></i>
         <div>
           <h4>Brief</h4>
           <p>Daily highlights and weekly digests in one place.</p>
         </div>
-      </div>
+      </a>
+      <a class="pro-feature reveal" href="etfs.html" style="text-decoration:none;color:inherit;">
+        <i data-lucide="layers" class="pro-feature-icon"></i>
+        <div>
+          <h4>ETFs</h4>
+          <p>Browse thousands of funds by class, region, and cost.</p>
+        </div>
+      </a>
     </div>
   </div>
 </section>
@@ -1236,11 +1244,11 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
   'use strict';
   const STYLE_ORDER = ['trophy','scavenger','rebound','momentum','wild_beast','moonshot'];
   const STYLE_META = {
-    trophy:     { icon:'🏆', label:'Trophy' },
-    scavenger:  { icon:'🦅', label:'Scavenger' },
-    rebound:    { icon:'🐇', label:'Rebound' },
-    momentum:   { icon:'🚀', label:'Momentum' },
-    wild_beast: { icon:'🐂', label:'Wild Beast' },
+    trophy:     { icon:'🏆', label:'Pack Leader' },
+    scavenger:  { icon:'🐘', label:'Sleeping Giant' },
+    rebound:    { icon:'🐇', label:'Recovery' },
+    momentum:   { icon:'🚀', label:'High Flyer' },
+    wild_beast: { icon:'🎢', label:'Rollercoaster' },
     moonshot:   { icon:'🦄', label:'Moonshot' },
   };
   const LEVEL_TO_PANDA = {
@@ -1298,21 +1306,37 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     return {g,a,r};
   }
 
-  function buildCard(s, styleKey) {
-    const meta = STYLE_META[styleKey];
+  // Compact market-cap formatter ($4.2T, $850B, $45M).
+  function fmtMcap(v) {
+    if (v == null || v <= 0) return '';
+    if (v >= 1e12) return '$' + (v/1e12).toFixed(v >= 10e12 ? 0 : 1) + 'T';
+    if (v >= 1e9)  return '$' + (v/1e9 ).toFixed(v >= 10e9  ? 0 : 1) + 'B';
+    if (v >= 1e6)  return '$' + (v/1e6 ).toFixed(v >= 10e6  ? 0 : 1) + 'M';
+    return '$' + v.toLocaleString();
+  }
+
+  function buildCard(s, bucketStyle) {
     const pandaInfo = LEVEL_TO_PANDA[s.m] || LEVEL_TO_PANDA['Level 3'];
     const flag = FLAGS[s.co] || '🏳️';
     const sig = countSignals(s.ic);
     const href = 'stock.html?ticker=' + encodeURIComponent(s.t) + '&country=' + encodeURIComponent(s.co || '');
+    const mcapStr = fmtMcap(s.mc);
+
+    // Home page samples show a single chip — the bucket style this card was picked for.
+    // Keeps the card compact on the top row. Full multi-label display is on the finder card.
+    const meta = STYLE_META[bucketStyle];
+    const chipsHtml = meta
+      ? '<span class="sc-style-chip">' + meta.icon + ' ' + esc(meta.label) + '</span>'
+      : '';
 
     return (
       '<a class="sc-card" href="' + href + '">' +
-        '<span class="sc-style-chip">' + meta.icon + ' ' + esc(meta.label) + '</span>' +
+        '<div class="sc-chips">' + chipsHtml + '</div>' +
         '<div class="sc-top">' +
           '<div class="sc-top-left">' +
             '<div class="sc-ticker">' + esc(s.t) + '</div>' +
             '<div class="sc-company">' + esc(s.n || '') + '</div>' +
-            '<div class="sc-meta">' + flag + ' ' + esc(s.sec || s.co || '') + '</div>' +
+            '<div class="sc-meta">' + flag + ' ' + esc(s.sec || s.co || '') + (mcapStr ? ' · ' + mcapStr : '') + '</div>' +
           '</div>' +
           '<div class="sc-panda-wrap">' +
             '<img class="sc-panda" src="assets/img/' + pandaInfo.img + '" alt="' + pandaInfo.lbl + '" />' +
@@ -1350,14 +1374,12 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
       const picked = [];
       for (const styleKey of STYLE_ORDER) {
-        // Primary classification: only pick stocks whose dominant style is this one.
-        // Falls back to ps[styleKey] >= 75 when pri is missing (backwards-compatible with old data).
+        // Multi-label: pick stocks whose labels array includes this style.
+        // Falls back to ps >= 70 for older data that doesn't carry `lbs`.
         const candidates = stocks.filter(s => {
           if (s.p == null || !s.m || !LEVEL_TO_PANDA[s.m]) return false;
-          if (s.pri !== undefined) {
-            return s.pri === styleKey;  // classified using the new 6-style system
-          }
-          return s.ps && s.ps[styleKey] != null && s.ps[styleKey] >= 75;  // fallback
+          if (Array.isArray(s.lbs)) return s.lbs.includes(styleKey);
+          return s.ps && (s.ps[styleKey] || 0) >= 70;
         });
         if (!candidates.length) continue;
         // Rank by fit strength (highest-scoring example of this style first), take top 30, seeded shuffle, take 2

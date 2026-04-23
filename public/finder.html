@@ -505,11 +505,11 @@ const TW_SEC = [
   { key: 'utilities', label: 'Utilities' },
 ];
 const TW_STYLES = [
-  { key: 'trophy', icon: '🏆', name: 'Trophy', desc: 'Proven long-term winners with strong earnings.' },
-  { key: 'wild_beast', icon: '🐂', name: 'Wild Beast', desc: 'High-volatility assets with extreme upside potential.' },
-  { key: 'scavenger', icon: '🦅', name: 'Scavenger', desc: 'Quality stocks that have been beaten down — bargains with proven fundamentals.' },
-  { key: 'momentum', icon: '🚀', name: 'Momentum', desc: 'Stocks in sustained uptrends across multiple timeframes.' },
-  { key: 'rebound', icon: '🐇', name: 'Rebound', desc: 'Stocks recovering after a rough patch — V-shape recoveries in motion.' },
+  { key: 'trophy', icon: '🏆', name: 'Pack Leader', desc: 'Proven long-term winners with strong earnings.' },
+  { key: 'wild_beast', icon: '🎢', name: 'Rollercoaster', desc: 'High-volatility assets with extreme upside potential.' },
+  { key: 'scavenger', icon: '🐘', name: 'Sleeping Giant', desc: 'Quality stocks that have been beaten down — bargains with proven fundamentals.' },
+  { key: 'momentum', icon: '🚀', name: 'High Flyer', desc: 'Stocks in sustained uptrends across multiple timeframes.' },
+  { key: 'rebound', icon: '🐇', name: 'Recovery', desc: 'Stocks recovering after a rough patch — V-shape recoveries in motion.' },
 ];
 const TW_LEVELS = [
   { label: 'Level 1', img: 'panda-vcalm.png', color: '#60A5FA', desc: 'Stable stocks with minimal price movement.' },
@@ -1234,52 +1234,63 @@ function buildFinderDiscoverCard(item) {
     return '<span class="dc-style-hearts">' + h + '</span>';
   }
 
-  // Compute primary style from ps scores (matches build_data.py classify logic).
-  // The full 5-style breakdown + secondaries shows on the stock detail page, not here.
-  var ps = s._ps || {};
-  var primaryStyle = (function() {
-    var SAFETY_ORDER = ['trophy','scavenger','rebound','momentum','wild_beast','moonshot'];
-    var bestKey = null, bestPct = -1;
-    for (var i = 0; i < SAFETY_ORDER.length; i++) {
-      var key = SAFETY_ORDER[i];
-      var pct = ps[key] || 0;
-      if (pct < 75) continue;
-      if (bestKey === null || pct > bestPct + 0.01) { bestKey = key; bestPct = pct; }
-      else if (Math.abs(pct - bestPct) < 5 && SAFETY_ORDER.indexOf(key) < SAFETY_ORDER.indexOf(bestKey)) {
-        bestKey = key; bestPct = pct;
-      }
-    }
-    return bestKey;
+  // Multi-label display: show every style the stock qualifies for (score ≥ 70%).
+  // Prefer server-emitted `s.lbs` (from search.json); fall back to ps computation for old data.
+  var _SAFETY_ORDER = ['trophy','scavenger','rebound','momentum','wild_beast','moonshot'];
+  var styleLabels = Array.isArray(s.lbs) ? s.lbs.slice() : (function(){
+    var ps = s._ps || {};
+    return _SAFETY_ORDER.filter(function(k){ return (ps[k] || 0) >= 70; });
   })();
-  // Short plain-English description of what each style means — serves as a reminder on the card.
+  // Plain-English description — shown only when there's exactly one label (to avoid clutter when many chips).
   var STYLE_SUBS = {
-    trophy:     'Big, long-profitable companies with a steady track record.',
-    scavenger:  'Proven companies trading well below their recent highs.',
-    rebound:    'Stocks recovering after a sharp drop, with momentum turning up.',
-    momentum:   'Stocks on extended upward runs.',
-    wild_beast: 'High-volatility big winners. Volatile, not for the faint-hearted.',
-    moonshot:   'Micro-cap lottery tickets. Big upside, big downside. Advanced.',
+    trophy:     'Big proven compounders.',
+    scavenger:  'Quality companies fallen, not recovering.',
+    rebound:    'Bouncing back after a deep drawdown.',
+    momentum:   'On a sustained roll, fundamentals solid.',
+    wild_beast: 'Volatile quality large caps — swings both ways.',
+    moonshot:   'Small cap, doing well. Advanced.',
   };
-  var primaryChipHtml = primaryStyle
-    ? ('<div class="dc-primary-chip"><span class="dc-primary-icon">' + (STYLE_ICONS[primaryStyle] || '') + '</span><span class="dc-primary-name">' + (STYLE_NAMES[primaryStyle] || primaryStyle) + '</span></div>'
-       + '<p class="dc-primary-sub">' + esc(STYLE_SUBS[primaryStyle] || '') + '</p>')
-    : '<div class="dc-primary-chip dc-primary-none">Unclassified</div>';
+  // Chips are clickable — tapping shows a plain-English description of what the style means.
+  // Description is encoded in data-desc so the handler (finderToggleStyleTip) can read it.
+  var chipsHtml = styleLabels.length
+    ? styleLabels.map(function(k){
+        var desc = esc(STYLE_SUBS[k] || '');
+        return '<button type="button" class="dc-label-chip" onclick="finderToggleStyleTip(this)" data-desc="' + desc + '"><span class="dc-label-icon">' + (STYLE_ICONS[k] || '') + '</span>' + (STYLE_NAMES[k] || k) + '</button>';
+      }).join('')
+    : '<span class="dc-label-chip dc-label-none">Unclassified</span>';
+  // When there's exactly one label, we can show its description by default (no click needed).
+  // When there are multiple, we start empty and reveal on tap.
+  var reminderHtml = styleLabels.length === 1
+    ? '<p class="dc-style-tip dc-style-tip-active">' + esc(STYLE_SUBS[styleLabels[0]] || '') + '</p>'
+    : '<p class="dc-style-tip" aria-live="polite"></p>';
 
-  // Short 3-4-word descriptor for the volatility level (Panda level).
+  // Short 2-4-word descriptor for the comfort level (Panda level).
   var LEVEL_SUBS = {
-    'Level 1': 'Tiny price swings',
-    'Level 2': 'Mild price swings',
-    'Level 3': 'Moderate price swings',
-    'Level 4': 'Big price swings',
-    'Level 5': 'Massive price swings',
+    'Level 1': 'Mostly steady',
+    'Level 2': 'Occasional small dips',
+    'Level 3': 'Notable swings',
+    'Level 4': 'Big moves often',
+    'Level 5': 'Wild & unpredictable',
   };
   var levelSub = LEVEL_SUBS[b.label] || '';
+
+  // Market cap formatter — compact short-form ($4.2T, $850B, $45M).
+  function fmtMcap(v) {
+    if (v == null || v <= 0) return '';
+    if (v >= 1e12) return '$' + (v/1e12).toFixed(v >= 10e12 ? 0 : 1) + 'T';
+    if (v >= 1e9)  return '$' + (v/1e9 ).toFixed(v >= 10e9  ? 0 : 1) + 'B';
+    if (v >= 1e6)  return '$' + (v/1e6 ).toFixed(v >= 10e6  ? 0 : 1) + 'M';
+    return '$' + v.toLocaleString();
+  }
+  // Stock objects from finder-engine carry market cap as `_mc` (search-index source).
+  // Fall back to financials.marketCap when a chunk-level object was passed in.
+  var mcapStr = fmtMcap(s._mc != null ? s._mc : (s.financials && s.financials.marketCap));
 
   return '<div class="discover-card">' +
     '<div class="dc-split"><div class="dc-split-left">' +
       '<div class="dc-ticker">' + esc(s.ticker) + '</div>' +
       '<div class="dc-company">' + esc(s.company || '\u2014') + '</div>' +
-      '<div class="dc-country-plain">' + flag + ' ' + esc(s.country || '') + (s.sector ? ' · ' + esc(s.sector) : '') + '</div>' +
+      '<div class="dc-country-plain">' + flag + ' ' + esc(s.country || '') + (s.sector ? ' · ' + esc(s.sector) : '') + (mcapStr ? ' · ' + mcapStr : '') + '</div>' +
     '</div><div class="dc-split-right">' +
       '<img class="dc-panda" src="assets/img/' + b.img + '" alt="' + esc(b.label) + '" />' +
       '<span class="dc-level-label">Panda Level</span>' +
@@ -1294,7 +1305,7 @@ function buildFinderDiscoverCard(item) {
       (sig.a > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot amber"></span><span class="dc-sig-count amber">' + sig.a + '</span> Cautionary</div>' : '') +
       (sig.r > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot red"></span><span class="dc-sig-count red">' + sig.r + '</span> Warning</div>' : '') +
     '</div></div>' +
-    '<div class="dc-section"><div class="dc-section-label">Best match</div>' + primaryChipHtml + '</div>' +
+    '<div class="dc-section"><div class="dc-section-label">Styles &mdash; tap to learn more</div><div class="dc-label-chips">' + chipsHtml + '</div>' + reminderHtml + '</div>' +
     '<div class="discover-nav" style="border-top:1px solid var(--border);margin-top:1.2rem;padding-top:1rem;">' +
       '<div class="dc-nav-item"><button class="dc-btn-back" onclick="finderPrevCard()" title="Back"><i data-lucide="arrow-left"></i></button><div class="dc-label">Back</div></div>' +
       '<div class="dc-nav-item"><button class="dc-btn-heart' + (hearted ? ' hearted' : '') + '" onclick="finderToggleHeart()" title="' + (hearted ? 'Remove from Saved' : 'Save this stock') + '"><i data-lucide="heart"></i></button><div class="dc-label">Save</div></div>' +
@@ -1348,6 +1359,30 @@ function finderPrevCard() {
   else { _finderDcIdx--; sessionStorage.setItem('sp_cardIdx', _finderDcIdx); showFinderCard(); }
 }
 window.finderPrevCard = finderPrevCard;
+
+// Tap a style chip on the discover card to see what that style means.
+// Tapping the same chip again hides it; tapping a different chip swaps the description.
+function finderToggleStyleTip(btn) {
+  var card = btn.closest('.discover-card');
+  if (!card) return;
+  var tip = card.querySelector('.dc-style-tip');
+  if (!tip) return;
+  var desc = btn.getAttribute('data-desc') || '';
+  var wasActive = btn.classList.contains('dc-label-chip-active');
+  // Reset state across all chips in this card
+  card.querySelectorAll('.dc-label-chip').forEach(function(c) {
+    c.classList.remove('dc-label-chip-active');
+  });
+  if (wasActive) {
+    tip.textContent = '';
+    tip.classList.remove('dc-style-tip-active');
+  } else {
+    btn.classList.add('dc-label-chip-active');
+    tip.textContent = desc;
+    tip.classList.add('dc-style-tip-active');
+  }
+}
+window.finderToggleStyleTip = finderToggleStyleTip;
 
 // ── Watchlist (localStorage) ──────────────────────────────────
 function getWatchlist() {

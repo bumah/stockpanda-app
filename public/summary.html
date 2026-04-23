@@ -271,14 +271,14 @@ const HUNTING_STYLES = [
     sort: (a, b) => ((b.y5 ?? 0) * (b.y1 ?? 0)) - ((a.y5 ?? 0) * (a.y1 ?? 0)),
   },
   {
-    key:'wild_beast', icon:'🐂', label:'Wild Beast',
+    key:'wild_beast', icon:'🎢', label:'Rollercoaster',
     sub:'Captures high-volatility assets with extreme upside (and downside) potential.',
     filters: [ gt('vol', 50), gt('beta', 1.5), nn('gap'), gt('gap', 3) ],
     // Volatility × realised upside — explosive moves that actually paid off
     sort: (a, b) => ((b.vol ?? 0) * (b.y1 ?? 0)) - ((a.vol ?? 0) * (a.y1 ?? 0)),
   },
   {
-    key:'scavenger', icon:'🦅', label:'Scavenger',
+    key:'scavenger', icon:'🐘', label:'Scavenger',
     sub:'Finds high-quality stocks that have been beaten down — real bargains with proven fundamentals.',
     filters: [ gt('ni', 0), gt('y5', 20), lt('r52', 40), gt('mc', 2000000000) ],
     // Quality-to-discount ratio: strong 5Y track record per unit of discount (lower r52 = bigger discount)

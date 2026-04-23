@@ -65,42 +65,46 @@ COLOR_MAP = {"green": "g", "amber": "a", "red": "r"}
 # Score = (weighted sum of active criteria) / (max possible weighted sum) × 100
 
 PRESETS = {
-    # 🏆 Trophy — Proven long-term winners with strong earnings.  Big-cap band ($500M+).
+    # 🏆 Pack Leader — Big, proven, long-term compounders.  $2B+ only (large cap band).
+    # Display label: "Pack Leader".  Internal key kept as "trophy" for data compat.
     "trophy": {
-        "universe": {"mc_min": 500e6},
+        "universe": {"mc_min": 2e9},
         "criteria": [
-            {"key": "growth5y",  "expect": "strong",      "weight": 2},  # core — proven compounder
-            {"key": "profit",    "expect": "profitable",   "weight": 2},  # core — sustained earnings
-            {"key": "momentum",  "expect": "positive",    "weight": 1},  # supporting — currently in uptrend
-            {"key": "matrend",   "expect": "above_both",  "weight": 1},  # supporting — trend-confirmed
-            {"key": "size",      "expect": "large",       "weight": 1},  # supporting — established company
+            {"key": "profit",    "expect": "profitable",  "weight": 2},  # core — currently profitable
+            {"key": "growth5y",  "expect": "strong",      "weight": 2},  # core — proven 5yr track record
+            {"key": "size",      "expect": "large",       "weight": 2},  # core — genuinely big ($10B+ ideal, $2B min)
+            {"key": "momentum",  "expect": "positive",    "weight": 1},  # supporting — still trending up
+            {"key": "matrend",   "expect": "above_both",  "weight": 1},  # supporting — structurally strong
             {"key": "analyst",   "expect": "buy",         "weight": 1},  # supporting — consensus on quality
-            {"key": "drawdown",  "expect": "near_peak",   "weight": 1},  # supporting — hasn't pulled back
+            {"key": "drawdown",  "expect": "near_peak",   "weight": 1},  # supporting — near all-time highs
         ],
     },
-    # 🐂 Wild Beast — High-volatility large/mid caps with strong recent gains.  Big-cap band ($500M+).
-    # Reframed: "volatile big winner" (NVDA/TSLA-type), not "any small volatile stock".
+    # 🐂 Pendulum — Large-cap quality stocks that swing hard (high volatility, direction-agnostic).
+    # The "larger-cap Moonshot": real fundamentals, big market cap, volatile price action either way.
+    # Display label: "Pendulum".  Internal key kept as "wild_beast" for data compat.
     "wild_beast": {
         "universe": {"mc_min": 500e6},
         "criteria": [
-            {"key": "vol",       "expect": "high",            "weight": 2},  # core — must be volatile
-            {"key": "return1y",  "expect": "strong_positive", "weight": 2},  # core — >30% y1, a real winner
-            {"key": "momentum",  "expect": "positive",        "weight": 1},  # supporting — momentum behind the move
-            {"key": "return1m",  "expect": "positive",        "weight": 1},  # supporting — recent positive action
-            {"key": "size",      "expect": "mid_or_small",    "weight": 1},  # supporting — smaller end is more volatile
-            {"key": "range52w",  "expect": "highs",           "weight": 1},  # supporting — near highs (winners, not falling knives)
+            {"key": "vol",       "expect": "high",        "weight": 2},  # core — must be volatile
+            {"key": "profit",    "expect": "profitable",  "weight": 2},  # core — quality business
+            {"key": "growth5y",  "expect": "strong",      "weight": 2},  # core — proven growth
+            {"key": "size",      "expect": "mid_or_small","weight": 1},  # supporting — smaller amplifies vol
+            {"key": "momentum",  "expect": "positive",    "weight": 1},  # supporting — active direction
+            {"key": "return1m",  "expect": "positive",    "weight": 1},  # supporting — recently active
         ],
     },
-    # 🦅 Scavenger — Quality stocks that have been beaten down.  Big-cap band ($500M+).
+    # 🦅 Sleeping Giant — Large profitable companies currently in a deep drawdown, NOT recovering.
+    # Explicitly excludes high-vol stocks (those belong to Pendulum).
+    # Display label: "Sleeping Giant".  Internal key kept as "scavenger" for data compat.
     "scavenger": {
-        "universe": {"mc_min": 500e6},
+        "universe": {"mc_min": 500e6, "excludes": {"vol": "high"}},
         "criteria": [
             {"key": "profit",    "expect": "profitable", "weight": 2},  # core — real earnings
             {"key": "growth5y",  "expect": "strong",     "weight": 2},  # core — proven quality
-            {"key": "drawdown",  "expect": "deep",       "weight": 2},  # core — beaten down
-            {"key": "range52w",  "expect": "lows",       "weight": 1},  # supporting — near 52W lows
-            {"key": "analyst",   "expect": "buy",        "weight": 1},  # supporting — analysts still believe
-            {"key": "size",      "expect": "large",      "weight": 1},  # supporting — established company
+            {"key": "drawdown",  "expect": "deep",       "weight": 2},  # core — beaten down from peak
+            {"key": "matrend",   "expect": "below_both", "weight": 1},  # supporting — not yet recovering
+            {"key": "range52w",  "expect": "lows",       "weight": 1},  # supporting — near 52w lows
+            {"key": "size",      "expect": "large",      "weight": 1},  # supporting — established
         ],
     },
     # 🚀 Momentum — Sustained uptrends across multiple timeframes.  Big-cap band ($500M+).
@@ -250,8 +254,12 @@ def _score_criterion(key, expect, inds, mc, r52, eps, ar, y1=None):
 def score_preset(inds, preset_def, mc, r52, eps, ar, y1=None):
     """Score a stock against one preset (v2 weighted). Returns { scores: [...], pct: int }.
 
-    Market-cap universe gate: if the preset declares a `universe` band (mc_min / mc_max)
-    and the stock falls outside it, score is 0 (stock is not eligible for this preset at all).
+    Universe gate:
+      mc_min / mc_max — market-cap band
+      excludes        — dict of {indicator_key: disqualifying_color}. If the stock's
+                        indicator matches the disqualifying color, score is 0.
+                        Used by Sleeping Giant to exclude high-vol stocks (those
+                        belong to Pendulum, not Sleeping Giant).
     """
     universe = preset_def.get("universe") or {}
     mc_min = universe.get("mc_min")
@@ -260,6 +268,18 @@ def score_preset(inds, preset_def, mc, r52, eps, ar, y1=None):
         return {"scores": [], "pct": 0}
     if mc_max is not None and (mc is not None and mc >= mc_max):
         return {"scores": [], "pct": 0}
+
+    # Indicator-color excludes (e.g. Sleeping Giant excludes vol=red/high)
+    excludes = universe.get("excludes") or {}
+    _COLOR_TO_LEVEL = {"low": "green", "moderate": "amber", "high": "red"}
+    for ind_key, disqualifying in excludes.items():
+        # Map "high" -> expected indicator color "red"; support raw colors too
+        target_color = _COLOR_TO_LEVEL.get(disqualifying, disqualifying)
+        # Map criterion-style keys to indicator keys
+        ind_lookup = {"vol": "volatility"}.get(ind_key, ind_key)
+        actual = _ind_color(inds, ind_lookup)
+        if actual == target_color:
+            return {"scores": [], "pct": 0}
 
     criteria = preset_def["criteria"]
     weighted_sum = 0
@@ -285,52 +305,24 @@ def score_all_presets(inds, mc, r52, eps, ar, y1=None):
     return result
 
 
-def classify_stock(preset_scores):
-    """Assign a dominant (primary) style and up to MAX_SECONDARIES qualifying secondaries.
+def label_stock(preset_scores, threshold=70):
+    """Multi-label classification: return all styles where the score meets `threshold`.
 
-    Returns (primary, secondaries):
-        primary     — style key or None if no style scores >= PRIMARY_MIN_PCT
-        secondaries — list of style keys (other than primary) scoring >= SECONDARY_MIN_PCT
-                      ordered by score desc, capped at MAX_SECONDARIES
+    Returns a list of style keys (in STYLE_SAFETY_ORDER) that the stock qualifies for.
+    Empty list = unclassified.
+
+    Design: stocks can legitimately fit multiple styles (NVDA is both Pack Leader and
+    High Flyer). Rather than forcing a single primary, we emit every qualifying label
+    and the UI renders them as equal-weight chips.
     """
-    # Find highest-scoring qualifying style, with safety tie-breaker on close scores
-    best_key = None
-    best_pct = -1
+    labels = []
     for key in STYLE_SAFETY_ORDER:
         entry = preset_scores.get(key)
         if not entry:
             continue
-        pct = entry.get("pct", 0)
-        if pct < PRIMARY_MIN_PCT:
-            continue
-        if best_key is None:
-            best_key = key
-            best_pct = pct
-        elif pct > best_pct + 0.01:
-            # Clear winner
-            best_key = key
-            best_pct = pct
-        elif abs(pct - best_pct) < 5:
-            # Close call — keep safer (earlier in STYLE_SAFETY_ORDER)
-            if STYLE_SAFETY_ORDER.index(key) < STYLE_SAFETY_ORDER.index(best_key):
-                best_key = key
-                best_pct = pct
-
-    if best_key is None:
-        return None, []
-
-    # Collect secondaries: other styles >= SECONDARY_MIN_PCT, sorted by score desc
-    secs = []
-    for key, entry in preset_scores.items():
-        if key == best_key or not entry:
-            continue
-        pct = entry.get("pct", 0)
-        if pct >= SECONDARY_MIN_PCT:
-            secs.append((key, pct))
-    secs.sort(key=lambda x: -x[1])
-    secondaries = [k for k, _ in secs[:MAX_SECONDARIES]]
-
-    return best_key, secondaries
+        if entry.get("pct", 0) >= threshold:
+            labels.append(key)
+    return labels
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -366,6 +358,42 @@ def compute_mood(indicators):
     risk_pct = max(0.0, min(100.0, risk_pct))
     m = mood_from_risk(risk_pct)
     return {**m, "pct": round(risk_pct, 1), "score": None}
+
+# ── Mood floors ──────────────────────────────────────────────────────────────
+# Floors lift the mood upward (never down) when a stock has structural traits
+# the indicators don't fully capture: extreme volatility, small market cap,
+# or a speculative style label.  All floors compose via max().
+
+_LEVEL_NUM = {"Level 1": 1, "Level 2": 2, "Level 3": 3, "Level 4": 4, "Level 5": 5}
+# Minimum risk_pct in each L band (matches MOOD_BANDS lo edges)
+_LEVEL_PCT_MIN = {1: 0.0, 2: 20.0, 3: 45.0, 4: 65.0, 5: 85.0}
+
+def _apply_level_floor(mood, min_level):
+    """Lift mood to at least the given level (1-5).  Never lowers."""
+    if not min_level or min_level <= 1:
+        return mood
+    cur = _LEVEL_NUM.get(mood.get("label", ""), 3)
+    if cur >= min_level:
+        return mood
+    target_pct = _LEVEL_PCT_MIN[min_level]
+    floored = mood_from_risk(target_pct)
+    return {**floored, "pct": max(mood.get("pct", 0) or 0, target_pct), "score": mood.get("score")}
+
+def _vol_floor_level(ann_vol):
+    """Volatility-based level floor.  Higher vol = higher minimum level."""
+    if ann_vol is None: return 0
+    if ann_vol > 100: return 5
+    if ann_vol > 70:  return 4
+    if ann_vol > 40:  return 3
+    return 0
+
+def _mc_floor_level(mktcap):
+    """Market-cap-based level floor.  Smaller = less mature = higher minimum level."""
+    if mktcap is None or mktcap <= 0: return 0
+    if mktcap < 100e6:  return 5
+    if mktcap < 500e6:  return 4
+    if mktcap < 2e9:    return 3
+    return 0
 
 # ── Indicator scoring ─────────────────────────────────────────────────────────
 
@@ -737,19 +765,22 @@ def parse_row(row):
     if vol_m1 is not None:
         ann_vol = _round(vol_m1 * math.sqrt(252), 1)
 
-    # Pre-compute hunting style scores for all presets (6-style system — see PRESETS).
+    # Pre-compute style scores for all presets (6-style system — see PRESETS).
+    # Multi-label classification: any style scoring ≥70% becomes a label on the card.
     preset_scores = score_all_presets(inds, mktcap, range52w_pct, epsbasic, row.get("Analyst Rating", ""), perf_y1)
-    primary_style, secondary_styles = classify_stock(preset_scores)
+    style_labels = label_stock(preset_scores, threshold=70)
 
-    # Moonshot floor: all Moonshots are surfaced at difficulty Level 4 minimum.
-    # These are micro-cap, high-vol, speculative picks — they should never present
-    # as a calm (L1/L2) or unsettled (L3) stock regardless of what the indicators say.
-    if primary_style == "moonshot":
-        _LEVEL_NUM = {"Level 1": 1, "Level 2": 2, "Level 3": 3, "Level 4": 4, "Level 5": 5}
-        current_level = _LEVEL_NUM.get(mood.get("label", ""), 3)
-        if current_level < 4:
-            floored = mood_from_risk(65)  # any value in L4 band (60-80)
-            mood = {**floored, "pct": max(mood.get("pct", 0) or 0, 65.0), "score": mood.get("score")}
+    # ── Level floors ─────────────────────────────────────────────────────────
+    # The base mood comes from 11 health indicators.  We then lift the mood
+    # upward (never downward) based on vol, market cap, and style.  Final level
+    # = max(base, vol_floor, mc_floor, style_floor).  Each floor reflects a
+    # genuine source of "comfort risk" the indicators alone don't fully capture.
+    mood = _apply_level_floor(mood, _vol_floor_level(ann_vol))
+    mood = _apply_level_floor(mood, _mc_floor_level(mktcap))
+    if "moonshot" in style_labels:
+        mood = _apply_level_floor(mood, 4)   # Moonshot → minimum L4
+    if "wild_beast" in style_labels:
+        mood = _apply_level_floor(mood, 3)   # Rollercoaster → minimum L3
 
     return {
         "ticker":        row["Symbol"],
@@ -789,8 +820,7 @@ def parse_row(row):
         "_indices":      {i.strip() for i in row.get("Index", "").split(",") if i.strip()},
         "_mood_score":   mood,
         "_preset_scores": preset_scores,
-        "_primary_style":    primary_style,
-        "_secondary_styles": secondary_styles,
+        "_style_labels":   style_labels,
     }
 
 # ── Exchange tagging ──────────────────────────────────────────────────────────
@@ -953,8 +983,7 @@ def main():
             "mc":    s["financials"].get("marketCap"),
             "ar":    s.get("analystRating", ""),
             "ps":    {k: v["pct"] for k, v in s["_preset_scores"].items()},
-            "pri":   s.get("_primary_style"),            # dominant style (or None if unclassified)
-            "ss":    s.get("_secondary_styles") or [],   # up to 2 qualifying secondaries
+            "lbs":   s.get("_style_labels") or [],       # multi-label: every style where score ≥ 70%
         }
         for s in stocks
     ]

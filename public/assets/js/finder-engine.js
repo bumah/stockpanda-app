@@ -24,7 +24,7 @@ const PRESETS = {
       { key:'drawdown', expect:'near_peak',   weight:1 },
     ],
   },
-  wild_beast: { label: 'Wild Beast', sub: 'High-volatility large/mid caps with strong recent gains. Volatile big winners — not for the faint-hearted.',
+  wild_beast: { label: 'Rollercoaster', sub: 'High-volatility large/mid caps with strong recent gains. Volatile big winners — not for the faint-hearted.',
     criteria: [
       { key:'vol',      expect:'high',            weight:2 },
       { key:'return1y', expect:'strong_positive', weight:2 },
@@ -76,9 +76,10 @@ const PRESETS = {
   },
 };
 
-const STYLE_ICONS = { trophy:'🏆', wild_beast:'🐂', scavenger:'🦅', momentum:'🚀', rebound:'🐇', moonshot:'🦄' };
-const STYLE_NAMES = { trophy:'Trophy', wild_beast:'Wild Beast', scavenger:'Scavenger', momentum:'Momentum', rebound:'Rebound', moonshot:'Moonshot' };
-const STYLE_DESCS = { trophy:'Proven winners', wild_beast:'High-volatility winners', scavenger:'Quality bargains', momentum:'Sustained uptrends', rebound:'V-shape recovery', moonshot:'Micro-cap high-upside' };
+// Display labels — internal keys stay stable; labels are what users see.
+const STYLE_ICONS = { trophy:'🏆', wild_beast:'🎢', scavenger:'🐘', momentum:'🚀', rebound:'🐇', moonshot:'🦄' };
+const STYLE_NAMES = { trophy:'Pack Leader', wild_beast:'Rollercoaster', scavenger:'Sleeping Giant', momentum:'High Flyer', rebound:'Recovery', moonshot:'Moonshot' };
+const STYLE_DESCS = { trophy:'Big proven compounders', wild_beast:'Volatile quality large caps', scavenger:'Big fallers not recovering', momentum:'On a sustained roll', rebound:'Bouncing back from drawdown', moonshot:'Small caps doing well' };
 
 // ── Region / sector config ───────────────────────────────────────────────────
 const EUROPE_COUNTRIES = new Set(['United Kingdom','Ireland','Sweden','France','Germany','Italy','Switzerland','Poland','Norway','Spain','Russian Federation','Finland','Denmark','Netherlands','Belgium','Greece','Austria','Luxembourg','Portugal','Bulgaria','Croatia','Romania','Hungary','Iceland','Slovenia','Lithuania','Estonia','Malta','Latvia','Slovakia','Czech Republic','Liechtenstein','Monaco','Serbia','Cyprus']);
@@ -163,6 +164,7 @@ function normalizeSearchEntry(e, exchLabels) {
     _fcf:          e.fcf,
     _ni:           e.ni,
     _ps:           e.ps || {},
+    lbs:           e.lbs || [],
   };
 }
 

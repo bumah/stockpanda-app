@@ -973,25 +973,61 @@ button.nav-dropdown-trigger {
 .dc-style-hearts { display: flex; gap: 2px; flex-shrink: 0; }
 .dc-style-sep { font-size: 0.5rem; color: var(--muted); margin: 0.15rem 0; padding-left: 1.6rem; }
 
-/* Primary style chip — shown on the finder discover card (single best-match style).
-   Full per-style breakdown moves to the stock detail page. */
-.dc-primary-chip {
-  display: inline-flex; align-items: center; gap: 0.45rem;
+/* Style chips on the finder discover card — multi-label (every style the stock qualifies for).
+   Stocks can legitimately fit multiple styles (e.g. NVDA is both Pack Leader and High Flyer),
+   so we render all qualifying chips at equal weight rather than picking one. */
+.dc-label-chips {
+  display: flex; flex-wrap: wrap; gap: 0.4rem;
+}
+.dc-label-chip {
+  display: inline-flex; align-items: center; gap: 0.35rem;
   background: rgba(74,222,128,0.08);
   border: 1px solid rgba(74,222,128,0.22);
   border-radius: 22px;
-  padding: 0.35rem 0.85rem;
-  font-size: 0.78rem; font-weight: 700;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.74rem; font-weight: 700;
+  color: var(--green);
+  letter-spacing: 0.02em;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
 }
-.dc-primary-icon { font-size: 1rem; line-height: 1; }
-.dc-primary-name { color: var(--green); letter-spacing: 0.02em; }
-.dc-primary-chip.dc-primary-none {
+button.dc-label-chip { outline: none; }
+.dc-label-chip:hover {
+  background: rgba(74,222,128,0.14);
+  border-color: rgba(74,222,128,0.38);
+}
+.dc-label-chip:active { transform: scale(0.97); }
+.dc-label-chip-active {
+  background: rgba(74,222,128,0.22) !important;
+  border-color: rgba(74,222,128,0.55) !important;
+}
+.dc-label-icon { font-size: 0.95rem; line-height: 1; }
+.dc-label-chip.dc-label-none {
   background: rgba(138,158,143,0.08);
   border-color: rgba(138,158,143,0.22);
   color: var(--muted);
   font-weight: 500;
+  cursor: default;
 }
-/* Style reminder under the primary chip (what does "Trophy" mean?) */
+/* Style-description tip shown under the chip row when a chip is tapped
+   (or permanently when there's only one label). */
+.dc-style-tip {
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.45;
+  margin: 0;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.2s, opacity 0.2s, margin-top 0.2s;
+}
+.dc-style-tip.dc-style-tip-active {
+  max-height: 120px;
+  opacity: 1;
+  margin-top: 0.6rem;
+}
+/* Legacy reminder class — kept for any callers still using it. */
 .dc-primary-sub {
   font-size: 0.72rem;
   color: var(--muted);

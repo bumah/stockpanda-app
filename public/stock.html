@@ -726,7 +726,7 @@ function renderFieldNotes() {
     const sorted = Object.entries(ps).sort((a, b) => (b[1].pct || 0) - (a[1].pct || 0));
     const best = sorted.slice(0, 3);
     const worst = sorted[sorted.length - 1];
-    const NAMES = { trophy:'Trophy', wild_beast:'Wild Beast', scavenger:'Scavenger', momentum:'Momentum', rebound:'Rebound' };
+    const NAMES = { trophy:'Trophy', wild_beast:'Rollercoaster', scavenger:'Scavenger', momentum:'Momentum', rebound:'Rebound' };
     function _hearts(p) { return p >= 90 ? 5 : p >= 70 ? 4 : p >= 50 ? 3 : p >= 30 ? 2 : 1; }
     let styleTxt = 'This stock is a strong match for ';
     styleTxt += best.map(([k, v]) => NAMES[k] + ' (' + _hearts(v.pct) + ' hearts)').join(', ') + '.';
@@ -1038,9 +1038,9 @@ function renderRawTable() {
 
 // ── Hunting Styles breakdown ──────────────────────────────────────────────────
 const STYLE_META = [
-  { key:'trophy',      icon:'🏆', name:'Trophy',      desc:'Proven long-term winners with strong earnings.' },
-  { key:'wild_beast',  icon:'🐂', name:'Wild Beast',  desc:'High-volatility assets with extreme upside potential.' },
-  { key:'scavenger',   icon:'🦅', name:'Scavenger',   desc:'Quality stocks that have been beaten down — bargains with proven fundamentals.' },
+  { key:'trophy',      icon:'🏆', name:'Pack Leader',      desc:'Proven long-term winners with strong earnings.' },
+  { key:'wild_beast',  icon:'🎢', name:'Rollercoaster',  desc:'High-volatility assets with extreme upside potential.' },
+  { key:'scavenger',   icon:'🐘', name:'Sleeping Giant',   desc:'Quality stocks that have been beaten down — bargains with proven fundamentals.' },
   { key:'momentum',    icon:'🚀', name:'Momentum',    desc:'Stocks in sustained uptrends across multiple timeframes.' },
   { key:'rebound',     icon:'🐇', name:'Rebound',     desc:'Stocks recovering after a rough patch — V-shape recoveries in motion.' },
 ];
@@ -1446,7 +1446,7 @@ window.openPreviewCard = function openPreviewCard() {
 
   // Styles — all 6 types (incl. Moonshot).  Match emojis to finder-engine.js (🐂 for wild_beast).
   const STYLE_ICONS = { trophy:'\u{1F3C6}', wild_beast:'\u{1F402}', scavenger:'\u{1F985}', momentum:'\u{1F680}', rebound:'\u{1F407}', moonshot:'\u{1F984}' };
-  const STYLE_NAMES = { trophy:'Trophy', wild_beast:'Wild Beast', scavenger:'Scavenger', momentum:'Momentum', rebound:'Rebound', moonshot:'Moonshot' };
+  const STYLE_NAMES = { trophy:'Pack Leader', wild_beast:'Rollercoaster', scavenger:'Sleeping Giant', momentum:'High Flyer', rebound:'Recovery', moonshot:'Moonshot' };
   const sorted = Object.entries(ps).map(([k, v]) => [k, v?.pct ?? 0]).sort((a, b) => b[1] - a[1]);
   const styleRows = sorted.map(e =>
     '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[e[0]] || '') + '</span><span class="dc-style-name">' + (STYLE_NAMES[e[0]] || e[0]) + '</span>' + hearts(e[1]) + '</div>'
