@@ -256,7 +256,7 @@ function closeToolsPopover(){
         <div class="discover-header">
           <span class="discover-counter" id="discover-counter"></span>
           <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
-            <button class="discover-refine" onclick="refineQuiz()">Edit Pro Hunt</button>
+            <button class="discover-refine" onclick="refineQuiz()">Edit Pro rules</button>
             <button class="discover-refine" onclick="seeAllTable()">View Pro Hunt</button>
           </div>
         </div>
@@ -1043,16 +1043,16 @@ function showCard() {
 
   if (!_queue.length) {
     const isStrict = answers.huntmode === 'strict';
-    const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try Open Hunt \u2192</button>' : '';
-    container.innerHTML = '<div class="discover-done"><h3>No matches found</h3><p>Edit your Pro Hunt' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p>' + openHint + '</div>';
+    const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try wider rules \u2192</button>' : '';
+    container.innerHTML = '<div class="discover-done"><h3>No matches found</h3><p>Edit your Pro rules' + (isStrict ? ' or try <strong>wider rules</strong> to broaden the search' : '') + '.</p>' + openHint + '</div>';
     counter.textContent = '0 matches';
     return;
   }
 
   if (_idx >= _queue.length) {
     const isStrict = answers.huntmode === 'strict';
-    const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try Open Hunt \u2192</button>' : '';
-    container.innerHTML = '<div class="discover-done"><h3>You\'ve seen all matches</h3><p>' + _queue.length + ' stocks. Edit your Pro Hunt' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p><button class="discover-refine" onclick="prevCard()" style="margin-top:0.6rem;">\u2190 Back</button>' + openHint + '</div>';
+    const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try wider rules \u2192</button>' : '';
+    container.innerHTML = '<div class="discover-done"><h3>You\'ve seen all matches</h3><p>' + _queue.length + ' stocks. Edit your Pro rules' + (isStrict ? ' or try <strong>wider rules</strong> to broaden the search' : '') + '.</p><button class="discover-refine" onclick="prevCard()" style="margin-top:0.6rem;">\u2190 Back</button>' + openHint + '</div>';
     counter.textContent = _queue.length + ' of ' + _queue.length + ' matches';
     return;
   }

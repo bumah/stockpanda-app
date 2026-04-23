@@ -324,10 +324,10 @@ function closeToolsPopover(){
 
     <!-- ── Welcome Screen ────────────────────────────────────── -->
     <div id="scan-welcome" class="finder-hero" style="padding-bottom:2.5rem;">
-      <div class="hero-eyebrow">Hunt</div>
-      <h1 class="finder-hero-h1" style="font-size:2.6rem;">Hunt the field.<br/>Find your match.</h1>
-      <p class="finder-hero-sub">Pick a territory, style, and risk level. We'll hunt the market and show you stocks that match — one at a time.</p>
-      <button class="finder-cta-btn" onclick="document.getElementById('scan-welcome').style.display='none'; openTrapWizard();">Start hunting &rarr;</button>
+      <div class="hero-eyebrow">Find ideas</div>
+      <h1 class="finder-hero-h1" style="font-size:2.6rem;">Your rules.<br/>Your matches.</h1>
+      <p class="finder-hero-sub">Pick your style, market, and comfort level. We'll show you stocks that match — one at a time.</p>
+      <button class="finder-cta-btn" onclick="document.getElementById('scan-welcome').style.display='none'; openTrapWizard();">Set my rules &rarr;</button>
     </div>
 
     <!-- ── Results Section (discover-only) ─────────────────── -->
@@ -336,8 +336,8 @@ function closeToolsPopover(){
         <div class="discover-header">
           <span class="discover-counter" id="finder-dc-counter"></span>
           <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
-            <button class="discover-refine" onclick="openTrapWizard()">Edit Hunt</button>
-            <button class="discover-refine" onclick="showTrapSummary()">View Hunt</button>
+            <button class="discover-refine" onclick="openTrapWizard()">Edit rules</button>
+            <button class="discover-refine" onclick="showTrapSummary()">View rules</button>
           </div>
         </div>
 
@@ -1172,15 +1172,15 @@ function showFinderCard() {
 
   if (!items.length) {
     const isStrict = _trapCriteria.huntMode === 'strict';
-    const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try Open Hunt \u2192</button>' : '';
-    container.innerHTML = '<div class="discover-done"><h3>No matches</h3><p>Edit your Hunt' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p>' + openHint + '</div>';
+    const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try wider rules \u2192</button>' : '';
+    container.innerHTML = '<div class="discover-done"><h3>No matches</h3><p>Edit your rules' + (isStrict ? ' or try <strong>wider rules</strong> to broaden the search' : '') + '.</p>' + openHint + '</div>';
     counter.textContent = '0 matches';
     return;
   }
   if (_finderDcIdx >= items.length) {
     const isStrict = _trapCriteria.huntMode === 'strict';
-    const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try Open Hunt \u2192</button>' : '';
-    container.innerHTML = '<div class="discover-done"><h3>You\'ve seen all matches</h3><p>' + items.length + ' stocks. Edit your Hunt' + (isStrict ? ' or try <strong>Open Hunt</strong> to widen your search' : '') + '.</p><button class="discover-refine" onclick="finderPrevCard()" style="margin-top:0.6rem;">\u2190 Back</button>' + openHint + '</div>';
+    const openHint = isStrict ? '<br><button class="discover-refine" onclick="switchToOpenHunt()" style="margin-top:0.6rem;">Try wider rules \u2192</button>' : '';
+    container.innerHTML = '<div class="discover-done"><h3>You\'ve seen all matches</h3><p>' + items.length + ' stocks. Edit your rules' + (isStrict ? ' or try <strong>wider rules</strong> to broaden the search' : '') + '.</p><button class="discover-refine" onclick="finderPrevCard()" style="margin-top:0.6rem;">\u2190 Back</button>' + openHint + '</div>';
     counter.textContent = items.length + ' of ' + items.length;
     return;
   }
