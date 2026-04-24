@@ -1010,6 +1010,17 @@ button.dc-label-chip { outline: none; }
   font-weight: 500;
   cursor: default;
 }
+/* Tighter chips on narrow screens so 3 labels fit on a single row.
+   Default sizing otherwise wraps 2+1 which looks unbalanced. */
+@media (max-width: 480px) {
+  .dc-label-chips { gap: 0.3rem; }
+  .dc-label-chip {
+    padding: 0.25rem 0.55rem;
+    font-size: 0.68rem;
+    gap: 0.25rem;
+  }
+  .dc-label-icon { font-size: 0.82rem; }
+}
 /* Style-description tip shown under the chip row when a chip is tapped
    (or permanently when there's only one label). */
 .dc-style-tip {

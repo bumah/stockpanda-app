@@ -597,6 +597,75 @@ section + section { border-top: 1px solid var(--border); }
   margin-bottom: 28px;
 }
 
+/* ─── TWO WAYS TO PICK — PATH CARDS ─── */
+.paths-section { padding: 100px 0; position: relative; }
+.paths-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 24px; margin-top: 32px;
+}
+@media (max-width: 768px) { .paths-grid { grid-template-columns: 1fr; } }
+.path-card {
+  display: block;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px 32px 32px;
+  text-decoration: none; color: inherit;
+  transition: border-color 0.3s, transform 0.3s, background 0.3s;
+}
+.path-card:hover {
+  border-color: var(--border-bright);
+  background: var(--bg-card-hover);
+  transform: translateY(-4px);
+}
+.path-icon { font-size: 40px; display: block; margin-bottom: 16px; line-height: 1; }
+.path-card h3 {
+  font-family: 'Space Mono', monospace;
+  font-size: 24px; font-weight: 700;
+  margin-bottom: 28px; letter-spacing: -0.5px;
+}
+.path-steps { list-style: none; margin: 0 0 24px; padding: 0; }
+.path-steps li {
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+  color: var(--text-secondary); font-size: 14px; line-height: 1.5;
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.path-steps li:last-child { border-bottom: none; padding-bottom: 0; }
+.path-step-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; color: var(--green-dim);
+  font-weight: 700; flex-shrink: 0; min-width: 20px; margin-top: 2px;
+  letter-spacing: 1px;
+}
+.path-ideal {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--green-primary);
+  margin-top: 24px; padding-top: 20px;
+  border-top: 1px dashed var(--border);
+}
+/* CTA at bottom of each path card — signals "click to begin" */
+.path-cta {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 20px;
+  padding: 10px 18px;
+  background: rgba(74,222,128,0.10);
+  border: 1px solid rgba(74,222,128,0.30);
+  border-radius: 8px;
+  color: var(--green-primary);
+  font-family: 'Space Mono', monospace;
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: background 0.2s, border-color 0.2s;
+}
+.path-cta-arrow { transition: transform 0.2s; display: inline-block; }
+.path-card:hover .path-cta {
+  background: var(--green-primary);
+  border-color: var(--green-primary);
+  color: var(--bg-primary);
+}
+.path-card:hover .path-cta-arrow { transform: translateX(4px); }
+
 /* ─── SAMPLE CARDS (below hero) ─── */
 .sample-section {
   padding: 40px 0 80px;
@@ -635,13 +704,17 @@ section + section { border-top: 1px solid var(--border); }
 }
 /* Card — 260px wide, horizontal scroll */
 .sc-card {
-  flex: 0 0 260px; scroll-snap-align: start;
+  flex: 0 0 260px;
+  width: 260px; max-width: 260px; min-width: 260px;  /* lock the width so long names can't stretch it */
+  scroll-snap-align: start;
   background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
   padding: 14px 14px 12px;
   display: flex; flex-direction: column; gap: 10px;
+  overflow: hidden;              /* safety — clip any unbreakable content */
   text-decoration: none; color: inherit;
   transition: border-color 0.2s, transform 0.2s, background 0.2s;
 }
+.sc-card .sc-top-left { min-width: 0; }  /* allow ellipsis to activate on long names */
 .sc-card:hover { border-color: var(--border-bright); transform: translateY(-3px); background: var(--bg-card-hover); }
 /* Multi-chip wrap — matches discover card behaviour */
 .sc-chips { display: flex; flex-wrap: wrap; gap: 4px; }
@@ -822,10 +895,11 @@ footer a:hover { color: var(--green-primary); }
     <div class="nav-dropdown">
       <button class="nav-link nav-dropdown-trigger">More <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
       <div class="nav-dropdown-menu">
-        <a class="nav-dropdown-item" href="quiz.html">Pro Hunt</a>
+        <a class="nav-dropdown-item" href="quiz.html">Advanced</a>
         <a class="nav-dropdown-item" href="etfs.html">ETFs</a>
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
         <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
+        <a class="nav-dropdown-item" href="about.html">About</a>
         <a class="nav-dropdown-item sp-install-btn" href="#" onclick="event.preventDefault();spInstallApp();" style="display:none;">Get StockPanda App</a>
       </div>
     </div>
@@ -841,10 +915,11 @@ footer a:hover { color: var(--green-primary); }
 </nav>
 <div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
 <div class="tools-popover" id="toolsPopover">
-  <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Pro Hunt</a>
+  <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Advanced</a>
   <a href="etfs.html" class="tools-popover-item"><i data-lucide="layers" class="nb-icon"></i>ETFs</a>
   <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
   <a href="handbook.html" class="tools-popover-item"><i data-lucide="book-open" class="nb-icon"></i>Handbook</a>
+  <a href="about.html" class="tools-popover-item"><i data-lucide="info" class="nb-icon"></i>About</a>
   <a href="#" class="tools-popover-item sp-install-btn" onclick="event.preventDefault();closeToolsPopover();spInstallApp();" style="display:none;"><i data-lucide="download" class="nb-icon"></i>Get StockPanda App</a>
 </div>
 <nav class="nav-bottom">
@@ -860,14 +935,11 @@ footer a:hover { color: var(--green-primary); }
 <!-- ═══════════════════════════════════════ -->
 <section class="hero">
   <div class="container">
-    <div class="hero-label">Stock ideas for busy investors</div>
-    <h1>Find stocks that <em>match your taste</em></h1>
-    <p class="hero-promise">Save hours on research. Set your rules, see your matches. No hype. No stress.</p>
+    <h1>Stock <em>idea</em> generator</h1>
+    <p class="hero-promise">Pick your rules. We'll find your matches. All for free.</p>
     <div class="hero-ctas">
-      <a href="finder.html" class="btn-primary">Find my matches</a>
-      <a href="#how-it-works" class="btn-secondary">How it works</a>
+      <a href="#how-it-works" class="btn-primary">Start now</a>
     </div>
-    <p style="font-size:13px;color:var(--text-dim);margin-top:24px;font-family:'Space Mono',monospace;letter-spacing:1px;">Free. No account needed to start.</p>
   </div>
 </section>
 
@@ -891,301 +963,37 @@ footer a:hover { color: var(--green-primary); }
 </section>
 
 <!-- ═══════════════════════════════════════ -->
-<!-- THE SETUP — TYPE / PLACE / DIFFICULTY -->
+<!-- HOW IT WORKS — TWO WAYS TO PICK -->
 <!-- ═══════════════════════════════════════ -->
-<section>
+<section class="paths-section" id="how-it-works">
   <div class="container">
-    <div class="section-label reveal">The setup</div>
-    <h2 class="section-title reveal">Your stocks. Your rules.</h2>
-    <p class="section-subtitle reveal">Define your taste — investment style, country, and risk comfort. We'll show stocks that match. Do your research before you act.</p>
+    <div class="section-label reveal" style="text-align:center;">How it works</div>
+    <h2 class="section-title reveal" style="text-align:center;">Two ways to pick</h2>
+    <p class="section-subtitle reveal" style="text-align:center;margin-left:auto;margin-right:auto;">Choose your path based on your needs or experience.</p>
 
-    <!-- Overview cards -->
-    <div class="hunt-intro-grid">
-      <div class="hunt-intro-card reveal">
-        <i data-lucide="target" class="hunt-intro-icon"></i>
-        <h3>Your style</h3>
-        <p>Six investing styles. Pick the one that sounds like how you'd like to invest today.</p>
-      </div>
-      <div class="hunt-intro-card reveal">
-        <i data-lucide="globe" class="hunt-intro-icon"></i>
-        <h3>Your market</h3>
-        <p>8+ markets to browse. Start local, go wider whenever you want.</p>
-      </div>
-      <div class="hunt-intro-card reveal">
-        <i data-lucide="bar-chart-3" class="hunt-intro-icon"></i>
-        <h3>Your comfort</h3>
-        <p>Five volatility levels, L1–L5. Browse within your comfort zone.</p>
-      </div>
-    </div>
-
-    <!-- ─── TYPE DETAIL ─── -->
-    <div class="detail-section reveal">
-      <div class="detail-header">
-        <i data-lucide="target" class="detail-icon"></i>
-        <span class="detail-title">Six styles to explore</span>
-      </div>
-      <p class="detail-desc">Each style has its own rules. Pick one — or try them all. We'll show you the stocks matching that style today.</p>
-      <div class="scroll-wrapper">
-        <div class="scroll-row">
-          <div class="style-card">
-            <span class="style-emoji">🏆</span>
-            <h4>Pack Leader</h4>
-            <p>Big, proven, long-term compounders. Solid companies that keep winning.</p>
-          </div>
-          <div class="style-card">
-            <span class="style-emoji">🐘</span>
-            <h4>Sleeping Giant</h4>
-            <p>Big companies that have fallen well below their peak and aren't recovering yet.</p>
-          </div>
-          <div class="style-card">
-            <span class="style-emoji">🐇</span>
-            <h4>Recovery</h4>
-            <p>Stocks bouncing back after a deep drawdown — turn is underway, not yet on a roll.</p>
-          </div>
-          <div class="style-card">
-            <span class="style-emoji">🚀</span>
-            <h4>High Flyer</h4>
-            <p>On a sustained roll — strong performance and solid fundamentals.</p>
-          </div>
-          <div class="style-card">
-            <span class="style-emoji">🎢</span>
-            <h4>Rollercoaster</h4>
-            <p>Big quality companies that swing hard. High volatility either way. Advanced.</p>
-          </div>
-          <div class="style-card">
-            <span class="style-emoji">🦄</span>
-            <h4>Moonshot</h4>
-            <p>Small-cap companies doing well — high upside, high risk. Advanced.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ─── PLACE DETAIL ─── -->
-    <div class="detail-section reveal">
-      <div class="detail-header">
-        <i data-lucide="globe" class="detail-icon"></i>
-        <span class="detail-title">Start local. Go global when you want.</span>
-      </div>
-      <p class="detail-desc">Browse stock ideas from 8+ markets. Pick one to keep things simple, or turn on more whenever you want a wider view.</p>
-      <div class="scroll-wrapper">
-        <div class="scroll-row">
-          <div class="territory-card">
-            <span class="territory-flag">🇺🇸</span>
-            <h4>United States</h4>
-            <p>The world's largest market — tech giants, blue chips, and high-growth innovators.</p>
-          </div>
-          <div class="territory-card">
-            <span class="territory-flag">🇬🇧</span>
-            <h4>United Kingdom</h4>
-            <p>London's financial hub — strong in banking, energy, and consumer goods.</p>
-          </div>
-          <div class="territory-card">
-            <span class="territory-flag">🇩🇪</span>
-            <h4>Germany</h4>
-            <p>Europe's largest economy — automotive, industrial, and tech powerhouses.</p>
-          </div>
-          <div class="territory-card">
-            <span class="territory-flag">🇫🇷</span>
-            <h4>France</h4>
-            <p>Luxury, aerospace, energy, and financial leaders.</p>
-          </div>
-          <div class="territory-card">
-            <span class="territory-flag">🇯🇵</span>
-            <h4>Japan</h4>
-            <p>Asia's most mature market — precision manufacturing, tech, and automotive.</p>
-          </div>
-          <div class="territory-card">
-            <span class="territory-flag">🇭🇰</span>
-            <h4>Hong Kong</h4>
-            <p>Gateway to China — mainland giants and regional financial players.</p>
-          </div>
-          <div class="territory-card">
-            <span class="territory-flag">🇨🇳</span>
-            <h4>China</h4>
-            <p>Fast-moving tech, e-commerce, and manufacturing.</p>
-          </div>
-          <div class="territory-card">
-            <span class="territory-flag">🇮🇳</span>
-            <h4>India</h4>
-            <p>Rapidly growing economy — IT, pharma, and financial services.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ─── DIFFICULTY DETAIL ─── -->
-    <div class="detail-section reveal">
-      <div class="detail-header">
-        <i data-lucide="bar-chart-3" class="detail-icon"></i>
-        <span class="detail-title">Every stock has a comfort level</span>
-      </div>
-      <p class="detail-desc">Higher levels move more — and need a stronger stomach. New to investing? The calmer levels (L1–L2) are a gentler place to start looking.</p>
-      <div class="scroll-wrapper">
-        <div class="scroll-row">
-          <div class="level-card level-1">
-            <div class="panda-face">
-              <img src="assets/img/panda-vcalm.png" alt="Level 1" class="panda-svg">
-            </div>
-            <span class="level-badge">Level 1</span>
-            <p>Mostly steady with some minor moves.</p>
-          </div>
-          <div class="level-card level-2">
-            <div class="panda-face">
-              <img src="assets/img/panda-calm.png" alt="Level 2" class="panda-svg">
-            </div>
-            <span class="level-badge">Level 2</span>
-            <p>Occasional small dips, keep an eye.</p>
-          </div>
-          <div class="level-card level-3">
-            <div class="panda-face">
-              <img src="assets/img/panda-unsettled.png" alt="Level 3" class="panda-svg">
-            </div>
-            <span class="level-badge">Level 3</span>
-            <p>Notable swings — worth watching.</p>
-          </div>
-          <div class="level-card level-4">
-            <div class="panda-face">
-              <img src="assets/img/panda-stressed.png" alt="Level 4" class="panda-svg">
-            </div>
-            <span class="level-badge">Level 4</span>
-            <p>Big moves often. Bumpy ride.</p>
-          </div>
-          <div class="level-card level-5">
-            <div class="panda-face">
-              <img src="assets/img/panda-danger.png" alt="Level 5" class="panda-svg">
-            </div>
-            <span class="level-badge">Level 5</span>
-            <p>Wild and unpredictable. Could go either way.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════ -->
-<!-- HOW IT WORKS — 3 STEPS -->
-<!-- ═══════════════════════════════════════ -->
-<section class="steps-section" id="how-it-works">
-  <div class="container">
-    <div class="section-label reveal">How it works</div>
-    <h2 class="section-title reveal" style="text-align:center;">Three steps. Two minutes.</h2>
-    <p class="section-subtitle reveal" style="text-align:center; margin-left:auto; margin-right:auto;">You do the choosing. We do the filtering. You do the research before buying.</p>
-    <div class="steps">
-      <div class="step reveal">
-        <div class="step-number">01</div>
-        <h3>Set your rules</h3>
-        <p>Choose your style, market, and comfort level. Change any time.</p>
-        <span class="step-arrow">→</span>
-      </div>
-      <div class="step reveal">
-        <div class="step-number">02</div>
-        <h3>See your matches</h3>
-        <p>Stocks matching your rules, each with a plain-English reason why.</p>
-        <span class="step-arrow">→</span>
-      </div>
-      <div class="step reveal">
-        <div class="step-number">03</div>
-        <h3>Make your move</h3>
-        <p>Save to monitor, or do more research before you act.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════ -->
-<!-- ADVANCED GEAR -->
-<!-- ═══════════════════════════════════════ -->
-<section class="pro-section">
-  <div class="container">
-    <div class="section-label reveal">When you want more</div>
-    <h2 class="section-title reveal">Other ways to explore</h2>
-    <p class="section-subtitle reveal">Beyond stock ideas — for when you want to dig deeper or look elsewhere.</p>
-    <div class="pro-grid">
-      <a class="pro-feature reveal" href="stocks.html" style="text-decoration:none;color:inherit;">
-        <i data-lucide="search" class="pro-feature-icon"></i>
-        <div>
-          <h4>Search</h4>
-          <p>Every stock in our universe. Filter, sort, and inspect on your own terms.</p>
-        </div>
+    <div class="paths-grid">
+      <a class="path-card reveal" href="finder.html">
+        <span class="path-icon">✨</span>
+        <h3>Simple picks</h3>
+        <ol class="path-steps">
+          <li><span class="path-step-num">01</span><span>Pick your style, market, and comfort level</span></li>
+          <li><span class="path-step-num">02</span><span>See your matches</span></li>
+          <li><span class="path-step-num">03</span><span>Explore — save what catches your eye, or dig deeper</span></li>
+        </ol>
+        <div class="path-ideal">Ideal for beginners</div>
+        <span class="path-cta">Start now <span class="path-cta-arrow">→</span></span>
       </a>
-      <a class="pro-feature reveal" href="quiz.html" style="text-decoration:none;color:inherit;">
-        <i data-lucide="crosshair" class="pro-feature-icon"></i>
-        <div>
-          <h4>Pro Hunt</h4>
-          <p>Build your own rules. Custom filters for power users.</p>
-        </div>
+      <a class="path-card reveal" href="quiz.html">
+        <span class="path-icon">🎯</span>
+        <h3>Advanced picks</h3>
+        <ol class="path-steps">
+          <li><span class="path-step-num">01</span><span>Build custom filters from scratch</span></li>
+          <li><span class="path-step-num">02</span><span>See your matches</span></li>
+          <li><span class="path-step-num">03</span><span>Explore — save what catches your eye, or dig deeper</span></li>
+        </ol>
+        <div class="path-ideal">Ideal for experienced investors</div>
+        <span class="path-cta">Start now <span class="path-cta-arrow">→</span></span>
       </a>
-      <a class="pro-feature reveal" href="summary.html" style="text-decoration:none;color:inherit;">
-        <i data-lucide="bar-chart-3" class="pro-feature-icon"></i>
-        <div>
-          <h4>Brief</h4>
-          <p>Daily highlights and weekly digests in one place.</p>
-        </div>
-      </a>
-      <a class="pro-feature reveal" href="etfs.html" style="text-decoration:none;color:inherit;">
-        <i data-lucide="layers" class="pro-feature-icon"></i>
-        <div>
-          <h4>ETFs</h4>
-          <p>Browse thousands of funds by class, region, and cost.</p>
-        </div>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════ -->
-<!-- SIMPLE -->
-<!-- ═══════════════════════════════════════ -->
-<section>
-  <div class="container">
-    <div class="section-label reveal">Our philosophy</div>
-    <h2 class="section-title reveal">Investing should be accessible to everyone</h2>
-    <p class="simple-intro reveal">The market is full of opportunity. Our job is to make finding ideas <strong style="color: var(--green-primary);">SIMPLE</strong>.</p>
-    <div class="simple-grid">
-      <div class="simple-card reveal">
-        <div class="simple-letter">S</div>
-        <div>
-          <h3>Safety first</h3>
-          <p>Every idea shows how volatile the stock has been, before you read anything else.</p>
-        </div>
-      </div>
-      <div class="simple-card reveal">
-        <div class="simple-letter">I</div>
-        <div>
-          <h3>International</h3>
-          <p>Start at home, explore the world later.</p>
-        </div>
-      </div>
-      <div class="simple-card reveal">
-        <div class="simple-letter">M</div>
-        <div>
-          <h3>Mobile</h3>
-          <p>Browse ideas wherever you are.</p>
-        </div>
-      </div>
-      <div class="simple-card reveal">
-        <div class="simple-letter">P</div>
-        <div>
-          <h3>Personal</h3>
-          <p>You choose the style. We show what fits.</p>
-        </div>
-      </div>
-      <div class="simple-card reveal">
-        <div class="simple-letter">L</div>
-        <div>
-          <h3>Learn</h3>
-          <p>Every idea explains, in plain English, why it matched. Pick things up as you go.</p>
-        </div>
-      </div>
-      <div class="simple-card reveal">
-        <div class="simple-letter">E</div>
-        <div>
-          <h3>Enjoyable</h3>
-          <p>Finding ideas should feel like browsing, not homework.</p>
-        </div>
-      </div>
     </div>
   </div>
 </section>
@@ -1197,7 +1005,7 @@ footer a:hover { color: var(--green-primary); }
   <div class="container">
     <h2 class="reveal">Ready to find your matches?</h2>
     <p class="punch reveal">Set your rules. Save what catches your eye. Do your own research before you act.</p>
-    <a href="finder.html" class="btn-primary reveal">Find my matches</a>
+    <a href="#how-it-works" class="btn-primary reveal">Start now</a>
   </div>
 </section>
 
