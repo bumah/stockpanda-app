@@ -353,7 +353,7 @@ const _isInternal = _referrer && new URL(_referrer).origin === location.origin;
 if (_isInternal) {
   _backBtn.href = '#';
   const _refPath = new URL(_referrer).pathname;
-  if (_refPath.includes('finder')) _backBtn.textContent = '← Back to Hunt';
+  if (_refPath.includes('finder')) _backBtn.textContent = '← Back to Ideas';
   else if (_refPath.includes('quiz')) _backBtn.textContent = '← Back to Pro Hunt';
   else if (_refPath.includes('watchlist')) _backBtn.textContent = '← Back to Saved';
   else if (_refPath.includes('summary')) _backBtn.textContent = '← Back to Brief';
@@ -729,20 +729,22 @@ function renderFieldNotes() {
     if (watch.trim()) notes.push({ icon: '⚠️', title: 'Watch Out', text: watch.trim() });
   }
 
-  // 4. Style Fit
+  // 4. Styles that fit — only list styles the stock actually qualifies for (score ≥ 70%).
+  //    Unknown keys (e.g. new styles without a local mapping) are skipped so we never
+  //    render "undefined" in the copy.
   const ps = s.presetScores;
+  const NAMES = { trophy:'Pack Leader', wild_beast:'Rollercoaster', scavenger:'Sleeping Giant', momentum:'High Flyer', rebound:'Recovery', moonshot:'Moonshot' };
+  function _hearts(p) { return p >= 90 ? 5 : p >= 70 ? 4 : p >= 50 ? 3 : p >= 30 ? 2 : 1; }
   if (ps && Object.keys(ps).length) {
-    const sorted = Object.entries(ps).sort((a, b) => (b[1].pct || 0) - (a[1].pct || 0));
-    const best = sorted.slice(0, 3);
-    const worst = sorted[sorted.length - 1];
-    const NAMES = { trophy:'Trophy', wild_beast:'Rollercoaster', scavenger:'Scavenger', momentum:'Momentum', rebound:'Rebound' };
-    function _hearts(p) { return p >= 90 ? 5 : p >= 70 ? 4 : p >= 50 ? 3 : p >= 30 ? 2 : 1; }
-    let styleTxt = 'This stock is a strong match for ';
-    styleTxt += best.map(([k, v]) => NAMES[k] + ' (' + _hearts(v.pct) + ' hearts)').join(', ') + '.';
-    if (worst && worst[1].pct < 60) {
-      styleTxt += ' It\'s a weak match for ' + NAMES[worst[0]] + ' (' + _hearts(worst[1].pct) + ' heart' + (_hearts(worst[1].pct) === 1 ? '' : 's') + ').';
+    const fits = Object.entries(ps)
+      .filter(([k, v]) => (v && (v.pct || 0) >= 70) && NAMES[k])
+      .sort((a, b) => (b[1].pct || 0) - (a[1].pct || 0));
+    if (fits.length) {
+      const styleTxt = 'This stock fits ' + fits.map(([k, v]) =>
+        NAMES[k] + ' (' + _hearts(v.pct) + ' heart' + (_hearts(v.pct) === 1 ? '' : 's') + ')'
+      ).join(', ') + '.';
+      notes.push({ icon: '🎯', title: 'Styles that fit', text: styleTxt });
     }
-    notes.push({ icon: '🎯', title: 'Style Fit', text: styleTxt });
   }
 
   // 5. Panda Level
