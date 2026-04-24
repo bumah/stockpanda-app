@@ -130,12 +130,13 @@
     .ab-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:rgba(74,222,128,0.10);border:1px solid rgba(74,222,128,0.30);border-radius:8px;color:var(--brand);cursor:pointer;font-family:var(--font);transition:all 0.15s;padding:0;}
     .ab-btn:hover{background:rgba(74,222,128,0.18);border-color:var(--brand);}
     .ab-btn i{width:16px;height:16px;}
-    /* Catch — filled accent so it stands out */
-    .catch-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:var(--brand);border:1px solid var(--brand);border-radius:8px;color:#0B0F0D;cursor:pointer;font-family:var(--font);transition:all 0.15s;padding:0;box-shadow:0 0 0 2px rgba(74,222,128,0.18);}
-    .catch-btn:hover{filter:brightness(1.08);box-shadow:0 0 0 3px rgba(74,222,128,0.28);}
-    .catch-btn i{width:16px;height:16px;}
+    /* Save — outline button before save, filled after.  Heart icon fills only when saved. */
+    .catch-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:transparent;border:1.5px solid rgba(74,222,128,0.45);border-radius:8px;color:var(--brand);cursor:pointer;font-family:var(--font);transition:all 0.15s;padding:0;}
+    .catch-btn:hover{background:rgba(74,222,128,0.10);border-color:var(--brand);}
+    .catch-btn i{width:16px;height:16px;stroke-width:2;fill:none;}  /* outline heart by default */
     .catch-btn.hearted{background:#F87171;border-color:#F87171;color:#fff;box-shadow:0 0 0 2px rgba(248,113,113,0.22);}
-    .catch-btn.hearted i{fill:currentColor;}
+    .catch-btn.hearted:hover{background:#E95555;border-color:#E95555;}  /* hover on saved stays red */
+    .catch-btn.hearted i{fill:currentColor;}  /* fill heart only when saved */
     .share-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;}
     .share-modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;max-width:420px;width:100%;position:relative;}
     .share-modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;}
@@ -263,7 +264,7 @@ function closeToolsPopover(){
 
   <!-- Action bar -->
   <div class="action-bar">
-    <button class="catch-btn" id="catch-btn" onclick="toggleStockCatch()" title="Catch" aria-label="Catch"><i data-lucide="heart" id="catch-icon"></i></button>
+    <button class="catch-btn" id="catch-btn" onclick="toggleStockCatch()" title="Save" aria-label="Save"><i data-lucide="heart" id="catch-icon"></i></button>
     <button class="ab-btn" id="share-btn" onclick="openShareModal()" title="Share" aria-label="Share"><i data-lucide="share-2"></i></button>
     <button class="ab-btn" id="preview-btn" onclick="openPreviewCard()" title="Preview" aria-label="Preview"><i data-lucide="search"></i></button>
     <button class="ab-btn" id="pdf-btn" onclick="exportPDF()" title="PDF" aria-label="PDF"><i data-lucide="file-text"></i></button>
@@ -354,7 +355,7 @@ if (_isInternal) {
   const _refPath = new URL(_referrer).pathname;
   if (_refPath.includes('finder')) _backBtn.textContent = '← Back to Hunt';
   else if (_refPath.includes('quiz')) _backBtn.textContent = '← Back to Pro Hunt';
-  else if (_refPath.includes('watchlist')) _backBtn.textContent = '← Back to Catch';
+  else if (_refPath.includes('watchlist')) _backBtn.textContent = '← Back to Saved';
   else if (_refPath.includes('summary')) _backBtn.textContent = '← Back to Brief';
   else if (_refPath.includes('stocks')) _backBtn.textContent = '← Back to Scan';
   else _backBtn.textContent = '← Back';
@@ -441,9 +442,14 @@ function updateCatchBtn() {
   if (!btn) return;
   var has = _wlHas(stockData.ticker, stockData.country || '');
   btn.classList.toggle('hearted', has);
-  btn.setAttribute('title', has ? 'Caught — remove' : 'Catch');
-  btn.setAttribute('aria-label', has ? 'Caught' : 'Catch');
+  btn.setAttribute('title', has ? 'Saved — tap to remove' : 'Save');
+  btn.setAttribute('aria-label', has ? 'Saved' : 'Save');
 }
+// Expose onclick-referenced helpers to window.  They were originally defined
+// inside the `window.addEventListener('load', ...)` callback so onclick handlers
+// (which resolve against window) could not find them — save-stock was broken.
+window.toggleStockCatch = toggleStockCatch;
+window.updateCatchBtn   = updateCatchBtn;
 
 function renderHeader() {
   const s = stockData;
@@ -646,6 +652,7 @@ function toggleIndexTags() {
   const extraCount = tags.querySelectorAll('.ci-index-tag-extra').length;
   btn.textContent = expanded ? '▾ Show less' : `▸ +${extraCount} more`;
 }
+window.toggleIndexTags = toggleIndexTags;
 
 // ── Field Notes (auto-generated observations) ───────────────────────────────
 function renderFieldNotes() {

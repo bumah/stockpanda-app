@@ -999,9 +999,11 @@ button.dc-label-chip { outline: none; }
 }
 .dc-label-chip:active { transform: scale(0.97); }
 .dc-label-chip-active {
-  background: rgba(74,222,128,0.22) !important;
-  border-color: rgba(74,222,128,0.55) !important;
+  background: var(--green) !important;
+  border-color: var(--green) !important;
+  color: #0B0F0D !important;        /* dark text on solid green — clear "pressed" state */
 }
+.dc-label-chip-active .dc-label-icon { filter: none; }
 .dc-label-icon { font-size: 0.95rem; line-height: 1; }
 .dc-label-chip.dc-label-none {
   background: rgba(138,158,143,0.08);
@@ -1051,7 +1053,8 @@ button.dc-label-chip { outline: none; }
   margin-top: 0.35rem;
   font-family: var(--mono);
   font-size: 0.58rem;
-  color: var(--muted);
+  color: var(--text);             /* was --muted — brighten so it reads clearly below the Level chip */
+  opacity: 0.8;
   letter-spacing: 0.04em;
   text-align: center;
   text-transform: uppercase;
