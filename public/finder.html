@@ -513,17 +513,16 @@ const TW_SEC = [
   { key: 'industrial', label: 'Industrial' },
   { key: 'utilities', label: 'Utilities' },
 ];
+// Note: Neutral_* labels are display-only fallbacks for stocks that don't fit
+// any scored style. They are NOT user-selectable here — the picker only offers
+// the 6 real scored styles users actively pick.
 const TW_STYLES = [
-  { key: 'trophy',        icon: '🏆', name: 'Pack Leader',     desc: 'Proven long-term winners with strong earnings.' },
-  { key: 'wild_beast',    icon: '🎢', name: 'Rollercoaster',   desc: 'High-volatility assets with extreme upside potential.' },
-  { key: 'scavenger',     icon: '🐘', name: 'Sleeping Giant',  desc: 'Quality stocks beaten down — bargains with proven fundamentals.' },
-  { key: 'momentum',      icon: '🚀', name: 'High Flyer',      desc: 'Stocks in sustained uptrends across multiple timeframes.' },
-  { key: 'rebound',       icon: '🐇', name: 'Recovery',        desc: 'Recovering after a rough patch — V-shape recoveries in motion.' },
-  { key: 'moonshot',      icon: '🦄', name: 'Moonshot',        desc: 'Small caps with strong recent performance. Higher risk.' },
-  { key: 'neutral_mega',  icon: '🐳', name: 'Neutral Mega',    desc: 'Mega-cap ($200B+) without a strong style right now.' },
-  { key: 'neutral_large', icon: '🦒', name: 'Neutral Large',   desc: 'Large-cap ($10B+) without a strong style right now.' },
-  { key: 'neutral_small', icon: '🦌', name: 'Neutral Small',   desc: 'Small/mid-cap ($2B+) without a strong style right now.' },
-  { key: 'neutral_micro', icon: '🐹', name: 'Neutral Micro',   desc: 'Micro-cap ($500M+) without a strong style right now.' },
+  { key: 'trophy',     icon: '🏆', name: 'Pack Leader',    desc: 'Proven long-term winners with strong earnings.' },
+  { key: 'wild_beast', icon: '🎢', name: 'Rollercoaster',  desc: 'High-volatility assets with extreme upside potential.' },
+  { key: 'scavenger',  icon: '🐘', name: 'Sleeping Giant', desc: 'Quality stocks beaten down — bargains with proven fundamentals.' },
+  { key: 'momentum',   icon: '🚀', name: 'High Flyer',     desc: 'Stocks in sustained uptrends across multiple timeframes.' },
+  { key: 'rebound',    icon: '🐇', name: 'Recovery',       desc: 'Recovering after a rough patch — V-shape recoveries in motion.' },
+  { key: 'moonshot',   icon: '🦄', name: 'Moonshot',       desc: 'Small caps with strong recent performance. Higher risk.' },
 ];
 const TW_LEVELS = [
   { label: 'Level 1', img: 'panda-vcalm.png', color: '#60A5FA', desc: 'Stable stocks with minimal price movement.' },
@@ -1291,7 +1290,7 @@ function buildFinderDiscoverCard(item) {
   ruleRowsHtml += '<div class="dc-rule-row">' +
     '<span class="dc-rule-dot ' + (marketGreen ? 'green' : 'red') + '"></span>' +
     '<span class="dc-rule-label">Market</span>' +
-    '<div class="dc-rule-value-col"><span class="dc-rule-value">' + (flag ? flag + ' ' : '') + esc(s.country || '\u2014') + '</span></div>' +
+    '<div class="dc-rule-value-col"><div class="dc-rule-chips"><span class="dc-label-chip dc-label-chip-static">' + (flag ? flag + ' ' : '') + esc(s.country || '\u2014') + '</span></div></div>' +
   '</div>';
 
   // ── Sector row ──
@@ -1303,7 +1302,7 @@ function buildFinderDiscoverCard(item) {
   ruleRowsHtml += '<div class="dc-rule-row">' +
     '<span class="dc-rule-dot ' + (sectorGreen ? 'green' : 'red') + '"></span>' +
     '<span class="dc-rule-label">Sector</span>' +
-    '<div class="dc-rule-value-col"><span class="dc-rule-value">' + esc(s.sector || '\u2014') + '</span></div>' +
+    '<div class="dc-rule-value-col"><div class="dc-rule-chips"><span class="dc-label-chip dc-label-chip-static">' + esc(s.sector || '\u2014') + '</span></div></div>' +
   '</div>';
 
   // ── Style row ──

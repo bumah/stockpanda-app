@@ -1044,6 +1044,20 @@ button.dc-label-chip { outline: none; }
   font-weight: 500;
   cursor: default;
 }
+/* Static (non-tappable) chip — used for plain values like Market and Sector
+   in the Why-it-matches breakdown so they read as chips rather than raw text. */
+.dc-label-chip.dc-label-chip-static {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.10);
+  color: var(--text);
+  font-weight: 500;
+  cursor: default;
+}
+.dc-label-chip.dc-label-chip-static:hover {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.10);
+  color: var(--text);
+}
 /* Tighter chips on narrow screens so 3 labels fit on a single row.
    Default sizing otherwise wraps 2+1 which looks unbalanced. */
 @media (max-width: 480px) {
