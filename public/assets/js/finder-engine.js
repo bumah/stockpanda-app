@@ -77,9 +77,25 @@ const PRESETS = {
 };
 
 // Display labels — internal keys stay stable; labels are what users see.
-const STYLE_ICONS = { trophy:'🏆', wild_beast:'🎢', scavenger:'🐘', momentum:'🚀', rebound:'🐇', moonshot:'🦄' };
-const STYLE_NAMES = { trophy:'Pack Leader', wild_beast:'Rollercoaster', scavenger:'Sleeping Giant', momentum:'High Flyer', rebound:'Recovery', moonshot:'Moonshot' };
-const STYLE_DESCS = { trophy:'Big proven compounders', wild_beast:'Volatile quality large caps', scavenger:'Big fallers not recovering', momentum:'On a sustained roll', rebound:'Bouncing back from drawdown', moonshot:'Small caps doing well' };
+const STYLE_ICONS = {
+  trophy:'🏆', wild_beast:'🎢', scavenger:'🐘', momentum:'🚀', rebound:'🐇', moonshot:'🦄',
+  neutral_mega:'🐳', neutral_large:'🦒', neutral_small:'🦌', neutral_micro:'🐹',
+};
+const STYLE_NAMES = {
+  trophy:'Pack Leader', wild_beast:'Rollercoaster', scavenger:'Sleeping Giant',
+  momentum:'High Flyer', rebound:'Recovery', moonshot:'Moonshot',
+  neutral_mega:'Neutral Mega', neutral_large:'Neutral Large',
+  neutral_small:'Neutral Small', neutral_micro:'Neutral Micro',
+};
+const STYLE_DESCS = {
+  trophy:'Big proven compounders', wild_beast:'Volatile quality large caps',
+  scavenger:'Big fallers not recovering', momentum:'On a sustained roll',
+  rebound:'Bouncing back from drawdown', moonshot:'Small caps doing well',
+  neutral_mega:'Mega-cap, no strong style right now ($200B+)',
+  neutral_large:'Large-cap, no strong style right now ($10B+)',
+  neutral_small:'Small/mid-cap, no strong style right now ($2B+)',
+  neutral_micro:'Micro-cap, no strong style right now ($500M+)',
+};
 
 // ── Region / sector config ───────────────────────────────────────────────────
 const EUROPE_COUNTRIES = new Set(['United Kingdom','Ireland','Sweden','France','Germany','Italy','Switzerland','Poland','Norway','Spain','Russian Federation','Finland','Denmark','Netherlands','Belgium','Greece','Austria','Luxembourg','Portugal','Bulgaria','Croatia','Romania','Hungary','Iceland','Slovenia','Lithuania','Estonia','Malta','Latvia','Slovakia','Czech Republic','Liechtenstein','Monaco','Serbia','Cyprus']);
@@ -269,7 +285,10 @@ function scoreByAnswers(stock, ans) {
   for (const c of CRITERIA_KEYS) {
     const expect = ans[c.ansKey];
     if (!expect || expect === 'any' || expect === 'all') continue; // skip — not active
-    const raw = _scoreCriterion(c.key, expect, stock);
+    // Multi-select answers come through as arrays; user matches if ANY value scores.
+    const raw = Array.isArray(expect)
+      ? Math.max(...expect.map(e => _scoreCriterion(c.key, e, stock)))
+      : _scoreCriterion(c.key, expect, stock);
     scores.push(raw);
     activeSum += raw;
     activeCount++;
@@ -310,7 +329,7 @@ let _renderedSubset = [];
 let _currentScoredCache = [];
 let _currentPresetMode = false;
 const RENDER_CAP = 200;
-const _PRESET_ORDER = ['trophy','scavenger','rebound','momentum','wild_beast','moonshot'];
+const _PRESET_ORDER = ['trophy','scavenger','rebound','momentum','wild_beast','moonshot','neutral_mega','neutral_large','neutral_small','neutral_micro'];
 
 function _countSignals(s) {
   let r = 0, a = 0, g = 0;

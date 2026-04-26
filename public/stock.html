@@ -666,15 +666,27 @@ function renderTopStyles() {
   if (!el) return;
   const s = stockData;
   const ps = (s && s.presetScores) || {};
-  const NAMES = { trophy:'Pack Leader', wild_beast:'Rollercoaster', scavenger:'Sleeping Giant', momentum:'High Flyer', rebound:'Recovery', moonshot:'Moonshot' };
-  const ICONS = { trophy:'🏆', wild_beast:'🎢', scavenger:'🐘', momentum:'🚀', rebound:'🦅', moonshot:'🦄' };
+  const NAMES = {
+    trophy:'Pack Leader', wild_beast:'Rollercoaster', scavenger:'Sleeping Giant',
+    momentum:'High Flyer', rebound:'Recovery', moonshot:'Moonshot',
+    neutral_mega:'Neutral Mega', neutral_large:'Neutral Large',
+    neutral_small:'Neutral Small', neutral_micro:'Neutral Micro',
+  };
+  const ICONS = {
+    trophy:'🏆', wild_beast:'🎢', scavenger:'🐘', momentum:'🚀', rebound:'🦅', moonshot:'🦄',
+    neutral_mega:'🐳', neutral_large:'🦒', neutral_small:'🦌', neutral_micro:'🐹',
+  };
   const DESCS = {
-    trophy:     'Big proven compounders.',
-    scavenger:  'Quality companies fallen, not recovering.',
-    rebound:    'Bouncing back after a deep drawdown.',
-    momentum:   'On a sustained roll, fundamentals solid.',
-    wild_beast: 'Volatile quality large caps — swings both ways.',
-    moonshot:   'Small cap, doing well. Advanced.',
+    trophy:        'Big proven compounders.',
+    scavenger:     'Quality companies fallen, not recovering.',
+    rebound:       'Bouncing back after a deep drawdown.',
+    momentum:      'On a sustained roll, fundamentals solid.',
+    wild_beast:    'Volatile quality large caps — swings both ways.',
+    moonshot:      'Small cap, doing well. Advanced.',
+    neutral_mega:  'Mega-cap ($200B+) in a quiet stretch — no strong style right now.',
+    neutral_large: 'Large-cap ($10B+) in a quiet stretch — no strong style right now.',
+    neutral_small: 'Small/mid-cap ($2B+) in a quiet stretch — no strong style right now.',
+    neutral_micro: 'Micro-cap ($500M+) in a quiet stretch — no strong style right now.',
   };
   const fits = Object.entries(ps)
     .filter(([k, v]) => (v && (v.pct || 0) >= 70) && NAMES[k])
@@ -795,7 +807,12 @@ function renderFieldNotes() {
   //    Unknown keys (e.g. new styles without a local mapping) are skipped so we never
   //    render "undefined" in the copy.
   const ps = s.presetScores;
-  const NAMES = { trophy:'Pack Leader', wild_beast:'Rollercoaster', scavenger:'Sleeping Giant', momentum:'High Flyer', rebound:'Recovery', moonshot:'Moonshot' };
+  const NAMES = {
+    trophy:'Pack Leader', wild_beast:'Rollercoaster', scavenger:'Sleeping Giant',
+    momentum:'High Flyer', rebound:'Recovery', moonshot:'Moonshot',
+    neutral_mega:'Neutral Mega', neutral_large:'Neutral Large',
+    neutral_small:'Neutral Small', neutral_micro:'Neutral Micro',
+  };
   function _hearts(p) { return p >= 90 ? 5 : p >= 70 ? 4 : p >= 50 ? 3 : p >= 30 ? 2 : 1; }
   if (ps && Object.keys(ps).length) {
     const fits = Object.entries(ps)

@@ -458,7 +458,7 @@ function closeToolsPopover(){
       <div class="quiz-step" id="step-3">
         <div class="q-label">Question 3 of 12 &middot; Company Size</div>
         <div class="q-title">How big should the company be?</div>
-        <div class="q-sub">Bigger companies tend to be more stable. Smaller ones can grow faster but carry more risk.</div>
+        <div class="q-sub">Bigger companies tend to be more stable. Smaller ones can grow faster but carry more risk. Pick any combination, or skip to allow all sizes.</div>
         <div class="choices">
           <div class="choice" data-step="3" data-val="large">
             <div class="choice-icon">&#x1F3DB;&#xFE0F;</div>
@@ -481,14 +481,6 @@ function closeToolsPopover(){
             <div class="choice-body">
               <div class="choice-title">Small companies</div>
               <div class="choice-desc">Smaller businesses worth under $2 billion — higher risk, higher reward</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="3" data-val="any">
-            <div class="choice-icon">&#x2796;</div>
-            <div class="choice-body">
-              <div class="choice-title">Any size</div>
-              <div class="choice-desc">Size doesn't matter to me</div>
             </div>
             <div class="choice-tick"></div>
           </div>
@@ -755,7 +747,7 @@ function closeToolsPopover(){
       <div class="quiz-step" id="step-10">
         <div class="q-label">Question 10 of 12 &middot; Price Swings</div>
         <div class="q-title">How much price movement can you handle?</div>
-        <div class="q-sub">Some stocks move calmly. Others swing wildly day to day.</div>
+        <div class="q-sub">Some stocks move calmly. Others swing wildly day to day. Pick any combination, or skip to allow all.</div>
         <div class="choices">
           <div class="choice" data-step="10" data-val="low">
             <div class="choice-icon">&#x1F6E1;&#xFE0F;</div>
@@ -773,14 +765,6 @@ function closeToolsPopover(){
             </div>
             <div class="choice-tick"></div>
           </div>
-          <div class="choice" data-step="10" data-val="any">
-            <div class="choice-icon">&#x1F32A;&#xFE0F;</div>
-            <div class="choice-body">
-              <div class="choice-title">Doesn't matter</div>
-              <div class="choice-desc">I can handle any level of price movement</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
         </div>
         <div class="quiz-nav">
           <button class="btn-back" onclick="prevStep(10)">&larr; Back</button>
@@ -794,7 +778,7 @@ function closeToolsPopover(){
       <div class="quiz-step" id="step-11">
         <div class="q-label">Question 11 of 12 &middot; Expert Opinions</div>
         <div class="q-title">Do you care what stock analysts think?</div>
-        <div class="q-sub">Professional analysts rate stocks as Buy, Sell, or Hold.</div>
+        <div class="q-sub">Professional analysts rate stocks as Buy, Sell, or Hold. Pick any combination, or skip to allow all.</div>
         <div class="choices">
           <div class="choice" data-step="11" data-val="buy">
             <div class="choice-icon">&#x1F7E2;</div>
@@ -809,14 +793,6 @@ function closeToolsPopover(){
             <div class="choice-body">
               <div class="choice-title">At least not a Sell</div>
               <div class="choice-desc">I'll avoid stocks that analysts actively recommend selling</div>
-            </div>
-            <div class="choice-tick"></div>
-          </div>
-          <div class="choice" data-step="11" data-val="any">
-            <div class="choice-icon">&#x2796;</div>
-            <div class="choice-body">
-              <div class="choice-title">Doesn't matter</div>
-              <div class="choice-desc">I make my own decisions regardless of analyst ratings</div>
             </div>
             <div class="choice-tick"></div>
           </div>
@@ -897,6 +873,11 @@ function closeQuizModal() {
 }
 window.closeQuizModal = closeQuizModal;
 
+// Steps where multiple options can coexist (e.g. you might want both Large + Small caps).
+// Other steps stay single-select because their options are tiers or mutually exclusive
+// (e.g. uptrend vs downtrend cannot both be true).
+const MULTI_STEPS = new Set([1, 2, 3, 8, 10, 11]);
+
 // ── Quiz choice selection (event delegation) ─────────────────
 document.getElementById('quiz-modal-overlay').addEventListener('click', function(e) {
   const choice = e.target.closest('.choice');
@@ -908,38 +889,23 @@ document.getElementById('quiz-modal-overlay').addEventListener('click', function
 
   const key = STEP_KEYS[step - 1];
 
-  // Multi-select for steps 1 (region) and 2 (sector)
-  if (step === 1) {
-    if (val === 'global') {
-      answers.region = 'global';
+  if (MULTI_STEPS.has(step)) {
+    // Multi-select: any combination allowed. Empty selection means "no filter".
+    // Special "select all" buttons (val === 'all' or 'global') deselect everything else.
+    if (val === 'all' || val === 'global') {
+      const wasActive = choice.classList.contains('selected');
       choice.closest('.choices').querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
-      choice.classList.add('selected');
+      if (!wasActive) choice.classList.add('selected');
+      answers[key] = wasActive ? null : val;
     } else {
-      // Deselect global if another region is picked
-      const globalChoice = choice.closest('.choices').querySelector('[data-val="global"]');
-      if (globalChoice) globalChoice.classList.remove('selected');
-      if (answers.region === 'global') answers.region = null;
-
+      const fallback = choice.closest('.choices').querySelector('[data-val="all"], [data-val="global"]');
+      if (fallback) fallback.classList.remove('selected');
       choice.classList.toggle('selected');
       const selected = [...choice.closest('.choices').querySelectorAll('.choice.selected')].map(c => c.dataset.val);
-      answers.region = selected.length === 0 ? null : selected.length === 1 ? selected[0] : selected;
-    }
-  } else if (step === 2) {
-    if (val === 'all') {
-      answers.sector = 'all';
-      choice.closest('.choices').querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
-      choice.classList.add('selected');
-    } else {
-      const allChoice = choice.closest('.choices').querySelector('[data-val="all"]');
-      if (allChoice) allChoice.classList.remove('selected');
-      if (answers.sector === 'all') answers.sector = null;
-
-      choice.classList.toggle('selected');
-      const selected = [...choice.closest('.choices').querySelectorAll('.choice.selected')].map(c => c.dataset.val);
-      answers.sector = selected.length === 0 ? null : selected.length === 1 ? selected[0] : selected;
+      answers[key] = selected.length === 0 ? null : selected.length === 1 ? selected[0] : selected;
     }
   } else {
-    // Single-select for steps 3-12
+    // Single-select for the remaining steps.
     choice.closest('.choices').querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
     choice.classList.add('selected');
     answers[key] = val;
@@ -953,7 +919,9 @@ document.getElementById('quiz-modal-overlay').addEventListener('click', function
 // ── Quiz navigation ──────────────────────────────────────────
 function tryNext(step) {
   const key = STEP_KEYS[step - 1];
-  if (answers[key] === null || answers[key] === undefined) {
+  // Multi-select steps may be left empty — that's the implicit "doesn't matter" state.
+  // Single-select steps still require a pick.
+  if (!MULTI_STEPS.has(step) && (answers[key] === null || answers[key] === undefined)) {
     const hint = document.getElementById('hint-' + step);
     if (hint) hint.classList.add('show');
     return;
@@ -1124,7 +1092,10 @@ function _advCriterionMatch(crit, ans, stock) {
   // Market & sector are hard-filtered upstream — always green if user is seeing the card.
   if (crit.key === 'region' || crit.key === 'sector') return 'green';
   if (typeof _scoreCriterion !== 'function') return 'green';
-  const score = _scoreCriterion(crit.key, expect, stock);
+  // Multi-select answer → check best match across all picks.
+  const score = Array.isArray(expect)
+    ? Math.max.apply(null, expect.map(e => _scoreCriterion(crit.key, e, stock)))
+    : _scoreCriterion(crit.key, expect, stock);
   if (score >= 1) return 'green';
   if (score >= 0.5) return 'amber';
   return 'red';
@@ -1157,12 +1128,16 @@ function _advStockValue(critKey, stock) {
     }
     case 'range52w': return stock._r52 != null ? Math.round(stock._r52) + '% of 52W range' : '\u2014';
     case 'drawdown': {
-      const v = stock.indicators && stock.indicators.vsPeak && stock.indicators.vsPeak.raw;
-      return v != null ? v.toFixed(0) + '% from high' : '\u2014';
+      const ind = stock.indicators && stock.indicators.vsPeak;
+      if (!ind) return '\u2014';
+      if (ind.raw != null) return ind.raw.toFixed(0) + '% from high';
+      return ind.color === 'green' ? 'Shallow' : ind.color === 'amber' ? 'Moderate' : ind.color === 'red' ? 'Deep' : '\u2014';
     }
     case 'vol': {
-      const v = stock.indicators && stock.indicators.volatility && stock.indicators.volatility.raw;
-      return v != null ? v.toFixed(0) + '% vol' : '\u2014';
+      const ind = stock.indicators && stock.indicators.volatility;
+      if (!ind) return '\u2014';
+      if (ind.raw != null) return ind.raw.toFixed(0) + '% vol';
+      return ind.color === 'green' ? 'Low' : ind.color === 'amber' ? 'Moderate' : ind.color === 'red' ? 'High' : '\u2014';
     }
     case 'analyst': return stock._ar || stock.analystRating || '\u2014';
     case 'profit': {
@@ -1225,7 +1200,10 @@ function buildDiscoverCard(item) {
     var summary = _advGroupSummary(g, answers, s);
     if (summary.total === 0) return; // skip empty group (user picked nothing in it)
     var detailRowsHtml = summary.rows.map(function(r) {
-      var expectLabel = (ADV_EXPECT_LABELS[r.ans] && ADV_EXPECT_LABELS[r.ans][r.expect]) || r.expect;
+      var labelMap = ADV_EXPECT_LABELS[r.ans] || {};
+      var expectLabel = Array.isArray(r.expect)
+        ? r.expect.map(function(e){ return labelMap[e] || e; }).join(', ')
+        : (labelMap[r.expect] || r.expect);
       var noteHtml = r.status !== 'green' ? '<div class="dc-rule-detail-note">you wanted ' + esc(expectLabel) + '</div>' : '';
       return '<div class="dc-rule-detail">' +
         '<span class="dc-rule-dot ' + r.status + '"></span>' +

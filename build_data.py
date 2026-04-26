@@ -148,10 +148,22 @@ PRESETS = {
 PRESET_LABELS = {
     "trophy": "Trophy", "wild_beast": "Wild Beast", "scavenger": "Scavenger",
     "momentum": "Momentum", "rebound": "Rebound", "moonshot": "Moonshot",
+    "neutral_mega": "Neutral Mega", "neutral_large": "Neutral Large",
+    "neutral_small": "Neutral Small", "neutral_micro": "Neutral Micro",
 }
 
 # Safety order (safer styles first) — used as tie-breaker for dominant-style classification.
+# Neutral_* are fallback labels assigned only when a stock fits no scored style.
 STYLE_SAFETY_ORDER = ["trophy", "scavenger", "rebound", "momentum", "wild_beast", "moonshot"]
+NEUTRAL_LABELS = ["neutral_mega", "neutral_large", "neutral_small", "neutral_micro"]
+
+# Market cap bands for the Neutral fallback styles. Stocks that don't score ≥70 on any
+# scored style get one of these labels based on their size, so Quick rules can still
+# surface them. Below 500M and unknown mc → no label (penny / data-missing).
+NEUTRAL_MEGA_MIN  = 200_000_000_000   # $200B+
+NEUTRAL_LARGE_MIN =  10_000_000_000   # $10B+
+NEUTRAL_SMALL_MIN =   2_000_000_000   # $2B+
+NEUTRAL_MICRO_MIN =     500_000_000   # $500M+
 
 # Classification thresholds
 PRIMARY_MIN_PCT   = 75   # a stock must score ≥ this on its best style to be classified
@@ -305,11 +317,12 @@ def score_all_presets(inds, mc, r52, eps, ar, y1=None):
     return result
 
 
-def label_stock(preset_scores, threshold=70):
+def label_stock(preset_scores, threshold=70, mc=None):
     """Multi-label classification: return all styles where the score meets `threshold`.
 
     Returns a list of style keys (in STYLE_SAFETY_ORDER) that the stock qualifies for.
-    Empty list = unclassified.
+    If no scored style hits `threshold` and the stock has a known market cap of at least
+    $500M, falls back to a Neutral_* size band so the stock is still findable in Quick rules.
 
     Design: stocks can legitimately fit multiple styles (NVDA is both Pack Leader and
     High Flyer). Rather than forcing a single primary, we emit every qualifying label
@@ -322,6 +335,12 @@ def label_stock(preset_scores, threshold=70):
             continue
         if entry.get("pct", 0) >= threshold:
             labels.append(key)
+    # Neutral fallback: only when no scored style applied. Bucketed by market cap.
+    if not labels and mc is not None and mc >= NEUTRAL_MICRO_MIN:
+        if   mc >= NEUTRAL_MEGA_MIN:  labels.append("neutral_mega")
+        elif mc >= NEUTRAL_LARGE_MIN: labels.append("neutral_large")
+        elif mc >= NEUTRAL_SMALL_MIN: labels.append("neutral_small")
+        else:                         labels.append("neutral_micro")
     return labels
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -768,7 +787,7 @@ def parse_row(row):
     # Pre-compute style scores for all presets (6-style system — see PRESETS).
     # Multi-label classification: any style scoring ≥70% becomes a label on the card.
     preset_scores = score_all_presets(inds, mktcap, range52w_pct, epsbasic, row.get("Analyst Rating", ""), perf_y1)
-    style_labels = label_stock(preset_scores, threshold=70)
+    style_labels = label_stock(preset_scores, threshold=70, mc=mktcap)
 
     # ── Level floors ─────────────────────────────────────────────────────────
     # The base mood comes from 11 health indicators.  We then lift the mood
