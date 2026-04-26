@@ -140,13 +140,102 @@
     }
   }
 
-  // ── Intercept writes to sp_watchlist so we auto-push ────────
+  // ── Rule sync (Quick + Custom) — server-of-truth for signed-in users ──
+  // localStorage stays as the primary cache (works offline / for anonymous users);
+  // when signed in we additionally push/pull the rules from the user_rules table.
+  const RULES_QUICK_KEY  = 'sp_trapCriteria';
+  const RULES_QUICK_AT   = 'sp_trapCriteria_at';
+  const RULES_CUSTOM_KEY = 'sp_trap_answers';
+  const RULES_CUSTOM_AT  = 'sp_trap_answers_at';
+
+  function _readJSON(key) {
+    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
+    catch (e) { return null; }
+  }
+  function _localRulesPayload() {
+    return {
+      quick_rules:  _readJSON(RULES_QUICK_KEY),
+      custom_rules: _readJSON(RULES_CUSTOM_KEY),
+    };
+  }
+  function _localRulesNewest() {
+    const a = parseInt(localStorage.getItem(RULES_QUICK_AT)  || '0', 10);
+    const b = parseInt(localStorage.getItem(RULES_CUSTOM_AT) || '0', 10);
+    return Math.max(a, b);
+  }
+
+  let rulesPushTimer = null;
+  function scheduleRulesPush() {
+    if (!client || !session) return;
+    clearTimeout(rulesPushTimer);
+    rulesPushTimer = setTimeout(pushRulesToServer, 600);
+  }
+
+  async function pushRulesToServer() {
+    if (!client || !session) return;
+    const payload = _localRulesPayload();
+    const { error } = await client
+      .from('user_rules')
+      .upsert({
+        user_id:      session.user.id,
+        quick_rules:  payload.quick_rules,
+        custom_rules: payload.custom_rules,
+        updated_at:   new Date().toISOString(),
+      }, { onConflict: 'user_id' });
+    if (error) console.warn('[auth] rules push failed', error);
+  }
+
+  async function pullRulesFromServer() {
+    if (!client || !session) return null;
+    const { data, error } = await client
+      .from('user_rules')
+      .select('quick_rules, custom_rules, updated_at')
+      .eq('user_id', session.user.id)
+      .maybeSingle();
+    if (error) { console.warn('[auth] rules pull failed', error); return null; }
+    return data || null;
+  }
+
+  async function mergeRulesOnSignIn() {
+    if (!client || !session) return;
+    const server = await pullRulesFromServer();
+    if (!server) {
+      // First-time sign-in for this user — push whatever local rules exist.
+      if (_readJSON(RULES_QUICK_KEY) || _readJSON(RULES_CUSTOM_KEY)) {
+        await pushRulesToServer();
+      }
+      return;
+    }
+    const serverAt = server.updated_at ? Date.parse(server.updated_at) : 0;
+    const localAt  = _localRulesNewest();
+    if (serverAt > localAt) {
+      // Server is newer — write into local cache.
+      const now = Date.now().toString();
+      if (server.quick_rules)  { localStorage.setItem(RULES_QUICK_KEY,  JSON.stringify(server.quick_rules));  localStorage.setItem(RULES_QUICK_AT,  now); }
+      if (server.custom_rules) { localStorage.setItem(RULES_CUSTOM_KEY, JSON.stringify(server.custom_rules)); localStorage.setItem(RULES_CUSTOM_AT, now); }
+      // Notify pages that may want to re-render with restored rules.
+      document.dispatchEvent(new CustomEvent('sp:rules-sync', { detail: { source: 'server' } }));
+    } else if (localAt > serverAt) {
+      // Local is newer — push it up.
+      await pushRulesToServer();
+    }
+  }
+
+  // ── Intercept writes to sp_watchlist + rule keys so we auto-push ────────
   (function patchStorage() {
     const orig = Storage.prototype.setItem;
     Storage.prototype.setItem = function (key, value) {
       orig.apply(this, arguments);
-      if (this === localStorage && key === WL_KEY && client && session) {
+      if (this !== localStorage) return;
+      if (key === WL_KEY && client && session) {
         schedulePushToServer();
+        return;
+      }
+      if (key === RULES_QUICK_KEY || key === RULES_CUSTOM_KEY) {
+        // Stamp the timestamp so we can compare against the server later.
+        const atKey = key === RULES_QUICK_KEY ? RULES_QUICK_AT : RULES_CUSTOM_AT;
+        orig.call(this, atKey, Date.now().toString());
+        if (client && session) scheduleRulesPush();
       }
     };
   })();
@@ -188,13 +277,13 @@
     client.auth.getSession().then(({ data }) => {
       session = data.session || null;
       updateUI();
-      if (session) { mergeOnSignIn(); }
+      if (session) { mergeOnSignIn(); mergeRulesOnSignIn(); }
     });
 
     client.auth.onAuthStateChange(async (event, s) => {
       session = s;
       updateUI();
-      if (event === 'SIGNED_IN') { await mergeOnSignIn(); }
+      if (event === 'SIGNED_IN') { await mergeOnSignIn(); await mergeRulesOnSignIn(); }
       if (event === 'SIGNED_OUT') {
         // Keep local list as-is; user may want to keep an offline copy
         document.dispatchEvent(new CustomEvent('sp:catch-sync', { detail: { source: 'signout' } }));

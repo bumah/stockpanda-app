@@ -259,7 +259,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <script src="/assets/js/supabase-config.js?v=20260418a"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="/assets/js/auth.js?v=20260418a" defer></script>
+  <script src="/assets/js/auth.js?v=20260426a" defer></script>
 </head>
 <body>
 
@@ -1152,8 +1152,8 @@ document.addEventListener('click', e => {
     scoredCache = [];
     _trapCriteria = { region: region, sectors: 'all', styles: ['momentum'], levels: level ? ['Level ' + level] : [], huntMode: 'strict' };
     findStocks();
-  } else if (localStorage.getItem('sp_hasResults')) {
-    // Restore previous scan from session
+  } else if (localStorage.getItem('sp_hasResults') || localStorage.getItem('sp_trapCriteria')) {
+    // Restore previous scan from local cache (server-pulled rules also land here).
     document.getElementById('scan-welcome').style.display = 'none';
     try {
       const savedAnswers = JSON.parse(localStorage.getItem('sp_answers') || '{}');
@@ -1164,13 +1164,24 @@ document.addEventListener('click', e => {
       const savedIdx = parseInt(localStorage.getItem('sp_cardIdx') || '0', 10);
       findStocks({ restoreIdx: savedIdx, silent: true });
     } catch(e) {
-      // On error, show welcome
       document.getElementById('scan-welcome').style.display = '';
     }
   } else {
     // No URL params, no saved session — show welcome screen
   }
 })();
+
+// If signed-in user's rules arrive from the server after the page already
+// rendered (auth init is async), re-restore from the freshly-updated cache.
+document.addEventListener('sp:rules-sync', function() {
+  const saved = localStorage.getItem('sp_trapCriteria');
+  if (!saved) return;
+  try {
+    document.getElementById('scan-welcome').style.display = 'none';
+    _trapCriteria = JSON.parse(saved);
+    findStocks({ silent: true });
+  } catch(e) { /* ignore */ }
+});
 
 // ── Discover mode (card-by-card) for Scan ─────────────
 let _finderDcIdx = 0;
