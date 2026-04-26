@@ -597,6 +597,73 @@ section + section { border-top: 1px solid var(--border); }
   margin-bottom: 28px;
 }
 
+/* ─── HOW IT WORKS (3 STEPS) ─── */
+.howitworks-section { padding: 100px 0; position: relative; }
+.hiw-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px; margin-top: 32px;
+}
+@media (max-width: 768px) { .hiw-grid { grid-template-columns: 1fr; } }
+.hiw-step {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 32px 28px;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.hiw-step:hover { border-color: var(--border-bright); transform: translateY(-3px); }
+.hiw-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 48px; font-weight: 700;
+  color: var(--green-dim); line-height: 1; margin-bottom: 18px;
+}
+.hiw-step h3 {
+  font-family: 'Space Mono', monospace;
+  font-size: 20px; font-weight: 700;
+  margin-bottom: 12px; letter-spacing: -0.3px;
+}
+.hiw-step p {
+  font-size: 14px; line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+/* ─── BEFORE vs AFTER COMPARISON ─── */
+.vs-section { padding: 100px 0; }
+.vs-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 20px; margin-top: 36px;
+}
+@media (max-width: 768px) { .vs-grid { grid-template-columns: 1fr; } }
+.vs-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px 28px 32px;
+}
+.vs-card-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.vs-before .vs-card-label { color: var(--text-dim); }
+.vs-after  .vs-card-label { color: var(--green-primary); }
+.vs-list { list-style: none; margin: 0; padding: 0; }
+.vs-list li {
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+  font-size: 14px; line-height: 1.5;
+  color: var(--text-secondary);
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.vs-list li:last-child { border-bottom: none; padding-bottom: 0; }
+.vs-list li::before {
+  content: '✕'; color: #F87171;
+  flex-shrink: 0; font-weight: 700; font-size: 13px; padding-top: 2px;
+  width: 14px;
+}
+.vs-list-after li::before { content: '✓'; color: var(--green-primary); }
+.vs-after .vs-list li { color: var(--text-primary); }
+
 /* ─── TWO WAYS TO PICK — PATH CARDS ─── */
 .paths-section { padding: 100px 0; position: relative; }
 .paths-grid {
@@ -935,23 +1002,120 @@ footer a:hover { color: var(--green-primary); }
 <!-- ═══════════════════════════════════════ -->
 <section class="hero">
   <div class="container">
-    <h1>Stock <em>idea</em> generator</h1>
-    <p class="hero-promise">Pick your rules. We'll find your matches. All for free.</p>
+    <div class="hero-label">The stock discovery app</div>
+    <h1>The <em>effortless</em> way to find stocks.</h1>
+    <p class="hero-promise">Set your rules. We scan the market and show you stocks that fit — automatically. No searching. No guesswork. No experience needed.</p>
     <div class="hero-ctas">
-      <a href="#how-it-works" class="btn-primary">Start now</a>
+      <a href="#how-it-works" class="btn-primary">Get started free</a>
     </div>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════ -->
-<!-- SAMPLE CARDS — 2 per style, daily rotation -->
+<!-- HOW IT WORKS — 3 STEPS -->
+<!-- ═══════════════════════════════════════ -->
+<section class="howitworks-section" id="how-it-works">
+  <div class="container">
+    <div class="section-label reveal" style="text-align:center;">How it works</div>
+    <h2 class="section-title reveal" style="text-align:center;">Three steps. That's it.</h2>
+    <div class="hiw-grid">
+      <div class="hiw-step reveal">
+        <div class="hiw-num">01</div>
+        <h3>Set your rules</h3>
+        <p>Pick your style, markets, and comfort level. Quick setup takes seconds. Advanced gives you more control.</p>
+      </div>
+      <div class="hiw-step reveal">
+        <div class="hiw-num">02</div>
+        <h3>We do the work</h3>
+        <p>Our system scans 30,000+ stocks across 8 global markets. Match your rules and a stock is on your list.</p>
+      </div>
+      <div class="hiw-step reveal">
+        <div class="hiw-num">03</div>
+        <h3>You decide</h3>
+        <p>Open the app, see your matches, save what catches your eye, act when you're ready.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- BEFORE vs AFTER -->
+<!-- ═══════════════════════════════════════ -->
+<section class="vs-section">
+  <div class="container">
+    <h2 class="section-title reveal" style="text-align:center;">Stop searching. Start finding.</h2>
+    <div class="vs-grid">
+      <div class="vs-card vs-before reveal">
+        <div class="vs-card-label">Before StockPanda</div>
+        <ul class="vs-list">
+          <li>Endless searching across platforms</li>
+          <li>Too many stocks, no clear direction</li>
+          <li>Complex charts to decode</li>
+          <li>Unclear what fits your style</li>
+          <li>Missing the moves, acting too late</li>
+        </ul>
+      </div>
+      <div class="vs-card vs-after reveal">
+        <div class="vs-card-label">With StockPanda</div>
+        <ul class="vs-list vs-list-after">
+          <li>Stock ideas ready when you are</li>
+          <li>Only stocks that fit your rules</li>
+          <li>Simple, clear explanations</li>
+          <li>Know exactly why each one fits</li>
+          <li>Stay in the loop without watching the screen</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- TWO WAYS TO PICK — PATH CARDS -->
+<!-- ═══════════════════════════════════════ -->
+<section class="paths-section">
+  <div class="container">
+    <div class="section-label reveal" style="text-align:center;">Two ways to pick</div>
+    <h2 class="section-title reveal" style="text-align:center;">Pick your path</h2>
+    <p class="section-subtitle reveal" style="text-align:center;margin-left:auto;margin-right:auto;">Choose your path based on your needs or experience.</p>
+
+    <div class="paths-grid">
+      <a class="path-card reveal" href="finder.html">
+        <span class="path-icon">✨</span>
+        <h3>Simple picks</h3>
+        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:18px;">Quick and clear.</p>
+        <ol class="path-steps">
+          <li><span class="path-step-num">01</span><span>Pick your style, market, and comfort level</span></li>
+          <li><span class="path-step-num">02</span><span>See your matches</span></li>
+          <li><span class="path-step-num">03</span><span>Save what catches your eye</span></li>
+        </ol>
+        <div class="path-ideal">Ideal for beginners</div>
+        <span class="path-cta">Start now <span class="path-cta-arrow">→</span></span>
+      </a>
+      <a class="path-card reveal" href="quiz.html">
+        <span class="path-icon">🎯</span>
+        <h3>Advanced picks</h3>
+        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:18px;">More control. More precision.</p>
+        <ol class="path-steps">
+          <li><span class="path-step-num">01</span><span>Build custom filters from scratch</span></li>
+          <li><span class="path-step-num">02</span><span>Fine-tune by volatility, fundamentals, trend</span></li>
+          <li><span class="path-step-num">03</span><span>Get more tailored matches</span></li>
+        </ol>
+        <div class="path-ideal">Ideal for experienced investors</div>
+        <span class="path-cta">Start now <span class="path-cta-arrow">→</span></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- FEATURED — Stocks from around the world -->
 <!-- ═══════════════════════════════════════ -->
 <section class="sample-section">
   <div class="container">
     <div class="sample-head">
       <div class="sample-sublabel reveal">Featured</div>
       <h2 class="sample-title reveal">Stocks from around the world</h2>
-      <p class="sample-sub reveal">Stocks refreshed daily. Tap any card to see the full detail page.</p>
+      <p class="sample-sub reveal">A live look across global markets. Tap any card to see the full detail page.</p>
     </div>
   </div>
   <div class="sample-scroll-wrap">
@@ -963,49 +1127,14 @@ footer a:hover { color: var(--green-primary); }
 </section>
 
 <!-- ═══════════════════════════════════════ -->
-<!-- HOW IT WORKS — TWO WAYS TO PICK -->
-<!-- ═══════════════════════════════════════ -->
-<section class="paths-section" id="how-it-works">
-  <div class="container">
-    <div class="section-label reveal" style="text-align:center;">How it works</div>
-    <h2 class="section-title reveal" style="text-align:center;">Two ways to pick</h2>
-    <p class="section-subtitle reveal" style="text-align:center;margin-left:auto;margin-right:auto;">Choose your path based on your needs or experience.</p>
-
-    <div class="paths-grid">
-      <a class="path-card reveal" href="finder.html">
-        <span class="path-icon">✨</span>
-        <h3>Simple picks</h3>
-        <ol class="path-steps">
-          <li><span class="path-step-num">01</span><span>Pick your style, market, and comfort level</span></li>
-          <li><span class="path-step-num">02</span><span>See your matches</span></li>
-          <li><span class="path-step-num">03</span><span>Explore — save what catches your eye, or dig deeper</span></li>
-        </ol>
-        <div class="path-ideal">Ideal for beginners</div>
-        <span class="path-cta">Start now <span class="path-cta-arrow">→</span></span>
-      </a>
-      <a class="path-card reveal" href="quiz.html">
-        <span class="path-icon">🎯</span>
-        <h3>Advanced picks</h3>
-        <ol class="path-steps">
-          <li><span class="path-step-num">01</span><span>Build custom filters from scratch</span></li>
-          <li><span class="path-step-num">02</span><span>See your matches</span></li>
-          <li><span class="path-step-num">03</span><span>Explore — save what catches your eye, or dig deeper</span></li>
-        </ol>
-        <div class="path-ideal">Ideal for experienced investors</div>
-        <span class="path-cta">Start now <span class="path-cta-arrow">→</span></span>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════ -->
 <!-- FINAL CTA -->
 <!-- ═══════════════════════════════════════ -->
 <section class="final-cta">
   <div class="container">
-    <h2 class="reveal">Ready to find your matches?</h2>
-    <p class="punch reveal">Set your rules. Save what catches your eye. Do your own research before you act.</p>
-    <a href="#how-it-works" class="btn-primary reveal">Start now</a>
+    <h2 class="reveal">Stop searching. Let the market come to you.</h2>
+    <p class="reveal">Most people don't find the right stocks for them because they don't have the time — or don't know where to look.</p>
+    <p class="punch reveal">StockPanda does the work for you.</p>
+    <a href="#how-it-works" class="btn-primary reveal">Get started free</a>
   </div>
 </section>
 
