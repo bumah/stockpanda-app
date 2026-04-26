@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StockPanda — Hunt</title>
+  <title>StockPanda — Ideas</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="assets/css/styles.css?v=20260421a" />
@@ -345,7 +345,7 @@ function closeToolsPopover(){
 
         <!-- Trap summary (hidden by default, toggled by View Trap) -->
         <div id="trap-summary" style="display:none; margin-bottom:1rem; padding:0.8rem; background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:10px; font-size:0.72rem;">
-          <div style="font-family:var(--mono);font-size:0.5rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.5rem;">Your Hunt Settings</div>
+          <div style="font-family:var(--mono);font-size:0.5rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);margin-bottom:0.5rem;">Your Rules</div>
           <div id="trap-summary-content"></div>
         </div>
 
@@ -375,26 +375,26 @@ function closeToolsPopover(){
       <div class="tw-step" id="tw-s4">4</div>
     </div>
     <div id="tw-page1">
-      <div class="tw-title">Mark your hunting territory</div>
-      <div class="tw-sub">Where do you want to hunt? Pick up to 3 markets.</div>
+      <div class="tw-title">Where do you want to invest?</div>
+      <div class="tw-sub">Pick up to 3 markets.</div>
       <div style="text-align:center;margin-bottom:0.6rem;" class="tw-sel-count" id="tw-geo-count">0 / 3 selected</div>
       <div class="tw-chip-grid" id="tw-geo-chips"></div>
     </div>
     <div id="tw-page2" style="display:none;">
-      <div class="tw-title">Choose your sectors</div>
-      <div class="tw-sub">Which industries do you want to hunt in? Pick up to 3 sectors.</div>
+      <div class="tw-title">Which sectors?</div>
+      <div class="tw-sub">Pick up to 3 sectors.</div>
       <div style="text-align:center;margin-bottom:0.6rem;" class="tw-sel-count" id="tw-sec-count">0 / 3 selected</div>
       <div class="tw-chip-grid" id="tw-sec-chips"></div>
     </div>
     <div id="tw-page3" style="display:none;">
-      <div class="tw-title">Choose your hunting style</div>
-      <div class="tw-sub">How do you hunt? Pick up to 3 styles that match how you find opportunities.</div>
+      <div class="tw-title">What's your style?</div>
+      <div class="tw-sub">Pick up to 3 styles you're drawn to.</div>
       <div style="text-align:center;margin-bottom:0.6rem;" class="tw-sel-count" id="tw-style-count">0 / 3 selected</div>
       <div class="tw-style-grid" id="tw-style-grid"></div>
     </div>
     <div id="tw-page4" style="display:none;">
-      <div class="tw-title">Choose your stock difficulty level</div>
-      <div class="tw-sub">What level of unpredictability can you handle? Pick up to 3.</div>
+      <div class="tw-title">What's your comfort level?</div>
+      <div class="tw-sub">How much price movement can you handle? Pick up to 3.</div>
       <div style="text-align:center;margin-bottom:0.6rem;" class="tw-sel-count" id="tw-level-count">0 / 3 selected</div>
       <div class="tw-level-grid" id="tw-level-grid"></div>
     </div>
@@ -1210,13 +1210,6 @@ function buildFinderDiscoverCard(item) {
   var b = MOOD.band(s.mood?.label || 'Level 3');
   var sig = _countSignals(s);
   var flag = COUNTRY_FLAGS[s.country] || '';
-  var matchWord, matchCol;
-  if (item.pct >= 90) { matchWord = 'Very Strong'; matchCol = '#4ADE80'; }
-  else if (item.pct >= 75) { matchWord = 'Strong'; matchCol = '#4ADE80'; }
-  else if (item.pct >= 60) { matchWord = 'Fair'; matchCol = '#FBBF24'; }
-  else if (item.pct >= 45) { matchWord = 'Poor'; matchCol = '#F87171'; }
-  else { matchWord = 'Very Poor'; matchCol = '#F87171'; }
-  var href = 'stock.html?ticker=' + encodeURIComponent(s.ticker) + '&country=' + encodeURIComponent(s.country || '');
   var hearted = isInWatchlist(s.ticker, s.country);
 
   function ret(label, val) {
@@ -1226,24 +1219,12 @@ function buildFinderDiscoverCard(item) {
     return '<div class="dc-ret"><span class="dc-ret-label">' + label + '</span><span class="dc-ret-val ' + cls + '">' + sign + val.toFixed(1) + '%</span></div>';
   }
 
-  function hearts(pct) {
-    var n = pct >= 90 ? 5 : pct >= 70 ? 4 : pct >= 50 ? 3 : pct >= 30 ? 2 : 1;
-    var col = n >= 4 ? '#4ADE80' : n >= 3 ? '#FBBF24' : '#F87171';
-    var h = '';
-    for (var i = 0; i < 5; i++) {
-      h += '<span style="font-size:0.65rem;color:' + (i < n ? col : 'rgba(255,255,255,0.12)') + ';">' + (i < n ? '\u2665' : '\u2661') + '</span>';
-    }
-    return '<span class="dc-style-hearts">' + h + '</span>';
-  }
-
-  // Multi-label display: show every style the stock qualifies for (score ≥ 70%).
-  // Prefer server-emitted `s.lbs` (from search.json); fall back to ps computation for old data.
+  // Multi-label: every style the stock qualifies for (score ≥ 70%).
   var _SAFETY_ORDER = ['trophy','scavenger','rebound','momentum','wild_beast','moonshot'];
   var styleLabels = Array.isArray(s.lbs) ? s.lbs.slice() : (function(){
     var ps = s._ps || {};
     return _SAFETY_ORDER.filter(function(k){ return (ps[k] || 0) >= 70; });
   })();
-  // Plain-English description — shown only when there's exactly one label (to avoid clutter when many chips).
   var STYLE_SUBS = {
     trophy:     'Big proven compounders.',
     scavenger:  'Quality companies fallen, not recovering.',
@@ -1252,21 +1233,6 @@ function buildFinderDiscoverCard(item) {
     wild_beast: 'Volatile quality large caps — swings both ways.',
     moonshot:   'Small cap, doing well. Advanced.',
   };
-  // Chips are clickable — tapping shows a plain-English description of what the style means.
-  // Description is encoded in data-desc so the handler (finderToggleStyleTip) can read it.
-  var chipsHtml = styleLabels.length
-    ? styleLabels.map(function(k){
-        var desc = esc(STYLE_SUBS[k] || '');
-        return '<button type="button" class="dc-label-chip" onclick="finderToggleStyleTip(this)" data-desc="' + desc + '"><span class="dc-label-icon">' + (STYLE_ICONS[k] || '') + '</span>' + (STYLE_NAMES[k] || k) + '</button>';
-      }).join('')
-    : '<span class="dc-label-chip dc-label-none">Unclassified</span>';
-  // When there's exactly one label, we can show its description by default (no click needed).
-  // When there are multiple, we start empty and reveal on tap.
-  var reminderHtml = styleLabels.length === 1
-    ? '<p class="dc-style-tip dc-style-tip-active">' + esc(STYLE_SUBS[styleLabels[0]] || '') + '</p>'
-    : '<p class="dc-style-tip" aria-live="polite"></p>';
-
-  // Short 2-4-word descriptor for the comfort level (Panda level).
   var LEVEL_SUBS = {
     'Level 1': 'Mostly steady',
     'Level 2': 'Occasional small dips',
@@ -1274,9 +1240,7 @@ function buildFinderDiscoverCard(item) {
     'Level 4': 'Big moves often',
     'Level 5': 'Wild & unpredictable',
   };
-  var levelSub = LEVEL_SUBS[b.label] || '';
 
-  // Market cap formatter — compact short-form ($4.2T, $850B, $45M).
   function fmtMcap(v) {
     if (v == null || v <= 0) return '';
     if (v >= 1e12) return '$' + (v/1e12).toFixed(v >= 10e12 ? 0 : 1) + 'T';
@@ -1284,9 +1248,104 @@ function buildFinderDiscoverCard(item) {
     if (v >= 1e6)  return '$' + (v/1e6 ).toFixed(v >= 10e6  ? 0 : 1) + 'M';
     return '$' + v.toLocaleString();
   }
-  // Stock objects from finder-engine carry market cap as `_mc` (search-index source).
-  // Fall back to financials.marketCap when a chunk-level object was passed in.
   var mcapStr = fmtMcap(s._mc != null ? s._mc : (s.financials && s.financials.marketCap));
+
+  // ── Build the per-rule match breakdown ────────────────────────────────────
+  var c = (typeof _trapCriteria === 'object' && _trapCriteria) ? _trapCriteria : {};
+  var REGION_LABELS = { global:'Global', us:'United States', uk:'United Kingdom', europe:'Europe', hk:'Hong Kong', china:'China', japan:'Japan', middleeast:'Middle East', india:'India', germany:'Germany', france:'France' };
+  var SECTOR_LABELS = { all:'All Sectors', tech:'Technology', health:'Healthcare', finance:'Finance', energy:'Energy', consumer:'Consumer', industrial:'Industrial', utilities:'Utilities' };
+
+  function levelNum(lab) { var m = String(lab||'').match(/(\d+)/); return m ? parseInt(m[1],10) : null; }
+
+  var ruleRowsHtml = '';
+
+  // ── Market row ──
+  var regKeys = Array.isArray(c.region) ? c.region.slice() : (c.region ? [c.region] : ['global']);
+  var marketGreen = regKeys.indexOf('global') !== -1 || regKeys.some(function(rk){
+    var conf = (typeof REGION_CONFIG !== 'undefined') ? REGION_CONFIG[rk] : null;
+    return conf && conf.countries && conf.countries.has(s.country);
+  });
+  ruleRowsHtml += '<div class="dc-rule-row">' +
+    '<span class="dc-rule-dot ' + (marketGreen ? 'green' : 'red') + '"></span>' +
+    '<span class="dc-rule-label">Market</span>' +
+    '<div class="dc-rule-value-col"><span class="dc-rule-value">' + (flag ? flag + ' ' : '') + esc(s.country || '\u2014') + '</span></div>' +
+  '</div>';
+
+  // ── Sector row ──
+  var secKeys = Array.isArray(c.sectors) ? c.sectors.slice() : (c.sectors ? [c.sectors] : ['all']);
+  var sectorGreen = secKeys.indexOf('all') !== -1 || secKeys.some(function(sk){
+    var set = (typeof SECTOR_GROUPS !== 'undefined') ? SECTOR_GROUPS[sk] : null;
+    return set && set.has(s.sector);
+  });
+  ruleRowsHtml += '<div class="dc-rule-row">' +
+    '<span class="dc-rule-dot ' + (sectorGreen ? 'green' : 'red') + '"></span>' +
+    '<span class="dc-rule-label">Sector</span>' +
+    '<div class="dc-rule-value-col"><span class="dc-rule-value">' + esc(s.sector || '\u2014') + '</span></div>' +
+  '</div>';
+
+  // ── Style row ──
+  var userStyles = Array.isArray(c.styles) ? c.styles : [];
+  var styleColor, styleNote = '', styleChipKeys;
+  if (userStyles.length === 0) {
+    styleColor = 'green';
+    styleChipKeys = styleLabels.slice(0, 1);
+    if (!styleChipKeys.length) styleChipKeys = [];
+  } else {
+    var matched = userStyles.filter(function(st){ return styleLabels.indexOf(st) !== -1; });
+    if (matched.length === userStyles.length) { styleColor = 'green'; }
+    else if (matched.length > 0) {
+      styleColor = 'amber';
+      var missed = userStyles.filter(function(st){ return styleLabels.indexOf(st) === -1; });
+      styleNote = 'you also picked ' + missed.map(function(k){ return STYLE_NAMES[k]||k; }).join(', ');
+    } else {
+      styleColor = 'red';
+      styleNote = 'you picked ' + userStyles.map(function(k){ return STYLE_NAMES[k]||k; }).join(', ');
+    }
+    styleChipKeys = matched.length ? matched : styleLabels.slice(0, 1);
+  }
+  var styleChipsHtml = styleChipKeys.length
+    ? styleChipKeys.map(function(k){
+        var desc = esc(STYLE_SUBS[k] || '');
+        return '<button type="button" class="dc-label-chip" onclick="finderToggleRuleChip(this)" data-desc="' + desc + '"><span class="dc-label-icon">' + (STYLE_ICONS[k] || '') + '</span>' + (STYLE_NAMES[k] || k) + '</button>';
+      }).join('')
+    : '<span class="dc-label-chip dc-label-none">Unclassified</span>';
+  ruleRowsHtml += '<div class="dc-rule-row">' +
+    '<span class="dc-rule-dot ' + styleColor + '"></span>' +
+    '<span class="dc-rule-label">Style</span>' +
+    '<div class="dc-rule-value-col">' +
+      '<div class="dc-rule-chips">' + styleChipsHtml + '</div>' +
+      '<p class="dc-rule-tip" aria-live="polite"></p>' +
+      (styleNote ? '<p class="dc-rule-note">' + esc(styleNote) + '</p>' : '') +
+    '</div>' +
+  '</div>';
+
+  // ── Comfort row ──
+  var stockLvl = levelNum(b.label);
+  var userLvls = Array.isArray(c.levels) && c.levels.length ? c.levels : (c.level ? [c.level] : []);
+  var comfortColor, comfortNote = '';
+  if (userLvls.length === 0 || stockLvl == null) {
+    comfortColor = 'green';
+  } else {
+    var diffs = userLvls.map(function(ul){ var n = levelNum(ul); return n == null ? 99 : Math.abs(n - stockLvl); });
+    var minDiff = Math.min.apply(null, diffs);
+    if (minDiff === 0) { comfortColor = 'green'; }
+    else if (minDiff === 1) { comfortColor = 'amber'; comfortNote = 'you picked ' + userLvls.join(', '); }
+    else { comfortColor = 'red'; comfortNote = 'you picked ' + userLvls.join(', '); }
+  }
+  var levelSubText = LEVEL_SUBS[b.label] || '';
+  var comfortDesc = b.label + (levelSubText ? ' — ' + levelSubText : '');
+  var comfortChipHtml = '<button type="button" class="dc-label-chip dc-comfort-chip ' + b.cls + '" onclick="finderToggleRuleChip(this)" data-desc="' + esc(comfortDesc) + '">' +
+    '<span class="dc-comfort-dot"></span>' + esc(b.label) +
+  '</button>';
+  ruleRowsHtml += '<div class="dc-rule-row">' +
+    '<span class="dc-rule-dot ' + comfortColor + '"></span>' +
+    '<span class="dc-rule-label">Comfort</span>' +
+    '<div class="dc-rule-value-col">' +
+      '<div class="dc-rule-chips">' + comfortChipHtml + '</div>' +
+      '<p class="dc-rule-tip" aria-live="polite"></p>' +
+      (comfortNote ? '<p class="dc-rule-note">' + esc(comfortNote) + '</p>' : '') +
+    '</div>' +
+  '</div>';
 
   return '<div class="discover-card">' +
     '<div class="dc-split"><div class="dc-split-left">' +
@@ -1295,19 +1354,16 @@ function buildFinderDiscoverCard(item) {
       '<div class="dc-country-plain">' + flag + ' ' + esc(s.country || '') + (s.sector ? ' · ' + esc(s.sector) : '') + (mcapStr ? ' · ' + mcapStr : '') + '</div>' +
     '</div><div class="dc-split-right">' +
       '<img class="dc-panda" src="assets/img/' + b.img + '" alt="' + esc(b.label) + '" />' +
-      '<span class="dc-level-label">Panda Level</span>' +
-      '<span class="mood-chip ' + b.cls + '">' + b.label + '</span>' +
-      (levelSub ? '<span class="dc-level-sub">' + esc(levelSub) + '</span>' : '') +
     '</div></div>' +
-    '<div class="dc-match-row"><div><div class="dc-match-label">Match</div><div class="dc-match-word" style="color:' + matchCol + ';">' + matchWord + '</div></div>' +
-      '<div class="dc-match-bar"><div class="dc-match-fill" style="width:' + item.pct + '%;background:' + matchCol + ';"></div></div></div>' +
     '<div class="dc-returns">' + ret('1M', s._m1) + ret('3M', s._m3) + ret('1Y', s._y1) + ret('5Y', s._y5) + '</div>' +
     '<div class="dc-section"><div class="dc-section-label">Signals</div><div class="dc-sig-list">' +
       (sig.g > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot green"></span><span class="dc-sig-count green">' + sig.g + '</span> Positive</div>' : '') +
       (sig.a > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot amber"></span><span class="dc-sig-count amber">' + sig.a + '</span> Cautionary</div>' : '') +
       (sig.r > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot red"></span><span class="dc-sig-count red">' + sig.r + '</span> Warning</div>' : '') +
     '</div></div>' +
-    '<div class="dc-section"><div class="dc-section-label">Styles &mdash; tap to learn more</div><div class="dc-label-chips">' + chipsHtml + '</div>' + reminderHtml + '</div>' +
+    '<div class="dc-section"><div class="dc-section-label">Why it matches your rules</div>' +
+      '<div class="dc-rule-list">' + ruleRowsHtml + '</div>' +
+    '</div>' +
     '<div class="discover-nav" style="border-top:1px solid var(--border);margin-top:1.2rem;padding-top:1rem;">' +
       '<div class="dc-nav-item"><button class="dc-btn-back" onclick="finderPrevCard()" title="Back"><i data-lucide="arrow-left"></i></button><div class="dc-label">Back</div></div>' +
       '<div class="dc-nav-item"><button class="dc-btn-heart' + (hearted ? ' hearted' : '') + '" onclick="finderToggleHeart()" title="' + (hearted ? 'Remove from Saved' : 'Save this stock') + '"><i data-lucide="heart"></i></button><div class="dc-label">Save</div></div>' +
@@ -1385,6 +1441,30 @@ function finderToggleStyleTip(btn) {
   }
 }
 window.finderToggleStyleTip = finderToggleStyleTip;
+
+// Tap a Style or Comfort chip in the Why-it-matches breakdown to reveal its plain-English description.
+// Tip is scoped to the row so multiple rows can be expanded independently.
+function finderToggleRuleChip(btn) {
+  var row = btn.closest('.dc-rule-row');
+  if (!row) return;
+  var tip = row.querySelector('.dc-rule-tip');
+  if (!tip) return;
+  var desc = btn.getAttribute('data-desc') || '';
+  var wasActive = btn.classList.contains('dc-label-chip-active');
+  // Reset state across all chips in this row
+  row.querySelectorAll('.dc-label-chip').forEach(function(c) {
+    c.classList.remove('dc-label-chip-active');
+  });
+  if (wasActive) {
+    tip.textContent = '';
+    tip.classList.remove('dc-rule-tip-active');
+  } else {
+    btn.classList.add('dc-label-chip-active');
+    tip.textContent = desc;
+    tip.classList.add('dc-rule-tip-active');
+  }
+}
+window.finderToggleRuleChip = finderToggleRuleChip;
 
 // ── Watchlist (localStorage) ──────────────────────────────────
 function getWatchlist() {

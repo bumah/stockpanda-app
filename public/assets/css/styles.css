@@ -1060,6 +1060,124 @@ button.dc-label-chip { outline: none; }
   text-transform: uppercase;
 }
 
+/* ── Why-it-matches breakdown rows (discover card) ───────────────────────── */
+.dc-rule-list { display: flex; flex-direction: column; gap: 0.55rem; }
+.dc-rule-row {
+  display: grid;
+  grid-template-columns: 10px 64px 1fr;
+  align-items: start;
+  gap: 0.55rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+.dc-rule-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.dc-rule-dot.green { background: #4ADE80; box-shadow: 0 0 6px rgba(74,222,128,0.4); }
+.dc-rule-dot.amber { background: #FBBF24; box-shadow: 0 0 6px rgba(251,191,36,0.4); }
+.dc-rule-dot.red   { background: #F87171; box-shadow: 0 0 6px rgba(248,113,113,0.4); }
+.dc-rule-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding-top: 4px;
+}
+.dc-rule-value-col { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
+.dc-rule-value { color: var(--text); font-size: 0.78rem; }
+.dc-rule-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.dc-rule-note {
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.4;
+}
+.dc-rule-tip {
+  font-size: 0.68rem;
+  color: var(--muted);
+  line-height: 1.45;
+  margin: 0;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.2s, opacity 0.2s;
+}
+.dc-rule-tip.dc-rule-tip-active {
+  max-height: 120px;
+  opacity: 1;
+}
+/* ── Why-it-matches GROUPED rows (advanced quiz card) ──────────────────── */
+.dc-group-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.dc-group-row { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.dc-group-head {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 10px 1fr auto 14px;
+  align-items: center;
+  gap: 0.55rem;
+  background: rgba(255,255,255,0.02);
+  border: none;
+  color: var(--text);
+  padding: 0.6rem 0.75rem;
+  cursor: pointer;
+  font-family: var(--font);
+  text-align: left;
+  transition: background 0.15s;
+}
+.dc-group-head:hover { background: rgba(255,255,255,0.04); }
+.dc-group-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+.dc-group-count {
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+.dc-group-chev {
+  font-size: 0.75rem;
+  color: var(--muted);
+  transition: transform 0.2s;
+  display: inline-block;
+}
+.dc-group-row.dc-group-open .dc-group-chev { transform: rotate(90deg); }
+
+.dc-group-detail {
+  display: none;
+  padding: 0.45rem 0.75rem 0.65rem 0.75rem;
+  background: rgba(0,0,0,0.15);
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.dc-group-row.dc-group-open .dc-group-detail { display: flex; }
+.dc-rule-detail {
+  display: grid;
+  grid-template-columns: 10px 110px 1fr;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+.dc-rule-detail-name { color: var(--text); }
+.dc-rule-detail-note { color: var(--muted); font-size: 0.68rem; }
+
+/* Comfort chip — small colored dot before the level label */
+.dc-comfort-chip { display: inline-flex; align-items: center; gap: 0.35rem; }
+.dc-comfort-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dc-comfort-chip.mood-vcalm  .dc-comfort-dot { background: #60A5FA; }
+.dc-comfort-chip.mood-calm   .dc-comfort-dot { background: #4ADE80; }
+.dc-comfort-chip.mood-unsettled .dc-comfort-dot { background: #FBBF24; }
+.dc-comfort-chip.mood-uneasy .dc-comfort-dot { background: #FB923C; }
+.dc-comfort-chip.mood-stormy .dc-comfort-dot { background: #F87171; }
+
 /* Actions */
 .dc-actions { display: flex; gap: 0.6rem; margin-top: 1.2rem; padding-top: 0.8rem; border-top: 1px solid var(--border); flex-wrap: wrap; }
 .dc-btn-primary { flex: 1; background: var(--green); color: #000; font-weight: 700; padding: 0.6rem; border-radius: 8px; border: none; font-size: 0.82rem; cursor: pointer; font-family: var(--font); text-align: center; text-decoration: none; }

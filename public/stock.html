@@ -277,6 +277,9 @@ function closeToolsPopover(){
     <div class="dash-main">
       <div id="company-info-section"></div>
 
+      <!-- Top Styles (chips, tap to learn more) -->
+      <div id="top-styles-section" style="margin-bottom:1.5rem;"></div>
+
       <!-- Field Notes -->
       <div id="field-notes" style="margin-bottom:1.5rem;"></div>
 
@@ -412,6 +415,7 @@ function renderAll() {
 
   renderHeader();
   renderCompanyInfo();
+  renderTopStyles();
   renderFieldNotes();
   renderStatGrid();
   renderFinancials();
@@ -653,6 +657,64 @@ function toggleIndexTags() {
   btn.textContent = expanded ? '▾ Show less' : `▸ +${extraCount} more`;
 }
 window.toggleIndexTags = toggleIndexTags;
+
+// ── Top Styles (chip row) ───────────────────────────────────────────────────
+// Shows the top 3 styles the stock qualifies for (score ≥ 70%), ordered by score.
+// Tap a chip to reveal its plain-English description inline.
+function renderTopStyles() {
+  const el = document.getElementById('top-styles-section');
+  if (!el) return;
+  const s = stockData;
+  const ps = (s && s.presetScores) || {};
+  const NAMES = { trophy:'Pack Leader', wild_beast:'Rollercoaster', scavenger:'Sleeping Giant', momentum:'High Flyer', rebound:'Recovery', moonshot:'Moonshot' };
+  const ICONS = { trophy:'🏆', wild_beast:'🎢', scavenger:'🐘', momentum:'🚀', rebound:'🦅', moonshot:'🦄' };
+  const DESCS = {
+    trophy:     'Big proven compounders.',
+    scavenger:  'Quality companies fallen, not recovering.',
+    rebound:    'Bouncing back after a deep drawdown.',
+    momentum:   'On a sustained roll, fundamentals solid.',
+    wild_beast: 'Volatile quality large caps — swings both ways.',
+    moonshot:   'Small cap, doing well. Advanced.',
+  };
+  const fits = Object.entries(ps)
+    .filter(([k, v]) => (v && (v.pct || 0) >= 70) && NAMES[k])
+    .sort((a, b) => (b[1].pct || 0) - (a[1].pct || 0))
+    .slice(0, 3);
+  if (!fits.length) { el.innerHTML = ''; return; }
+
+  const chips = fits.map(([k]) => {
+    const desc = (DESCS[k] || '').replace(/"/g, '&quot;');
+    return '<button type="button" class="dc-label-chip" onclick="toggleTopStyleTip(this)" data-desc="' + desc + '">' +
+      '<span class="dc-label-icon">' + (ICONS[k] || '') + '</span>' + NAMES[k] +
+    '</button>';
+  }).join('');
+
+  el.innerHTML =
+    '<div class="section-label">Top Styles</div>' +
+    '<div class="ci-section ts-card">' +
+      '<div class="dc-label-chips">' + chips + '</div>' +
+      '<p class="dc-style-tip" aria-live="polite"></p>' +
+    '</div>';
+}
+
+function toggleTopStyleTip(btn) {
+  const wrap = btn.closest('.ts-card');
+  if (!wrap) return;
+  const tip = wrap.querySelector('.dc-style-tip');
+  if (!tip) return;
+  const desc = btn.getAttribute('data-desc') || '';
+  const wasActive = btn.classList.contains('dc-label-chip-active');
+  wrap.querySelectorAll('.dc-label-chip').forEach(c => c.classList.remove('dc-label-chip-active'));
+  if (wasActive) {
+    tip.textContent = '';
+    tip.classList.remove('dc-style-tip-active');
+  } else {
+    btn.classList.add('dc-label-chip-active');
+    tip.textContent = desc;
+    tip.classList.add('dc-style-tip-active');
+  }
+}
+window.toggleTopStyleTip = toggleTopStyleTip;
 
 // ── Field Notes (auto-generated observations) ───────────────────────────────
 function renderFieldNotes() {

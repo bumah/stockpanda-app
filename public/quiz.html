@@ -1071,21 +1071,80 @@ function showCard() {
 }
 
 // ── Build card HTML (Option C: split layout) ────────────────
+// ── Advanced rule-group breakdown ────────────────────────────────────────
+// Groups the 12 advanced criteria into 4 buckets shown collapsed on the card.
+const ADV_GROUPS = [
+  { key: 'where',       label: 'Where',       criteria: [
+    { ans:'region',   key:'region',   name:'Market'    },
+    { ans:'sector',   key:'sector',   name:'Sector'    },
+    { ans:'size',     key:'size',     name:'Size'      },
+  ]},
+  { key: 'performance', label: 'Performance', criteria: [
+    { ans:'return1m', key:'return1m', name:'1M Return' },
+    { ans:'growth5y', key:'growth5y', name:'5Y Growth' },
+    { ans:'momentum', key:'momentum', name:'Momentum'  },
+  ]},
+  { key: 'trend',       label: 'Trend',       criteria: [
+    { ans:'matrend',  key:'matrend',  name:'MA Trend'  },
+    { ans:'range52w', key:'range52w', name:'52W Range' },
+    { ans:'drawdown', key:'drawdown', name:'Drawdown'  },
+  ]},
+  { key: 'risk',        label: 'Risk',        criteria: [
+    { ans:'vol',      key:'vol',      name:'Volatility'},
+    { ans:'analyst',  key:'analyst',  name:'Analyst'   },
+    { ans:'profit',   key:'profit',   name:'Profit'    },
+  ]},
+];
+
+// Map raw criterion expectation → user-friendly label for display.
+const ADV_EXPECT_LABELS = {
+  size:     { large:'Large cap', small:'Small cap', micro:'Micro cap', mid:'Mid cap', mid_or_small:'Mid/Small cap', any:'Any size' },
+  return1m: { strong:'Strong gains', positive:'Up', any:'Any' },
+  growth5y: { strong:'Strong growth', positive:'Some growth', any:'Any' },
+  momentum: { rising:'Rising', any:'Any' },
+  matrend:  { uptrend:'Uptrend', downtrend:'Downtrend', any:'Any' },
+  range52w: { near_high:'Near 52W high', near_low:'Near 52W low', mid:'Mid-range', any:'Any' },
+  drawdown: { shallow:'Shallow only', any:'Any depth' },
+  vol:      { low:'Low', moderate:'Moderate', high:'High OK', any:'Any' },
+  analyst:  { buy:'Buy', neutral:'Neutral OK', any:'Any' },
+  profit:   { profitable:'Profitable', any:'Any' },
+};
+
+function _advCriterionMatch(crit, ans, stock) {
+  // Returns 'green'/'amber'/'red'/null. null = user didn't pick this criterion.
+  const expect = ans[crit.ans];
+  if (!expect || expect === 'any' || expect === 'all') return null;
+  // Market & sector are hard-filtered upstream — always green if user is seeing the card.
+  if (crit.key === 'region' || crit.key === 'sector') return 'green';
+  if (typeof _scoreCriterion !== 'function') return 'green';
+  const score = _scoreCriterion(crit.key, expect, stock);
+  if (score >= 1) return 'green';
+  if (score >= 0.5) return 'amber';
+  return 'red';
+}
+
+function _advGroupSummary(group, ans, stock) {
+  const rows = [];
+  let worst = null;
+  for (const crit of group.criteria) {
+    const status = _advCriterionMatch(crit, ans, stock);
+    if (status == null) continue;
+    rows.push({ name: crit.name, status: status, expect: ans[crit.ans], ans: crit.ans });
+    if (worst === 'red') {} else if (status === 'red') worst = 'red';
+    else if (worst === 'amber') {} else if (status === 'amber') worst = 'amber';
+    else if (worst == null) worst = 'green';
+  }
+  const matchedCount = rows.filter(r => r.status === 'green').length;
+  return { rows, worst: worst || 'green', total: rows.length, matched: matchedCount };
+}
+
 function buildDiscoverCard(item) {
   const s = item.stock;
   const b = MOOD.band(s.mood?.label || 'Level 3');
   const sig = _countSignals(s);
   const flag = COUNTRY_FLAGS[s.country] || '';
-  var matchWord, matchCol;
-  if (item.pct >= 90) { matchWord = 'Very Strong'; matchCol = '#4ADE80'; }
-  else if (item.pct >= 75) { matchWord = 'Strong'; matchCol = '#4ADE80'; }
-  else if (item.pct >= 60) { matchWord = 'Fair'; matchCol = '#FBBF24'; }
-  else if (item.pct >= 45) { matchWord = 'Poor'; matchCol = '#F87171'; }
-  else { matchWord = 'Very Poor'; matchCol = '#F87171'; }
-  const href = 'stock.html?ticker=' + encodeURIComponent(s.ticker) + '&country=' + encodeURIComponent(s.country || '');
   var hearted = isInWatchlist(s.ticker, s.country);
 
-  // Returns helper
   function ret(label, val) {
     if (val == null) return '<div class="dc-ret"><span class="dc-ret-label">' + label + '</span><span class="dc-ret-val" style="color:var(--muted);">\u2014</span></div>';
     var cls = val >= 0 ? 'pos' : 'neg';
@@ -1093,49 +1152,54 @@ function buildDiscoverCard(item) {
     return '<div class="dc-ret"><span class="dc-ret-label">' + label + '</span><span class="dc-ret-val ' + cls + '">' + sign + val.toFixed(1) + '%</span></div>';
   }
 
-  function hearts(pct) {
-    var n = pct >= 90 ? 5 : pct >= 70 ? 4 : pct >= 50 ? 3 : pct >= 30 ? 2 : 1;
-    var col = n >= 4 ? '#4ADE80' : n >= 3 ? '#FBBF24' : '#F87171';
-    var h = '';
-    for (var i = 0; i < 5; i++) {
-      h += '<span style="font-size:0.65rem;color:' + (i < n ? col : 'rgba(255,255,255,0.12)') + ';">' + (i < n ? '\u2665' : '\u2661') + '</span>';
-    }
-    return '<span class="dc-style-hearts">' + h + '</span>';
+  function fmtMcap(v) {
+    if (v == null || v <= 0) return '';
+    if (v >= 1e12) return '$' + (v/1e12).toFixed(v >= 10e12 ? 0 : 1) + 'T';
+    if (v >= 1e9)  return '$' + (v/1e9 ).toFixed(v >= 10e9  ? 0 : 1) + 'B';
+    if (v >= 1e6)  return '$' + (v/1e6 ).toFixed(v >= 10e6  ? 0 : 1) + 'M';
+    return '$' + v.toLocaleString();
   }
+  var mcapStr = fmtMcap(s._mc != null ? s._mc : (s.financials && s.financials.marketCap));
 
-  // Style rows (all 5 types)
-  var ps = s._ps || {};
-  var sorted = Object.entries(ps).sort(function(a,b){ return b[1]-a[1]; });
-  var styleRows = sorted.map(function(e) {
-    return '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[e[0]]||'') + '</span><span class="dc-style-name">' + (STYLE_NAMES[e[0]]||e[0]) + '</span>' + hearts(e[1]) + '</div>';
-  }).join('');
+  // Build group breakdown rows
+  var groupHtml = '';
+  ADV_GROUPS.forEach(function(g) {
+    var summary = _advGroupSummary(g, answers, s);
+    if (summary.total === 0) return; // skip empty group (user picked nothing in it)
+    var detailRowsHtml = summary.rows.map(function(r) {
+      var expectLabel = (ADV_EXPECT_LABELS[r.ans] && ADV_EXPECT_LABELS[r.ans][r.expect]) || r.expect;
+      var noteHtml = r.status !== 'green' ? '<span class="dc-rule-detail-note">you wanted ' + esc(expectLabel) + '</span>' : '';
+      return '<div class="dc-rule-detail">' +
+        '<span class="dc-rule-dot ' + r.status + '"></span>' +
+        '<span class="dc-rule-detail-name">' + esc(r.name) + '</span>' +
+        noteHtml +
+      '</div>';
+    }).join('');
+    groupHtml += '<div class="dc-group-row" data-group="' + g.key + '">' +
+      '<button type="button" class="dc-group-head" onclick="quizToggleGroup(this)">' +
+        '<span class="dc-rule-dot ' + summary.worst + '"></span>' +
+        '<span class="dc-group-label">' + esc(g.label) + '</span>' +
+        '<span class="dc-group-count">' + summary.matched + '/' + summary.total + ' matched</span>' +
+        '<span class="dc-group-chev">\u25B8</span>' +
+      '</button>' +
+      '<div class="dc-group-detail">' + detailRowsHtml + '</div>' +
+    '</div>';
+  });
 
   return '<div class="discover-card">' +
-    // Top: split layout
     '<div class="dc-split">' +
       '<div class="dc-split-left">' +
         '<div class="dc-ticker">' + esc(s.ticker) + '</div>' +
         '<div class="dc-company">' + esc(s.company || '\u2014') + '</div>' +
-        '<div class="dc-country-plain">' + flag + ' ' + esc(s.country || '') + (s.sector ? ' · ' + esc(s.sector) : '') + '</div>' +
+        '<div class="dc-country-plain">' + flag + ' ' + esc(s.country || '') + (s.sector ? ' · ' + esc(s.sector) : '') + (mcapStr ? ' · ' + mcapStr : '') + '</div>' +
       '</div>' +
       '<div class="dc-split-right">' +
         '<img class="dc-panda" src="assets/img/' + b.img + '" alt="' + esc(b.label) + '" />' +
-        '<span class="dc-level-label">Panda Level</span>' +
-        '<span class="mood-chip ' + b.cls + '">' + b.label + '</span>' +
       '</div>' +
     '</div>' +
-    // Fit
-    '<div class="dc-match-row">' +
-      '<div><div class="dc-match-label">Match</div><div class="dc-match-word" style="color:' + matchCol + ';">' + matchWord + '</div></div>' +
-      '<div class="dc-match-bar"><div class="dc-match-fill" style="width:' + item.pct + '%;background:' + matchCol + ';"></div></div>' +
-    '</div>' +
-    // Returns
     '<div class="dc-returns">' +
-      ret('1M', s._m1) + ret('3M', s._m3) +
-      ret('1Y', s._y1) +
-      ret('5Y', s._y5) +
+      ret('1M', s._m1) + ret('3M', s._m3) + ret('1Y', s._y1) + ret('5Y', s._y5) +
     '</div>' +
-    // Signals
     '<div class="dc-section">' +
       '<div class="dc-section-label">Signals</div>' +
       '<div class="dc-sig-list">' +
@@ -1144,12 +1208,10 @@ function buildDiscoverCard(item) {
         (sig.r > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot red"></span><span class="dc-sig-count red">' + sig.r + '</span> Warning</div>' : '') +
       '</div>' +
     '</div>' +
-    // Styles
     '<div class="dc-section">' +
-      '<div class="dc-section-label">Styles</div>' +
-      '<div class="dc-style-list">' + styleRows + '</div>' +
+      '<div class="dc-section-label">Why it matches your rules</div>' +
+      '<div class="dc-group-list">' + groupHtml + '</div>' +
     '</div>' +
-    // Navigation
     '<div class="discover-nav" style="border-top:1px solid var(--border);margin-top:1.2rem;padding-top:1rem;">' +
       '<div class="dc-nav-item"><button class="dc-btn-back" onclick="prevCard()" title="Back"><i data-lucide="arrow-left"></i></button><div class="dc-label">Back</div></div>' +
       '<div class="dc-nav-item"><button class="dc-btn-heart' + (hearted ? ' hearted' : '') + '" onclick="toggleHeart()" title="' + (hearted ? 'Remove from Saved' : 'Save this stock') + '"><i data-lucide="heart"></i></button><div class="dc-label">Save</div></div>' +
@@ -1158,6 +1220,13 @@ function buildDiscoverCard(item) {
     '</div>' +
   '</div>';
 }
+
+function quizToggleGroup(btn) {
+  const row = btn.closest('.dc-group-row');
+  if (!row) return;
+  row.classList.toggle('dc-group-open');
+}
+window.quizToggleGroup = quizToggleGroup;
 
 function seeAllTable() {
   // Navigate to Browse page — the user can use bubble filters there
