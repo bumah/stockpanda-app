@@ -841,6 +841,9 @@ button.nav-dropdown-trigger {
   cursor: default;
 }
 .mode-tab.active:hover { color: #000; }
+/* Results-page variant: smaller and aligned to the start of the discover area */
+.mode-tabs-results { margin: 0 0 0.9rem; padding: 3px; }
+.mode-tabs-results .mode-tab { padding: 0.35rem 0.85rem; font-size: 0.7rem; }
 .finder-hero-h1 {
   font-family: var(--font); font-size: 2.6rem; font-weight: 700;
   color: var(--parchment); line-height: 1.15; margin-bottom: 0.6rem;
