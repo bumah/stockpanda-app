@@ -63,14 +63,15 @@ const PRESETS = {
       { key:'range52w', expect:'middle',   weight:1 },
     ],
   },
-  moonshot: { label: 'Moonshot', sub: 'Small, volatile companies running hot. Micro-cap lottery tickets — big upside, big downside. Advanced.',
+  moonshot: { label: 'Moonshot', sub: 'Small, volatile companies running hot with successive wins and a Golden Cross. Micro-cap lottery tickets — big upside, big downside.',
     advanced: true,  // surface with "advanced" copy in the style picker
     criteria: [
       { key:'size',     expect:'micro',         weight:2 },
       { key:'vol',      expect:'high',          weight:2 },
       { key:'return1y', expect:'very_positive', weight:2 },
-      { key:'momentum', expect:'positive',      weight:1 },
-      { key:'return1m', expect:'positive',      weight:1 },
+      { key:'matrend',  expect:'above_both',    weight:2 },  // Golden Cross
+      { key:'momentum', expect:'positive',      weight:2 },  // successive wins (3M)
+      { key:'return1m', expect:'positive',      weight:2 },  // successive wins (1M)
       { key:'range52w', expect:'highs',         weight:1 },
     ],
   },
@@ -102,7 +103,7 @@ const EUROPE_COUNTRIES = new Set(['United Kingdom','Ireland','Sweden','France','
 const MIDDLEEAST_COUNTRIES = new Set(['Saudi Arabia','United Arab Emirates','Israel','Kuwait','Qatar','Bahrain','Egypt','Jordan','Morocco','Tunisia','Nigeria','Kenya','South Africa']);
 const REGION_CONFIG = {
   global:     { countries: null },
-  us:         { countries: new Set(['United States','Canada']) },
+  us:         { countries: new Set(['United States']) },
   uk:         { countries: new Set(['United Kingdom','Ireland']) },
   europe:     { countries: EUROPE_COUNTRIES },
   hk:         { countries: new Set(['Hong Kong','Macau']) },

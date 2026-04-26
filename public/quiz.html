@@ -1023,9 +1023,9 @@ async function findStocks(opts) {
   _idx = opts.restoreIdx || 0;
 
   // Persist to sessionStorage
-  sessionStorage.setItem('sp_trap_answers', JSON.stringify(answers));
-  sessionStorage.setItem('sp_trap_hasResults', '1');
-  sessionStorage.setItem('sp_trap_cardIdx', _idx);
+  localStorage.setItem('sp_trap_answers', JSON.stringify(answers));
+  localStorage.setItem('sp_trap_hasResults', '1');
+  localStorage.setItem('sp_trap_cardIdx', _idx);
 
   showCard();
 }
@@ -1305,8 +1305,8 @@ function nextCard() {
   const card = document.querySelector('.discover-card');
   if (card) {
     card.classList.add('slide-left');
-    setTimeout(function() { _idx++; sessionStorage.setItem('sp_trap_cardIdx', _idx); showCard(); }, 300);
-  } else { _idx++; sessionStorage.setItem('sp_trap_cardIdx', _idx); showCard(); }
+    setTimeout(function() { _idx++; localStorage.setItem('sp_trap_cardIdx', _idx); showCard(); }, 300);
+  } else { _idx++; localStorage.setItem('sp_trap_cardIdx', _idx); showCard(); }
 }
 window.nextCard = nextCard;
 
@@ -1315,8 +1315,8 @@ function prevCard() {
   const card = document.querySelector('.discover-card');
   if (card) {
     card.classList.add('slide-right');
-    setTimeout(function() { _idx--; sessionStorage.setItem('sp_trap_cardIdx', _idx); showCard(); }, 300);
-  } else { _idx--; sessionStorage.setItem('sp_trap_cardIdx', _idx); showCard(); }
+    setTimeout(function() { _idx--; localStorage.setItem('sp_trap_cardIdx', _idx); showCard(); }, 300);
+  } else { _idx--; localStorage.setItem('sp_trap_cardIdx', _idx); showCard(); }
 }
 window.prevCard = prevCard;
 
@@ -1378,9 +1378,9 @@ function resetQuiz() {
   Object.keys(answers).forEach(k => answers[k] = null);
   _queue = [];
   _idx = 0;
-  sessionStorage.removeItem('sp_trap_answers');
-  sessionStorage.removeItem('sp_trap_hasResults');
-  sessionStorage.removeItem('sp_trap_cardIdx');
+  localStorage.removeItem('sp_trap_answers');
+  localStorage.removeItem('sp_trap_hasResults');
+  localStorage.removeItem('sp_trap_cardIdx');
   document.getElementById('discover-section').style.display = 'none';
   // Reset all quiz step selections
   document.querySelectorAll('.choice.selected').forEach(c => c.classList.remove('selected'));
@@ -1424,11 +1424,11 @@ window.refineQuiz = refineQuiz;
 
 // ── On load: restore previous trap results if available ──
 (function initTrapRestore() {
-  if (sessionStorage.getItem('sp_trap_hasResults')) {
+  if (localStorage.getItem('sp_trap_hasResults')) {
     try {
-      const savedAnswers = JSON.parse(sessionStorage.getItem('sp_trap_answers') || '{}');
+      const savedAnswers = JSON.parse(localStorage.getItem('sp_trap_answers') || '{}');
       Object.assign(answers, savedAnswers);
-      const savedIdx = parseInt(sessionStorage.getItem('sp_trap_cardIdx') || '0', 10);
+      const savedIdx = parseInt(localStorage.getItem('sp_trap_cardIdx') || '0', 10);
       document.getElementById('scan-intro').style.display = 'none';
       findStocks({ restoreIdx: savedIdx, silent: true });
     } catch(e) {

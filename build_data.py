@@ -132,14 +132,17 @@ PRESETS = {
     },
     # 🦄 Moonshot — Micro-cap volatile winners.  Advanced / speculative.  Band: $100M–$500M.
     # Disjoint from the 5 big styles by market cap so categories don't overlap.
+    # Tightened: stock must show successive wins (1M + 3M momentum positive) AND a
+    # confirmed Golden Cross (price above both moving averages) — not just one big spike.
     "moonshot": {
         "universe": {"mc_min": 100e6, "mc_max": 500e6},
         "criteria": [
             {"key": "size",      "expect": "micro",         "weight": 2},  # core — truly micro-cap (<$500M)
             {"key": "vol",       "expect": "high",          "weight": 2},  # core — must be volatile
             {"key": "return1y",  "expect": "very_positive", "weight": 2},  # core — >50% y1, real firework
-            {"key": "momentum",  "expect": "positive",      "weight": 1},  # supporting
-            {"key": "return1m",  "expect": "positive",      "weight": 1},  # supporting
+            {"key": "matrend",   "expect": "above_both",    "weight": 2},  # core — Golden Cross / confirmed uptrend
+            {"key": "momentum",  "expect": "positive",      "weight": 2},  # core — successive wins (3M up)
+            {"key": "return1m",  "expect": "positive",      "weight": 2},  # core — successive wins (1M up)
             {"key": "range52w",  "expect": "highs",         "weight": 1},  # supporting — still running
         ],
     },

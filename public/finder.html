@@ -902,15 +902,15 @@ async function findStocks(opts) {
   scoredCache = goodFits;
 
   // Persist session
-  sessionStorage.setItem('sp_answers', JSON.stringify(answers));
-  sessionStorage.setItem('sp_trapCriteria', JSON.stringify(_trapCriteria));
-  sessionStorage.setItem('sp_preset', _presetMode ? '1' : '0');
-  if (_presetMode) sessionStorage.setItem('sp_presetKey', _lastPresetKey || '');
-  sessionStorage.setItem('sp_hasResults', '1');
+  localStorage.setItem('sp_answers', JSON.stringify(answers));
+  localStorage.setItem('sp_trapCriteria', JSON.stringify(_trapCriteria));
+  localStorage.setItem('sp_preset', _presetMode ? '1' : '0');
+  if (_presetMode) localStorage.setItem('sp_presetKey', _lastPresetKey || '');
+  localStorage.setItem('sp_hasResults', '1');
 
   // Go straight to discover mode
   _finderDcIdx = opts.restoreIdx || 0;
-  sessionStorage.setItem('sp_cardIdx', _finderDcIdx);
+  localStorage.setItem('sp_cardIdx', _finderDcIdx);
   showFinderCard();
 }
 window.findStocks = findStocks;
@@ -985,11 +985,11 @@ function renderResults(scored, totalScanned, totalScored) {
 
   renderFilteredList(scored, scoredCache, _presetMode);
   updateActiveChip(_presetMode ? _lastPresetKey : '');
-  sessionStorage.setItem('sp_answers', JSON.stringify(answers));
-  sessionStorage.setItem('sp_preset', _presetMode ? '1' : '0');
-  if (_presetMode) sessionStorage.setItem('sp_presetKey', _lastPresetKey || '');
-  sessionStorage.setItem('sp_trapCriteria', JSON.stringify(_trapCriteria));
-  sessionStorage.setItem('sp_hasResults', '1');
+  localStorage.setItem('sp_answers', JSON.stringify(answers));
+  localStorage.setItem('sp_preset', _presetMode ? '1' : '0');
+  if (_presetMode) localStorage.setItem('sp_presetKey', _lastPresetKey || '');
+  localStorage.setItem('sp_trapCriteria', JSON.stringify(_trapCriteria));
+  localStorage.setItem('sp_hasResults', '1');
 }
 
 // ── Ranking modal ──────────────────────────────────────────
@@ -1084,12 +1084,12 @@ function resetQuiz() {
   _lastPresetKey = '';
   _allScored = [];
   _fitFilter = 'great';
-  sessionStorage.removeItem('sp_answers');
-  sessionStorage.removeItem('sp_preset');
-  sessionStorage.removeItem('sp_presetKey');
-  sessionStorage.removeItem('sp_trapCriteria');
-  sessionStorage.removeItem('sp_hasResults');
-  sessionStorage.removeItem('sp_cardIdx');
+  localStorage.removeItem('sp_answers');
+  localStorage.removeItem('sp_preset');
+  localStorage.removeItem('sp_presetKey');
+  localStorage.removeItem('sp_trapCriteria');
+  localStorage.removeItem('sp_hasResults');
+  localStorage.removeItem('sp_cardIdx');
   Object.keys(answers).forEach(k => answers[k] = null);
   scoredCache = [];
   updateActiveChip('');
@@ -1152,16 +1152,16 @@ document.addEventListener('click', e => {
     scoredCache = [];
     _trapCriteria = { region: region, sectors: 'all', styles: ['momentum'], levels: level ? ['Level ' + level] : [], huntMode: 'strict' };
     findStocks();
-  } else if (sessionStorage.getItem('sp_hasResults')) {
+  } else if (localStorage.getItem('sp_hasResults')) {
     // Restore previous scan from session
     document.getElementById('scan-welcome').style.display = 'none';
     try {
-      const savedAnswers = JSON.parse(sessionStorage.getItem('sp_answers') || '{}');
+      const savedAnswers = JSON.parse(localStorage.getItem('sp_answers') || '{}');
       Object.assign(answers, savedAnswers);
-      _trapCriteria = JSON.parse(sessionStorage.getItem('sp_trapCriteria') || '{}');
-      _presetMode = sessionStorage.getItem('sp_preset') === '1';
-      _lastPresetKey = sessionStorage.getItem('sp_presetKey') || '';
-      const savedIdx = parseInt(sessionStorage.getItem('sp_cardIdx') || '0', 10);
+      _trapCriteria = JSON.parse(localStorage.getItem('sp_trapCriteria') || '{}');
+      _presetMode = localStorage.getItem('sp_preset') === '1';
+      _lastPresetKey = localStorage.getItem('sp_presetKey') || '';
+      const savedIdx = parseInt(localStorage.getItem('sp_cardIdx') || '0', 10);
       findStocks({ restoreIdx: savedIdx, silent: true });
     } catch(e) {
       // On error, show welcome
@@ -1425,16 +1425,16 @@ window.showTrapSummary = showTrapSummary;
 function finderNextCard() {
   if (_finderDcIdx >= scoredCache.length) return;
   var card = document.querySelector('#finder-dc-container .discover-card');
-  if (card) { card.classList.add('slide-left'); setTimeout(function(){ _finderDcIdx++; sessionStorage.setItem('sp_cardIdx', _finderDcIdx); showFinderCard(); }, 300); }
-  else { _finderDcIdx++; sessionStorage.setItem('sp_cardIdx', _finderDcIdx); showFinderCard(); }
+  if (card) { card.classList.add('slide-left'); setTimeout(function(){ _finderDcIdx++; localStorage.setItem('sp_cardIdx', _finderDcIdx); showFinderCard(); }, 300); }
+  else { _finderDcIdx++; localStorage.setItem('sp_cardIdx', _finderDcIdx); showFinderCard(); }
 }
 window.finderNextCard = finderNextCard;
 
 function finderPrevCard() {
   if (_finderDcIdx <= 0) return;
   var card = document.querySelector('#finder-dc-container .discover-card');
-  if (card) { card.classList.add('slide-right'); setTimeout(function(){ _finderDcIdx--; sessionStorage.setItem('sp_cardIdx', _finderDcIdx); showFinderCard(); }, 300); }
-  else { _finderDcIdx--; sessionStorage.setItem('sp_cardIdx', _finderDcIdx); showFinderCard(); }
+  if (card) { card.classList.add('slide-right'); setTimeout(function(){ _finderDcIdx--; localStorage.setItem('sp_cardIdx', _finderDcIdx); showFinderCard(); }, 300); }
+  else { _finderDcIdx--; localStorage.setItem('sp_cardIdx', _finderDcIdx); showFinderCard(); }
 }
 window.finderPrevCard = finderPrevCard;
 
