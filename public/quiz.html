@@ -1130,13 +1130,64 @@ function _advCriterionMatch(crit, ans, stock) {
   return 'red';
 }
 
+// Format the stock's actual value for a given criterion — shown beside the rule name
+// so users can see how the stock measures up vs what they asked for.
+function _advStockValue(critKey, stock) {
+  function fmtPct(v) { if (v == null) return '\u2014'; return (v >= 0 ? '+' : '') + v.toFixed(1) + '%'; }
+  function fmtMcap(v) {
+    if (v == null || v <= 0) return '\u2014';
+    if (v >= 1e12) return '$' + (v/1e12).toFixed(v >= 10e12 ? 0 : 1) + 'T';
+    if (v >= 1e9)  return '$' + (v/1e9 ).toFixed(v >= 10e9  ? 0 : 1) + 'B';
+    if (v >= 1e6)  return '$' + (v/1e6 ).toFixed(v >= 10e6  ? 0 : 1) + 'M';
+    return '$' + v.toLocaleString();
+  }
+  switch (critKey) {
+    case 'region':   return stock.country || '\u2014';
+    case 'sector':   return stock.sector  || '\u2014';
+    case 'size':     return fmtMcap(stock._mc);
+    case 'return1m': return fmtPct(stock._m1);
+    case 'growth5y': return fmtPct(stock._y5);
+    case 'momentum': return fmtPct(stock._m3);
+    case 'matrend': {
+      const ma50 = stock._ma50, ma200 = stock._ma200;
+      if (ma50 == null || ma200 == null) return '\u2014';
+      if (ma50 > ma200 * 1.005) return 'Golden cross';
+      if (ma50 < ma200 * 0.995) return 'Death cross';
+      return 'Neutral';
+    }
+    case 'range52w': return stock._r52 != null ? Math.round(stock._r52) + '% of 52W range' : '\u2014';
+    case 'drawdown': {
+      const v = stock.indicators && stock.indicators.vsPeak && stock.indicators.vsPeak.raw;
+      return v != null ? v.toFixed(0) + '% from high' : '\u2014';
+    }
+    case 'vol': {
+      const v = stock.indicators && stock.indicators.volatility && stock.indicators.volatility.raw;
+      return v != null ? v.toFixed(0) + '% vol' : '\u2014';
+    }
+    case 'analyst': return stock._ar || stock.analystRating || '\u2014';
+    case 'profit': {
+      const eps = stock._eps;
+      if (eps == null) return '\u2014';
+      return eps > 0 ? 'Profitable' : 'Loss-making';
+    }
+  }
+  return '\u2014';
+}
+
 function _advGroupSummary(group, ans, stock) {
   const rows = [];
   let worst = null;
   for (const crit of group.criteria) {
     const status = _advCriterionMatch(crit, ans, stock);
     if (status == null) continue;
-    rows.push({ name: crit.name, status: status, expect: ans[crit.ans], ans: crit.ans });
+    rows.push({
+      name:   crit.name,
+      status: status,
+      expect: ans[crit.ans],
+      ans:    crit.ans,
+      key:    crit.key,
+      value:  _advStockValue(crit.key, stock),
+    });
     if (worst === 'red') {} else if (status === 'red') worst = 'red';
     else if (worst === 'amber') {} else if (status === 'amber') worst = 'amber';
     else if (worst == null) worst = 'green';
@@ -1175,11 +1226,16 @@ function buildDiscoverCard(item) {
     if (summary.total === 0) return; // skip empty group (user picked nothing in it)
     var detailRowsHtml = summary.rows.map(function(r) {
       var expectLabel = (ADV_EXPECT_LABELS[r.ans] && ADV_EXPECT_LABELS[r.ans][r.expect]) || r.expect;
-      var noteHtml = r.status !== 'green' ? '<span class="dc-rule-detail-note">you wanted ' + esc(expectLabel) + '</span>' : '';
+      var noteHtml = r.status !== 'green' ? '<div class="dc-rule-detail-note">you wanted ' + esc(expectLabel) + '</div>' : '';
       return '<div class="dc-rule-detail">' +
         '<span class="dc-rule-dot ' + r.status + '"></span>' +
-        '<span class="dc-rule-detail-name">' + esc(r.name) + '</span>' +
-        noteHtml +
+        '<div class="dc-rule-detail-body">' +
+          '<div class="dc-rule-detail-line">' +
+            '<span class="dc-rule-detail-name">' + esc(r.name) + '</span>' +
+            '<span class="dc-rule-detail-value">' + esc(r.value) + '</span>' +
+          '</div>' +
+          noteHtml +
+        '</div>' +
       '</div>';
     }).join('');
     groupHtml += '<div class="dc-group-row" data-group="' + g.key + '">' +

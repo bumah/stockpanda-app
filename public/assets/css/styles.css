@@ -816,8 +816,8 @@ button.nav-dropdown-trigger {
   display: inline-flex;
   gap: 0;
   padding: 4px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
   border-radius: 999px;
   margin-bottom: 1.5rem;
 }
@@ -827,14 +827,14 @@ button.nav-dropdown-trigger {
   font-family: var(--font);
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--parchment);
   text-decoration: none;
   cursor: pointer;
   transition: all 0.15s;
   user-select: none;
   display: inline-block;
 }
-.mode-tab:hover { color: var(--text); }
+.mode-tab:hover { color: var(--green); }
 .mode-tab.active {
   background: var(--green);
   color: #000;
@@ -1192,14 +1192,23 @@ button.dc-label-chip { outline: none; }
 .dc-group-row.dc-group-open .dc-group-detail { display: flex; }
 .dc-rule-detail {
   display: grid;
-  grid-template-columns: 10px 110px 1fr;
-  align-items: center;
+  grid-template-columns: 10px 1fr;
+  align-items: start;
   gap: 0.45rem;
   font-size: 0.72rem;
   line-height: 1.4;
 }
-.dc-rule-detail-name { color: var(--text); }
-.dc-rule-detail-note { color: var(--muted); font-size: 0.68rem; }
+.dc-rule-detail .dc-rule-dot { margin-top: 5px; }
+.dc-rule-detail-body { display: flex; flex-direction: column; gap: 0.18rem; min-width: 0; }
+.dc-rule-detail-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+.dc-rule-detail-name { color: var(--text); font-family: var(--mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.dc-rule-detail-value { color: var(--text); font-weight: 600; text-align: right; }
+.dc-rule-detail-note { color: var(--muted); font-size: 0.66rem; }
 
 /* Comfort chip — small colored dot before the level label */
 .dc-comfort-chip { display: inline-flex; align-items: center; gap: 0.35rem; }
