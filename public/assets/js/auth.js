@@ -158,9 +158,12 @@
 
   window.spSignInGoogle = async function () {
     if (!client) { alert('Sign-in not configured yet. Check back soon.'); return; }
+    // Send signed-in users straight to Ideas — that's the home of the app.
+    // Already-signed-in users stay where they are because OAuth still respects
+    // the current origin, but new sign-ins always land on /finder.html.
     const { error } = await client.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.href },
+      options: { redirectTo: window.location.origin + '/finder.html' },
     });
     if (error) alert('Sign-in failed: ' + error.message);
   };

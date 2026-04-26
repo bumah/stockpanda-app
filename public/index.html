@@ -597,6 +597,9 @@ section + section { border-top: 1px solid var(--border); }
   margin-bottom: 28px;
 }
 
+/* Section-level CTA — used at the bottom of HOW IT WORKS and STOP SEARCHING */
+.section-cta { display: flex; justify-content: center; margin-top: 36px; }
+
 /* ─── HOW IT WORKS (3 STEPS) ─── */
 .howitworks-section { padding: 100px 0; position: relative; }
 .hiw-grid {
@@ -958,6 +961,25 @@ footer a:hover { color: var(--green-primary); }
   <script src="/assets/js/supabase-config.js?v=20260418a"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="/assets/js/auth.js?v=20260418a" defer></script>
+  <script>
+    // Signed-in users land in the app, not the marketing site.
+    // Wait for auth to initialize, then redirect.
+    window.addEventListener('DOMContentLoaded', function() {
+      var checks = 0;
+      var interval = setInterval(function() {
+        checks++;
+        if (typeof window.spAuthSession === 'function') {
+          clearInterval(interval);
+          if (window.spAuthSession()) {
+            window.location.replace('/finder.html');
+          }
+        } else if (checks > 40) {
+          // Auth never loaded — bail out so the marketing page still renders.
+          clearInterval(interval);
+        }
+      }, 100);
+    });
+  </script>
 </head>
 <body>
 
@@ -974,7 +996,6 @@ footer a:hover { color: var(--green-primary); }
     <div class="nav-dropdown">
       <button class="nav-link nav-dropdown-trigger">More <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
       <div class="nav-dropdown-menu">
-        <a class="nav-dropdown-item" href="quiz.html">Custom</a>
         <a class="nav-dropdown-item" href="etfs.html">ETFs</a>
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
         <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
@@ -994,7 +1015,6 @@ footer a:hover { color: var(--green-primary); }
 </nav>
 <div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
 <div class="tools-popover" id="toolsPopover">
-  <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Custom</a>
   <a href="etfs.html" class="tools-popover-item"><i data-lucide="layers" class="nb-icon"></i>ETFs</a>
   <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
   <a href="handbook.html" class="tools-popover-item"><i data-lucide="book-open" class="nb-icon"></i>Handbook</a>
@@ -1034,7 +1054,7 @@ footer a:hover { color: var(--green-primary); }
       <div class="hiw-step reveal">
         <div class="hiw-num">01</div>
         <h3>Set your rules</h3>
-        <p>Pick your style, markets, and comfort level. Quick setup takes seconds. Advanced gives you more control.</p>
+        <p>Pick your style, markets, and comfort level. Quick takes seconds. Custom gives you full control.</p>
       </div>
       <div class="hiw-step reveal">
         <div class="hiw-num">02</div>
@@ -1046,6 +1066,9 @@ footer a:hover { color: var(--green-primary); }
         <h3>You decide</h3>
         <p>Open the app, see your matches, save what catches your eye, act when you're ready.</p>
       </div>
+    </div>
+    <div class="section-cta reveal">
+      <a href="finder.html" class="btn-primary">Set Quick Rules</a>
     </div>
   </div>
 </section>
@@ -1077,6 +1100,9 @@ footer a:hover { color: var(--green-primary); }
           <li>Stay in the loop without watching the screen</li>
         </ul>
       </div>
+    </div>
+    <div class="section-cta reveal">
+      <a href="finder.html" class="btn-primary">Set Quick Rules</a>
     </div>
   </div>
 </section>
@@ -1149,7 +1175,7 @@ footer a:hover { color: var(--green-primary); }
     <h2 class="reveal">Stop searching. Let the market come to you.</h2>
     <p class="reveal">Most people don't find the right stocks for them because they don't have the time — or don't know where to look.</p>
     <p class="punch reveal">StockPanda does the work for you.</p>
-    <a href="#how-it-works" class="btn-primary reveal">Get started free</a>
+    <a href="finder.html" class="btn-primary reveal">Set Quick Rules</a>
   </div>
 </section>
 
