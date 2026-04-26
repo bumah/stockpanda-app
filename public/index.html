@@ -834,11 +834,23 @@ section + section { border-top: 1px solid var(--border); }
 .sc-sig-group { display: inline-flex; align-items: center; gap: 3px; }
 .sc-sig-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
 .sc-sig-dot.g { background: #4ADE80; } .sc-sig-dot.a { background: #FBBF24; } .sc-sig-dot.r { background: #F87171; }
-.sample-disclaimer {
-  text-align: center; padding: 10px 20px 0; margin: 0;
-  font-size: 11px; color: var(--text-dim); font-family: 'Space Mono', monospace;
-  letter-spacing: 0.05em;
+.sample-cta {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  padding: 36px 20px 0;
+  text-align: center;
 }
+.sample-cta-text {
+  margin: 0; max-width: 480px;
+  font-size: 16px; line-height: 1.5; color: var(--text-secondary);
+}
+.sample-cta-btn {
+  display: inline-block;
+  padding: 12px 28px; border-radius: 999px;
+  background: var(--brand); color: #000; font-weight: 700;
+  font-size: 15px; text-decoration: none;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.sample-cta-btn:hover { opacity: 0.88; transform: translateY(-1px); }
 
 /* ─── FINAL CTA ─── */
 .final-cta {
@@ -962,7 +974,7 @@ footer a:hover { color: var(--green-primary); }
     <div class="nav-dropdown">
       <button class="nav-link nav-dropdown-trigger">More <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
       <div class="nav-dropdown-menu">
-        <a class="nav-dropdown-item" href="quiz.html">Advanced</a>
+        <a class="nav-dropdown-item" href="quiz.html">Custom</a>
         <a class="nav-dropdown-item" href="etfs.html">ETFs</a>
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
         <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
@@ -982,7 +994,7 @@ footer a:hover { color: var(--green-primary); }
 </nav>
 <div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
 <div class="tools-popover" id="toolsPopover">
-  <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Advanced</a>
+  <a href="quiz.html" class="tools-popover-item"><i data-lucide="crosshair" class="nb-icon"></i>Custom</a>
   <a href="etfs.html" class="tools-popover-item"><i data-lucide="layers" class="nb-icon"></i>ETFs</a>
   <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
   <a href="handbook.html" class="tools-popover-item"><i data-lucide="book-open" class="nb-icon"></i>Handbook</a>
@@ -1081,7 +1093,7 @@ footer a:hover { color: var(--green-primary); }
     <div class="paths-grid">
       <a class="path-card reveal" href="finder.html">
         <span class="path-icon">✨</span>
-        <h3>Simple picks</h3>
+        <h3>Quick picks</h3>
         <p style="font-size:14px;color:var(--text-secondary);margin-bottom:18px;">Quick and clear.</p>
         <ol class="path-steps">
           <li><span class="path-step-num">01</span><span>Pick your style, market, and comfort level</span></li>
@@ -1093,7 +1105,7 @@ footer a:hover { color: var(--green-primary); }
       </a>
       <a class="path-card reveal" href="quiz.html">
         <span class="path-icon">🎯</span>
-        <h3>Advanced picks</h3>
+        <h3>Custom picks</h3>
         <p style="font-size:14px;color:var(--text-secondary);margin-bottom:18px;">More control. More precision.</p>
         <ol class="path-steps">
           <li><span class="path-step-num">01</span><span>Build custom filters from scratch</span></li>
@@ -1123,7 +1135,10 @@ footer a:hover { color: var(--green-primary); }
       <div class="sample-loading">Loading today's sample…</div>
     </div>
   </div>
-  <p class="sample-disclaimer">Ideas only — not advice. Do your own research.</p>
+  <div class="sample-cta reveal">
+    <p class="sample-cta-text">Want to see stocks that fit you? Set your own rules in 30 seconds.</p>
+    <a href="finder.html" class="sample-cta-btn">Set Quick Rules</a>
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════ -->
