@@ -1315,6 +1315,9 @@ function buildFinderDiscoverCard(item) {
   '</div>';
 
   // ── Style row ──
+  // The user picks styles as an OR list — any stock whose labels include at
+  // least one of the picked styles is a perfect match. Match all picked? Same
+  // green dot. Match one of three? Still green. No overlap? Red.
   var userStyles = Array.isArray(c.styles) ? c.styles : [];
   var styleColor, styleNote = '', styleChipKeys;
   if (userStyles.length === 0) {
@@ -1323,11 +1326,8 @@ function buildFinderDiscoverCard(item) {
     if (!styleChipKeys.length) styleChipKeys = [];
   } else {
     var matched = userStyles.filter(function(st){ return styleLabels.indexOf(st) !== -1; });
-    if (matched.length === userStyles.length) { styleColor = 'green'; }
-    else if (matched.length > 0) {
-      styleColor = 'amber';
-      var missed = userStyles.filter(function(st){ return styleLabels.indexOf(st) === -1; });
-      styleNote = 'you also picked ' + missed.map(function(k){ return STYLE_NAMES[k]||k; }).join(', ');
+    if (matched.length > 0) {
+      styleColor = 'green';
     } else {
       styleColor = 'red';
       styleNote = 'you picked ' + userStyles.map(function(k){ return STYLE_NAMES[k]||k; }).join(', ');
