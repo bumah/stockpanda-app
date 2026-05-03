@@ -55,11 +55,11 @@ body::before {
 
 /* ─── HERO ─── */
 .hero {
-  padding: 180px 0 120px;
-  text-align: center;
+  padding: 140px 0 100px;
   position: relative;
   border-bottom: none;
   margin-bottom: 0;
+  text-align: left;
 }
 
 .hero::before {
@@ -72,6 +72,35 @@ body::before {
   height: 700px;
   background: radial-gradient(circle, var(--green-glow) 0%, transparent 65%);
   pointer-events: none;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 64px;
+  align-items: center;
+}
+
+@media (max-width: 900px) {
+  .hero { padding: 100px 0 60px; }
+  .hero-grid { grid-template-columns: 1fr; gap: 48px; text-align: center; }
+  .hero-card-wrap { display: flex; justify-content: center; }
+  .hero-promise { margin-left: auto; margin-right: auto; }
+  .hero-ctas { justify-content: center; }
+}
+
+.hero-card-wrap {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+.hero-card-wrap .discover-card {
+  width: 100%;
+  max-width: 380px;
+  pointer-events: none;       /* preview only — not clickable */
+  transform: rotate(-1deg);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(74,222,128,0.05);
 }
 
 .hero-label {
@@ -114,7 +143,7 @@ body::before {
   font-size: 18px;
   color: var(--text-secondary);
   max-width: 520px;
-  margin: 0 auto 44px;
+  margin: 0 0 44px;
   line-height: 1.7;
   opacity: 0;
   animation: fadeUp 0.8s ease forwards 0.65s;
@@ -123,7 +152,6 @@ body::before {
 .hero-ctas {
   display: flex;
   gap: 16px;
-  justify-content: center;
   flex-wrap: wrap;
   opacity: 0;
   animation: fadeUp 0.8s ease forwards 0.8s;
@@ -1033,12 +1061,69 @@ footer a:hover { color: var(--green-primary); }
 <!-- HERO -->
 <!-- ═══════════════════════════════════════ -->
 <section class="hero">
-  <div class="container">
-    <div class="hero-label">The stock discovery app</div>
-    <h1>Find stocks you <em>might miss</em>.</h1>
-    <p class="hero-promise">Set your rules. Swipe through ideas. Discover stocks effortlessly.</p>
-    <div class="hero-ctas">
-      <a href="#how-it-works" class="btn-primary">Get started free</a>
+  <div class="container hero-grid">
+    <div class="hero-text">
+      <div class="hero-label">The stock discovery app</div>
+      <h1>Find stocks you <em>might miss</em>.</h1>
+      <p class="hero-promise">Set your rules. Swipe through ideas. Discover stocks effortlessly.</p>
+      <div class="hero-ctas">
+        <a href="#how-it-works" class="btn-primary">Get started free</a>
+      </div>
+    </div>
+    <div class="hero-card-wrap" aria-hidden="true">
+      <div class="discover-card">
+        <div class="dc-split">
+          <div class="dc-split-left">
+            <div class="dc-ticker">NVDA</div>
+            <div class="dc-company">NVIDIA Corporation</div>
+            <div class="dc-country-plain">🇺🇸 United States · Electronic technology · $4.1T</div>
+          </div>
+          <div class="dc-split-right">
+            <img class="dc-panda" src="assets/img/panda-calm.png" alt="" />
+          </div>
+        </div>
+        <div class="dc-returns">
+          <div class="dc-ret"><span class="dc-ret-label">1M</span><span class="dc-ret-val pos">+14.0%</span></div>
+          <div class="dc-ret"><span class="dc-ret-label">3M</span><span class="dc-ret-val pos">+1.5%</span></div>
+          <div class="dc-ret"><span class="dc-ret-label">1Y</span><span class="dc-ret-val pos">+113.9%</span></div>
+          <div class="dc-ret"><span class="dc-ret-label">5Y</span><span class="dc-ret-val pos">+191.2%</span></div>
+        </div>
+        <div class="dc-section">
+          <div class="dc-section-label">Signals</div>
+          <div class="dc-sig-list">
+            <div class="dc-sig-item"><span class="dc-sig-dot green"></span><span class="dc-sig-count green">12</span> Positive</div>
+            <div class="dc-sig-item"><span class="dc-sig-dot amber"></span><span class="dc-sig-count amber">2</span> Cautionary</div>
+          </div>
+        </div>
+        <div class="dc-section">
+          <div class="dc-section-label">Why it matches your rules</div>
+          <div class="dc-rule-list">
+            <div class="dc-rule-row">
+              <span class="dc-rule-dot green"></span>
+              <span class="dc-rule-label">Market</span>
+              <div class="dc-rule-value-col"><div class="dc-rule-chips"><span class="dc-label-chip dc-label-chip-static">🇺🇸 United States</span></div></div>
+            </div>
+            <div class="dc-rule-row">
+              <span class="dc-rule-dot green"></span>
+              <span class="dc-rule-label">Sector</span>
+              <div class="dc-rule-value-col"><div class="dc-rule-chips"><span class="dc-label-chip dc-label-chip-static">Electronic technology</span></div></div>
+            </div>
+            <div class="dc-rule-row">
+              <span class="dc-rule-dot green"></span>
+              <span class="dc-rule-label">Style</span>
+              <div class="dc-rule-value-col"><div class="dc-rule-chips"><span class="dc-label-chip"><span class="dc-label-icon">🏆</span>Pack Leader</span></div></div>
+            </div>
+            <div class="dc-rule-row">
+              <span class="dc-rule-dot amber"></span>
+              <span class="dc-rule-label">Comfort</span>
+              <div class="dc-rule-value-col">
+                <div class="dc-rule-chips"><span class="dc-label-chip dc-comfort-chip mood-uneasy"><span class="dc-comfort-dot"></span>Level 4</span></div>
+                <p class="dc-rule-note">you picked Level 3</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
