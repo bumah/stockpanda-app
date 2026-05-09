@@ -140,10 +140,10 @@
       const b = BROKERS[k];
       if (!b) return '';
       const url = b.url(ticker, country);
-      const cta = b.deep ? 'Open in ' + b.name : 'Open ' + b.name + ' & search ' + ticker;
+      const hint = b.deep ? '' : '<span class="sp-broker-hint">search ' + escHtml(ticker) + '</span>';
       return '<a class="sp-broker-row" href="' + url + '" target="_blank" rel="noopener noreferrer">' +
         '<span class="sp-broker-name">' + escHtml(b.name) + '</span>' +
-        '<span class="sp-broker-cta">' + escHtml(cta) + ' <span aria-hidden="true">→</span></span>' +
+        '<span class="sp-broker-end">' + hint + '<span class="sp-broker-arrow" aria-hidden="true">\u2192</span></span>' +
       '</a>';
     }).join('');
     root.innerHTML =
