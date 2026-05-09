@@ -23,23 +23,50 @@
     .br-sub { color: var(--muted); font-size: 0.92rem; line-height: 1.55; max-width: 460px; margin: 0 auto; }
     .br-status { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0.7rem 0.95rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; font-size: 0.78rem; color: var(--muted); }
     .br-status strong { color: var(--text); font-weight: 600; }
-    .br-region-group { margin-bottom: 1.6rem; }
-    .br-region-label { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.55rem; }
-    .br-list { display: flex; flex-direction: column; gap: 0.5rem; }
-    .br-row {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 0.75rem; padding: 0.75rem 0.95rem;
-      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-      border-radius: 10px; cursor: pointer; transition: all 0.15s; user-select: none;
+    .br-table-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .br-table { width: 100%; border-collapse: collapse; }
+    .br-table thead th {
+      background: rgba(255,255,255,0.03);
+      padding: 0.7rem 1rem;
+      text-align: left;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
     }
-    .br-row:hover { border-color: var(--green); background: rgba(74,222,128,0.05); }
-    .br-row.selected { border-color: var(--green); background: rgba(74,222,128,0.1); }
+    .br-table th:last-child, .br-table td:last-child { text-align: right; }
+    .br-row {
+      cursor: pointer;
+      transition: background 0.15s;
+      user-select: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .br-row:last-child { border-bottom: none; }
+    .br-row td { padding: 0.85rem 1rem; }
+    .br-row:hover { background: rgba(74,222,128,0.05); }
+    .br-row.selected { background: rgba(74,222,128,0.10); }
     .br-row.disabled { opacity: 0.4; cursor: not-allowed; }
-    .br-row.disabled:hover { border-color: var(--border); background: rgba(255,255,255,0.03); }
-    .br-name { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+    .br-row.disabled:hover { background: transparent; }
+    .br-name { font-size: 0.92rem; font-weight: 600; color: var(--text); }
+    .br-region-pill {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.55rem;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
     .br-tick {
       width: 20px; height: 20px; border-radius: 4px; flex-shrink: 0;
       border: 2px solid var(--border); transition: all 0.15s; position: relative;
+      display: inline-block; vertical-align: middle;
     }
     .br-row.selected .br-tick {
       border-color: var(--green); background: var(--green);
@@ -50,6 +77,7 @@
       border: solid var(--bg2); border-width: 0 2px 2px 0;
       transform: rotate(45deg);
     }
+    .br-cell-name { display: flex; align-items: center; gap: 0.7rem; }
     .br-actions { display: flex; gap: 0.6rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
     .br-btn-save {
       background: var(--green); color: #000;
@@ -160,10 +188,25 @@ function closeToolsPopover(){
 injectSidebarHTML && injectSidebarHTML();
 initNavStamp && initNavStamp();
 
-const REGION_LABELS = { uk:'🇬🇧 United Kingdom', us:'🇺🇸 United States', eu:'🇪🇺 Europe', hk:'🇭🇰 Hong Kong', global:'🌍 Always available' };
 const REGION_ORDER = ['uk','us','eu','hk','global'];
 const MAX_PICKS = 3;
 let selected = new Set();
+
+// Reduce a broker's regions[] array to a single display label.
+// One region → that region (UK/US/EU/HK). Anything else (multi-region or 'global') → Global.
+function brokerRegionLabel(regions) {
+  if (!regions || regions.length === 0) return 'Global';
+  if (regions.length === 1) {
+    const r = regions[0];
+    if (r === 'global') return 'Global';
+    if (r === 'uk') return 'UK';
+    if (r === 'us') return 'US';
+    if (r === 'eu') return 'EU';
+    if (r === 'hk') return 'HK';
+    return 'Global';
+  }
+  return 'Global';
+}
 
 function renderGroups() {
   const groupsEl = document.getElementById('br-groups');
@@ -172,30 +215,28 @@ function renderGroups() {
     return;
   }
   const BROKERS = window.SP_BROKERS.BROKERS;
-  const byRegion = {};
-  Object.entries(BROKERS).forEach(([key, b]) => {
-    const region = b.regions[0]; // primary region for grouping
-    if (!byRegion[region]) byRegion[region] = [];
-    byRegion[region].push({ key, ...b });
-  });
-  // Move multi-region brokers to "global" group only if they have 'global' region
-  // (otherwise keep them in their first region)
-  const html = REGION_ORDER.filter(r => byRegion[r]).map(region => {
-    const rows = byRegion[region].map(b => {
-      const isSel = selected.has(b.key);
-      const isDisabled = !isSel && selected.size >= MAX_PICKS;
-      return '<div class="br-row ' + (isSel ? 'selected' : '') + (isDisabled ? ' disabled' : '') +
-        '" data-key="' + b.key + '" onclick="toggleBroker(\'' + b.key + '\')">' +
-        '<span class="br-name">' + b.name + '</span>' +
-        '<span class="br-tick"></span>' +
-      '</div>';
-    }).join('');
-    return '<div class="br-region-group">' +
-      '<div class="br-region-label">' + REGION_LABELS[region] + '</div>' +
-      '<div class="br-list">' + rows + '</div>' +
-    '</div>';
+  // Sort: single-region first (UK→US→EU→HK), then Global; alphabetical within.
+  const order = { 'UK':0, 'US':1, 'EU':2, 'HK':3, 'Global':4 };
+  const list = Object.entries(BROKERS).map(([key, b]) => ({
+    key, name: b.name, region: brokerRegionLabel(b.regions)
+  }));
+  list.sort((a, b) =>
+    (order[a.region] - order[b.region]) || a.name.localeCompare(b.name)
+  );
+  const rows = list.map(b => {
+    const isSel = selected.has(b.key);
+    const isDisabled = !isSel && selected.size >= MAX_PICKS;
+    return '<tr class="br-row ' + (isSel ? 'selected' : '') + (isDisabled ? ' disabled' : '') +
+      '" onclick="toggleBroker(\'' + b.key + '\')">' +
+      '<td><div class="br-cell-name"><span class="br-tick"></span><span class="br-name">' + b.name + '</span></div></td>' +
+      '<td><span class="br-region-pill">' + b.region + '</span></td>' +
+    '</tr>';
   }).join('');
-  groupsEl.innerHTML = html;
+  groupsEl.innerHTML =
+    '<div class="br-table-wrap"><table class="br-table">' +
+      '<thead><tr><th>Broker</th><th>Region</th></tr></thead>' +
+      '<tbody>' + rows + '</tbody>' +
+    '</table></div>';
   updateStatus();
 }
 
