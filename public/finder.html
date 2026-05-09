@@ -260,6 +260,7 @@
   <script src="/assets/js/supabase-config.js?v=20260418a"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="/assets/js/auth.js?v=20260426a" defer></script>
+  <script src="/assets/js/brokers.js?v=20260510a" defer></script>
 </head>
 <body>
 
@@ -275,6 +276,7 @@
     <div class="nav-dropdown">
       <button class="nav-link nav-dropdown-trigger">More <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
       <div class="nav-dropdown-menu">
+        <a class="nav-dropdown-item" href="brokers.html">Brokers</a>
         <a class="nav-dropdown-item" href="etfs.html">ETFs</a>
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
         <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
@@ -294,6 +296,7 @@
 </nav>
 <div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
 <div class="tools-popover" id="toolsPopover">
+  <a href="brokers.html" class="tools-popover-item"><i data-lucide="link" class="nb-icon"></i>Brokers</a>
   <a href="etfs.html" class="tools-popover-item"><i data-lucide="layers" class="nb-icon"></i>ETFs</a>
   <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
   <a href="handbook.html" class="tools-popover-item"><i data-lucide="book-open" class="nb-icon"></i>Handbook</a>
@@ -1399,10 +1402,20 @@ function buildFinderDiscoverCard(item) {
       '<div class="dc-nav-item"><button class="dc-btn-back" onclick="finderPrevCard()" title="Back"><i data-lucide="arrow-left"></i></button><div class="dc-label">Back</div></div>' +
       '<div class="dc-nav-item"><button class="dc-btn-heart' + (hearted ? ' hearted' : '') + '" onclick="finderToggleHeart()" title="' + (hearted ? 'Remove from Saved' : 'Save this stock') + '"><i data-lucide="heart"></i></button><div class="dc-label">Save</div></div>' +
       '<div class="dc-nav-item"><button class="dc-btn-open" onclick="finderOpenStock()" title="View details"><i data-lucide="eye"></i></button><div class="dc-label">View</div></div>' +
+      '<div class="dc-nav-item"><button class="dc-btn-trade" onclick="finderOpenTrade()" title="Trade"><i data-lucide="arrow-up-right"></i></button><div class="dc-label">Trade</div></div>' +
       '<div class="dc-nav-item"><button class="dc-btn-next" onclick="finderNextCard()" title="Next"><i data-lucide="arrow-right"></i></button><div class="dc-label">Next</div></div>' +
     '</div>' +
   '</div>';
 }
+
+function finderOpenTrade() {
+  if (typeof scoredCache === 'undefined' || !scoredCache.length) return;
+  const item = scoredCache[_finderDcIdx];
+  if (!item || !item.stock) return;
+  const s = item.stock;
+  if (window.SP_BROKERS) window.SP_BROKERS.open(s.ticker, { country: s.country, company: s.company });
+}
+window.finderOpenTrade = finderOpenTrade;
 
 function showTrapSummary() {
   const panel = document.getElementById('trap-summary');

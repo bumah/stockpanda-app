@@ -221,7 +221,64 @@
     }
   }
 
-  // ── Intercept writes to sp_watchlist + rule keys so we auto-push ────────
+  // ── Broker preferences sync (cross-device) ──────────────────────────────
+  const BROKERS_KEY = 'sp_brokers';
+  const BROKERS_AT  = 'sp_brokers_at';
+  let brokersPushTimer = null;
+
+  function scheduleBrokersPush() {
+    if (!client || !session) return;
+    clearTimeout(brokersPushTimer);
+    brokersPushTimer = setTimeout(pushBrokersToServer, 600);
+  }
+
+  async function pushBrokersToServer() {
+    if (!client || !session) return;
+    let brokers;
+    try { brokers = JSON.parse(localStorage.getItem(BROKERS_KEY) || '[]'); }
+    catch (e) { brokers = []; }
+    const { error } = await client
+      .from('user_brokers')
+      .upsert({
+        user_id:    session.user.id,
+        brokers:    brokers,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' });
+    if (error) console.warn('[auth] brokers push failed', error);
+  }
+
+  async function pullBrokersFromServer() {
+    if (!client || !session) return null;
+    const { data, error } = await client
+      .from('user_brokers')
+      .select('brokers, updated_at')
+      .eq('user_id', session.user.id)
+      .maybeSingle();
+    if (error) { console.warn('[auth] brokers pull failed', error); return null; }
+    return data || null;
+  }
+
+  async function mergeBrokersOnSignIn() {
+    if (!client || !session) return;
+    const server = await pullBrokersFromServer();
+    if (!server) {
+      const local = localStorage.getItem(BROKERS_KEY);
+      if (local && local !== '[]') await pushBrokersToServer();
+      return;
+    }
+    const serverAt = server.updated_at ? Date.parse(server.updated_at) : 0;
+    const localAt  = parseInt(localStorage.getItem(BROKERS_AT) || '0', 10);
+    if (serverAt > localAt) {
+      const list = Array.isArray(server.brokers) ? server.brokers : [];
+      localStorage.setItem(BROKERS_KEY, JSON.stringify(list));
+      localStorage.setItem(BROKERS_AT, Date.now().toString());
+      document.dispatchEvent(new CustomEvent('sp:brokers-sync', { detail: { source: 'server' } }));
+    } else if (localAt > serverAt) {
+      await pushBrokersToServer();
+    }
+  }
+
+  // ── Intercept writes to sp_watchlist + rules + brokers so we auto-push ──
   (function patchStorage() {
     const orig = Storage.prototype.setItem;
     Storage.prototype.setItem = function (key, value) {
@@ -232,10 +289,14 @@
         return;
       }
       if (key === RULES_QUICK_KEY || key === RULES_CUSTOM_KEY) {
-        // Stamp the timestamp so we can compare against the server later.
         const atKey = key === RULES_QUICK_KEY ? RULES_QUICK_AT : RULES_CUSTOM_AT;
         orig.call(this, atKey, Date.now().toString());
         if (client && session) scheduleRulesPush();
+        return;
+      }
+      if (key === BROKERS_KEY) {
+        orig.call(this, BROKERS_AT, Date.now().toString());
+        if (client && session) scheduleBrokersPush();
       }
     };
   })();
@@ -277,13 +338,13 @@
     client.auth.getSession().then(({ data }) => {
       session = data.session || null;
       updateUI();
-      if (session) { mergeOnSignIn(); mergeRulesOnSignIn(); }
+      if (session) { mergeOnSignIn(); mergeRulesOnSignIn(); mergeBrokersOnSignIn(); }
     });
 
     client.auth.onAuthStateChange(async (event, s) => {
       session = s;
       updateUI();
-      if (event === 'SIGNED_IN') { await mergeOnSignIn(); await mergeRulesOnSignIn(); }
+      if (event === 'SIGNED_IN') { await mergeOnSignIn(); await mergeRulesOnSignIn(); await mergeBrokersOnSignIn(); }
       if (event === 'SIGNED_OUT') {
         // Keep local list as-is; user may want to keep an offline copy
         document.dispatchEvent(new CustomEvent('sp:catch-sync', { detail: { source: 'signout' } }));

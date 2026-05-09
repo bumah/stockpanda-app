@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockPanda — Brokers</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260421a" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0E100F" />
+  <link rel="apple-touch-icon" href="/assets/img/icon-180.png" />
+  <link rel="icon" type="image/png" href="/assets/img/favicon-32.png" />
+  <script src="/assets/js/supabase-config.js?v=20260418a"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="/assets/js/auth.js?v=20260426a" defer></script>
+  <script src="/assets/js/brokers.js?v=20260510a" defer></script>
+  <style>
+    .br-page { max-width: 720px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    .br-head { text-align: center; margin-bottom: 2rem; }
+    .br-eyebrow { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--green); display: inline-block; border: 1px solid var(--border); padding: 0.3rem 1rem; border-radius: 99px; margin-bottom: 1rem; }
+    .br-h1 { font-family: var(--font); font-size: 2rem; font-weight: 700; color: var(--parchment); margin-bottom: 0.5rem; }
+    .br-sub { color: var(--muted); font-size: 0.92rem; line-height: 1.55; max-width: 460px; margin: 0 auto; }
+    .br-status { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0.7rem 0.95rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; font-size: 0.78rem; color: var(--muted); }
+    .br-status strong { color: var(--text); font-weight: 600; }
+    .br-region-group { margin-bottom: 1.6rem; }
+    .br-region-label { font-family: var(--mono); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.55rem; }
+    .br-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .br-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.75rem; padding: 0.75rem 0.95rem;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+      border-radius: 10px; cursor: pointer; transition: all 0.15s; user-select: none;
+    }
+    .br-row:hover { border-color: var(--green); background: rgba(74,222,128,0.05); }
+    .br-row.selected { border-color: var(--green); background: rgba(74,222,128,0.1); }
+    .br-row.disabled { opacity: 0.4; cursor: not-allowed; }
+    .br-row.disabled:hover { border-color: var(--border); background: rgba(255,255,255,0.03); }
+    .br-name { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+    .br-tick {
+      width: 20px; height: 20px; border-radius: 4px; flex-shrink: 0;
+      border: 2px solid var(--border); transition: all 0.15s; position: relative;
+    }
+    .br-row.selected .br-tick {
+      border-color: var(--green); background: var(--green);
+    }
+    .br-row.selected .br-tick::after {
+      content: ''; position: absolute; top: 1px; left: 5px;
+      width: 4px; height: 9px;
+      border: solid var(--bg2); border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+    .br-actions { display: flex; gap: 0.6rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .br-btn-save {
+      background: var(--green); color: #000;
+      padding: 0.7rem 1.6rem; border-radius: 8px; border: none;
+      font-family: var(--font); font-size: 0.88rem; font-weight: 700;
+      cursor: pointer; flex: 1;
+    }
+    .br-btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
+    .br-btn-clear {
+      background: transparent; color: var(--muted);
+      padding: 0.7rem 1.2rem; border: 1px solid var(--border); border-radius: 8px;
+      font-family: var(--font); font-size: 0.82rem; cursor: pointer;
+    }
+    .br-toast {
+      position: fixed; bottom: 5rem; left: 50%; transform: translateX(-50%);
+      background: var(--green); color: #000;
+      padding: 0.7rem 1.4rem; border-radius: 99px;
+      font-family: var(--font); font-size: 0.82rem; font-weight: 700;
+      opacity: 0; transition: opacity 0.2s;
+      z-index: 1500; pointer-events: none;
+    }
+    .br-toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-sp">Stock</span><span class="nav-logo-rest">Panda</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link sp-auth-only-out" href="index.html">Home</a>
+    <a class="nav-link" href="finder.html">Ideas</a>
+    <a class="nav-link" href="watchlist.html">Saved</a>
+    <a class="nav-link" href="stocks.html">Search</a>
+    <div class="nav-dropdown">
+      <button class="nav-link nav-dropdown-trigger">More <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
+      <div class="nav-dropdown-menu">
+        <a class="nav-dropdown-item active" href="brokers.html">Brokers</a>
+        <a class="nav-dropdown-item" href="etfs.html">ETFs</a>
+        <a class="nav-dropdown-item" href="summary.html">Brief</a>
+        <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
+        <a class="nav-dropdown-item" href="about.html">About</a>
+      </div>
+    </div>
+  </div>
+</nav>
+<div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
+<div class="tools-popover" id="toolsPopover">
+  <a href="brokers.html" class="tools-popover-item"><i data-lucide="link" class="nb-icon"></i>Brokers</a>
+  <a href="etfs.html" class="tools-popover-item"><i data-lucide="layers" class="nb-icon"></i>ETFs</a>
+  <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
+  <a href="handbook.html" class="tools-popover-item"><i data-lucide="book-open" class="nb-icon"></i>Handbook</a>
+  <a href="about.html" class="tools-popover-item"><i data-lucide="info" class="nb-icon"></i>About</a>
+</div>
+<nav class="nav-bottom">
+  <a href="index.html" class="sp-auth-only-out"><i data-lucide="house" class="nb-icon"></i>Home</a>
+  <a href="finder.html"><i data-lucide="sparkles" class="nb-icon"></i>Ideas</a>
+  <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Saved</a>
+  <a href="stocks.html"><i data-lucide="search" class="nb-icon"></i>Search</a>
+  <a href="#" onclick="event.preventDefault();toggleToolsPopover()"><i data-lucide="compass" class="nb-icon"></i>More</a>
+</nav>
+<script>
+function toggleToolsPopover(){
+  var p=document.getElementById('toolsPopover'),b=document.getElementById('toolsBackdrop');
+  if(p.classList.contains('open')){p.classList.remove('open');b.classList.remove('open');}
+  else{p.classList.add('open');b.classList.add('open');}
+}
+function closeToolsPopover(){
+  document.getElementById('toolsPopover').classList.remove('open');
+  document.getElementById('toolsBackdrop').classList.remove('open');
+}
+</script>
+
+<div class="main">
+  <div class="br-page">
+    <div class="br-head">
+      <div class="br-eyebrow">Brokers</div>
+      <h1 class="br-h1">Pick your brokers</h1>
+      <p class="br-sub">Choose up to 3 brokers. We'll show these on every Trade button so you can jump straight to where you actually trade.</p>
+    </div>
+
+    <div class="br-status" id="br-status"></div>
+
+    <div id="br-groups"></div>
+
+    <div class="br-actions">
+      <button class="br-btn-clear" id="br-clear" type="button">Clear all</button>
+      <button class="br-btn-save" id="br-save" type="button">Save</button>
+    </div>
+
+    <p style="font-size:0.7rem;color:var(--muted);margin-top:1.5rem;line-height:1.5;text-align:center;">
+      StockPanda doesn't execute trades. Your broker handles the order. We don't earn a commission from the brokers listed.
+    </p>
+  </div>
+</div>
+
+<div class="br-toast" id="br-toast">Saved</div>
+
+<footer style="border-top:1px solid var(--border);padding:40px 1.5rem;text-align:center;max-width:1400px;margin:4rem auto 0;">
+  <p style="margin:0;"><a href="index.html" style="font-family:var(--mono);font-weight:700;font-size:16px;color:var(--text);text-decoration:none;"><span style="color:var(--brand);">Stock</span>Panda</a></p>
+  <p style="font-size:12px;color:var(--muted);margin-top:12px;">StockPanda is a free stock ideas app. Ideas shown are starting points for your own research — not investment advice or recommendations to buy any security. Always do your own research and consider speaking to a regulated adviser. Your capital is at risk.</p>
+</footer>
+
+<script src="assets/js/mood.js?v=20260421a"></script>
+<script>
+'use strict';
+injectSidebarHTML && injectSidebarHTML();
+initNavStamp && initNavStamp();
+
+const REGION_LABELS = { uk:'🇬🇧 United Kingdom', us:'🇺🇸 United States', eu:'🇪🇺 Europe', hk:'🇭🇰 Hong Kong', global:'🌍 Always available' };
+const REGION_ORDER = ['uk','us','eu','hk','global'];
+const MAX_PICKS = 3;
+let selected = new Set();
+
+function renderGroups() {
+  const groupsEl = document.getElementById('br-groups');
+  if (!window.SP_BROKERS) {
+    groupsEl.innerHTML = '<p style="color:var(--muted);">Loading brokers…</p>';
+    return;
+  }
+  const BROKERS = window.SP_BROKERS.BROKERS;
+  const byRegion = {};
+  Object.entries(BROKERS).forEach(([key, b]) => {
+    const region = b.regions[0]; // primary region for grouping
+    if (!byRegion[region]) byRegion[region] = [];
+    byRegion[region].push({ key, ...b });
+  });
+  // Move multi-region brokers to "global" group only if they have 'global' region
+  // (otherwise keep them in their first region)
+  const html = REGION_ORDER.filter(r => byRegion[r]).map(region => {
+    const rows = byRegion[region].map(b => {
+      const isSel = selected.has(b.key);
+      const isDisabled = !isSel && selected.size >= MAX_PICKS;
+      return '<div class="br-row ' + (isSel ? 'selected' : '') + (isDisabled ? ' disabled' : '') +
+        '" data-key="' + b.key + '" onclick="toggleBroker(\'' + b.key + '\')">' +
+        '<span class="br-name">' + b.name + '</span>' +
+        '<span class="br-tick"></span>' +
+      '</div>';
+    }).join('');
+    return '<div class="br-region-group">' +
+      '<div class="br-region-label">' + REGION_LABELS[region] + '</div>' +
+      '<div class="br-list">' + rows + '</div>' +
+    '</div>';
+  }).join('');
+  groupsEl.innerHTML = html;
+  updateStatus();
+}
+
+function updateStatus() {
+  const el = document.getElementById('br-status');
+  el.innerHTML = '<span><strong>' + selected.size + '</strong> of ' + MAX_PICKS + ' selected</span>' +
+    '<span>' + (selected.size === 0 ? 'Region defaults will be used.' : '') + '</span>';
+  document.getElementById('br-save').disabled = false;
+}
+
+function toggleBroker(key) {
+  if (selected.has(key)) selected.delete(key);
+  else if (selected.size < MAX_PICKS) selected.add(key);
+  renderGroups();
+}
+window.toggleBroker = toggleBroker;
+
+function loadSelection() {
+  if (!window.SP_BROKERS) return;
+  const list = window.SP_BROKERS.getUserBrokers();
+  selected = new Set(list);
+  renderGroups();
+}
+
+function saveSelection() {
+  if (!window.SP_BROKERS) return;
+  window.SP_BROKERS.setUserBrokers(Array.from(selected));
+  toast('Saved');
+}
+
+function clearSelection() {
+  selected.clear();
+  saveSelection();
+  renderGroups();
+}
+
+function toast(msg) {
+  const t = document.getElementById('br-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1400);
+}
+
+document.getElementById('br-save').addEventListener('click', saveSelection);
+document.getElementById('br-clear').addEventListener('click', clearSelection);
+
+// Wait for brokers.js to load (it's deferred), then render.
+function init() {
+  if (window.SP_BROKERS) loadSelection();
+  else setTimeout(init, 50);
+}
+init();
+</script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>

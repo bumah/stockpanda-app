@@ -178,6 +178,7 @@
   <script src="/assets/js/supabase-config.js?v=20260418a"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="/assets/js/auth.js?v=20260426a" defer></script>
+  <script src="/assets/js/brokers.js?v=20260510a" defer></script>
 </head>
 <body>
 
@@ -193,6 +194,7 @@
     <div class="nav-dropdown">
       <button class="nav-link nav-dropdown-trigger">More <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
       <div class="nav-dropdown-menu">
+        <a class="nav-dropdown-item" href="brokers.html">Brokers</a>
         <a class="nav-dropdown-item" href="etfs.html">ETFs</a>
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
         <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
@@ -212,6 +214,7 @@
 </nav>
 <div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
 <div class="tools-popover" id="toolsPopover">
+  <a href="brokers.html" class="tools-popover-item"><i data-lucide="link" class="nb-icon"></i>Brokers</a>
   <a href="etfs.html" class="tools-popover-item"><i data-lucide="layers" class="nb-icon"></i>ETFs</a>
   <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
   <a href="handbook.html" class="tools-popover-item"><i data-lucide="book-open" class="nb-icon"></i>Handbook</a>
@@ -263,10 +266,21 @@ function closeToolsPopover(){
   <!-- Action bar -->
   <div class="action-bar">
     <button class="catch-btn" id="catch-btn" onclick="toggleStockCatch()" title="Save" aria-label="Save"><i data-lucide="heart" id="catch-icon"></i></button>
+    <button class="ab-btn" id="trade-btn" onclick="openTradeFromStock()" title="Trade" aria-label="Trade"><i data-lucide="arrow-up-right"></i></button>
     <button class="ab-btn" id="share-btn" onclick="openShareModal()" title="Share" aria-label="Share"><i data-lucide="share-2"></i></button>
     <button class="ab-btn" id="preview-btn" onclick="openPreviewCard()" title="Preview" aria-label="Preview"><i data-lucide="search"></i></button>
     <button class="ab-btn" id="pdf-btn" onclick="exportPDF()" title="PDF" aria-label="PDF"><i data-lucide="file-text"></i></button>
   </div>
+
+  <script>
+    window.openTradeFromStock = function() {
+      if (!window.SP_BROKERS || !window.stockData) return;
+      window.SP_BROKERS.open(window.stockData.ticker, {
+        country: window.stockData.country,
+        company: window.stockData.company,
+      });
+    };
+  </script>
 
   <!-- Dashboard grid -->
   <div class="dash-grid">

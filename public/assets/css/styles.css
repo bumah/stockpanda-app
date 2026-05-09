@@ -1273,3 +1273,72 @@ button.dc-label-chip { outline: none; }
 }
 .discover-done h3 { font-size: 1.1rem; color: var(--parchment); margin-bottom: 0.5rem; }
 .discover-done p { font-size: 0.82rem; line-height: 1.6; }
+
+/* ── Trade modal (broker picker) ─────────────────────────────────────── */
+.sp-trade-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.78); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center; z-index: 1300;
+  padding: 1rem;
+}
+.sp-trade-box {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 16px;
+  width: min(440px, 100%); max-height: 90vh; overflow-y: auto;
+  padding: 1.6rem 1.4rem 1.2rem; position: relative;
+  animation: fadeUp 0.2s ease;
+}
+.sp-trade-close {
+  position: absolute; top: 0.7rem; right: 0.9rem;
+  background: none; border: none; color: var(--muted);
+  font-size: 1.5rem; line-height: 1; cursor: pointer;
+}
+.sp-trade-close:hover { color: var(--text); }
+.sp-trade-title {
+  font-family: var(--font); font-size: 1.05rem; font-weight: 700;
+  color: var(--parchment); margin-bottom: 0.25rem;
+}
+.sp-trade-sub {
+  font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+  margin-bottom: 1rem;
+}
+.sp-trade-banner {
+  background: rgba(74,222,128,0.06); border: 1px solid rgba(74,222,128,0.18);
+  border-radius: 8px; padding: 0.55rem 0.75rem;
+  font-size: 0.72rem; color: var(--muted); line-height: 1.5;
+  margin: 0 0 0.85rem;
+}
+.sp-trade-banner a { color: var(--green); text-decoration: none; font-weight: 600; }
+.sp-trade-banner a:hover { text-decoration: underline; }
+.sp-broker-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.sp-broker-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.7rem 0.95rem;
+  text-decoration: none; color: var(--text);
+  transition: all 0.15s;
+}
+.sp-broker-row:hover { border-color: var(--green); background: rgba(74,222,128,0.06); }
+.sp-broker-name { font-size: 0.9rem; font-weight: 600; }
+.sp-broker-cta { font-size: 0.72rem; color: var(--green); font-family: var(--mono); }
+.sp-trade-note {
+  font-size: 0.65rem; color: var(--muted); line-height: 1.5;
+  margin: 1rem 0 0.5rem; text-align: center;
+}
+.sp-trade-foot {
+  text-align: center; padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+.sp-trade-foot a {
+  font-size: 0.72rem; color: var(--muted); text-decoration: none;
+  font-family: var(--mono);
+}
+.sp-trade-foot a:hover { color: var(--green); }
+
+/* Trade button — discover-card nav variant */
+.dc-btn-trade {
+  background: var(--green); color: #000;
+  width: 44px; height: 44px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; cursor: pointer; transition: opacity 0.15s;
+}
+.dc-btn-trade:hover { opacity: 0.85; }
+.dc-btn-trade i { width: 20px; height: 20px; stroke-width: 2.5; }
