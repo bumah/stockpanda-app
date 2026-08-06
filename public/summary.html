@@ -267,35 +267,35 @@ const aboveMA = (maField)   => e => e.p != null && e[maField] != null && e.p > e
 
 const HUNTING_STYLES = [
   {
-    key:'trophy', icon:'🏆', label:'Trophy',
+    key:'trophy', icon:'🏆', label:'Proven',
     sub:'Focuses on proven long-term winners with strong earnings and dominant positioning.',
     filters: [ gt('mc', 10000000000), gt('y1', 10), gt('y5', 50), gt('eps', 0) ],
     // Durable compounder × current trend — proven AND still rising
     sort: (a, b) => ((b.y5 ?? 0) * (b.y1 ?? 0)) - ((a.y5 ?? 0) * (a.y1 ?? 0)),
   },
   {
-    key:'wild_beast', icon:'🎢', label:'Rollercoaster',
+    key:'wild_beast', icon:'🎢', label:'Bumpy',
     sub:'Captures high-volatility assets with extreme upside (and downside) potential.',
     filters: [ gt('vol', 50), gt('beta', 1.5), nn('gap'), gt('gap', 3) ],
     // Volatility × realised upside — explosive moves that actually paid off
     sort: (a, b) => ((b.vol ?? 0) * (b.y1 ?? 0)) - ((a.vol ?? 0) * (a.y1 ?? 0)),
   },
   {
-    key:'scavenger', icon:'🐘', label:'Scavenger',
+    key:'scavenger', icon:'🐘', label:'Bargain',
     sub:'Finds high-quality stocks that have been beaten down — real bargains with proven fundamentals.',
     filters: [ gt('ni', 0), gt('y5', 20), lt('r52', 40), gt('mc', 2000000000) ],
     // Quality-to-discount ratio: strong 5Y track record per unit of discount (lower r52 = bigger discount)
     sort: (a, b) => ((b.y5 ?? 0) / Math.max(b.r52 ?? 100, 1)) - ((a.y5 ?? 0) / Math.max(a.r52 ?? 100, 1)),
   },
   {
-    key:'momentum', icon:'🚀', label:'Momentum',
+    key:'momentum', icon:'🚀', label:'Hot',
     sub:'Identifies stocks in sustained uptrends across multiple timeframes.',
     filters: [ gt('m1', 0), gt('m3', 0), gt('y1', 10), aboveMA('ma50') ],
     // Medium × long-term — trend still running across timeframes
     sort: (a, b) => ((b.m3 ?? 0) * (b.y1 ?? 0)) - ((a.m3 ?? 0) * (a.y1 ?? 0)),
   },
   {
-    key:'rebound', icon:'🐇', label:'Rebound',
+    key:'rebound', icon:'🐇', label:'Recovering',
     sub:'Stocks that had a rough patch and are now climbing back — V-shape recoveries in motion.',
     filters: [ lt('r52', 60), gt('r52', 20), gt('m1', 0), aboveMA('ma50') ],
     // Recent snap-back × depth of prior drawdown — sharpest V-shape

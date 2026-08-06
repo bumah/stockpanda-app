@@ -679,8 +679,8 @@ function renderTopStyles() {
   const s = stockData;
   const ps = (s && s.presetScores) || {};
   const NAMES = {
-    trophy:'Pack Leader', wild_beast:'Rollercoaster', scavenger:'Sleeping Giant',
-    momentum:'High Flyer', rebound:'Recovery', moonshot:'Moonshot',
+    trophy:'Proven', wild_beast:'Bumpy', scavenger:'Bargain',
+    momentum:'Hot', rebound:'Recovering', moonshot:'Moonshot',
     neutral_mega:'Neutral Mega', neutral_large:'Neutral Large',
     neutral_small:'Neutral Small', neutral_micro:'Neutral Micro',
   };
@@ -820,8 +820,8 @@ function renderFieldNotes() {
   //    render "undefined" in the copy.
   const ps = s.presetScores;
   const NAMES = {
-    trophy:'Pack Leader', wild_beast:'Rollercoaster', scavenger:'Sleeping Giant',
-    momentum:'High Flyer', rebound:'Recovery', moonshot:'Moonshot',
+    trophy:'Proven', wild_beast:'Bumpy', scavenger:'Bargain',
+    momentum:'Hot', rebound:'Recovering', moonshot:'Moonshot',
     neutral_mega:'Neutral Mega', neutral_large:'Neutral Large',
     neutral_small:'Neutral Small', neutral_micro:'Neutral Micro',
   };
@@ -1140,11 +1140,11 @@ function renderRawTable() {
 
 // ── Hunting Styles breakdown ──────────────────────────────────────────────────
 const STYLE_META = [
-  { key:'trophy',      icon:'🏆', name:'Pack Leader',      desc:'Proven long-term winners with strong earnings.' },
-  { key:'wild_beast',  icon:'🎢', name:'Rollercoaster',  desc:'High-volatility assets with extreme upside potential.' },
-  { key:'scavenger',   icon:'🐘', name:'Sleeping Giant',   desc:'Quality stocks that have been beaten down — bargains with proven fundamentals.' },
-  { key:'momentum',    icon:'🚀', name:'Momentum',    desc:'Stocks in sustained uptrends across multiple timeframes.' },
-  { key:'rebound',     icon:'🐇', name:'Rebound',     desc:'Stocks recovering after a rough patch — V-shape recoveries in motion.' },
+  { key:'trophy',      icon:'🏆', name:'Proven',     desc:'Proven long-term winners with strong earnings.' },
+  { key:'wild_beast',  icon:'🎢', name:'Bumpy',      desc:'High-volatility assets with extreme upside potential.' },
+  { key:'scavenger',   icon:'🐘', name:'Bargain',    desc:'Quality stocks that have been beaten down — bargains with proven fundamentals.' },
+  { key:'momentum',    icon:'🚀', name:'Hot',        desc:'Stocks in sustained uptrends across multiple timeframes.' },
+  { key:'rebound',     icon:'🐇', name:'Recovering', desc:'Stocks recovering after a rough patch — V-shape recoveries in motion.' },
 ];
 
 function renderStyleBreakdown() {
@@ -1548,7 +1548,7 @@ window.openPreviewCard = function openPreviewCard() {
 
   // Styles — all 6 types (incl. Moonshot).  Match emojis to finder-engine.js (🐂 for wild_beast).
   const STYLE_ICONS = { trophy:'\u{1F3C6}', wild_beast:'\u{1F402}', scavenger:'\u{1F985}', momentum:'\u{1F680}', rebound:'\u{1F407}', moonshot:'\u{1F984}' };
-  const STYLE_NAMES = { trophy:'Pack Leader', wild_beast:'Rollercoaster', scavenger:'Sleeping Giant', momentum:'High Flyer', rebound:'Recovery', moonshot:'Moonshot' };
+  const STYLE_NAMES = { trophy:'Proven', wild_beast:'Bumpy', scavenger:'Bargain', momentum:'Hot', rebound:'Recovering', moonshot:'Moonshot' };
   const sorted = Object.entries(ps).map(([k, v]) => [k, v?.pct ?? 0]).sort((a, b) => b[1] - a[1]);
   const styleRows = sorted.map(e =>
     '<div class="dc-style-row"><span class="dc-style-icon">' + (STYLE_ICONS[e[0]] || '') + '</span><span class="dc-style-name">' + (STYLE_NAMES[e[0]] || e[0]) + '</span>' + hearts(e[1]) + '</div>'

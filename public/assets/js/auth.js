@@ -38,8 +38,11 @@
     // When auth isn't configured, hide every auth-related control so the app
     // looks identical to before login was added.
     if (!ENABLED) {
-      $$('.sp-auth-signin, .sp-auth-signout, .sp-auth-only-in, .sp-auth-only-out')
+      // Login disabled: hide sign-in/out + "signed-in only" content, but keep
+      // "signed-out only" content (e.g. the Home nav link) visible.
+      $$('.sp-auth-signin, .sp-auth-signout, .sp-auth-only-in')
         .forEach(el => el.style.display = 'none');
+      $$('.sp-auth-only-out').forEach(el => el.style.display = '');
       return;
     }
     const signedIn = !!(session && session.user);

@@ -5,7 +5,9 @@
  * Leave as empty strings to disable login entirely (app falls back to
  * localStorage-only mode).
  * ───────────────────────────────────────────────────────────── */
+// Discovery-only mode: login + cross-device sync are disabled.
+// Restore the URL + anon key below to re-enable Google sign-in.
 window.SP_SUPABASE = {
-  url:      'https://yxtyotpvtgocavnopbdt.supabase.co',
-  anonKey:  'sb_publishable_R1_ZO2ayPSvLdjCkLylygQ_M5oL4XjF',
+  url:      '',
+  anonKey:  '',
 };

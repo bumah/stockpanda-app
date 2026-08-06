@@ -1006,7 +1006,7 @@ button.nav-dropdown-trigger {
 .dc-style-sep { font-size: 0.5rem; color: var(--muted); margin: 0.15rem 0; padding-left: 1.6rem; }
 
 /* Style chips on the finder discover card — multi-label (every style the stock qualifies for).
-   Stocks can legitimately fit multiple styles (e.g. NVDA is both Pack Leader and High Flyer),
+   Stocks can legitimately fit multiple styles (e.g. NVDA is both Proven and Hot),
    so we render all qualifying chips at equal weight rather than picking one. */
 .dc-label-chips {
   display: flex; flex-wrap: wrap; gap: 0.4rem;
@@ -1350,3 +1350,15 @@ button.dc-label-chip { outline: none; }
   background: rgba(74,222,128,0.08);
 }
 .dc-btn-trade i { width: 18px; height: 18px; stroke-width: 2; }
+
+/* ── Discovery-only mode: hide Save / Watchlist features ──────────────────────
+   Set your rules → get results. To restore the save/watchlist feature, delete
+   this block (and re-enable login in assets/js/supabase-config.js).            */
+a[href="watchlist.html"],          /* "Saved" nav links (desktop + mobile bar) */
+.catch-btn,                        /* save button on stock.html / etf.html     */
+.etf-save,                         /* save button on ETF result cards          */
+.dc-btn-heart,                     /* discovery-card save button               */
+.dc-nav-item:has(.dc-btn-heart),   /* …plus its "Save" label (modern browsers) */
+#wl-signin-banner {                /* stray "sign in to sync" banner           */
+  display: none !important;
+}

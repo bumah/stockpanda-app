@@ -13,7 +13,7 @@ const MOOD_COLOR_LABELS = {'mc-blue':'Level 1','mc-green':'Level 2','mc-amber':'
 // Each criterion: core (×2) or supporting (×1). Only active criteria count.
 // score = (weighted sum) / (max weighted sum) × 100
 const PRESETS = {
-  trophy: { label: 'Trophy', sub: 'Focuses on proven long-term winners with strong earnings and dominant positioning.',
+  trophy: { label: 'Proven', sub: 'Focuses on proven long-term winners with strong earnings and dominant positioning.',
     criteria: [
       { key:'growth5y', expect:'strong',      weight:2 },
       { key:'profit',   expect:'profitable',  weight:2 },
@@ -24,7 +24,7 @@ const PRESETS = {
       { key:'drawdown', expect:'near_peak',   weight:1 },
     ],
   },
-  wild_beast: { label: 'Rollercoaster', sub: 'High-volatility large/mid caps with strong recent gains. Volatile big winners — not for the faint-hearted.',
+  wild_beast: { label: 'Bumpy', sub: 'High-volatility large/mid caps with strong recent gains. Volatile big winners — not for the faint-hearted.',
     criteria: [
       { key:'vol',      expect:'high',            weight:2 },
       { key:'return1y', expect:'strong_positive', weight:2 },
@@ -34,7 +34,7 @@ const PRESETS = {
       { key:'range52w', expect:'highs',           weight:1 },
     ],
   },
-  scavenger: { label: 'Scavenger', sub: 'Finds high-quality stocks that have been beaten down — real bargains with proven fundamentals.',
+  scavenger: { label: 'Bargain', sub: 'Finds high-quality stocks that have been beaten down — real bargains with proven fundamentals.',
     criteria: [
       { key:'profit',   expect:'profitable', weight:2 },
       { key:'growth5y', expect:'strong',     weight:2 },
@@ -44,7 +44,7 @@ const PRESETS = {
       { key:'size',     expect:'large',      weight:1 },
     ],
   },
-  momentum: { label: 'Momentum', sub: 'Identifies stocks in sustained uptrends across multiple timeframes.',
+  momentum: { label: 'Hot', sub: 'Identifies stocks in sustained uptrends across multiple timeframes.',
     criteria: [
       { key:'momentum', expect:'positive',   weight:2 },
       { key:'matrend',  expect:'above_both', weight:2 },
@@ -54,7 +54,7 @@ const PRESETS = {
       { key:'drawdown', expect:'near_peak',  weight:1 },
     ],
   },
-  rebound: { label: 'Rebound', sub: 'Stocks that had a rough patch and are now climbing back — V-shape recoveries in motion.',
+  rebound: { label: 'Recovering', sub: 'Stocks that had a rough patch and are now climbing back — V-shape recoveries in motion.',
     criteria: [
       { key:'drawdown', expect:'deep',     weight:2 },
       { key:'matrend',  expect:'above_50', weight:2 },
@@ -83,8 +83,8 @@ const STYLE_ICONS = {
   neutral_mega:'🐳', neutral_large:'🦒', neutral_small:'🦌', neutral_micro:'🐹',
 };
 const STYLE_NAMES = {
-  trophy:'Pack Leader', wild_beast:'Rollercoaster', scavenger:'Sleeping Giant',
-  momentum:'High Flyer', rebound:'Recovery', moonshot:'Moonshot',
+  trophy:'Proven', wild_beast:'Bumpy', scavenger:'Bargain',
+  momentum:'Hot', rebound:'Recovering', moonshot:'Moonshot',
   neutral_mega:'Neutral Mega', neutral_large:'Neutral Large',
   neutral_small:'Neutral Small', neutral_micro:'Neutral Micro',
 };
