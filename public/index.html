@@ -1060,72 +1060,79 @@ footer a:hover { color: var(--green-primary); }
 <!-- ═══════════════════════════════════════ -->
 <!-- HERO -->
 <!-- ═══════════════════════════════════════ -->
-<section class="hero">
-  <div class="container hero-grid">
-    <div class="hero-text">
-      <div class="hero-label">The stock discovery app</div>
-      <h1>Buy stocks <em>by fit</em>, not hype.</h1>
-      <p class="hero-pain">Many investors get burned following gurus, friends, and FOMO. StockPanda helps you set your own rules and discover stocks that actually fit you, not the crowd.</p>
-      <p class="hero-promise">Set your rules. Browse your feed. Find your match.</p>
-      <div class="hero-ctas">
-        <a href="#how-it-works" class="btn-primary">Get started free</a>
+<style id="risk-landing-css">
+.risk-hero{text-align:center;padding:52px 20px 58px;background:radial-gradient(130% 70% at 50% -6%,rgba(74,222,128,.09),transparent 60%)}
+.rh-inner{max-width:620px;margin:0 auto}
+.rh-mark{font-size:40px;line-height:1}
+.rh-word{font-size:25px;font-weight:700;letter-spacing:-.03em;color:var(--parchment);margin-top:6px}
+.rh-tag{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin:12px 0 32px}
+.rh-h1{font-size:clamp(28px,5vw,38px);font-weight:700;letter-spacing:-.03em;color:var(--parchment);margin:0 0 8px}
+.rh-sub{color:var(--muted);font-size:16px;margin:0 0 24px}
+.rh-searchwrap{position:relative;text-align:left}
+.rh-search{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:9px 9px 9px 18px;box-shadow:0 0 0 4px rgba(74,222,128,.05)}
+.rh-search svg{color:var(--muted);flex:0 0 auto}
+.rh-search input{flex:1;min-width:0;background:none;border:none;outline:none;color:var(--text);font-size:16px;font-family:var(--font)}
+.rh-search input::placeholder{color:#67736a}
+.rh-go{background:var(--green);color:#08210f;font-weight:700;border:none;border-radius:11px;padding:11px 20px;font-size:15px;font-family:var(--font);cursor:pointer;flex:0 0 auto}
+.rh-results{position:absolute;left:0;right:0;top:calc(100% + 8px);background:var(--bg2);border:1px solid var(--border2);border-radius:14px;overflow:hidden;z-index:50;display:none;box-shadow:0 20px 50px -24px #000}
+.rh-results.open{display:block}
+.rh-results a{display:flex;align-items:center;gap:12px;padding:11px 14px;text-decoration:none;border-bottom:1px solid var(--border)}
+.rh-results a:last-child{border-bottom:none}
+.rh-results a:hover{background:var(--bg3)}
+.rh-hit-t{font-family:var(--mono);font-weight:700;font-size:13px;color:var(--green);flex:0 0 auto}
+.rh-hit-c{flex:1;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rh-hit-x{font-family:var(--mono);font-size:11px;color:var(--muted);flex:0 0 auto}
+.rh-msg{padding:12px 14px;color:var(--muted);font-size:13px}
+.rh-subrow{display:flex;align-items:center;justify-content:space-between;gap:10px 20px;margin:14px 4px 0;font-family:var(--mono);font-size:12px;color:var(--muted);flex-wrap:wrap}
+.rh-pop b{font-weight:400}
+.rh-pop a{color:var(--text);text-decoration:none}
+.rh-pop a:hover{color:var(--green)}
+.rh-adv{color:var(--green);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.rh-or{display:flex;align-items:center;gap:16px;margin:38px 0 18px;color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.12em;opacity:.7}
+.rh-or::before,.rh-or::after{content:"";flex:1;height:1px;background:var(--border)}
+.rh-quiz{display:flex;align-items:center;gap:16px;text-align:left;background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:15px 18px;text-decoration:none;transition:border-color .15s}
+.rh-quiz:hover{border-color:var(--green)}
+.rh-quiz-ic{width:42px;height:42px;flex:0 0 auto;border-radius:11px;color:var(--green);background:rgba(74,222,128,.1);display:flex;align-items:center;justify-content:center}
+.rh-quiz-txt{flex:1;font-size:13.5px;color:var(--muted);line-height:1.5}
+.rh-quiz-txt b{color:var(--text);font-size:15px;font-weight:700;display:block;margin-bottom:2px}
+.rh-quiz-arrow{color:var(--green);font-size:20px;flex:0 0 auto}
+@media(max-width:560px){.rh-subrow{justify-content:center;text-align:center}}
+</style>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- HERO — RISK SEARCH -->
+<!-- ═══════════════════════════════════════ -->
+<section class="risk-hero">
+  <div class="rh-inner">
+    <div class="rh-mark">🐼</div>
+    <div class="rh-word">StockPanda</div>
+    <p class="rh-tag">The risk companion for stock investors</p>
+    <h1 class="rh-h1">Know your risk.</h1>
+    <p class="rh-sub">Search any stock for a full risk breakdown.</p>
+
+    <div class="rh-searchwrap">
+      <div class="rh-search">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4-4"></path></svg>
+        <input id="risk-search" type="text" placeholder="Try NVDA, Tesla, or any company…" autocomplete="off" />
+        <button class="rh-go" id="risk-go">Search</button>
       </div>
+      <div class="rh-results" id="risk-results"></div>
     </div>
-    <div class="hero-card-wrap" aria-hidden="true">
-      <div class="discover-card">
-        <div class="dc-split">
-          <div class="dc-split-left">
-            <div class="dc-ticker">STRL</div>
-            <div class="dc-company">Sterling Infrastructure, Inc.</div>
-            <div class="dc-country-plain">🇺🇸 United States · Industrial services · $15.5B</div>
-          </div>
-          <div class="dc-split-right">
-            <img class="dc-panda" src="assets/img/panda-unsettled.png" alt="" />
-          </div>
-        </div>
-        <div class="dc-returns">
-          <div class="dc-ret"><span class="dc-ret-label">1M</span><span class="dc-ret-val pos">+21.5%</span></div>
-          <div class="dc-ret"><span class="dc-ret-label">3M</span><span class="dc-ret-val pos">+39.1%</span></div>
-          <div class="dc-ret"><span class="dc-ret-label">1Y</span><span class="dc-ret-val pos">+246.6%</span></div>
-          <div class="dc-ret"><span class="dc-ret-label">5Y</span><span class="dc-ret-val pos">+2,308%</span></div>
-        </div>
-        <div class="dc-section">
-          <div class="dc-section-label">Signals</div>
-          <div class="dc-sig-list">
-            <div class="dc-sig-item"><span class="dc-sig-dot green"></span><span class="dc-sig-count green">10</span> Positive</div>
-            <div class="dc-sig-item"><span class="dc-sig-dot amber"></span><span class="dc-sig-count amber">3</span> Cautionary</div>
-          </div>
-        </div>
-        <div class="dc-section">
-          <div class="dc-section-label">Why it matches your rules</div>
-          <div class="dc-rule-list">
-            <div class="dc-rule-row">
-              <span class="dc-rule-dot green"></span>
-              <span class="dc-rule-label">Market</span>
-              <div class="dc-rule-value-col"><div class="dc-rule-chips"><span class="dc-label-chip dc-label-chip-static">🇺🇸 United States</span></div></div>
-            </div>
-            <div class="dc-rule-row">
-              <span class="dc-rule-dot green"></span>
-              <span class="dc-rule-label">Sector</span>
-              <div class="dc-rule-value-col"><div class="dc-rule-chips"><span class="dc-label-chip dc-label-chip-static">Industrial services</span></div></div>
-            </div>
-            <div class="dc-rule-row">
-              <span class="dc-rule-dot green"></span>
-              <span class="dc-rule-label">Style</span>
-              <div class="dc-rule-value-col"><div class="dc-rule-chips"><span class="dc-label-chip"><span class="dc-label-icon">🏆</span>Proven</span><span class="dc-label-chip"><span class="dc-label-icon">🚀</span>Hot</span></div></div>
-            </div>
-            <div class="dc-rule-row">
-              <span class="dc-rule-dot amber"></span>
-              <span class="dc-rule-label">Comfort</span>
-              <div class="dc-rule-value-col">
-                <div class="dc-rule-chips"><span class="dc-label-chip dc-comfort-chip mood-unsettled"><span class="dc-comfort-dot"></span>Level 3</span></div>
-                <p class="dc-rule-note">you picked Level 2</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+
+    <div class="rh-subrow">
+      <span class="rh-pop">Popular&nbsp;&nbsp;<b><a href="stock.html?ticker=NVDA&country=United%20States">NVDA</a> · <a href="stock.html?ticker=TSLA&country=United%20States">TSLA</a> · <a href="stock.html?ticker=PLTR&country=United%20States">PLTR</a> · <a href="stock.html?ticker=AAPL&country=United%20States">AAPL</a></b></span>
+      <a class="rh-adv" href="finder.html">Advanced search
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"></path></svg>
+      </a>
     </div>
+
+    <div class="rh-or">OR</div>
+
+    <a class="rh-quiz" href="quiz.html">
+      <span class="rh-quiz-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.1 9a3 3 0 0 1 5.82 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg></span>
+      <span class="rh-quiz-txt"><b>Don't know where to start?</b>Answer a few questions to search by your risk comfort.</span>
+      <span class="rh-quiz-arrow">→</span>
+    </a>
   </div>
 </section>
 
@@ -1135,26 +1142,26 @@ footer a:hover { color: var(--green-primary); }
 <section class="howitworks-section" id="how-it-works">
   <div class="container">
     <div class="section-label reveal" style="text-align:center;">How it works</div>
-    <h2 class="section-title reveal" style="text-align:center;">Three steps. That's it.</h2>
+    <h2 class="section-title reveal" style="text-align:center;">See the risk behind any stock.</h2>
     <div class="hiw-grid">
       <div class="hiw-step reveal">
         <div class="hiw-num">01</div>
-        <h3>Set your rules</h3>
-        <p>Pick your style, markets, and comfort level. Quick takes seconds. Custom gives you full control.</p>
+        <h3>Search or filter</h3>
+        <p>Type a stock, or open advanced search to filter by risk level, style and market.</p>
       </div>
       <div class="hiw-step reveal">
         <div class="hiw-num">02</div>
-        <h3>Browse your feed</h3>
-        <p>Our system scans 30,000+ stocks across 8 global markets. We present ideas that match your rules in your feed.</p>
+        <h3>Read the breakdown</h3>
+        <p>Difficulty level, 11 signals and the numbers behind them, scored for every stock.</p>
       </div>
       <div class="hiw-step reveal">
         <div class="hiw-num">03</div>
-        <h3>Find your match</h3>
-        <p>Analyse stocks, dig deeper when you need to. Save what catches your eye. Act when you're ready.</p>
+        <h3>Judge the fit</h3>
+        <p>See whether the risk matches your comfort before you commit.</p>
       </div>
     </div>
     <div class="section-cta reveal">
-      <a href="finder.html" class="btn-primary">Set Quick Rules</a>
+      <a href="finder.html" class="btn-primary">Open advanced search</a>
     </div>
   </div>
 </section>
@@ -1164,72 +1171,34 @@ footer a:hover { color: var(--green-primary); }
 <!-- ═══════════════════════════════════════ -->
 <section class="vs-section">
   <div class="container">
-    <h2 class="section-title reveal" style="text-align:center;">Discover stocks, effortlessly.</h2>
+    <h2 class="section-title reveal" style="text-align:center;">Everything you need to size up a stock.</h2>
     <div class="vs-grid">
       <div class="vs-card vs-before reveal">
-        <div class="vs-card-label">Before StockPanda</div>
+        <div class="vs-card-label">Researching alone</div>
         <ul class="vs-list">
-          <li>Endless searching across platforms</li>
-          <li>Too many stocks, no clear direction</li>
-          <li>Complex charts to decode</li>
-          <li>Unclear what fits your style</li>
-          <li>Missing the moves, acting too late</li>
+          <li>Charts you decode yourself</li>
+          <li>No feel for how risky it really is</li>
+          <li>Tips from people who aren't you</li>
+          <li>Guesswork on whether it fits</li>
         </ul>
       </div>
       <div class="vs-card vs-after reveal">
         <div class="vs-card-label">With StockPanda</div>
         <ul class="vs-list vs-list-after">
-          <li>Stock ideas ready when you are</li>
-          <li>Only stocks that fit your rules</li>
-          <li>Simple, clear explanations</li>
-          <li>Know exactly why each one fits</li>
-          <li>Stay in the loop without watching the screen</li>
+          <li>A risk level scored for every stock</li>
+          <li>11 signals, read at a glance</li>
+          <li>Search by the risk you're comfortable with</li>
+          <li>Know the fit before you buy</li>
         </ul>
       </div>
     </div>
     <div class="section-cta reveal">
-      <a href="finder.html" class="btn-primary">Set Quick Rules</a>
+      <a href="finder.html" class="btn-primary">Open advanced search</a>
     </div>
   </div>
 </section>
 
-<!-- ═══════════════════════════════════════ -->
-<!-- TWO WAYS TO PICK — PATH CARDS -->
-<!-- ═══════════════════════════════════════ -->
-<section class="paths-section">
-  <div class="container">
-    <div class="section-label reveal" style="text-align:center;">Two ways to pick</div>
-    <h2 class="section-title reveal" style="text-align:center;">Pick your path</h2>
-    <p class="section-subtitle reveal" style="text-align:center;margin-left:auto;margin-right:auto;">Choose your path based on your needs or experience.</p>
-
-    <div class="paths-grid">
-      <a class="path-card reveal" href="finder.html">
-        <span class="path-icon">✨</span>
-        <h3>Quick picks</h3>
-        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:18px;">Quick and clear.</p>
-        <ol class="path-steps">
-          <li><span class="path-step-num">01</span><span>Pick your style, market, and comfort level</span></li>
-          <li><span class="path-step-num">02</span><span>See your matches</span></li>
-          <li><span class="path-step-num">03</span><span>Save what catches your eye</span></li>
-        </ol>
-        <div class="path-ideal">Ideal for beginners</div>
-        <span class="path-cta">Start now <span class="path-cta-arrow">→</span></span>
-      </a>
-      <a class="path-card reveal" href="quiz.html">
-        <span class="path-icon">🎯</span>
-        <h3>Custom picks</h3>
-        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:18px;">More control. More precision.</p>
-        <ol class="path-steps">
-          <li><span class="path-step-num">01</span><span>Build custom filters from scratch</span></li>
-          <li><span class="path-step-num">02</span><span>Fine-tune by volatility, fundamentals, trend</span></li>
-          <li><span class="path-step-num">03</span><span>Get more tailored matches</span></li>
-        </ol>
-        <div class="path-ideal">Ideal for experienced investors</div>
-        <span class="path-cta">Start now <span class="path-cta-arrow">→</span></span>
-      </a>
-    </div>
-  </div>
-</section>
+<!-- (Two-ways-to-pick paths section removed — the hero now carries search + advanced search + quiz) -->
 
 <!-- ═══════════════════════════════════════ -->
 <!-- FEATURED — Stocks from around the world -->
@@ -1237,9 +1206,9 @@ footer a:hover { color: var(--green-primary); }
 <section class="sample-section">
   <div class="container">
     <div class="sample-head">
-      <div class="sample-sublabel reveal">Featured</div>
-      <h2 class="sample-title reveal">Stocks from around the world</h2>
-      <p class="sample-sub reveal">A live look across global markets. Tap any card to see the full detail page.</p>
+      <div class="sample-sublabel reveal">Live</div>
+      <h2 class="sample-title reveal">See it on real stocks</h2>
+      <p class="sample-sub reveal">A live look across global markets. Tap any card for the full risk breakdown.</p>
     </div>
   </div>
   <div class="sample-scroll-wrap">
@@ -1248,8 +1217,8 @@ footer a:hover { color: var(--green-primary); }
     </div>
   </div>
   <div class="sample-cta reveal">
-    <p class="sample-cta-text">Want to see stocks that fit you? Set your own rules in 30 seconds.</p>
-    <a href="finder.html" class="sample-cta-btn">Set Quick Rules</a>
+    <p class="sample-cta-text">Want stocks that match your risk? Open advanced search.</p>
+    <a href="finder.html" class="sample-cta-btn">Open advanced search</a>
   </div>
 </section>
 
@@ -1258,10 +1227,9 @@ footer a:hover { color: var(--green-primary); }
 <!-- ═══════════════════════════════════════ -->
 <section class="final-cta">
   <div class="container">
-    <h2 class="reveal">Stop searching. Let the market come to you.</h2>
-    <p class="reveal">Most people don't find the right stocks for them because they don't have the time — or don't know where to look.</p>
-    <p class="punch reveal">StockPanda does the work for you.</p>
-    <a href="finder.html" class="btn-primary reveal">Set Quick Rules</a>
+    <h2 class="reveal">Know your risk.</h2>
+    <p class="reveal">Search any stock for its full risk breakdown, or find the ones that fit your risk.</p>
+    <a href="stocks.html" class="btn-primary reveal">Search stocks</a>
   </div>
 </section>
 
@@ -1301,6 +1269,41 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
 
 <script src="assets/js/mood.js?v=20260421a"></script>
+<script>
+// ── Hero risk search → stock.html breakdown ──────────────────────────────
+(function(){
+  var inp = document.getElementById('risk-search');
+  var res = document.getElementById('risk-results');
+  var go  = document.getElementById('risk-go');
+  if (!inp || !res) return;
+  var timer, firstHit = null;
+  function route(s){ location.href = 'stock.html?ticker=' + encodeURIComponent(s.ticker) + '&country=' + encodeURIComponent(s.country || ''); }
+  inp.addEventListener('input', function(){
+    clearTimeout(timer);
+    var q = inp.value.trim();
+    firstHit = null;
+    if (q.length < 1){ res.classList.remove('open'); res.innerHTML = ''; return; }
+    res.classList.add('open');
+    res.innerHTML = '<div class="rh-msg">Searching…</div>';
+    timer = setTimeout(async function(){
+      var hits = await DataCache.searchAll(q);
+      if (inp.value.trim() !== q) return; // stale
+      if (!hits.length){ res.innerHTML = '<div class="rh-msg">No results found</div>'; return; }
+      firstHit = hits[0];
+      res.innerHTML = hits.slice(0, 6).map(function(s){
+        return '<a href="stock.html?ticker=' + encodeURIComponent(s.ticker) + '&country=' + encodeURIComponent(s.country || '') + '">'
+          + '<span class="rh-hit-t">' + esc(s.ticker) + '</span>'
+          + '<span class="rh-hit-c">' + esc(s.company || '') + '</span>'
+          + '<span class="rh-hit-x">' + esc(s.exchangeLabel || '') + '</span></a>';
+      }).join('');
+    }, 200);
+  });
+  function submit(){ if (firstHit) route(firstHit); else if (inp.value.trim()) location.href = 'stocks.html'; }
+  if (go) go.addEventListener('click', submit);
+  inp.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); submit(); } });
+  document.addEventListener('click', function(e){ if (!e.target.closest('.rh-searchwrap')) res.classList.remove('open'); });
+})();
+</script>
 
 <!-- ── Sample-cards loader ── -->
 <script>
