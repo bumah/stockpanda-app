@@ -295,15 +295,15 @@ function closeToolsPopover(){
       <!-- Field Notes -->
       <div id="field-notes" style="margin-bottom:1.5rem;"></div>
 
-      <!-- Dig Deeper CTA -->
-      <div id="trail-cta" style="text-align:center;padding:2rem 0 1rem;border-top:1px dashed rgba(74,222,128,0.2);margin-bottom:1rem;transition:opacity 0.3s ease;">
+      <!-- Dig Deeper CTA (hidden: all sections revealed by default) -->
+      <div id="trail-cta" style="display:none;text-align:center;padding:2rem 0 1rem;border-top:1px dashed rgba(74,222,128,0.2);margin-bottom:1rem;transition:opacity 0.3s ease;">
         <div style="font-size:1.8rem;margin-bottom:0.5rem;">🔍</div>
         <button id="trail-btn" onclick="revealTrail()" style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);color:#4ADE80;padding:0.7rem 2rem;border-radius:10px;font-family:var(--font);font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.2s;">Dig deeper →</button>
         <div style="font-size:0.68rem;color:rgba(255,255,255,0.3);margin-top:0.5rem;">Performance · Financials · Analysis · Styles</div>
       </div>
 
-      <!-- Hidden trail sections (revealed on click) -->
-      <div id="trail-sections" style="display:none;opacity:0;transition:opacity 0.4s ease;">
+      <!-- Trail sections (revealed by default) -->
+      <div id="trail-sections" style="opacity:1;transition:opacity 0.4s ease;">
         <div class="section-label">Company Performance</div>
         <div id="stat-grid" style="margin-bottom:1.25rem;"></div>
 
@@ -311,17 +311,17 @@ function closeToolsPopover(){
       </div>
     </div>
 
-    <!-- Sidebar (hidden until trail revealed) -->
-    <div class="dash-sidebar" id="trail-sidebar" style="display:none;opacity:0;transition:opacity 0.4s ease;">
+    <!-- Sidebar (revealed by default) -->
+    <div class="dash-sidebar" id="trail-sidebar" style="opacity:1;transition:opacity 0.4s ease;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
         <div class="section-label" style="margin-bottom:0;">Company Analysis</div>
         <button class="share-btn" style="margin-top:0;font-size:0.68rem;padding:3px 9px;" onclick="openIndicatorsShareModal()">↗ Share</button>
       </div>
       <div class="ig-groups" id="ind-groups"></div>
 
-      <!-- Hunting Styles breakdown -->
+      <!-- Investing Styles breakdown -->
       <div style="margin-top:1.5rem;">
-        <div class="section-label">Hunting Styles</div>
+        <div class="section-label">Investing Styles</div>
         <div id="style-breakdown"></div>
       </div>
     </div>
@@ -853,7 +853,7 @@ function renderFieldNotes() {
 
   if (!notes.length) return;
 
-  el.innerHTML = '<div class="section-label">Field Notes</div>' +
+  el.innerHTML = '<div class="section-label">Key Takeaways</div>' +
     '<div style="display:flex;flex-direction:column;gap:0.75rem;">' +
     notes.map(n =>
       '<div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:0.85rem 1rem;">' +
@@ -1312,12 +1312,12 @@ function buildShareText() {
   const countryTag = COUNTRY_HASHTAG[country] || country.replace(/\s+/g, '');
 
   return [
-    `\u{1F43C} Hunt of the Day \u00B7 ${flag}`,
+    `\u{1F43C} Stock of the Day \u00B7 ${flag}`,
     ``,
     `${yTicker} | ${s.company || ''}`,
     `${m1Str} this month, ${m3Str} over 3 months. ${redCount} ${warnWord}. ${trendSentence} ${mood} risk ${moodEmoji} ${moodCaption}`,
     ``,
-    `#HuntOfTheDay #${countryTag} #Stocks`,
+    `#StockOfTheDay #${countryTag} #Stocks`,
   ].join('\n');
 }
 

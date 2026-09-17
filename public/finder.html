@@ -624,7 +624,7 @@ function twUpdateNav() {
   if (twStep === 1) { btn.textContent = 'Next \u2192'; btn.disabled = twGeo.size === 0; }
   else if (twStep === 2) { btn.textContent = 'Next \u2192'; btn.disabled = twSec.size === 0; }
   else if (twStep === 3) { btn.textContent = 'Next \u2192'; btn.disabled = twStyles.size === 0; }
-  else { btn.textContent = 'Hunt \u2192'; btn.disabled = twLevels.size === 0; }
+  else { btn.textContent = 'Find matches \u2192'; btn.disabled = twLevels.size === 0; }
 }
 
 function twBack() { if (twStep > 1) { twStep--; twRenderStep(); } }
@@ -1429,8 +1429,8 @@ function showTrapSummary() {
   var rows = [];
   // Territory
   var reg = c.region;
-  if (Array.isArray(reg)) rows.push('<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:var(--muted);">Territory</span><span style="color:var(--text);">' + reg.map(function(r){ return regionLabels[r]||r; }).join(', ') + '</span></div>');
-  else rows.push('<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:var(--muted);">Territory</span><span style="color:var(--text);">' + (regionLabels[reg]||reg||'Global') + '</span></div>');
+  if (Array.isArray(reg)) rows.push('<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:var(--muted);">Market</span><span style="color:var(--text);">' + reg.map(function(r){ return regionLabels[r]||r; }).join(', ') + '</span></div>');
+  else rows.push('<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:var(--muted);">Market</span><span style="color:var(--text);">' + (regionLabels[reg]||reg||'Global') + '</span></div>');
   // Sector
   var sec = c.sectors;
   if (Array.isArray(sec)) rows.push('<div style="display:flex;justify-content:space-between;padding:3px 0;"><span style="color:var(--muted);">Sector</span><span style="color:var(--text);">' + sec.map(function(s){ return sectorLabels[s]||s; }).join(', ') + '</span></div>');
