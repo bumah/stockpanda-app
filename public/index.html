@@ -626,7 +626,7 @@ section + section { border-top: 1px solid var(--border); }
 }
 
 /* Section-level CTA — used at the bottom of HOW IT WORKS and STOP SEARCHING */
-.section-cta { display: flex; justify-content: center; margin-top: 36px; }
+.section-cta { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-top: 36px; }
 
 /* ─── HOW IT WORKS (3 STEPS) ─── */
 .howitworks-section { padding: 100px 0; position: relative; }
@@ -1200,7 +1200,8 @@ footer a:hover { color: var(--green-primary); }
       </div>
     </div>
     <div class="section-cta reveal">
-      <a href="finder.html" class="btn-primary">Open advanced search</a>
+      <a href="stocks.html" class="btn-primary">Quick search</a>
+      <a href="quiz.html" class="btn-secondary">Take the Quiz</a>
     </div>
   </div>
 </section>
@@ -1224,8 +1225,11 @@ footer a:hover { color: var(--green-primary); }
     </div>
   </div>
   <div class="sample-cta reveal">
-    <p class="sample-cta-text">Want stocks that match your risk? Open advanced search.</p>
-    <a href="finder.html" class="sample-cta-btn">Open advanced search</a>
+    <p class="sample-cta-text">Search any stock, or let the quiz point you to ones that fit your risk.</p>
+    <div class="section-cta" style="margin-top:20px;">
+      <a href="stocks.html" class="btn-primary">Quick search</a>
+      <a href="quiz.html" class="btn-secondary">Take the Quiz</a>
+    </div>
   </div>
 </section>
 
@@ -1236,7 +1240,10 @@ footer a:hover { color: var(--green-primary); }
   <div class="container">
     <h2 class="reveal">Know your risk.</h2>
     <p class="reveal">Search any stock for its full risk breakdown, or find the ones that fit your risk.</p>
-    <a href="stocks.html" class="btn-primary reveal">Search stocks</a>
+    <div class="section-cta reveal">
+      <a href="stocks.html" class="btn-primary">Quick search</a>
+      <a href="quiz.html" class="btn-secondary">Take the Quiz</a>
+    </div>
   </div>
 </section>
 
