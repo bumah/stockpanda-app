@@ -941,8 +941,6 @@ footer a:hover { color: var(--green-primary); }
     <div class="nav-dropdown">
       <button class="nav-link nav-dropdown-trigger">More <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
       <div class="nav-dropdown-menu">
-        <a class="nav-dropdown-item" href="brokers.html">Brokers</a>
-        <a class="nav-dropdown-item" href="etfs.html">ETFs</a>
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
         <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
         <a class="nav-dropdown-item sp-install-btn" href="#" onclick="event.preventDefault();spInstallApp();" style="display:none;">Get StockPanda App</a>
@@ -960,8 +958,6 @@ footer a:hover { color: var(--green-primary); }
 </nav>
 <div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
 <div class="tools-popover" id="toolsPopover">
-  <a href="brokers.html" class="tools-popover-item"><i data-lucide="link" class="nb-icon"></i>Brokers</a>
-  <a href="etfs.html" class="tools-popover-item"><i data-lucide="layers" class="nb-icon"></i>ETFs</a>
   <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
   <a href="handbook.html" class="tools-popover-item"><i data-lucide="book-open" class="nb-icon"></i>Handbook</a>
   <a href="#" class="tools-popover-item sp-install-btn" onclick="event.preventDefault();closeToolsPopover();spInstallApp();" style="display:none;"><i data-lucide="download" class="nb-icon"></i>Get StockPanda App</a>
@@ -987,315 +983,19 @@ function closeToolsPopover(){
 
 <div class="main" style="max-width:1100px;margin:0 auto;padding:0 24px;">
 
-  <!-- ABOUT HERO -->
-  <section style="padding:80px 0 40px;text-align:center;">
-    <div class="page-eyebrow" style="font-family:var(--mono);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--green);margin-bottom:16px;">About StockPanda</div>
-    <h1 style="font-family:var(--mono);font-size:clamp(32px,5vw,56px);font-weight:700;letter-spacing:-1px;line-height:1.1;margin-bottom:16px;">Your risk companion for stock ideas.</h1>
-    <p style="font-size:17px;color:var(--muted);max-width:600px;margin:0 auto;line-height:1.6;">Bring a stock you're considering and see its risks before and after you invest — its volatility, past drawdowns, and the warning signs in its numbers. We don't recommend stocks or sell tips. You get an unbiased read on the risk, and the decision stays yours.</p>
-  </section>
-
-<section>
-  <div class="container">
-    <div class="section-label reveal">The setup</div>
-    <h2 class="section-title reveal">Your stocks. Your rules.</h2>
-    <p class="section-subtitle reveal">Set your rules — style, market, and risk comfort. We'll show stocks that match, each with its risk laid out. Do your research before you act.</p>
-
-    <!-- Overview cards -->
-    <div class="hunt-intro-grid">
-      <div class="hunt-intro-card reveal">
-        <i data-lucide="target" class="hunt-intro-icon"></i>
-        <h3>Your style</h3>
-        <p>Six investing styles. Pick the one that sounds like how you'd like to invest today.</p>
-      </div>
-      <div class="hunt-intro-card reveal">
-        <i data-lucide="globe" class="hunt-intro-icon"></i>
-        <h3>Your market</h3>
-        <p>8+ markets to browse. Start local, go wider whenever you want.</p>
-      </div>
-      <div class="hunt-intro-card reveal">
-        <i data-lucide="bar-chart-3" class="hunt-intro-icon"></i>
-        <h3>Your comfort</h3>
-        <p>Five volatility levels, L1–L5. Browse within your comfort zone.</p>
-      </div>
+  <!-- ABOUT — A NOTE FROM TERENCE -->
+  <section style="max-width:680px;margin:0 auto;padding:80px 4px 100px;">
+    <div style="font-family:var(--mono);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--green);margin-bottom:16px;">About StockPanda</div>
+    <h1 style="font-family:var(--mono);font-size:clamp(30px,5vw,48px);font-weight:700;letter-spacing:-1px;line-height:1.15;margin-bottom:32px;color:var(--parchment);">A note from Terence</h1>
+    <div style="font-size:17px;line-height:1.75;color:var(--muted);">
+      <p style="margin:0 0 20px;">I have spent 20 years working in finance and risk at global financial institutions, where the primary objective was to assess, understand, and manage risk across transactions, investments, operations, and systems.</p>
+      <p style="margin:0 0 20px;">Everyday investors rarely get that. We mostly get tips: a hot name from a friend, a headline, an influencer, or a blog. Most tools are built to sell you something: a stock, a subscription, a trade. Few of them ask how risky this actually is.</p>
+      <p style="margin:0 0 20px;color:var(--text);font-weight:600;">That is why I am building StockPanda.</p>
+      <p style="margin:0 0 20px;">The goal is to give you an honest read on a stock&rsquo;s risk: how much it swings, how far it has fallen before, and the warning signs in its numbers. Before you invest, and after.</p>
+      <p style="margin:0 0 28px;">I am not here to tell you what to buy. That is your call. I am here so you can see the risk clearly when you make it. No recommendations. No tips.</p>
     </div>
-
-    <!-- ─── TYPE DETAIL ─── -->
-    <div class="detail-section reveal">
-      <div class="detail-header">
-        <i data-lucide="target" class="detail-icon"></i>
-        <span class="detail-title">Six styles to explore</span>
-      </div>
-      <p class="detail-desc">Each style has its own rules. Pick one — or try them all. We'll show you the stocks matching that style today.</p>
-      <div class="scroll-wrapper">
-        <div class="scroll-row">
-          <div class="style-card">
-            <span class="style-emoji">🏆</span>
-            <h4>Proven</h4>
-            <p>Big, proven, long-term compounders. Solid companies that keep winning.</p>
-          </div>
-          <div class="style-card">
-            <span class="style-emoji">🐘</span>
-            <h4>Bargain</h4>
-            <p>Big companies that have fallen well below their peak and aren't recovering yet.</p>
-          </div>
-          <div class="style-card">
-            <span class="style-emoji">🐇</span>
-            <h4>Recovering</h4>
-            <p>Stocks bouncing back after a deep drawdown — turn is underway, not yet on a roll.</p>
-          </div>
-          <div class="style-card">
-            <span class="style-emoji">🚀</span>
-            <h4>Hot</h4>
-            <p>On a sustained roll — strong performance and solid fundamentals.</p>
-          </div>
-          <div class="style-card">
-            <span class="style-emoji">🎢</span>
-            <h4>Bumpy</h4>
-            <p>Big quality companies that swing hard. High volatility either way. Higher risk.</p>
-          </div>
-          <div class="style-card">
-            <span class="style-emoji">🦄</span>
-            <h4>Moonshot</h4>
-            <p>Small-cap companies doing well — high upside, high risk.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ─── PLACE DETAIL ─── -->
-    <div class="detail-section reveal">
-      <div class="detail-header">
-        <i data-lucide="globe" class="detail-icon"></i>
-        <span class="detail-title">Start local. Go global when you want.</span>
-      </div>
-      <p class="detail-desc">Browse stock ideas from 8+ markets. Pick one to keep things simple, or turn on more whenever you want a wider view.</p>
-      <div class="scroll-wrapper">
-        <div class="scroll-row">
-          <div class="territory-card">
-            <span class="territory-flag">🇺🇸</span>
-            <h4>United States</h4>
-            <p>The world's largest market — tech giants, blue chips, and high-growth innovators.</p>
-          </div>
-          <div class="territory-card">
-            <span class="territory-flag">🇬🇧</span>
-            <h4>United Kingdom</h4>
-            <p>London's financial hub — strong in banking, energy, and consumer goods.</p>
-          </div>
-          <div class="territory-card">
-            <span class="territory-flag">🇩🇪</span>
-            <h4>Germany</h4>
-            <p>Europe's largest economy — automotive, industrial, and tech powerhouses.</p>
-          </div>
-          <div class="territory-card">
-            <span class="territory-flag">🇫🇷</span>
-            <h4>France</h4>
-            <p>Luxury, aerospace, energy, and financial leaders.</p>
-          </div>
-          <div class="territory-card">
-            <span class="territory-flag">🇯🇵</span>
-            <h4>Japan</h4>
-            <p>Asia's most mature market — precision manufacturing, tech, and automotive.</p>
-          </div>
-          <div class="territory-card">
-            <span class="territory-flag">🇭🇰</span>
-            <h4>Hong Kong</h4>
-            <p>Gateway to China — mainland giants and regional financial players.</p>
-          </div>
-          <div class="territory-card">
-            <span class="territory-flag">🇨🇳</span>
-            <h4>China</h4>
-            <p>Fast-moving tech, e-commerce, and manufacturing.</p>
-          </div>
-          <div class="territory-card">
-            <span class="territory-flag">🇮🇳</span>
-            <h4>India</h4>
-            <p>Rapidly growing economy — IT, pharma, and financial services.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ─── DIFFICULTY DETAIL ─── -->
-    <div class="detail-section reveal">
-      <div class="detail-header">
-        <i data-lucide="bar-chart-3" class="detail-icon"></i>
-        <span class="detail-title">Every stock has a comfort level</span>
-      </div>
-      <p class="detail-desc">Higher levels move more — and need a stronger stomach. New to investing? The calmer levels (L1–L2) are a gentler place to start looking.</p>
-      <div class="scroll-wrapper">
-        <div class="scroll-row">
-          <div class="level-card level-1">
-            <div class="panda-face">
-              <img src="assets/img/panda-vcalm.png" alt="Level 1" class="panda-svg">
-            </div>
-            <span class="level-badge">Level 1</span>
-            <p>Mostly steady with some minor moves.</p>
-          </div>
-          <div class="level-card level-2">
-            <div class="panda-face">
-              <img src="assets/img/panda-calm.png" alt="Level 2" class="panda-svg">
-            </div>
-            <span class="level-badge">Level 2</span>
-            <p>Occasional small dips, keep an eye.</p>
-          </div>
-          <div class="level-card level-3">
-            <div class="panda-face">
-              <img src="assets/img/panda-unsettled.png" alt="Level 3" class="panda-svg">
-            </div>
-            <span class="level-badge">Level 3</span>
-            <p>Notable swings — worth watching.</p>
-          </div>
-          <div class="level-card level-4">
-            <div class="panda-face">
-              <img src="assets/img/panda-stressed.png" alt="Level 4" class="panda-svg">
-            </div>
-            <span class="level-badge">Level 4</span>
-            <p>Big moves often. Bumpy ride.</p>
-          </div>
-          <div class="level-card level-5">
-            <div class="panda-face">
-              <img src="assets/img/panda-danger.png" alt="Level 5" class="panda-svg">
-            </div>
-            <span class="level-badge">Level 5</span>
-            <p>Wild and unpredictable. Could go either way.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════ -->
-<!-- HOW IT WORKS — 3 STEPS -->
-<!-- ═══════════════════════════════════════ -->
-<section class="steps-section" id="how-it-works">
-  <div class="container">
-    <div class="section-label reveal">How it works</div>
-    <h2 class="section-title reveal" style="text-align:center;">Three steps. Two minutes.</h2>
-    <p class="section-subtitle reveal" style="text-align:center; margin-left:auto; margin-right:auto;">You do the choosing. We do the filtering. You do the research before buying.</p>
-    <div class="steps">
-      <div class="step reveal">
-        <div class="step-number">01</div>
-        <h3>Set your rules</h3>
-        <p>Choose your style, market, and comfort level. Change any time.</p>
-        <span class="step-arrow">→</span>
-      </div>
-      <div class="step reveal">
-        <div class="step-number">02</div>
-        <h3>See your matches</h3>
-        <p>Stocks matching your rules, each with a clear reason why, and its risk laid out.</p>
-        <span class="step-arrow">→</span>
-      </div>
-      <div class="step reveal">
-        <div class="step-number">03</div>
-        <h3>Make your move</h3>
-        <p>Weigh the risk, then do your own research before you act.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════ -->
-<!-- ADVANCED GEAR -->
-<!-- ═══════════════════════════════════════ -->
-<section class="pro-section">
-  <div class="container">
-    <div class="section-label reveal">When you want more</div>
-    <h2 class="section-title reveal">Other ways to explore</h2>
-    <p class="section-subtitle reveal">Beyond stock ideas — for when you want to dig deeper or look elsewhere.</p>
-    <div class="pro-grid">
-      <a class="pro-feature reveal" href="stocks.html" style="text-decoration:none;color:inherit;">
-        <i data-lucide="search" class="pro-feature-icon"></i>
-        <div>
-          <h4>Search</h4>
-          <p>Every stock in our universe. Filter, sort, and inspect on your own terms.</p>
-        </div>
-      </a>
-      <a class="pro-feature reveal" href="quiz.html" style="text-decoration:none;color:inherit;">
-        <i data-lucide="crosshair" class="pro-feature-icon"></i>
-        <div>
-          <h4>Custom Rules</h4>
-          <p>Build your own rules from scratch. Twelve questions, full control.</p>
-        </div>
-      </a>
-      <a class="pro-feature reveal" href="summary.html" style="text-decoration:none;color:inherit;">
-        <i data-lucide="bar-chart-3" class="pro-feature-icon"></i>
-        <div>
-          <h4>Brief</h4>
-          <p>Daily highlights and weekly digests in one place.</p>
-        </div>
-      </a>
-      <a class="pro-feature reveal" href="etfs.html" style="text-decoration:none;color:inherit;">
-        <i data-lucide="layers" class="pro-feature-icon"></i>
-        <div>
-          <h4>ETFs</h4>
-          <p>Browse thousands of funds by class, region, and cost.</p>
-        </div>
-      </a>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════ -->
-<!-- SIMPLE -->
-<!-- ═══════════════════════════════════════ -->
-<section>
-  <div class="container">
-    <div class="section-label reveal">Our philosophy</div>
-    <h2 class="section-title reveal">Investing should be accessible to everyone</h2>
-    <p class="simple-intro reveal">The market is full of opportunity. Our job is to make understanding risk <strong style="color: var(--green-primary);">SIMPLE</strong>.</p>
-    <div class="simple-grid">
-      <div class="simple-card reveal">
-        <div class="simple-letter">S</div>
-        <div>
-          <h3>Safety first</h3>
-          <p>Every idea shows how volatile the stock has been, before you read anything else.</p>
-        </div>
-      </div>
-      <div class="simple-card reveal">
-        <div class="simple-letter">I</div>
-        <div>
-          <h3>International</h3>
-          <p>Start at home, explore the world later.</p>
-        </div>
-      </div>
-      <div class="simple-card reveal">
-        <div class="simple-letter">M</div>
-        <div>
-          <h3>Mobile</h3>
-          <p>Browse ideas wherever you are.</p>
-        </div>
-      </div>
-      <div class="simple-card reveal">
-        <div class="simple-letter">P</div>
-        <div>
-          <h3>Personal</h3>
-          <p>You choose the style. We show what fits.</p>
-        </div>
-      </div>
-      <div class="simple-card reveal">
-        <div class="simple-letter">L</div>
-        <div>
-          <h3>Learn</h3>
-          <p>Every stock explains why it matched, so you learn as you go.</p>
-        </div>
-      </div>
-      <div class="simple-card reveal">
-        <div class="simple-letter">E</div>
-        <div>
-          <h3>Enjoyable</h3>
-          <p>Finding ideas should feel like browsing, not homework.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-  <!-- FINAL CTA -->
-  <section style="text-align:center;padding:80px 0 100px;border-top:1px solid var(--border);margin-top:60px;">
-    <h2 style="font-family:var(--mono);font-size:clamp(26px,4vw,40px);font-weight:700;letter-spacing:-0.5px;margin-bottom:20px;">Ready to find your matches?</h2>
-    <p style="font-size:16px;color:var(--muted);max-width:520px;margin:0 auto 32px;line-height:1.55;">Set your rules. Save what catches your eye. Do your own research before you act.</p>
-    <a href="finder.html" class="btn-primary" style="display:inline-block;background:var(--brand);color:#0B1A10;padding:14px 32px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;font-family:var(--font);">Set Quick Rules</a>
+    <p style="font-family:var(--mono);font-size:15px;color:var(--text);margin:0 0 40px;">&mdash; Terence</p>
+    <a href="index.html" class="btn-primary" style="display:inline-block;background:var(--brand);color:#0B1A10;padding:14px 32px;border-radius:8px;font-weight:700;font-size:15px;text-decoration:none;font-family:var(--font);">Know your risk &rarr;</a>
   </section>
 
 </div>
@@ -1303,6 +1003,7 @@ function closeToolsPopover(){
 <!-- FOOTER -->
 <footer style="border-top:1px solid var(--border);padding:40px 1.5rem;text-align:center;max-width:1400px;margin:0 auto;">
   <p style="margin:0;"><a href="index.html" style="font-family:var(--mono);font-weight:700;font-size:16px;color:var(--text);text-decoration:none;"><span style="color:var(--brand);">Stock</span>Panda</a></p>
+    <p style="font-family:var(--mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);margin:0 0 6px;">Risk companion for stocks</p>
   <p style="font-size:12px;color:var(--muted);margin-top:12px;">StockPanda is a free tool for understanding stock risk. What you see is for your own research — not investment advice or recommendations to buy any security. Always do your own research and consider speaking to a regulated adviser. Your capital is at risk.</p>
 </footer>
 

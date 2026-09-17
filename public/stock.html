@@ -194,8 +194,6 @@
     <div class="nav-dropdown">
       <button class="nav-link nav-dropdown-trigger">More <i data-lucide="chevron-down" style="width:14px;height:14px;vertical-align:middle;margin-left:2px;"></i></button>
       <div class="nav-dropdown-menu">
-        <a class="nav-dropdown-item" href="brokers.html">Brokers</a>
-        <a class="nav-dropdown-item" href="etfs.html">ETFs</a>
         <a class="nav-dropdown-item" href="summary.html">Brief</a>
         <a class="nav-dropdown-item" href="handbook.html">Handbook</a>
         <a class="nav-dropdown-item" href="about.html">About</a>
@@ -214,8 +212,6 @@
 </nav>
 <div class="tools-popover-backdrop" id="toolsBackdrop" onclick="closeToolsPopover()"></div>
 <div class="tools-popover" id="toolsPopover">
-  <a href="brokers.html" class="tools-popover-item"><i data-lucide="link" class="nb-icon"></i>Brokers</a>
-  <a href="etfs.html" class="tools-popover-item"><i data-lucide="layers" class="nb-icon"></i>ETFs</a>
   <a href="summary.html" class="tools-popover-item"><i data-lucide="bar-chart-3" class="nb-icon"></i>Brief</a>
   <a href="handbook.html" class="tools-popover-item"><i data-lucide="book-open" class="nb-icon"></i>Handbook</a>
   <a href="about.html" class="tools-popover-item"><i data-lucide="info" class="nb-icon"></i>About</a>
@@ -321,7 +317,7 @@ function closeToolsPopover(){
 
       <!-- Investing Styles breakdown -->
       <div style="margin-top:1.5rem;">
-        <div class="section-label">Investing Styles</div>
+        <div class="section-label">Risk Profile</div>
         <div id="style-breakdown"></div>
       </div>
     </div>
@@ -714,7 +710,7 @@ function renderTopStyles() {
   }).join('');
 
   el.innerHTML =
-    '<div class="section-label">Top Styles</div>' +
+    '<div class="section-label">Top Profiles</div>' +
     '<div class="ci-section ts-card">' +
       '<div class="dc-label-chips">' + chips + '</div>' +
       '<p class="dc-style-tip" aria-live="polite"></p>' +
@@ -834,7 +830,7 @@ function renderFieldNotes() {
       const styleTxt = 'This stock fits ' + fits.map(([k, v]) =>
         NAMES[k] + ' (' + _hearts(v.pct) + ' heart' + (_hearts(v.pct) === 1 ? '' : 's') + ')'
       ).join(', ') + '.';
-      notes.push({ icon: '🎯', title: 'Styles that fit', text: styleTxt });
+      notes.push({ icon: '🎯', title: 'Profiles that fit', text: styleTxt });
     }
   }
 
@@ -1577,7 +1573,7 @@ window.openPreviewCard = function openPreviewCard() {
         (sigA > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot amber"></span><span class="dc-sig-count amber">' + sigA + '</span> Cautionary</div>' : '') +
         (sigR > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot red"></span><span class="dc-sig-count red">' + sigR + '</span> Warning</div>' : '') +
       '</div></div>' +
-      '<div class="dc-section"><div class="dc-section-label">Styles</div><div class="dc-style-list">' + styleRows + '</div></div>' +
+      '<div class="dc-section"><div class="dc-section-label">Profiles</div><div class="dc-style-list">' + styleRows + '</div></div>' +
       '<div style="text-align:center;margin-top:0.8rem;padding-top:0.8rem;border-top:1px solid var(--border);font-size:0.6rem;color:var(--muted);font-family:var(--mono);letter-spacing:0.5px;">stockpanda.app</div>' +
     '</div>';
 
@@ -2013,6 +2009,7 @@ loadStock();
 </script>
 <footer style="border-top:1px solid var(--border);padding:40px 1.5rem;text-align:center;max-width:1400px;margin:4rem auto 0;">
   <p style="margin:0;"><a href="index.html" style="font-family:var(--mono);font-weight:700;font-size:16px;color:var(--text);text-decoration:none;"><span style="color:var(--brand);">Stock</span>Panda</a></p>
+    <p style="font-family:var(--mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);margin:0 0 6px;">Risk companion for stocks</p>
   <p style="font-size:12px;color:var(--muted);margin-top:12px;">StockPanda is a free tool for understanding stock risk. What you see is for your own research — not investment advice or recommendations to buy any security. Always do your own research and consider speaking to a regulated adviser. Your capital is at risk.</p>
 </footer>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
