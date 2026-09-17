@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StockPanda — Custom</title>
+  <title>StockPanda — Quiz</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="assets/css/styles.css?v=20260421a" />
@@ -206,7 +206,7 @@
   </a>
   <div class="nav-links">
     <a class="nav-link sp-auth-only-out" href="index.html">Home</a>
-    <a class="nav-link" href="finder.html">Feed</a>
+    <a class="nav-link" href="quiz.html">Feed</a>
     <a class="nav-link" href="watchlist.html">Saved</a>
     <a class="nav-link" href="stocks.html">Search</a>
     <div class="nav-dropdown">
@@ -237,7 +237,7 @@
 </div>
 <nav class="nav-bottom">
   <a href="index.html" class="sp-auth-only-out"><i data-lucide="house" class="nb-icon"></i>Home</a>
-  <a href="finder.html"><i data-lucide="sparkles" class="nb-icon"></i>Feed</a>
+  <a href="quiz.html"><i data-lucide="sparkles" class="nb-icon"></i>Feed</a>
   <a href="watchlist.html"><i data-lucide="heart" class="nb-icon"></i>Saved</a>
   <a href="stocks.html"><i data-lucide="search" class="nb-icon"></i>Search</a>
   <a href="#" onclick="event.preventDefault();toggleToolsPopover()" class="active"><i data-lucide="compass" class="nb-icon"></i>More</a>
@@ -259,22 +259,14 @@ function closeToolsPopover(){
 
     <!-- ── Intro Screen ────────────────────────────────────────── -->
     <div id="scan-intro" class="finder-hero" style="padding-bottom:2.5rem;">
-      <div class="mode-tabs" role="tablist" aria-label="Rule mode">
-        <a class="mode-tab" role="tab" href="finder.html" aria-selected="false">Quick</a>
-        <span class="mode-tab active" role="tab" aria-selected="true">Custom</span>
-      </div>
-      <h1 class="finder-hero-h1" style="font-size:2.6rem;">Build your own rules.<br/>See which stocks fit.</h1>
-      <p class="finder-hero-sub">Set exact filters on style, fundamentals, trend, and volatility. We'll scan 30,000+ stocks and show matches — one at a time.</p>
-      <button class="finder-cta-btn" onclick="document.getElementById('scan-intro').style.display='none'; openQuizModal();">Set my rules &rarr;</button>
+      <h1 class="finder-hero-h1" style="font-size:2.6rem;">A short quiz to find stocks.</h1>
+      <p class="finder-hero-sub">Answer a few questions and we'll match you to stocks by risk profile. This is not a recommendation. <a href="handbook.html" style="color:var(--green);text-decoration:underline;text-underline-offset:2px;">Read the methodology</a> to understand how we classify risk, and seek professional advice if you need it.</p>
+      <button class="finder-cta-btn" onclick="document.getElementById('scan-intro').style.display='none'; openQuizModal();">Start the quiz &rarr;</button>
     </div>
 
     <!-- ── Discovery Section ──────────────────────────────────── -->
     <div id="discover-section" style="display:none;">
       <div class="discover-wrap">
-        <div class="mode-tabs mode-tabs-results" role="tablist" aria-label="Rule mode">
-          <a class="mode-tab" role="tab" href="finder.html" aria-selected="false">Quick</a>
-          <span class="mode-tab active" role="tab" aria-selected="true">Custom</span>
-        </div>
         <div class="discover-header">
           <span class="discover-counter" id="discover-counter"></span>
           <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
