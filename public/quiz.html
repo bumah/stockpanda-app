@@ -6,7 +6,7 @@
   <title>StockPanda — Quiz</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="assets/css/styles.css?v=20260421a" />
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260920a" />
   <style>
     /* ── Quiz Modal ──────────────────────────────────────────── */
     .quiz-modal-overlay {
@@ -845,7 +845,7 @@ function closeToolsPopover(){
   </div><!-- /quiz-modal-box -->
 </div><!-- /quiz-modal-overlay -->
 
-<script src="assets/js/mood.js?v=20260421a"></script>
+<script src="assets/js/mood.js?v=20260920a"></script>
 <script src="assets/js/finder-engine.js?v=20260416a"></script>
 <script>
 'use strict';
@@ -1266,8 +1266,8 @@ function buildDiscoverCard(item) {
       '</div>' +
     '</div>' +
     '<div class="dc-section">' +
-      '<div class="dc-section-label">Why it matches your rules</div>' +
-      '<div class="dc-group-list">' + groupHtml + '</div>' +
+      '<div class="dc-section-label">Risk flags</div>' +
+      riskFlagsHtml(s) +
     '</div>' +
     '<div class="discover-nav" style="border-top:1px solid var(--border);margin-top:1.2rem;padding-top:1rem;">' +
       '<div class="dc-nav-item"><button class="dc-btn-back" onclick="prevCard()" title="Back"><i data-lucide="arrow-left"></i></button><div class="dc-label">Back</div></div>' +

@@ -90,6 +90,34 @@ const IND_META = {
   cagr5Y:      { label: '5Y CAGR',            short: 'CAGR',  desc: 'Compound annual growth rate over 5 years. Negative CAGR = long-term value destruction.' },
 };
 
+/* ── Risk-at-a-glance: names the cautionary (amber) + warning (red) signals for a
+   stock card. Mirrors _countSignals (finder-engine.js) so the list matches the
+   Signals counts, including the 3 financial signals beyond the 11 indicators. */
+function riskFlagsHtml(s) {
+  if (!s) return '';
+  var ind = s.indicators || {};
+  var reds = [], ambers = [];
+  var push = function (c, label) { if (c === 'red') reds.push(label); else if (c === 'amber') ambers.push(label); };
+  ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'].forEach(function (k) {
+    push(ind[k] && ind[k].color, (IND_META[k] || {}).label || k);
+  });
+  if (s._dte != null) push(s._dte < 100 ? 'green' : s._dte < 200 ? 'amber' : 'red', 'Debt Load');
+  if (s._fcf != null) push(s._fcf > 0 ? 'green' : 'red', 'Cash Generation');
+  if (s._fcf != null && s._ni != null && s._ni > 0) {
+    var cv = (s._fcf / s._ni) * 100;
+    push(cv >= 80 ? 'green' : cv >= 50 ? 'amber' : 'red', 'Cash Conversion');
+  }
+  if (!reds.length && !ambers.length) return '<div class="dc-risk-none">No cautionary or warning signals.</div>';
+  var grp = function (list, cls, tag) {
+    if (!list.length) return '';
+    return '<div class="dc-risk-group"><span class="dc-risk-tag ' + cls + '">' + tag + '</span>' +
+      '<div class="dc-risk-chips">' +
+        list.map(function (l) { return '<span class="dc-risk-chip ' + cls + '">' + esc(l) + '</span>'; }).join('') +
+      '</div></div>';
+  };
+  return grp(reds, 'red', 'Warning') + grp(ambers, 'amber', 'Cautionary');
+}
+
 // The 11 scoring indicators (in display order)
 const IND_ORDER = ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'];
 
