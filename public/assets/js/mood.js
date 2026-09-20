@@ -118,10 +118,15 @@ function riskFlagsHtml(s) {
   ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'].forEach(function (k) {
     push(ind[k] && ind[k].color, PLAIN_RISK[k]);
   });
-  if (s._dte != null) push(s._dte < 100 ? 'green' : s._dte < 200 ? 'amber' : 'red', PLAIN_RISK._dte);
-  if (s._fcf != null) push(s._fcf > 0 ? 'green' : 'red', PLAIN_RISK._fcf);
-  if (s._fcf != null && s._ni != null && s._ni > 0) {
-    var cv = (s._fcf / s._ni) * 100;
+  // Financial signals — from the card pipeline (_dte/_fcf/_ni) or the stock page (financials.*)
+  var fin = s.financials || {};
+  var dte = s._dte != null ? s._dte : fin.debtToEquity;
+  var fcf = s._fcf != null ? s._fcf : fin.freeCashFlow;
+  var ni  = s._ni  != null ? s._ni  : fin.netIncome;
+  if (dte != null) push(dte < 100 ? 'green' : dte < 200 ? 'amber' : 'red', PLAIN_RISK._dte);
+  if (fcf != null) push(fcf > 0 ? 'green' : 'red', PLAIN_RISK._fcf);
+  if (fcf != null && ni != null && ni > 0) {
+    var cv = (fcf / ni) * 100;
     push(cv >= 80 ? 'green' : cv >= 50 ? 'amber' : 'red', PLAIN_RISK._cvt);
   }
   if (!reds.length && !ambers.length) return '<div class="dc-risk-none">No warning or cautionary signals.</div>';
