@@ -1386,7 +1386,6 @@ function buildFinderDiscoverCard(item) {
     '</div><div class="dc-split-right">' +
       '<img class="dc-panda" src="assets/img/' + b.img + '" alt="' + esc(b.label) + '" />' +
     '</div></div>' +
-    '<div class="dc-returns">' + ret('1M', s._m1) + ret('3M', s._m3) + ret('1Y', s._y1) + ret('5Y', s._y5) + '</div>' +
     '<div class="dc-section"><div class="dc-section-label">Signals</div><div class="dc-sig-list">' +
       (sig.g > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot green"></span><span class="dc-sig-count green">' + sig.g + '</span> Positive</div>' : '') +
       (sig.a > 0 ? '<div class="dc-sig-item"><span class="dc-sig-dot amber"></span><span class="dc-sig-count amber">' + sig.a + '</span> Cautionary</div>' : '') +
@@ -1395,6 +1394,7 @@ function buildFinderDiscoverCard(item) {
     '<div class="dc-section"><div class="dc-section-label">Risk flags</div>' +
       riskFlagsHtml(s) +
     '</div>' +
+    '<div class="dc-returns">' + ret('1M', s._m1) + ret('3M', s._m3) + ret('1Y', s._y1) + ret('5Y', s._y5) + '</div>' +
     '<div class="discover-nav" style="border-top:1px solid var(--border);margin-top:1.2rem;padding-top:1rem;">' +
       '<div class="dc-nav-item"><button class="dc-btn-back" onclick="finderPrevCard()" title="Back"><i data-lucide="arrow-left"></i></button><div class="dc-label">Back</div></div>' +
       '<div class="dc-nav-item"><button class="dc-btn-heart' + (hearted ? ' hearted' : '') + '" onclick="finderToggleHeart()" title="' + (hearted ? 'Remove from Saved' : 'Save this stock') + '"><i data-lucide="heart"></i></button><div class="dc-label">Save</div></div>' +

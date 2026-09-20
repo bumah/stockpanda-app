@@ -283,6 +283,9 @@ function closeToolsPopover(){
 
     <!-- Main column -->
     <div class="dash-main">
+      <!-- Risk flags (risk-first: the first thing below the price) -->
+      <div id="risk-flags-summary" style="margin-bottom:1.5rem;"></div>
+
       <div id="company-info-section"></div>
 
       <!-- Top Styles (chips, tap to learn more) -->
@@ -290,9 +293,6 @@ function closeToolsPopover(){
 
       <!-- Field Notes -->
       <div id="field-notes" style="margin-bottom:1.5rem;"></div>
-
-      <!-- Plain-English risk summary -->
-      <div id="risk-flags-summary" style="margin-bottom:1.5rem;"></div>
 
       <!-- Dig Deeper CTA (hidden: all sections revealed by default) -->
       <div id="trail-cta" style="display:none;text-align:center;padding:2rem 0 1rem;border-top:1px dashed rgba(74,222,128,0.2);margin-bottom:1rem;transition:opacity 0.3s ease;">
@@ -858,6 +858,10 @@ function renderFieldNotes() {
   }
 
   if (!notes.length) return;
+
+  // Risk-first: lead with the risk-oriented notes, then performance.
+  const NOTE_ORDER = { 'Panda Level': 0, 'Watch Out': 1, 'Recent Performance': 2, 'Trend': 3, 'Profiles that fit': 4 };
+  notes.sort((a, b) => (NOTE_ORDER[a.title] ?? 9) - (NOTE_ORDER[b.title] ?? 9));
 
   el.innerHTML = '<div class="section-label">Key Takeaways</div>' +
     '<div style="display:flex;flex-direction:column;gap:0.75rem;">' +
