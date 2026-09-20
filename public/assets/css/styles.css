@@ -992,17 +992,13 @@ button.nav-dropdown-trigger {
 .dc-sig-item { font-size: 0.68rem; color: var(--muted); display: flex; align-items: center; gap: 0.3rem; }
 .dc-sig-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 
-/* Risk flags on the stock card — named amber/red signals (risk at a glance) */
-.dc-risk-group { display: flex; gap: 0.5rem; align-items: flex-start; margin-bottom: 0.5rem; }
-.dc-risk-group:last-child { margin-bottom: 0; }
-.dc-risk-tag { flex-shrink: 0; font-family: var(--mono); font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.2rem 0.45rem; border-radius: 5px; margin-top: 0.1rem; }
-.dc-risk-tag.red { color: var(--red); background: rgba(248,113,113,0.12); }
-.dc-risk-tag.amber { color: var(--amber); background: rgba(251,191,36,0.12); }
-.dc-risk-chips { display: flex; flex-wrap: wrap; gap: 0.3rem; }
-.dc-risk-chip { font-size: 0.72rem; color: var(--text); padding: 0.2rem 0.5rem; border-radius: 6px; border: 1px solid var(--border); }
-.dc-risk-chip.red { border-color: rgba(248,113,113,0.4); }
-.dc-risk-chip.amber { border-color: rgba(251,191,36,0.4); }
-.dc-risk-none { font-size: 0.78rem; color: var(--muted); }
+/* Risk flags on the stock card — worded amber/red signal summary (risk at a glance) */
+.dc-risk-line { font-size: 0.8rem; color: var(--text); line-height: 1.55; margin: 0 0 0.4rem; }
+.dc-risk-line:last-child { margin-bottom: 0; }
+.dc-risk-lead { font-weight: 700; }
+.dc-risk-lead.red { color: var(--red); }
+.dc-risk-lead.amber { color: var(--amber); }
+.dc-risk-none { font-size: 0.8rem; color: var(--muted); }
 .dc-sig-dot.green { background: #4ADE80; }
 .dc-sig-dot.amber { background: #FBBF24; }
 .dc-sig-dot.red { background: #F87171; }

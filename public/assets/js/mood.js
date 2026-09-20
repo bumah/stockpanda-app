@@ -108,14 +108,11 @@ function riskFlagsHtml(s) {
     push(cv >= 80 ? 'green' : cv >= 50 ? 'amber' : 'red', 'Cash Conversion');
   }
   if (!reds.length && !ambers.length) return '<div class="dc-risk-none">No cautionary or warning signals.</div>';
-  var grp = function (list, cls, tag) {
-    if (!list.length) return '';
-    return '<div class="dc-risk-group"><span class="dc-risk-tag ' + cls + '">' + tag + '</span>' +
-      '<div class="dc-risk-chips">' +
-        list.map(function (l) { return '<span class="dc-risk-chip ' + cls + '">' + esc(l) + '</span>'; }).join('') +
-      '</div></div>';
-  };
-  return grp(reds, 'red', 'Warning') + grp(ambers, 'amber', 'Cautionary');
+  var joinW = function (a) { a = a.map(esc); return a.length === 1 ? a[0] : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; };
+  var out = '';
+  if (reds.length)   out += '<p class="dc-risk-line"><span class="dc-risk-lead red">' + reds.length + ' warning</span> — ' + joinW(reds) + '.</p>';
+  if (ambers.length) out += '<p class="dc-risk-line"><span class="dc-risk-lead amber">' + ambers.length + ' cautionary</span> — ' + joinW(ambers) + '.</p>';
+  return out;
 }
 
 // The 11 scoring indicators (in display order)

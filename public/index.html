@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>StockPanda — Free risk companion for stocks</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/styles.css?v=20260920a">
+<link rel="stylesheet" href="assets/css/styles.css?v=20260921a">
 <style>
 :root {
   --bg-primary: #0a0f0a;
@@ -1105,8 +1105,8 @@ footer a:hover { color: var(--green-primary); }
     <div class="rh-mark">🐼</div>
     <div class="rh-word">StockPanda</div>
     <p class="rh-tag">Free risk companion for stocks</p>
-    <h1 class="rh-h1">Know your risk.</h1>
-    <p class="rh-sub">Search any stock for a full risk breakdown.</p>
+    <h1 class="rh-h1">See the full picture.</h1>
+    <p class="rh-sub">Search any stock to see the full risk and return breakdown.</p>
 
     <div class="rh-searchwrap">
       <div class="rh-search">
@@ -1284,7 +1284,7 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 </script>
 
-<script src="assets/js/mood.js?v=20260920a"></script>
+<script src="assets/js/mood.js?v=20260921a"></script>
 <script>
 // ── Hero risk search → stock.html breakdown ──────────────────────────────
 (function(){
@@ -1302,16 +1302,22 @@ document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     res.classList.add('open');
     res.innerHTML = '<div class="rh-msg">Searching…</div>';
     timer = setTimeout(async function(){
-      var hits = await DataCache.searchAll(q);
-      if (inp.value.trim() !== q) return; // stale
-      if (!hits.length){ res.innerHTML = '<div class="rh-msg">No results found</div>'; return; }
-      firstHit = hits[0];
-      res.innerHTML = hits.slice(0, 6).map(function(s){
-        return '<a href="stock.html?ticker=' + encodeURIComponent(s.ticker) + '&country=' + encodeURIComponent(s.country || '') + '">'
-          + '<span class="rh-hit-t">' + esc(s.ticker) + '</span>'
-          + '<span class="rh-hit-c">' + esc(s.company || '') + '</span>'
-          + '<span class="rh-hit-x">' + esc(s.exchangeLabel || '') + '</span></a>';
-      }).join('');
+      try {
+        var hits = await DataCache.searchAll(q);
+        if (inp.value.trim() !== q) return; // stale
+        if (!hits.length){ res.innerHTML = '<div class="rh-msg">No results found</div>'; return; }
+        firstHit = hits[0];
+        res.innerHTML = hits.slice(0, 6).map(function(s){
+          return '<a href="stock.html?ticker=' + encodeURIComponent(s.ticker) + '&country=' + encodeURIComponent(s.country || '') + '">'
+            + '<span class="rh-hit-t">' + esc(s.ticker) + '</span>'
+            + '<span class="rh-hit-c">' + esc(s.company || '') + '</span>'
+            + '<span class="rh-hit-x">' + esc(s.exchangeLabel || '') + '</span></a>';
+        }).join('');
+      } catch (err) {
+        if (inp.value.trim() !== q) return;
+        res.innerHTML = '<div class="rh-msg">Something went wrong. Please try again.</div>';
+        if (window.console) console.error('hero search failed', err);
+      }
     }, 200);
   });
   function submit(){ if (firstHit) route(firstHit); else if (inp.value.trim()) location.href = 'stocks.html'; }
