@@ -93,25 +93,43 @@ const IND_META = {
 /* ── Risk-at-a-glance: names the cautionary (amber) + warning (red) signals for a
    stock card. Mirrors _countSignals (finder-engine.js) so the list matches the
    Signals counts, including the 3 financial signals beyond the 11 indicators. */
+var PLAIN_RISK = {
+  volatility: 'big price swings',
+  volSpike:   'unusual trading activity',
+  vsPeak:     'trading well below its high',
+  shortTrend: 'a weak short-term trend',
+  longTrend:  'a weak long-term trend',
+  maCross:    'a weak trend signal',
+  momentum:   'soft momentum',
+  return1M:   'a weak month',
+  return1Y:   'a weak year',
+  range52W:   'sitting near its 52-week low',
+  cagr5Y:     'modest long-term growth',
+  _dte:       'high debt',
+  _fcf:       'negative cash flow',
+  _cvt:       'weak cash conversion'
+};
+
 function riskFlagsHtml(s) {
   if (!s) return '';
   var ind = s.indicators || {};
   var reds = [], ambers = [];
-  var push = function (c, label) { if (c === 'red') reds.push(label); else if (c === 'amber') ambers.push(label); };
+  var push = function (c, phrase) { if (c === 'red') reds.push(phrase); else if (c === 'amber') ambers.push(phrase); };
   ['volatility','volSpike','vsPeak','shortTrend','longTrend','maCross','momentum','return1M','return1Y','range52W','cagr5Y'].forEach(function (k) {
-    push(ind[k] && ind[k].color, (IND_META[k] || {}).label || k);
+    push(ind[k] && ind[k].color, PLAIN_RISK[k]);
   });
-  if (s._dte != null) push(s._dte < 100 ? 'green' : s._dte < 200 ? 'amber' : 'red', 'Debt Load');
-  if (s._fcf != null) push(s._fcf > 0 ? 'green' : 'red', 'Cash Generation');
+  if (s._dte != null) push(s._dte < 100 ? 'green' : s._dte < 200 ? 'amber' : 'red', PLAIN_RISK._dte);
+  if (s._fcf != null) push(s._fcf > 0 ? 'green' : 'red', PLAIN_RISK._fcf);
   if (s._fcf != null && s._ni != null && s._ni > 0) {
     var cv = (s._fcf / s._ni) * 100;
-    push(cv >= 80 ? 'green' : cv >= 50 ? 'amber' : 'red', 'Cash Conversion');
+    push(cv >= 80 ? 'green' : cv >= 50 ? 'amber' : 'red', PLAIN_RISK._cvt);
   }
-  if (!reds.length && !ambers.length) return '<div class="dc-risk-none">No cautionary or warning signals.</div>';
+  if (!reds.length && !ambers.length) return '<div class="dc-risk-none">No warning or cautionary signals.</div>';
+  var cap = function (t) { return t.charAt(0).toUpperCase() + t.slice(1); };
   var joinW = function (a) { a = a.map(esc); return a.length === 1 ? a[0] : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; };
   var out = '';
-  if (reds.length)   out += '<p class="dc-risk-line"><span class="dc-risk-lead red">' + reds.length + ' warning</span> — ' + joinW(reds) + '.</p>';
-  if (ambers.length) out += '<p class="dc-risk-line"><span class="dc-risk-lead amber">' + ambers.length + ' cautionary</span> — ' + joinW(ambers) + '.</p>';
+  if (reds.length)   out += '<p class="dc-risk-line"><span class="dc-risk-lead red">Warning</span> — ' + cap(joinW(reds)) + '.</p>';
+  if (ambers.length) out += '<p class="dc-risk-line"><span class="dc-risk-lead amber">Cautionary</span> — ' + cap(joinW(ambers)) + '.</p>';
   return out;
 }
 
